@@ -48,13 +48,12 @@
     }
 
     /* ── PROFILE ── */
-    .profile {
-      display: flex;
-      align-items: flex-start;
-      gap: 28px;
-      margin-bottom: 24px;
-      animation: fadeSlideUp 0.8s 0.1s cubic-bezier(0.22,1,0.36,1) both;
-    }
+.profile {
+  display: flex;
+  flex-direction: column;  /* stack vertically */
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
     .avatar-wrap { flex-shrink: 0; }
 
@@ -64,7 +63,7 @@
       border-radius: 16px;
       object-fit: cover;
       display: block;
-      border: 2px solid var(--border);
+      border: none;
       background: var(--surface2);
     }
 
@@ -145,7 +144,7 @@
     .btn-bluesky  { background: #0085ff; color: #fff; }
     .btn-mastodon { background: #6364ff; color: #fff; }
     .btn-threads  { background: #1c1c1c; color: #fff; }
-    .btn-twitter  { background: #1d9bf0; color: #fff; }
+    .btn-twitter  { background: #000000; color: #fff; }
     .btn-reddit   { background: #ff4500; color: #fff; }
     .btn-email    { background: #c0392b; color: #fff; }
     .btn-youtube { background: #ff0000; color: #fff; }
@@ -160,7 +159,7 @@
 
     /* ── SECTION LABEL ── */
     .section-label {
-      font-size: 0.72rem;
+      font-size: 0.8rem;
       font-weight: 600;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -258,7 +257,7 @@
 <div class="container">
 
   <!-- HEADING -->
-  <h1 class="site-title">respirable</h1>
+  <h1 class="site-title">about me</h1>
 
   <!-- PROFILE -->
   <div class="profile">
@@ -280,27 +279,27 @@
 
     <a href="https://github.com/respirable" class="social-btn btn-github" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-      github (i only use this every year or two)
+      github
     </a>
 
     <a href="https://reddit.com/u/totally-a-randomname" class="social-btn btn-reddit" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
-      reddit (i don't use this often)
+      reddit
     </a>
 
     <a href="mailto:cab345127@gmail.com" class="social-btn btn-email">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-      contact e-mail (i might not reply)
+      contact e-mail
     </a>
 
        <a href="https://twitter.com/terribledom" class="social-btn btn-twitter" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.84L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      twitter (maybe i'll use this?)
+      twitter
     </a>
 
         <a href="https://youtube.com/@respirable" class="social-btn btn-youtube" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-      youtube (i still reply to comments)
+      youtube
     </a>
   </div>
 
@@ -309,7 +308,7 @@
   <!-- ANTHOLOGY BUTTON -->
   <div class="anthology-section">
     <div class="section-label">my "literary" works</div>
-          <p>i'm currently writing an anthology about myself, in the form of Geometry Dash characters. when it's done, the button below shouldn't be gray. it tells me a lot about my life, but a lot of details are fictional, and i couldn't be bothered to tell you which detail is real which isn't.</p>
+          <p>i'm currently writing an anthology of short stories about myself, in the form of Geometry Dash characters. when it's done, the button below shouldn't be gray. it tells me a lot about my life, but a lot of details are fictional, and i couldn't be bothered to tell you which detail is real which isn't.</p>
     <button class="btn-anthology" disabled aria-disabled="true">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -337,7 +336,77 @@ Most of the time, no. I couldn't be bothered to pay 2+ dollars a month for Crunc
       </div>
     </div>
   </div>
+      <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+        What games do you play?
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+Yu-Gi-Oh Master Duel & Geometry Dash. I don't play any other games because I was born with potato devices.
+      </div>
+    </div>
+  </div>
 
+  <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+        Can you do [whatever feature] in WWTBAM HTML5?
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+My programming skills are subpar. Could you try asking someone else?
+      </div>
+    </div>
+  </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+        I need some personal information about you.
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+I was born on August 24th, I'm Vietnamese, and I'm 5'5 (166 cm). I was born with autism (maybe?), and I don't believe that astrological signs determine my personality. That's all you're getting from me.
+      </div>
+    </div>
+  </div>
+
+      <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+       Favorite quote?
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+"Creator of nothing, owner of nowhere" - I made it myself. You never said it has to be from someone popular.
+      </div>
+    </div>
+  </div>
+
+        <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+       I have other questions about you, (and would like you to [insert some kind of activity here]).
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+1. Look at the social links at the top of the page
+2. Similar to programming, you should try contacting someone else. Like I said before, I'm a jack-of-no-trades, master of none.
+      </div>
+    </div>
+  </div>
+  
 </div>
 
 <script>
