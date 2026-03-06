@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Làm giàu sớm — Anthology</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #f6f8fa;
+      --surface2: #eaeef2;
+      --accent: #0969da;
+      --text: #1F2328;
+      --muted: #656d76;
+      --border: #d0d7de;
+    }
+
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    /* ── BACK LINK ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    /* ── STORY HEADER ── */
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #1F2328;
+      margin-bottom: 16px;
+    }
+
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 36px 0;
+    }
+
+    /* ── STORY BODY ── */
+    .story-body {
+      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .story-body p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .story-body p:last-child { margin-bottom: 0; }
+
+    /* dialogue / quoted lines */
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 4px 0 4px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+    }
+
+    /* inline character name */
+    .speaker {
+      font-weight: 700;
+      font-style: normal;
+      color: var(--text);
+    }
+
+    /* section break */
+    .scene-break {
+      text-align: center;
+      color: var(--muted);
+      margin: 36px 0;
+      letter-spacing: 0.3em;
+      font-size: 0.85rem;
+      user-select: none;
+    }
+
+    /* ── STORY NAV ── */
+    .story-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 60px;
+      animation: fadeSlideUp 0.8s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: not-allowed;
+      opacity: 0.5;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .nav-btn.active {
+      cursor: pointer;
+      opacity: 1;
+      color: var(--text);
+    }
+
+    .nav-btn.active:hover {
+      background: var(--surface2);
+      border-color: #b0b8c1;
+    }
+
+    .nav-btn .nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn .nav-title {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav-btn-inner { display: flex; flex-direction: column; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- BACK LINK -->
+  <a href="/anthology" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Anthology
+  </a>
+
+  <!-- STORY HEADER -->
+  <div class="story-header">
+    <div class="story-meta">
+      <span class="story-part-badge">Part 1</span>
+      <span class="story-number">Story 5</span>
+    </div>
+    <h1 class="story-title">Tôi có thể giúp gì không?</h1>
+    <p class="story-subtitle">Hãy tưởng tượng việc bạn vào một cửa hàng để chạm vào... xương đòn của chủ quán.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STORY BODY -->
+  <div class="story-body">
+<p>Một đứa trẻ khoảng mười tuổi bước vào cửa hàng của Scratch. Nó chạm vào người Scratch, cụ thể là ở xương đòn của anh ta. Scratch không phản ứng gì cả. Đứa trẻ cứ chạm vào xương đòn của Scratch, nhưng Scratch vẫn đứng đó. Nó chạm vào kệ bày hàng của Scratch.</p>
+
+<blockquote>
+  <span class="speaker">SCRATCH:</span> "Chú có thể giúp gì cho cháu không?"<br><br>
+  Đứa trẻ thấy Scratch trả lời, nó tiếp tục chạm vào ngực Scratch.<br><br>
+  <span class="speaker">SCRATCH:</span> "Thật đấy, chú có thể giúp gì cho cháu không?"<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "Sao chú chưa hoá thành quỷ vậy?"<br><br>
+  <span class="speaker">SCRATCH:</span> "Quỷ? Cháu đang nói gì vậy?"<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "Cháu nhớ có cái cửa hàng gì mà cháu cứ chạm vào ngực của chú bán hàng suốt, chú biến thành quỷ, xong rồi đuổi cháu ra khỏi cửa hàng luôn ấy! Cháu sợ quá, không biết chú có bị như vậy không."<br><br>
+  <span class="speaker">SCRATCH:</span> "À! The Shopkeeper! Có mỗi ông ấy bị thế thôi! Cháu yên tâm đi. Chú không bị hắc ám đâu."<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "Sao chú biết là chú không bị quỷ ám?"<br><br>
+  <span class="speaker">SCRATCH:</span> "Vì… chú chưa từng gặp quỷ? Với lại, từ xưa đến nay, chú cũng chưa có dấu hiệu bị quỷ ám."<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "Thế sao The Shopkeeper lại bị quỷ ám được, nếu người ta cứ bảo quỷ không tồn tại?"<br><br>
+  <span class="speaker">SCRATCH:</span> "Chú cũng không biết được. Lúc chú hỏi thăm thì con quỷ nó hiện hồn bảo 'Có những thứ sẽ tốt hơn khi để yên'. Từ đó chú hãi quá, chẳng dám hỏi nữa. Lỡ đâu ông ấy cầm lưỡi hái giết chú thì…"<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "À… Ra là vậy."<br><br>
+  <span class="speaker">SCRATCH:</span> "Vậy cháu có muốn mua gì không nào?"<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "Dạ, cháu muốn mua con Spider này ạ." <em>(Chỉ tay vào con Spider đắt nhất cửa hàng của Scratch.)</em>
+</blockquote>
+
+<p>Con Spider này có khả năng tự di chuyển chân khi nhận biết mình đang được di chuyển, và có khả năng nảy thẳng lên trời nếu nhấn nút ở dưới hông. Tuy nhiên, nếu bị mái nhà hoặc vật gì đó chắn đường, nó sẽ dừng lại ở đó.</p>
+
+<blockquote>
+  <span class="speaker">SCRATCH:</span> "7000 Orbs, cháu ơi."<br><br>
+  Đứa trẻ trả đủ 7000 Orbs. Nó định nhấn nút ở phần dưới Spider.<br><br>
+  <span class="speaker">SCRATCH:</span> "Từ từ cháu ơi. Đừng nhấn nút đấy vội…"<br><br>
+  Đứa trẻ chưa nghe hết đã nhấn nút. <strong>BỤP!</strong> Spider ngay lập tức nảy lên trần nhà.<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "Chú biết cách nào để nó trèo xuống không?"<br><br>
+  <span class="speaker">SCRATCH:</span> "Cháu phải nhấn lại cái nút đấy. Vấn đề là… chú không có thang. Nên là ca này chú bó tay nhé."
+</blockquote>
+
+<p>Đứa trẻ kiếm được cái thang của nhà hàng xóm, và nhờ Scratch lấy Spider hộ, do đứa trẻ sợ độ cao.</p>
+
+<blockquote>
+  <span class="speaker">SCRATCH:</span> "Đây, của cháu đây. Cháu nhớ là không làm vậy ở ngoài trời nhé. Con Spider sẽ không trở về với cháu đâu."<br><br>
+  <span class="speaker">ĐỨA TRẺ:</span> "Vâng ạ! Cháu cảm ơn chú!"
+</blockquote>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PREV / NEXT NAV -->
+  <div class="story-nav">
+    <a href="/anthology/4" class="nav-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <div class="nav-btn-inner">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">Vua trốn trại</span>
+      </div>
+    </a>
+
+    <a href="/anthology/6" class="nav-btn active">
+      <div class="nav-btn-inner" style="text-align:right;">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Buổi đêm</span>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
