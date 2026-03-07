@@ -93,7 +93,7 @@
       margin-bottom: 16px;
     }
 
-    /* ── IMAGE IN STORY ── */
+/* ── IMAGE IN STORY ── */
 .story-image {
   text-align: center;
   margin: 36px 0;
@@ -409,6 +409,7 @@ ol li, ul li {
   <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <img id="lightbox-img" src="" alt="" />
 </div>
+  
   <script>
 function openLightbox(img) {
   const lightbox = document.getElementById('lightbox');
@@ -421,13 +422,13 @@ function openLightbox(img) {
 }
 
 function closeLightbox(e) {
+  // only close if clicking the dark background, not the image itself
   if (e.target.id === 'lightbox') {
     document.getElementById('lightbox').classList.remove('open');
     document.body.style.overflow = '';
   }
 }
 
-// zoom with scroll wheel
 document.getElementById('lightbox-img').addEventListener('wheel', (e) => {
   e.preventDefault();
   const img = e.currentTarget;
@@ -436,7 +437,6 @@ document.getElementById('lightbox-img').addEventListener('wheel', (e) => {
   img.style.transform = `scale(${next})`;
 });
 
-// close with Escape key
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     document.getElementById('lightbox').classList.remove('open');
