@@ -405,6 +405,10 @@ ol li, ul li {
   </div>
 
 </div>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <img id="lightbox-img" src="" alt="" />
+</div>
   <script>
 function openLightbox(img) {
   const lightbox = document.getElementById('lightbox');
@@ -417,7 +421,6 @@ function openLightbox(img) {
 }
 
 function closeLightbox(e) {
-  // only close if clicking the dark background, not the image itself
   if (e.target.id === 'lightbox') {
     document.getElementById('lightbox').classList.remove('open');
     document.body.style.overflow = '';
