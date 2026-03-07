@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anthology</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #f6f8fa;
+      --surface2: #eaeef2;
+      --accent: #0969da;
+      --text: #1F2328;
+      --muted: #656d76;
+      --border: #d0d7de;
+    }
+
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    /* ── BACK LINK ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    /* ── STORY HEADER ── */
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #1F2328;
+      margin-bottom: 16px;
+    }
+
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 36px 0;
+    }
+
+    /* ── STORY BODY ── */
+    .story-body {
+      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .story-body p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .story-body p:last-child { margin-bottom: 0; }
+
+    /* dialogue / quoted lines */
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 4px 0 4px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+    }
+
+    blockquote.document-excerpt {
+  background: var(--surface);
+  border-left: 3px solid var(--border);
+  padding: 16px 20px;
+  font-style: normal;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+blockquote.document-excerpt footer {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+    ol, ul {
+  padding-left: 24px;
+  margin: 0 0 24px 0;
+  color: var(--text);
+  line-height: 1.85;
+}
+
+ol li, ul li {
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+    /* inline character name */
+    .speaker {
+      font-weight: 700;
+      font-style: normal;
+      color: var(--text);
+    }
+
+    /* section break */
+    .scene-break {
+      text-align: center;
+      color: var(--muted);
+      margin: 36px 0;
+      letter-spacing: 0.3em;
+      font-size: 0.85rem;
+      user-select: none;
+    }
+
+    /* ── STORY NAV ── */
+    .story-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 60px;
+      animation: fadeSlideUp 0.8s 0.2s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: not-allowed;
+      opacity: 0.5;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .nav-btn.active {
+      cursor: pointer;
+      opacity: 1;
+      color: var(--text);
+    }
+
+    .nav-btn.active:hover {
+      background: var(--surface2);
+      border-color: #b0b8c1;
+    }
+
+    .nav-btn .nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn .nav-title {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav-btn-inner { display: flex; flex-direction: column; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- BACK LINK -->
+  <a href="/anthology" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    anthology
+  </a>
+
+  <!-- STORY HEADER -->
+  <div class="story-header">
+    <div class="story-meta">
+      <span class="story-part-badge">Part 1</span>
+      <span class="story-number">Story 8</span>
+    </div>
+    <h1 class="story-title">Một hình ảnh đáng giá một nghìn từ</h1>
+    <p class="story-subtitle">Đó là một câu nói thể hiện sự vượt trội của hình ảnh của việc miêu tả so với từ ngữ. Nhưng có phải cái nào cũng đáng giá một nghìn từ?</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STORY BODY -->
+  <div class="story-body">
+<p>Primera sang nhà Scratch để nghiên cứu một món đồ mới cho cửa hàng của Scratch: <em>Cycles' Ball — Quả bóng Cycles.</em> Nó có chức năng "bay phản trọng lực" dính lên trần nhà, hoặc bay thẳng lên không trung nếu không có trần nhà thông qua điều khiển từ xa, và di chuyển trái phải ngay cả khi đang phản trọng lực trên trần nhà. Sau ba tiếng thử nghiệm, quả bóng có vẻ sắp được hoàn thiện. Họ quyết định sẽ sửa những lỗi nhỏ vào ngày mai. Trước khi Primera về nhà sau một buổi thử nghiệm Quả bóng Cycles với Scratch, anh bỗng thấy được chân dung của Scratch như hình.</p>
+
+<figure class="story-image">
+  <img src="portrait.png" alt="Chân dung của Scratch" onclick="openLightbox(this)" />
+  <figcaption>Chân dung của Scratch</figcaption>
+</figure>
+
+<blockquote>
+  <span class="speaker">PRIMERA:</span> "Ông nhìn… khá là thú vị đấy. Tại sao ông lại không cười hay để mặt trung lập trong chân dung của ông vậy, mà lại nhìn xuống dưới?"<br><br>
+  <span class="speaker">SCRATCH:</span> "Tôi nghĩ tôi sẽ nhìn xấu hơn nếu để như vậy."<br><br>
+  <span class="speaker">PRIMERA:</span> "Nó làm tôi nhớ tới mấy cái quán photo, in ảnh giờ đây dùng ChatGPT để làm ảnh thẻ học sinh. Tôi nhìn vậy cũng thấy hơi quan ngại, vì tôi sợ kĩ năng chỉnh sửa ảnh sẽ tích bụi và hao mòn, thay thế bằng kĩ năng viết lệnh sửa ảnh. Họ sẽ chỉ nghĩ tới việc dùng mấy con chatbot để làm việc thay mình…"<br><br>
+  <span class="speaker">SCRATCH:</span> "Tôi không nghĩ trí tuệ nhân tạo giỏi đến thế đâu. Hay là thế này: Cho chân dung trên của tôi vào một con chatbot, để con bot đấy miêu tả, sau đó nhờ con bot tạo ảnh thông qua cái miêu tả đó?"<br><br>
+  <span class="speaker">PRIMERA:</span> "Ý hay! Mặc dù nó hơi khác ý tưởng của tôi một chút, tại sao không thử nhỉ?"
+</blockquote>
+
+<p>Scratch lập tức mở Gemini trên điện thoại iPhone 14 Pro Max…</p>
+
+<blockquote>
+  <span class="speaker">PRIMERA:</span> "Khoan… ông là người dùng iPhone à?"<br><br>
+  <span class="speaker">SCRATCH:</span> "Đúng vậy. iPhone muôn năm!"<br><br>
+  <span class="speaker">PRIMERA:</span> "Sai! Samsung mới là hãng điện thoại tốt hơn!"
+</blockquote>
+
+<p>…và nhờ Gemini mô tả chân dung của mình.</p>
+
+<p>Gemini cho kết quả:</p>
+
+<blockquote class="document-excerpt">
+  <p>A blocky, stylized robot character from the game Geometry Dash, characterized by its teal and cyan color palette and thick black outlines. The robot's design is defined by a rectangular head and torso that interlock vertically like puzzle pieces, giving it a unique mechanical aesthetic. It has two large, circular black eyes with small, glowing cyan pupils that provide a curious or neutral expression, while its small, blocky arms at the bottom make it appear as though it is peering over a ledge. The entire figure is set against a simple, grainy grey background, maintaining the clean, vector-based art style typical of the game's icon kits.</p>
+</blockquote>
+
+<p>Scratch thấy rằng Gemini mô tả rất rộng. Anh cho rằng "một hình ảnh đáng giá một nghìn chữ thật".</p>
+
+<p>Sau đó, Scratch yêu cầu Gemini tạo một bức ảnh có nội dung y hệt. Kết quả thì lại khác với ảnh gốc ở rất nhiều chỗ.</p>
+
+<figure class="story-image">
+  <img src="result.png" alt="Hình ảnh Gemini tạo ra" onclick="openLightbox(this)" />
+  <figcaption>Hình ảnh Gemini tạo ra</figcaption>
+</figure>
+
+<blockquote>
+  <span class="speaker">SCRATCH:</span> "Hmm… Ảnh này khiến cho tôi nhìn như trẻ con vậy. Ông thấy đấy. Chatbot chưa thay thế mấy ông anh ở quán photo được đâu. Nó còn không giữ nguyên được những chi tiết của chân dung gốc. Cái bức ảnh gốc đáng một nghìn chữ, còn cái này thì… hai trăm chữ kịch khung."<br><br>
+  <span class="speaker">PRIMERA:</span> "Đấy là vì miêu tả của Gemini chưa đủ một nghìn chữ thôi."
+</blockquote>
+
+<p><em>Khán giả cười.</em></p>
+
+<blockquote>
+  <span class="speaker">SCRATCH:</span> "Khoan. Đây là lần thứ hai cái tiếng khán giả cười xuất hiện rồi đấy!"<br><br>
+  <span class="speaker">PRIMERA:</span> "Ông vẫn còn nhớ cái lần hai ta ngủ trên mái nhà rồi ông tưởng đó là sân khấu chứ gì?"<br><br>
+  <span class="speaker">SCRATCH:</span> "Đúng. Tôi nghĩ là chúng ta đang sống trong một sân khấu. Mà nếu vậy, thì hẳn cái 'tôi' mà đang nói chuyện với ông này là một ánh trăng lừa dối, và phiên bản thật của tôi đang ở một nơi khác."<br><br>
+  <span class="speaker">PRIMERA:</span> "Ông lo toan quá đấy. Thôi, tôi về trước đây. Ông tự xử lý cái tiếng cười đấy nhé."<br><br>
+  <span class="speaker">SCRATCH:</span> "Ừ. Chào ông…"
+</blockquote>
+
+<p><em>Scratch nhìn quanh.</em></p>
+
+<blockquote>
+  <span class="speaker">SCRATCH:</span> "Nếu đây không phải một vở diễn, thì nó là gì mà lại có tiếng khán giả cười vậy?"
+</blockquote>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PREV / NEXT NAV -->
+  <div class="story-nav">
+    <a href="/anthology/7" class="nav-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <div class="nav-btn-inner">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">Người thứ ba</span>
+      </div>
+    </a>
+
+    <a href="/anthology/9" class="nav-btn active">
+      <div class="nav-btn-inner" style="text-align:right;">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Hút cạn kĩ năng</span>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
