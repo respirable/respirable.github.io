@@ -93,6 +93,54 @@
       margin-bottom: 16px;
     }
 
+    /* ── IMAGE IN STORY ── */
+.story-image {
+  text-align: center;
+  margin: 36px 0;
+}
+
+.story-image img {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  cursor: zoom-in;
+  transition: opacity 0.15s;
+}
+
+.story-image img:hover { opacity: 0.9; }
+
+.story-image figcaption {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── LIGHTBOX ── */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  cursor: zoom-out;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox.open {
+  display: flex;
+}
+
+.lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  cursor: default;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+
     .story-subtitle {
       font-size: 0.95rem;
       color: var(--muted);
@@ -357,5 +405,41 @@ ol li, ul li {
   </div>
 
 </div>
+  <script>
+function openLightbox(img) {
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  lbImg.src = img.src;
+  lbImg.alt = img.alt;
+  lbImg.style.transform = 'scale(1)';
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  // only close if clicking the dark background, not the image itself
+  if (e.target.id === 'lightbox') {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+// zoom with scroll wheel
+document.getElementById('lightbox-img').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const img = e.currentTarget;
+  const current = parseFloat(img.style.transform.replace('scale(', '')) || 1;
+  const next = Math.min(Math.max(current - e.deltaY * 0.002, 0.5), 4);
+  img.style.transform = `scale(${next})`;
+});
+
+// close with Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+</script>
 </body>
 </html>
