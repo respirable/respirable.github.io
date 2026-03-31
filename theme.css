@@ -1,0 +1,81 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --surface2: #eaeef2;
+  --accent: #0969da;
+  --text: #1F2328;
+  --muted: #656d76;
+  --border: #d0d7de;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --surface: #10141b;
+  --surface2: #161b22;
+  --accent: #2f81f7;
+  --text: #e6edf3;
+  --muted: #848d97;
+  --border: #30363d;
+}
+
+body {
+  transition: background var(--transition), color var(--transition);
+}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle-wrap {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+  animation: fadeSlideDown 0.8s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.theme-toggle {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.theme-toggle:hover {
+  background: var(--surface2);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] .sun-icon { display: none; }
+html:not([data-theme="dark"]) .moon-icon { display: none; }
+
+[data-theme="dark"] .theme-toggle svg {
+  transform: rotate(360deg);
+}
+
+/* Fix for existing FAQ/Story components in dark mode */
+.faq-answer, .btn-story, .nav-btn, .faq-question {
+  background: var(--surface) !important;
+}
+
+.faq-answer-inner, .btn-story, .nav-btn, .faq-question {
+  color: var(--text) !important;
+}
+
+.site-title, .story-title {
+  color: var(--text) !important;
+}
