@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nhà có khách Phần 2 — Anthology</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 12px 0 12px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      background: rgba(0,0,0,0.02);
+      border-radius: 4px;
+    }
+    .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; }
+    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
+    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
+    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .nav-btn-inner { display: flex; flex-direction: column; }
+
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="theme-toggle-wrap">
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+<div class="container">
+  <a href="/anthology" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    anthology
+  </a>
+  <div class="story-header">
+    <div class="story-meta">
+      <span class="story-part-badge">Part 1</span>
+      <span class="story-number">Story 15</span>
+    </div>
+    <h1 class="story-title">Nhà có khách Phần 2</h1>
+    <p class="story-subtitle">[…] Primera hỏi đứa vừa dậy thì mới nhận ra có vài đứa đã ở trên tầng 4 ăn sáng rồi. Cũng vẫn là bánh mì, nhưng lần này thì có đầy đủ rau, thịt hơn.</p>
+  </div>
+  <div class="divider"></div>
+  <div class="story-body">
+    <p>[…] Primera hỏi đứa vừa dậy thì mới nhận ra có vài đứa đã ở trên tầng 4 ăn sáng rồi. Cũng vẫn là bánh mì, nhưng lần này thì có đầy đủ rau, thịt hơn.</p>
+<p>Ăn sáng xong, mọi người lên xe để đến khu vui chơi lớn nhất nhì tỉnh Aramasa: Parametalfoes’ Adventures. Ở đó, họ chơi đủ trò chơi từ A đến Z. Có nhà ma, có xích đu nghiêng 90 độ, có tàu lượn siêu tốc. Primera thì chơi hai cái cuối, vì nhà ma là cái trò tốn tiền nhất khu vui chơi này.</p>
+<p>Một đứa bạn của Primera thậm chí còn khóc trong khi chơi tàu lượn siêu tốc. Hẳn vì sợ sẽ ngã, mặc dù có đồ bảo hộ và thắt dây an toàn. Còn Primera thì nhắm mắt, và giảm được đáng kể nỗi sợ của anh. Tuy vậy, anh vẫn có một cảm giác cơ thể mình đang bị “lật ngược lại” và có thể rơi vào bụi cây bất cứ lúc nào.</p>
+<p>Đến cái xích đu nghiêng 90 độ kia, khi đã nghiêng tầm 65 độ, anh thấy hãi muốn chết vì sợ rằng người mình cũng sẽ thật sự bị “lật ngược lại” như trước kia. May quá người ta biết điểm dừng và cũng không cho xích đu kia nghiêng hẳn 90 độ, nên là Primera “thoát chết”.</p>
+<p>Chơi xong, Primera tìm được Vendrill và một đứa nữa trong lớp, và họ đi bộ đến quán kem gần đó để giải nhiệt cơ thể.</p>
+<p>Còn nhiều trò chơi khác mà Primera cũng chơi trong buổi sáng, nhiều đến mức nó có thể thành tiểu thuyết của riêng nó, và sẽ làm cho truyện ngắn này thành truyện dài.</p>
+<p>Scratch thì chỉ chơi thêm một cái đu quay khác trong khu vui chơi. Ít ra nó không đáng sợ bằng cái tàu lượn kia… Sau đó, anh ngồi với mấy phụ huynh của các bạn trong lớp. Phụ huynh hỏi han về đời sống của Scratch và Primera. Không ai trong số họ có quan hệ gì về anh, bố mẹ anh, hay ông bà anh cả.</p>
+<p>Scratch cho rằng mình sinh ra trong một gia đình bình thường thôi. Nhà ở thì cũng ở dạng bình thường. Xưa anh hay xem các chương trình truyền hình, đặc biệt là gameshows, và có ước mơ là diễn viên. Tuy nhiên, trường cấp 3 toàn định hướng cho anh những nghề khác, và trên chặng đường đại học cũng có nhiều chông gai với Triết học Mác Lênin và những lần đóng vai diễn không thành. Nếu không vì cái lời đề nghị hợp tác bán icon Geometry Dash đấy, chắc anh vẫn sẽ cố nuốt thêm hai năm đại học cuối để đi làm diễn viên phim tiếp.</p>
+<p>12 giờ kém, cả lớp và Scratch lại lên xe khách và đến một nhà hàng nữa. Giống y hệt hôm qua, Primera ngồi cùng bàn với Scratch, và lần này anh không nói dù chỉ một câu luôn. Anh ngồi đúng chỗ có đĩa cơm, nên chỉ có việc múc ra bát và gắp thịt vào ăn.</p>
+<p>2 giờ chiều, cả lớp tới công viên nước trong khu vui chơi và tiếp tục chơi đủ trò ở đó. Để mà kể hết ra thì chắc cũng sẽ phải ngồi chung giàn với những trò chơi sáng nay: cũng rất nhiều, và dài nữa. Scratch thì là robot không có kháng nước, nên vào đấy chơi thì coi như anh ra đi mãi mãi.</p>
+<p>5 giờ hơn, Primera đang ngồi thư giãn trên “bể lười”, bể bơi to hình bánh donut ? có khả năng chuyển động theo vòng tròn cùng với một đứa khác trong lớp. Anh mới nghĩ ra ý tưởng đi ngược chiều bằng cách cố gắng chạy nhanh trong nước, nhưng dòng nước cũng đã cuốn anh theo một hướng nhất định rồi, và ý tưởng chẳng thành.</p>
+<p>Đến gần 7 giờ tối, cả lớp trở về villa để ăn tối, sau đó mặc đẹp để chuẩn bị đi ra biển. Ai ai cũng có trang phục đẹp, chỉn chu, và trang trọng. Còn Primera thì chỉ là một hình lập phương. Nhìn rất là khác thường. Mọi người định chê anh nhìn như dân thường, nhưng họ có các thứ khác để lo, nên cũng không bàn về cái đấy.</p>
+<p>Ngay khi đến bãi biển, việc đầu tiên họ làm là… tìm chỗ để chụp ảnh cho ngầu. Còn Primera thì… nằm trên tấm thảm mà các bác phụ huynh đã tìm được.</p>
+<p>Mỗi người giờ đang một nơi để tìm chỗ đẹp chụp ảnh, có mỗi vài ba đứa nằm trên thảm xem điện thoại vì… chán. Đến khi Scratch cũng nằm cùng, Atrii mới nhận ra rằng mình đang nằm cạnh một người bán icon. Thấy vậy, Atrii liền bảo mọi người tụ lại để Scratch kể chuyện đời sống của mình với Primera.</p>
+<p>Hội nhóm kia thì cũng đã chụp ảnh xong, nên tội gì mà không vào hóng.</p>
+<blockquote><span class="speaker">ATRII:</span> "Cho những ai chưa biết, đây là Scratch. Ông này bán icon cho Geometry Dash…"<br><br><span class="speaker">CHIMEREA:</span> "IS THAT A GD REFERENCE…"<br><br><span class="speaker">ATRII:</span> "Trật tự nào, Chimerea! Như tao vừa nói, ông này bán icon cho Geometry Dash, và cũng là người sống ngay cạnh nhà Primera. Hai ông này có vẻ như sống rất gần gũi với nhau, và cũng hay giữ bí mật của nhau, nên tao mới đồng ý cho ông này đi chơi với lớp cùng. Giờ thì Scratch có thể kể tí chuyện của Primera được không?"<br><br><span class="speaker">SCRATCH:</span> "Được thôi, miễn là Primera đồng ý."<br><br><span class="speaker">PRIMERA:</span> "…Eh, tại sao không nhỉ?"<br><br><span class="speaker">SCRATCH:</span> "OK. Để xem chúng ta nên bắt đầu từ đâu nào… Hmm… Tôi sẽ nói chuyện đầu năm trước nhỉ? Suy nghĩ truyện để kể À! Đây! Các em có nhớ cái hội trại Tết đầu năm nay không?"<br><br><span class="speaker">CẢ LỚP:</span> "Có! Có việc gì à?"<br><br><span class="speaker">SCRATCH:</span> "Sự thật là… Primera đã trốn trại trong suốt hơn 20 ngày chuẩn bị đó. Có ai để ý chuyện đó không?"</blockquote>
+<p>Cả lớp không thấy phản ứng gì cả. Chắc vì mọi người cho đó là điều bình thường.</p>
+<blockquote><span class="speaker">SCRATCH:</span> "OK. Có thể cái đó mọi người không quan tâm lắm. Nhưng có cái này tôi biết là sẽ có người biết. Primera với tôi đang làm một dự án “khịa tác phẩm văn học”."</blockquote>
+<p>Cả lớp giờ mới hứng thú và chú ý.</p>
+<blockquote><span class="speaker">SCRATCH:</span> "Cụ thể là, Primera đã có ý định chỉ trích các tác phẩm văn học trong thầm lặng. Không để lên án cách dạy văn hiện nay, mà để… đọc trong thời gian rảnh, và để mình giải toả cảm xúc. Ông khịa nhiều tác phẩm lắm. Của Trần Đăng Khoa, Nguyễn Trãi, Tố Hữu, Hồ Chí Minh, Ernest Hemingway, ai ông cũng khịa."</blockquote>
+<p>Cả lớp nghe thấy thú vị, muốn đọc thử một bản, vì anh là người thứ hai trong lớp đi ngược tư tưởng với thầy Cóc dạy văn lớp họ. Tiếc là Primera không cầm cuốn sách đó với mình.</p>
+<blockquote><span class="speaker">SCRATCH:</span> "Có gì các em tự tìm hiểu thêm về cái đó. À, một câu chuyện nữa. Các em có biết rằng Primera đang giữ tri thức của cả thành phố không?"</blockquote>
+<p>Cả lớp không tin, vì nhìn Primera đần quá.</p>
+<blockquote><span class="speaker">SCRATCH:</span> "Nghe sốc thật, nhưng đúng vậy. Primera có một cuốn sổ chứa vạn kiến thức hữu dụng và hay ho mà anh nghĩ các em sẽ khá là cần. Ông viết ra từ cái hồi mà Atrii hút cạn kĩ năng thì phải. Không biết Primera có mang đi không nhỉ?"<br><br><span class="speaker">PRIMERA:</span> "Đương nhiên rồi!"</blockquote>
+<p>Cả lớp túm vào đọc từng trang một. Ai cũng thấy được những tri thức bí mật mà Primera đang giấu khỏi lớp suốt bấy lâu nay. Thảo nào Primera trên lớp điểm cao thế. Anh có tất cả các tài liệu để học trong một cuốn sổ.</p>
+<blockquote><span class="speaker">SCRATCH:</span> "Tôi nghĩ đấy là câu chuyện cuối cùng để kể rồi đấy. Có ai muốn hỏi gì không?"<br><br><span class="speaker">VENDRILL:</span> "Sao anh không dạy Primera cách làm đồ trang trí trại thay cho chúng tôi? Hoặc cùng lắm là chở Primera đến làm trại? Nếu sợ bị chúng tôi mắng thì hoàn toàn có thể tự làm ở nhà mà!"<br><br><span class="speaker">SCRATCH:</span> "Thứ nhất, là các em còn không hướng dẫn được Primera, thì tôi hướng dẫn cũng chẳng được gì. Các em còn trẻ, còn tài năng hơn anh nhiều. Anh còn không vẽ nổi con cua kìa. Thứ hai, anh thì bận trông cửa hàng suốt. Khách đến bất ngờ lắm. Chở đi kiểu gì được? Có lúc anh mất khách vì tội đóng cửa hàng không báo trước đấy."<br><br><span class="speaker">CHIMEREA:</span> "Level khó nhất mà anh đã phá đảo được trên Geometry Dash là gì?"<br><br><span class="speaker">CẢ LỚP:</span> "Lại hỏi tào lao rồi đấy."<br><br><span class="speaker">SCRATCH:</span> "Không sao đâu các em. Còn với câu hỏi của Chimerea thì… chắc là Electrodynamix thôi. Anh chưa dám thử mấy level Easy Demon kiểu Clubstep với The Nightmare vì anh chưa có trình…"</blockquote>
+<p>Primera tưởng rằng anh sẽ được cả lớp thay đổi cách nhìn nhận về anh, nhưng mọi người vẫn cứ nảy sang chuyện khác. Tuy vậy, anh vẫn thấy vui, có lẽ vì anh có thể tiếp tục thành thợ lặn.</p>
+<p>Gần 11 giờ đêm, xe khách đã đến đón cả lớp về villa. Đêm hóng chuyện phải dừng ở đó. Tưởng chừng sẽ có nhiều câu hỏi được đặt ra, nhưng hoá ra, sự im ắng của Primera trong lớp cũng làm cho việc hỏi han về đời sống của anh khó khăn, vì không có gì mà hỏi cả. Đúng như dự đoán của Primera, dù có Scratch kể chuyện về anh, anh vẫn chưa phải tâm điểm. Thế là anh tiếp tục được làm vua trốn trại trong năm tới. Chẳng ai hỏi han gì về Primera cả.</p>
+<p>Tóm tắt phần còn lại: Primera lần này đã có Vendrill ngủ cùng, thành ra anh bớt cô đơn hơn. Sáng hôm sau, cả lớp đi ăn sáng ở quán bún, sau đó đi thăm bảo tàng “Khám phá thế giới”. Trái với tưởng tượng, Primera thấy nơi đây khá nhàm chán, vì nó tập trung vào công trình thời trung đại và cổ đại, không có gì mang tính “mới lạ” với anh. Anh về nhà trong sự “bình thường”. Bình thường vì không có một cảm giác vui và nhớ đến luỵ. Anh chỉ biết rằng: Tối nay có giải đấu Yu-Gi-Oh ở cửa hàng bán card ấy, và anh phải cố làm meme cho mọi người. Scratch thì cũng chỉ chụp vài bức ảnh và quay video cho có, rồi cũng bị cuốn vào quên lãng vì các bạn khác trong lớp đang mải hát hò trong lúc đi về.</p>
+  </div>
+  <div class="divider"></div>
+  <div class="story-nav">
+    <a href="/anthology/14" class="nav-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <div class="nav-btn-inner">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">Nhà có khách</span>
+      </div>
+    </a>
+    <a href="/anthology/16" class="nav-btn active">
+      <div class="nav-btn-inner" style="text-align:right;">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Một đổi một</span>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+  </div>
+</div>
+</body>
+</html>

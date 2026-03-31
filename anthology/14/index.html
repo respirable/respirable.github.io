@@ -3,16 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Anthology</title>
+  <title>Nhà có khách — Anthology</title>
   <link rel="stylesheet" href="/theme.css">
   <script src="/theme.js" defer></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
       background: var(--bg);
@@ -20,14 +15,11 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
     .container {
       max-width: 720px;
       margin: 0 auto;
       padding: 80px 24px 100px;
     }
-
-    /* ── BACK LINK ── */
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -39,22 +31,17 @@
       margin-bottom: 40px;
       transition: color 0.15s;
     }
-
     .back-link:hover { color: var(--text); }
-
-    /* ── STORY HEADER ── */
     .story-header {
       margin-bottom: 40px;
       animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
     }
-
     .story-meta {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 16px;
     }
-
     .story-part-badge {
       font-size: 0.72rem;
       font-weight: 700;
@@ -66,7 +53,6 @@
       border-radius: 20px;
       border: 1px solid rgba(9, 105, 218, 0.2);
     }
-
     .story-number {
       font-size: 0.72rem;
       font-weight: 600;
@@ -74,157 +60,37 @@
       text-transform: uppercase;
       color: var(--muted);
     }
-
     h1.story-title {
       font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
       font-size: clamp(2.2rem, 8vw, 4rem);
       font-weight: 600;
       letter-spacing: -0.03em;
       line-height: 1.1;
-      color: #1F2328;
+      color: var(--text);
       margin-bottom: 16px;
     }
-
-/* ── IMAGE IN STORY ── */
-.story-image {
-  text-align: center;
-  margin: 36px 0;
-}
-
-.story-image img {
-  max-width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  cursor: zoom-in;
-  transition: opacity 0.15s;
-}
-
-.story-image img:hover { opacity: 0.9; }
-
-.story-image figcaption {
-  margin-top: 10px;
-  font-size: 0.85rem;
-  color: var(--muted);
-  font-style: italic;
-}
-
-/* ── LIGHTBOX ── */
-.lightbox {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 1000;
-  cursor: zoom-out;
-  align-items: center;
-  justify-content: center;
-}
-
-.lightbox.open {
-  display: flex;
-}
-
-.lightbox img {
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 8px;
-  cursor: default;
-  transition: transform 0.2s ease;
-  user-select: none;
-}
-
     .story-subtitle {
       font-size: 0.95rem;
       color: var(--muted);
       font-style: italic;
       line-height: 1.6;
     }
-
-    /* ── DIVIDER ── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 36px 0;
-    }
-
-    /* ── STORY BODY ── */
-    .story-body {
-      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    .story-body p {
-      font-size: 1rem;
-      line-height: 1.85;
-      color: var(--text);
-      margin-bottom: 24px;
-    }
-
-    .story-body p:last-child { margin-bottom: 0; }
-
-    /* dialogue / quoted lines */
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
     .story-body blockquote {
       border-left: 3px solid var(--border);
       margin: 28px 0;
-      padding: 4px 0 4px 20px;
+      padding: 12px 0 12px 20px;
       color: var(--muted);
       font-style: italic;
       font-size: 0.97rem;
       line-height: 1.8;
+      background: rgba(0,0,0,0.02);
+      border-radius: 4px;
     }
-
-    blockquote.document-excerpt {
-  background: var(--surface);
-  border-left: 3px solid var(--border);
-  padding: 16px 20px;
-  font-style: normal;
-  font-size: 0.92rem;
-  color: var(--text);
-}
-
-blockquote.document-excerpt footer {
-  margin-top: 12px;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-    ol, ul {
-  padding-left: 24px;
-  margin: 0 0 24px 0;
-  color: var(--text);
-  line-height: 1.85;
-}
-
-ol li, ul li {
-  margin-bottom: 6px;
-  font-size: 1rem;
-}
-
-    /* inline character name */
-    .speaker {
-      font-weight: 700;
-      font-style: normal;
-      color: var(--text);
-    }
-
-    /* section break */
-    .scene-break {
-      text-align: center;
-      color: var(--muted);
-      margin: 36px 0;
-      letter-spacing: 0.3em;
-      font-size: 0.85rem;
-      user-select: none;
-    }
-
-    /* ── STORY NAV ── */
-    .story-nav {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 60px;
-      animation: fadeSlideUp 0.8s 0.2s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
+    .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; }
+    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
     .nav-btn {
       display: inline-flex;
       align-items: center;
@@ -238,97 +104,16 @@ ol li, ul li {
       font-size: 0.88rem;
       font-weight: 600;
       text-decoration: none;
-      cursor: not-allowed;
-      opacity: 0.5;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-
-    .nav-btn.active {
-      cursor: pointer;
-      opacity: 1;
-      color: var(--text);
-    }
-
-    .nav-btn.active:hover {
-      background: var(--surface2);
-      border-color: #b0b8c1;
-    }
-
-    .nav-btn .nav-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    .nav-btn .nav-title {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-
+    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
+    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
+    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
     .nav-btn-inner { display: flex; flex-direction: column; }
 
-    /* ── ANIMATIONS ── */
-    @keyframes fadeSlideDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .tooltip-wrap {
-  position: relative;
-  cursor: help;
-  border-bottom: 1px dashed var(--muted);
-}
-
-.tooltip {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1F2328;
-  color: #ffffff;
-  font-size: 0.82rem;
-  font-style: normal;
-  line-height: 1.5;
-  padding: 8px 12px;
-  border-radius: 8px;
-  width: 260px;
-  text-align: center;
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* small arrow pointing down */
-.tooltip::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #1F2328;
-}
-
-/* show on hover (desktop) */
-.tooltip-wrap:hover .tooltip {
-  display: block;
-}
-
-/* show on tap (mobile) — toggled by JS */
-.tooltip-wrap.active .tooltip {
-  display: block;
-}
-    
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -339,144 +124,66 @@ ol li, ul li {
   </button>
 </div>
 <div class="container">
-
-  <!-- BACK LINK -->
   <a href="/anthology" class="back-link">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="15 18 9 12 15 6"/>
     </svg>
     anthology
   </a>
-
-  <!-- STORY HEADER -->
   <div class="story-header">
     <div class="story-meta">
       <span class="story-part-badge">Part 1</span>
       <span class="story-number">Story 14</span>
     </div>
     <h1 class="story-title">Nhà có khách</h1>
-    <p class="story-subtitle">Hãy tưởng tượng việc bạn mời một người lạ vào chuyến đi du lịch với lớp của bạn, và người lạ đó là Scratch.</p>
+    <p class="story-subtitle">Lớp của Primera chuẩn bị đi du lịch tới tỉnh Aramasa vào đầu mùa hè.</p>
   </div>
-
   <div class="divider"></div>
-
-  <!-- STORY BODY -->
   <div class="story-body">
-```html
-<p>Lớp của Primera chuẩn bị đi du lịch tới tỉnh Aramasa vào đầu mùa hè.</p>
-
-<p>Đó là một nơi tràn ngập những công trình thú vị, từ tượng <span class="tooltip-wrap">Habakiri<span class="tooltip">Đừng nhầm lẫn với một bạn cùng lớp của Primera, cũng có tên là Habakiri.</span></span> có thể phát sáng tự nhiên, nhà thờ Solemn, bảo tàng "Khám phá thế giới" với rất nhiều thiết kế xây dựng hay ho suýt thành hiện thực, và trên hết: sòng bạc ACE, cái mà lớp sẽ không đi vì họ chưa đủ 18 tuổi.</p>
-
+    <p>Lớp của Primera chuẩn bị đi du lịch tới tỉnh Aramasa vào đầu mùa hè.</p>
+<p>Đó là một nơi tràn ngập những công trình thú vị, từ tượng Hahahihi có thể phát sáng tự nhiên, nhà thờ Solemn, bảo tàng “Khám phá thế giới” với rất nhiều thiết kế xây dựng hay ho suýt thành hiện thực, và trên hết: sòng bạc ACE, cái mà lớp sẽ không đi vì họ chưa đủ 18 tuổi.</p>
 <p>Primera muốn rủ Scratch đi theo. Lúc đầu hội phụ huynh lớp từ chối, nhưng do thấy Primera quá cô đơn và sẽ không có việc gì làm khi đến nơi, họ nhất trí đem Scratch, nhưng với các điều kiện:</p>
-
-<ul>
-  <li>Scratch tự trả các chi phí phát sinh và chi phí chuyến đi.</li>
-  <li>Scratch phải kể chuyện đời sống của cả họ và Primera.</li>
-</ul>
-
+<p>Scratch tự trả các chi phí phát sinh và chi phí chuyến đi.</p>
+<p>Scratch phải kể chuyện đời sống của cả họ và Primera.</p>
 <p>Scratch đồng ý vì anh cũng khá chán việc đứng trước quầy hàng suốt một năm trời mà không đi đâu xa cả.</p>
-
-<div class="scene-break">· · ·</div>
-
 <p>Năm giờ sáng, Primera và Scratch đi bộ xuống bến xe. Họ là hai người sớm nhất tới đó. Tầm 3 phút sau, đã có một hai đứa tới. Ai ai cũng tò mò về Scratch, nhưng muốn để dành những thắc mắc cho lát nữa.</p>
-
 <p>30 phút sau, cả lớp đã có mặt. Họ đều nói chuyện về những gì họ sẽ làm trong chuyến đi này. Còn Primera thì… cầm iPad để cố phá đảo nốt Time Machine trong Geometry Dash.</p>
-
-<blockquote>
-  <span class="speaker">SCRATCH:</span> "Sao ông không nói chuyện với bạn bè của ông kìa? Cứ ở đấy mà cố phá đảo Time Machine làm gì? Đoạn cuối khó lắm, ông không cân được đâu."<br><br>
-  <span class="speaker">PRIMERA:</span> "Tôi có câu nào để bắt chuyện đâu. Với lại, đoạn cuối dễ hơn cái cú nhảy frame-perfect ở cuối Thinking Space 2 đó."
-</blockquote>
-
-<p>Xe khách đã đến và cả lớp đều vội vã tìm chỗ ngồi phù hợp trên xe. Một số "cặp đôi" ngồi với nhau. Mấy đứa hội nghiện game cũng túm lại 1 chỗ. Còn Primera thì ngồi với… Scratch.</p>
-
-<blockquote>
-  <span class="speaker">PRIMERA:</span> <em>(quay đầu lại)</em> "Scratch??? Sao ông lại ngồi đây vậy?"<br><br>
-  <span class="speaker">SCRATCH:</span> "Có vẻ như ai cũng đã xác định được mình sẽ ngồi với ai rồi, nhưng tôi thì chưa, và ông thì nhìn có vẻ cô đơn."<br><br>
-  <span class="speaker">PRIMERA:</span> "Ý hay."
-</blockquote>
-
+<blockquote><span class="speaker">SCRATCH:</span> "Sao ông không nói chuyện với bạn bè của ông kìa? Cứ ở đấy mà cố phá đảo Time Machine làm gì? Đoạn cuối khó lắm, ông không cân được đâu."<br><br><span class="speaker">PRIMERA:</span> "Tôi có câu nào để bắt chuyện đâu. Với lại, đoạn cuối dễ hơn cái cú nhảy frame-perfect ở cuối Thinking Space 2 đó."</blockquote>
+<p>Xe khách đã đến và cả lớp đều vội vã tìm chỗ ngồi phù hợp trên xe. Một số “cặp đôi” ngồi với nhau. Mấy đứa hội nghiện game cũng túm lại 1 chỗ. Còn Primera thì ngồi với… Scratch.</p>
+<blockquote><span class="speaker">PRIMERA:</span> "quay đầu lại Scratch??? Sao ông lại ngồi đây vậy?"<br><br><span class="speaker">SCRATCH:</span> "Có vẻ như ai cũng đã xác định được mình sẽ ngồi với ai rồi, nhưng tôi thì chưa, và ông thì nhìn có vẻ cô đơn."<br><br><span class="speaker">PRIMERA:</span> "Ý hay."</blockquote>
 <p>Mọi người lên đường và ăn sáng luôn trên xe. Tất cả bạn nhận được cho bữa sáng là… bánh mì kẹp 2 lát giò. Primera thấy nhạt toẹt, ăn mãi mới xong, còn Scratch thì… ăn cũng được, không ăn cũng chẳng sao. Anh ấy không cần thức ăn để sống. Các bạn khác thì đang bận tán chuyện, còn Primera thì… tiện mang deck Yu-Gi-Oh, liền mang deck ra để xem mình có đủ card để làm ván đấu với ai đó không.</p>
-
 <p>Có vẻ như đủ card để đấu rồi. Nhưng quan trọng là có ai chơi cùng không chứ…</p>
-
-<div class="scene-break">· · ·</div>
-
-<p>Xe khách dừng lại ở một cửa hàng gì đó, tiện để mọi người đi nhẹ nếu cần. Primera không có nhu cầu, nhưng cứ xuống xe cho đỡ chán. Scratch thì ngủ trên ghế cho qua thời gian. Primera nhìn vào đống thức ăn trên kệ trưng bày. Chẳng có gì hứng thú với anh cả, trong khi các bạn thì mua cả đống đồ ăn. Anh biết rằng tiền không phải vấn đề, nhưng vấn đề là anh không có nhu cầu ăn gì cả… Anh tiếp tục lên xe với không có gì trên tay, trừ cái điện thoại và 25 USD.</p>
-
-<div class="scene-break">· · ·</div>
-
+<p>Xe khách dừng lại ở một cửa hàng gì đó, tiện để mọi người đi nhẹ nếu cần. Primera không có nhu cầu, nhưng cứ xuống xe cho đỡ chán. Scratch thì ngủ trên ghế cho qua thời gian. Primera nhìn vào đống thức ăn trên kệ trưng bày. Chẳng có gì hứng thú với anh cả, trong khi các bạn thì mua cả đống đồ ăn. Anh biết rằng tiền không phải vấn đề, nhưng vấn đề là anh không có nhu cầu ăn gì cả…</p>
+<p>Anh tiếp tục lên xe với không có gì trên tay, trừ cái điện thoại và 25 USD.</p>
 <p>Đến 11 giờ, họ sang một nhà hàng sang trọng, nơi họ đã đặt trước khá nhiều mâm đồ ăn. Đến chỉ có việc đớp.</p>
-
 <p>Primera được ngồi cùng bàn với Scratch, thậm chí ngồi cạnh chỗ Scratch luôn. Các bạn vừa ăn vừa hỏi chuyện Scratch…</p>
-
-<blockquote>
-  <span class="speaker">SCRATCH:</span> "Đơn giản thì, anh là một chú bán icon cho mấy người chơi Geometry Dash ấy mà. Công việc thì cũng nghỉ nhiều hơn là làm. Khách ít đến, nhưng mà doanh thu thì cả đống."<br><br>
-  <span class="speaker">EMETH:</span> "Vậy thì anh biết Scratch qua cách nào vậy?"<br><br>
-  <span class="speaker">SCRATCH:</span> "Thằng Primera kia nó đến nhà anh rồi bảo anh nhìn quen lắm. Hai đứa cô đơn muốn làm bạn nên là cũng… đồng ý làm bạn thôi. Từ đó là cứ mỗi ngày hai đứa sang hỏi chuyện nhau. Thế là thằng Primera đỡ cô đơn. Mà sao mấy đứa trong lớp cứ bỏ rơi nó thế?"<br><br>
-  <span class="speaker">EMETH:</span> "Nó có bắt chuyện đâu. Thành ra có việc gì thì nó sẽ là người cuối cùng được nghĩ tới. Trên nhóm lớp phải 2 tháng mới nhắn 1 câu."<br><br>
-  <span class="speaker">PRIMERA:</span> "Tao gửi mấy tin nhắn thì bọn mày cũng chỉ xem và sang câu chuyện khác thôi."<br><br>
-  <span class="speaker">MARKUYA:</span> "Thì nó có gì đáng chú ý đâu… Rep làm gì cho tốn công…"<br><br>
-  <span class="speaker">PRIMERA:</span> "Đó. Chính vì thế nên tao mới là người im ắng nhất lớp."
-</blockquote>
-
+<blockquote><span class="speaker">SCRATCH:</span> "Đơn giản thì, anh là một chú bán icon cho mấy người chơi Geometry Dash ấy mà. Công việc thì cũng nghỉ nhiều hơn là làm. Khách ít đến, nhưng mà doanh thu thì cả đống."</blockquote>
+<p>EMETH bạn cùng lớp của Primera: Vậy thì anh biết Scratch qua cách nào vậy?</p>
+<blockquote><span class="speaker">SCRATCH:</span> "Thằng Primera kia nó đến nhà anh rồi bảo anh nhìn quen lắm. Hai đứa cô đơn muốn làm bạn nên là cũng… đồng ý làm bạn thôi. Từ đó là cứ mỗi ngày hai đứa sang hỏi chuyện nhau. Thế là thằng Primera đỡ cô đơn. Mà sao mấy đứa trong lớp cứ bỏ rơi nó thế?"<br><br><span class="speaker">EMETH:</span> "Nó có bắt chuyện đâu. Thành ra có việc gì thì nó sẽ là người cuối cùng được nghĩ tới. Trên nhóm lớp phải 2 tháng mới nhắn 1 câu."<br><br><span class="speaker">PRIMERA:</span> "Tao gửi mấy tin nhắn thì bọn mày cũng chỉ xem và sang câu chuyện khác thôi."</blockquote>
+<p>MARKUYA bạn cùng lớp của Primera Thì nó có gì đáng chú ý đâu… Rep làm gì cho tốn công…</p>
+<blockquote><span class="speaker">PRIMERA:</span> "Đó. Chính vì thế nên tao mới là người im ắng nhất lớp."</blockquote>
 <p>Sau đó, mọi người tiếp tục tập trung ăn. Primera là người ăn xong đầu tiên. Có lẽ là vì toàn món anh ta không thích… Scratch thì suýt làm bẩn đĩa đồ ăn vì tội với tay quá xa để lấy canh.</p>
-
-<div class="scene-break">· · ·</div>
-
-<p>1 giờ chiều. Mọi người đến một căn villa đã thuê từ trước. Không gian rộng rãi, thoáng đãng, lại còn có cả thang máy; vừa đủ phòng cho hơn 40 người. Nếu theo danh sách phòng được định sẵn, Primera sẽ nằm chung phòng với Scratch (đương nhiên), một người bạn cũng chơi Yu-Gi-Oh cùng anh: Vendrill, và hai đứa nữa.</p>
-
+<p>1 giờ chiều. Mọi người đến một căn villa đã thuê từ trước. Không gian rộng rãi, thoáng đãng, lại còn có cả thang máy; vừa đủ phòng cho hơn 40 người. Nếu theo danh sách phòng được định sẵn, Primera sẽ nằm chung phòng với Scratch đương nhiên, một người bạn cũng chơi Yu-Gi-Oh cùng anh: Vendrill, và hai đứa nữa.</p>
 <p>Ngay khi nhận phòng, Primera ngay lập tức mở YouTube trên tivi, và xem video mới nhất của Vua Trò Đùa, một Youtuber chuyên làm video về YuGiOh.</p>
-
-<div class="scene-break">· · ·</div>
-
 <p>3 giờ chiều, mọi người vào bếp để chuẩn bị một bữa tối ăn lẩu vô cùng thịnh soạn. Sẽ có khá nhiều thứ. Xúc xích, thịt bò, rau cải, đậu phụ, chả cá viên, và vô vàn món ăn khác.</p>
-
 <p>Cả lớp lên tầng 4 để chuẩn bị nấu ăn, và ai cũng giúp một tay một chân, trừ Primera. Anh đi loanh quanh khắp phòng nghịch cái loa và xem các bạn nấu ăn, vì mọi người làm hết phần việc, nên anh chẳng biết làm gì. Scratch thì ngồi lướt Facebook, tuy rằng anh có thể nấu nhiều món ngon.</p>
-
-<blockquote>
-  <span class="speaker">CÁC BẠN TRONG LỚP PRIMERA</span> <em>(nói mỉa):</em> "Con robot màu lục lam gì kia! Ra đây nấu ăn giúp bọn tao!"<br><br>
-  <span class="speaker">SCRATCH:</span> "Thứ nhất, tôi có tên: Scratch. Thứ hai, các ông tự đi mà nấu. Tôi không chuyên mấy món như của các ông."
-</blockquote>
-
+<p>CÁC BẠN TRONG LỚP PRIMERA nói mỉa: Con robot màu lục lam gì kia! Ra đây nấu ăn giúp bọn tao!</p>
+<blockquote><span class="speaker">SCRATCH:</span> "Thứ nhất, tôi có tên: Scratch. Thứ hai, các ông tự đi mà nấu. Tôi không chuyên mấy món như của các ông."</blockquote>
 <p>Các bạn trong lớp thì thầm bảo con robot đi cùng Primera là rác rưởi, không biết làm gì cả.</p>
-
 <p>Tuy vậy, mọi người vẫn cứ nấu ăn thôi. Nướng mực, rửa rau, chuẩn bị nước lẩu. Còn Primera thì… nghịch micro và loa vì vẫn chưa chán.</p>
-
-<div class="scene-break">· · ·</div>
-
 <p>Gần 7 giờ tối, bữa tối đã chuẩn bị xong. Primera tiếp tục chung mâm với Scratch, nhưng lần này hai người ngồi đối diện nhau. Trong khi mọi người vừa ăn vừa tán chuyện tào lao, Primera thì tập trung soi mấy món ăn mình thích và từ từ gắp vào bát mình. Scratch thì cũng làm vậy, nhưng anh cố ăn mỗi món một ít.</p>
-
 <p>Khi ăn xong, anh lại xuống phòng của mình để xem thêm YouTube trên tivi. Anh không thèm bắt chuyện với ai cả. Trong khi đó, bọn con gái đang chuẩn bị cho một sự kiện gì đó từ gần tối tới giờ.</p>
-
-<div class="scene-break">· · ·</div>
-
-<p>Tầm 8 giờ tối, ai cũng đang làm việc của riêng mình. Hội chơi game mở League of Legends ra chơi. Những đứa mang máy tính thì tải game về máy chơi. Primera thì đi loanh quanh villa để giết thời gian. Vendrill thì đang giới thiệu "liệu pháp" Đông Y cho các bạn khác, lùa họ vào việc bị "tê liệt" thân tạm thời.</p>
-
+<p>Tầm 8 giờ tối, ai cũng đang làm việc của riêng mình. Hội chơi game mở League of Legends ra chơi. Những đứa mang máy tính thì tải game về máy chơi. Primera thì đi loanh quanh villa để giết thời gian. Vendrill thì đang giới thiệu “liệu pháp” Đông Y cho các bạn khác, lùa họ vào việc bị “tê liệt” thân tạm thời.</p>
 <p>Gần 9 giờ tối, bọn con gái của lớp Primera tiếp tục chuẩn bị một sự kiện bất ngờ, và thậm chí yêu cầu các đứa con trai vào hết trong phòng ngủ ở gần đó. Được cái là phòng ngủ có ba giường tầng, và có thêm một phòng nhỏ nữa. Vì Scratch không liên quan gì đến lớp của Primera, anh lên phòng của Primera và vào eBay để… ngó xem có hàng cũ nào hay để mua về nghịch.</p>
-
-<div class="scene-break">· · ·</div>
-
-<p>9 rưỡi kém, bọn con gái mới chuẩn bị xong và mời bọn con trai ra "sảnh chính". Trên bàn là một đống hộp quà cho bọn con trai, và tiện hơn khi nó có thiết kế đậm chất Minecraft. Mỗi hộp quà có tên Instagram của các bạn nam.</p>
-
+<p>9 rưỡi kém, bọn con gái mới chuẩn bị xong và mời bọn con trai ra “sảnh chính”. Trên bàn là một đống hộp quà cho bọn con trai, và tiện hơn khi nó có thiết kế đậm chất Minecraft. Mỗi hộp quà có tên Instagram của các bạn nam.</p>
 <p>Bọn con gái định chia nhóm con trai thành 4 nhóm để hỏi các câu hỏi trivia liên quan đến lớp. Nhưng do lẻ người, nên họ để là ông nào giơ tay nhanh nhất thì giành quyền trả lời, và thắng thì được nhận quà trước.</p>
-
 <p>Primera biết gần hết câu trả lời, nhưng không giơ tay, do không hứng thú với mấy thứ kiểu này lắm, và anh càng sợ hơn khi biết đâu sẽ có một đứa con gái ép anh trả lời. Rất may là mấy đứa con trai khác biết câu giờ, nên bọn con gái chỉ hỏi vài ba câu, xong rồi quyết định trao quà thẳng tay để đỡ phí thời gian.</p>
-
-<p>Mỗi hộp quà có 1 minifigure Lego, 1 cái khăn có tên/biệt danh của người nhận, và 1 lá bài Yu-Gi-Oh tuỳ chỉnh do một bạn tên C làm. Vendrill và Primera thấy hay, liền đọc effect các lá bài và đi săn lùng lá bài của những đứa khác, và Primera thì gom hết về túi đồ của mình, vì anh biết rằng họ không quan tâm đến Yu-Gi-Oh cho lắm.</p>
-
-<div class="scene-break">· · ·</div>
-
+<p>Mỗi hộp quà có 1 minifigure Lego, 1 cái khăn có tên/biệt danh của người nhận ?, và 1 lá bài Yu-Gi-Oh tuỳ chỉnh do một bạn tên C làm. Vendrill và Primera thấy hay, liền đọc effect các lá bài và đi săn lùng lá bài của những đứa khác, và Primera thì gom hết về túi đồ của mình, vì anh biết rằng họ không quan tâm đến Yu-Gi-Oh cho lắm.</p>
 <p>Xong sự kiện, cả lớp tụm lại ở 1 phòng ngủ để xem tivi và chụp ảnh. Primera thì… khoá cửa phòng mình và đi ngủ trước, vì lúc đó phải 1 giờ sáng rồi, và anh cảm thấy rằng có 1 thế lực nào đó ép anh phải nhắm mắt và ngủ.</p>
-
 <p>Những đứa còn lại và Scratch thì… phải ngủ ở phòng khác vì không gọi được Primera. Anh ngủ say đến hẳn… 8 rưỡi sáng hôm sau. Lúc dậy thì anh mới chỉ thấy có một đứa khác cũng vừa dậy. Thấy kì lạ, anh điều tra xem chuyện gì đang xảy ra…</p>
-
-<p><em>[Hết phần 1]</em></p>
-```
+<p>[Hết phần 1]</p>
   </div>
-
   <div class="divider"></div>
-
-  <!-- PREV / NEXT NAV -->
   <div class="story-nav">
     <a href="/anthology/13" class="nav-btn active">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -487,70 +194,16 @@ ol li, ul li {
         <span class="nav-title">Luyện viết, hay luyện phá luật?</span>
       </div>
     </a>
-
     <a href="/anthology/15" class="nav-btn active">
       <div class="nav-btn-inner" style="text-align:right;">
         <span class="nav-label">Next</span>
-        <span class="nav-title">Nhà có khách (Phần 2)</span>
+        <span class="nav-title">Nhà có khách Phần 2</span>
       </div>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="9 18 15 12 9 6"/>
       </svg>
     </a>
   </div>
-
 </div>
-
-  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <img id="lightbox-img" src="" alt="" />
-</div>
-  
-  <script>
-function openLightbox(img) {
-  const lightbox = document.getElementById('lightbox');
-  const lbImg = document.getElementById('lightbox-img');
-  lbImg.src = img.src;
-  lbImg.alt = img.alt;
-  lbImg.style.transform = 'scale(1)';
-  lightbox.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeLightbox(e) {
-  // only close if clicking the dark background, not the image itself
-  if (e.target.id === 'lightbox') {
-    document.getElementById('lightbox').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-}
-
-document.getElementById('lightbox-img').addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const img = e.currentTarget;
-  const current = parseFloat(img.style.transform.replace('scale(', '')) || 1;
-  const next = Math.min(Math.max(current - e.deltaY * 0.002, 0.5), 4);
-  img.style.transform = `scale(${next})`;
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    document.getElementById('lightbox').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-});
-
-    document.querySelectorAll('.tooltip-wrap').forEach(el => {
-  el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    el.classList.toggle('active');
-  });
-});
-
-// close when tapping anywhere else
-document.addEventListener('click', () => {
-  document.querySelectorAll('.tooltip-wrap.active')
-    .forEach(el => el.classList.remove('active'));
-});
-</script>
 </body>
 </html>

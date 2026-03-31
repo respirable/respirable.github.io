@@ -68,14 +68,42 @@ html:not([data-theme="dark"]) .moon-icon { display: none; }
 }
 
 /* Fix for existing FAQ/Story components in dark mode */
-.faq-answer, .btn-story, .nav-btn, .faq-question {
+/* Ensure ready status buttons stay green and accessible */
+.btn-story-ready {
+  background: #1a7f37 !important;
+  color: #ffffff !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="dark"] .btn-story-ready {
+  background: #238636 !important; /* Slightly brighter green for dark mode contrast */
+}
+
+/* Backgrounds for regular surface elements */
+.faq-answer, .btn-story:not(.btn-story-ready), .nav-btn, .faq-question {
   background: var(--surface) !important;
 }
 
-.faq-answer-inner, .btn-story, .nav-btn, .faq-question {
+/* Story elements MUST stay white on green buttons */
+.btn-story-ready .story-name, .btn-story-ready .story-num {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.faq-answer-inner, .btn-story:not(.btn-story-ready), .nav-btn, .faq-question {
   color: var(--text) !important;
 }
 
-.site-title, .story-title {
+.site-title, .story-title, .story-name {
   color: var(--text) !important;
+}
+
+.story-num {
+  color: var(--muted) !important;
+  opacity: 0.9 !important; /* High contrast for numbers */
+}
+
+.btn-story[disabled], .btn-story:disabled {
+  opacity: 0.75 !important; /* Better visibility for WIP placeholders */
 }

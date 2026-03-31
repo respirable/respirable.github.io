@@ -3,16 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Anthology</title>
+  <title>Hút cạn kĩ năng — Anthology</title>
   <link rel="stylesheet" href="/theme.css">
   <script src="/theme.js" defer></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
       background: var(--bg);
@@ -20,14 +15,11 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
     .container {
       max-width: 720px;
       margin: 0 auto;
       padding: 80px 24px 100px;
     }
-
-    /* ── BACK LINK ── */
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -39,22 +31,17 @@
       margin-bottom: 40px;
       transition: color 0.15s;
     }
-
     .back-link:hover { color: var(--text); }
-
-    /* ── STORY HEADER ── */
     .story-header {
       margin-bottom: 40px;
       animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
     }
-
     .story-meta {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 16px;
     }
-
     .story-part-badge {
       font-size: 0.72rem;
       font-weight: 700;
@@ -66,7 +53,6 @@
       border-radius: 20px;
       border: 1px solid rgba(9, 105, 218, 0.2);
     }
-
     .story-number {
       font-size: 0.72rem;
       font-weight: 600;
@@ -74,109 +60,37 @@
       text-transform: uppercase;
       color: var(--muted);
     }
-
     h1.story-title {
       font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
       font-size: clamp(2.2rem, 8vw, 4rem);
       font-weight: 600;
       letter-spacing: -0.03em;
       line-height: 1.1;
-      color: #1F2328;
+      color: var(--text);
       margin-bottom: 16px;
     }
-
     .story-subtitle {
       font-size: 0.95rem;
       color: var(--muted);
       font-style: italic;
       line-height: 1.6;
     }
-
-    /* ── DIVIDER ── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 36px 0;
-    }
-
-    /* ── STORY BODY ── */
-    .story-body {
-      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    .story-body p {
-      font-size: 1rem;
-      line-height: 1.85;
-      color: var(--text);
-      margin-bottom: 24px;
-    }
-
-    .story-body p:last-child { margin-bottom: 0; }
-
-    /* dialogue / quoted lines */
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
     .story-body blockquote {
       border-left: 3px solid var(--border);
       margin: 28px 0;
-      padding: 4px 0 4px 20px;
+      padding: 12px 0 12px 20px;
       color: var(--muted);
       font-style: italic;
       font-size: 0.97rem;
       line-height: 1.8;
+      background: rgba(0,0,0,0.02);
+      border-radius: 4px;
     }
-
-    blockquote.document-excerpt {
-  background: var(--surface);
-  border-left: 3px solid var(--border);
-  padding: 16px 20px;
-  font-style: normal;
-  font-size: 0.92rem;
-  color: var(--text);
-}
-
-blockquote.document-excerpt footer {
-  margin-top: 12px;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-    ol, ul {
-  padding-left: 24px;
-  margin: 0 0 24px 0;
-  color: var(--text);
-  line-height: 1.85;
-}
-
-ol li, ul li {
-  margin-bottom: 6px;
-  font-size: 1rem;
-}
-
-    /* inline character name */
-    .speaker {
-      font-weight: 700;
-      font-style: normal;
-      color: var(--text);
-    }
-
-    /* section break */
-    .scene-break {
-      text-align: center;
-      color: var(--muted);
-      margin: 36px 0;
-      letter-spacing: 0.3em;
-      font-size: 0.85rem;
-      user-select: none;
-    }
-
-    /* ── STORY NAV ── */
-    .story-nav {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 60px;
-      animation: fadeSlideUp 0.8s 0.2s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
+    .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; }
+    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
     .nav-btn {
       display: inline-flex;
       align-items: center;
@@ -190,50 +104,16 @@ ol li, ul li {
       font-size: 0.88rem;
       font-weight: 600;
       text-decoration: none;
-      cursor: not-allowed;
-      opacity: 0.5;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-
-    .nav-btn.active {
-      cursor: pointer;
-      opacity: 1;
-      color: var(--text);
-    }
-
-    .nav-btn.active:hover {
-      background: var(--surface2);
-      border-color: #b0b8c1;
-    }
-
-    .nav-btn .nav-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    .nav-btn .nav-title {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-
+    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
+    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
+    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
     .nav-btn-inner { display: flex; flex-direction: column; }
 
-    /* ── ANIMATIONS ── */
-    @keyframes fadeSlideDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -244,165 +124,72 @@ ol li, ul li {
   </button>
 </div>
 <div class="container">
-
-  <!-- BACK LINK -->
   <a href="/anthology" class="back-link">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="15 18 9 12 15 6"/>
     </svg>
     anthology
   </a>
-
-  <!-- STORY HEADER -->
   <div class="story-header">
     <div class="story-meta">
       <span class="story-part-badge">Part 1</span>
       <span class="story-number">Story 9</span>
     </div>
     <h1 class="story-title">Hút cạn kĩ năng</h1>
-    <p class="story-subtitle">Một ván game Yu-Gi-Oh vui vẻ đã làm cho mọi người dân thành phố Saji mất hết trí nhớ của họ. Nhưng rồi...</p>
+    <p class="story-subtitle">Primera sang nhà Scratch để làm trận đánh bài Yu-Gi-Oh cho đỡ chán. Tưởng chừng hai người sẽ cầm những bộ bài sặc mùi meta, ai ngờ… Scratch cầm Ryzeal...</p>
   </div>
-
   <div class="divider"></div>
-
-  <!-- STORY BODY -->
   <div class="story-body">
-
     <p>Primera sang nhà Scratch để làm trận đánh bài Yu-Gi-Oh cho đỡ chán. Tưởng chừng hai người sẽ cầm những bộ bài sặc mùi meta, ai ngờ… Scratch cầm Ryzeal Voiceless Voice đấu với Stun của Primera.</p>
-
 <p>Primera được đi turn đầu, triệu hồi thường Ecclesia để add Cú Đấm Của Loài Chó Dogmatika Punishment lên tay. Sau đó, anh úp 5 lá bài phép/bẫy lên sân, và mạnh dạn kết thúc lượt.</p>
-
 <p>Đến turn của Scratch, Primera lại kích Anti-Spell Fragrance, There Can Be Only One, và Skill Drain. Thế là Scratch hết chơi. Tuy nhiên, ngay sau khi Primera kích Skill Drain xong, những tia sáng màu vàng bắt đầu xuất hiện bên cạnh hai người, và di chuyển đến một nơi nào đó không rõ. Primera và Scratch thấy nghi ngờ, định điều tra xem có chuyện gì xảy ra bằng cách chạy theo những tia sáng đó.</p>
-
 <p>Tưởng rằng năng lực chạy nhanh của hai người sẽ phát huy tác dụng, bỗng nhiên hôm nay họ chạy chậm hơn hẳn, và cạn sức rất nhanh. Do những tia sáng di chuyển nhanh hơn tốc độ chạy của Scratch và Primera, họ quyết định về nhà và cho rằng việc chạy theo cũng chẳng để làm gì.</p>
-
-<p>Họ quay lại chơi Yu-Gi-Oh. Scratch đã có đủ lá bài trên tay để thoải mái combo. Anh rút ra được Ext Ryzeal, "Cô gái đầu khấc", Saffira, và vài ba lá extender khác. Với những card như vậy thì hoàn toàn có thể dọn sân của Primera được. Scratch bắt đầu combo bằng cách triệu hồi đặc biệt Ext Ryzeal thông qua việc gửi Mereologic Aggregator từ Extra Deck xuống mộ. Tưởng rằng anh sẽ kích hiệu ứng của Mereologic khi nó bị gửi xuống mộ, anh lại không làm vậy, sau đó vào End Phase luôn vì không biết phải làm gì tiếp theo, còn sân của Primera vẫn y nguyên. Thế là combo của anh không thành. Primera cũng không biết làm gì, cứ tấn công trực tiếp điểm gốc của Scratch cho đến khi anh hết điểm gốc rồi thì thôi.</p>
-
+<p>Họ quay lại chơi Yu-Gi-Oh. Scratch đã có đủ lá bài trên tay để thoải mái combo. Anh rút ra được Ext Ryzeal, “Cô gái đầu khấc”, Saffira, và vài ba lá extender khác. Với những card như vậy thì hoàn toàn có thể dọn sân của Primera được. Scratch bắt đầu combo bằng cách triệu hồi đặc biệt Ext Ryzeal thông qua việc gửi Mereologic Aggregator từ Extra Deck xuống mộ. Tưởng rằng anh sẽ kích hiệu ứng của Mereologic khi nó bị gửi xuống mộ, anh lại không làm vậy, sau đó vào End Phase luôn vì không biết phải làm gì tiếp theo, còn sân của Primera vẫn y nguyên. Thế là combo của anh không thành. Primera cũng không biết làm gì, cứ tấn công trực tiếp điểm gốc của Scratch cho đến khi anh hết điểm gốc rồi thì thôi.</p>
 <p>Cả hai người thấy mình chơi ngu quá, không muốn chơi tiếp nữa, và quay lại đời sống hằng ngày của mình.</p>
-
-<div class="scene-break">· · ·</div>
-
 <p>Đến 6 giờ tối, Primera chuẩn bị nấu bữa tối. Anh nhìn hai quả trứng, một quả cà chua, rồi cũng chẳng biết làm gì với nó. Anh quên mất cách nấu ăn. Anh sang hỏi Scratch xem có món gì ăn không. Cũng kì lạ thay, trước mặt Scratch là một đĩa thịt bò và anh cũng không biết phải làm gì với nó. Do quên hết cách nấu ăn, cả hai người quyết định lên xe của Scratch tìm một quán ăn. Tuy nhiên, mới đi được vài trăm mét, Scratch lại không vững tay lái, làm cho hai người suýt ngã. Đến lúc Primera chở hộ, anh cũng suýt làm hỏng xe của Scratch.</p>
-
 <p>Hai người phải đi bộ về nhà với cái bụng đói cồn cào, và phải nhờ tới gói bim bim cuối cùng trong tủ của Scratch. Vậy mà cả hai người cũng phải mất rất nhiều công sức mới mở được gói bim bim. Ít ra thì họ cũng đã đủ no. Ăn xong, họ lên giường đi ngủ để ngày mai làm việc.</p>
-
-<div class="scene-break">· · ·</div>
-
 <p>Tám giờ sáng hôm sau, cả hai người dậy trong sự hoảng loạn. Primera đáng ra phải ở trên lớp, Scratch đáng ra phải mở cửa hàng từ rất lâu. Cả hai người vội vã chuẩn bị, để rồi…</p>
-
 <p>Lớp của Primera mới chỉ có ba người đến.</p>
-
 <p>Camera của Scratch cho rằng không có ai ghé qua cửa hàng của mình mà thấy đóng cửa. Điện thoại của Scratch không có một cuộc gọi nhỡ nào từ khách. Đây đáng ra phải là lúc có khá nhiều người gọi điện cho Scratch về việc cửa hàng chưa mở.</p>
-
-<p>Trong đầu của Primera đầy dấu hỏi chấm. Tại sao ai cũng quên mất mình phải làm gì rồi? Có lẽ họ cũng bị "skill drain" hút cạn kĩ năng?</p>
-
-<div class="scene-break">· · ·</div>
-
+<p>Trong đầu của Primera đầy dấu hỏi chấm. Tại sao ai cũng quên mất mình phải làm gì rồi? Có lẽ họ cũng bị “skill drain” hút cạn kĩ năng?</p>
 <p>Trên đường về nhà, Primera bắt gặp được những tia sáng vàng ấy ở Phòng Thời Gian, hội tụ thành một quả cầu. Primera thấy tò mò, và đến gần những tia sáng đó. Khi tiến lại gần, một số tia sáng đó đi vào trong người anh. Não của Primera giờ đã khác hẳn. Anh vừa có trí nhớ trở lại, vừa có thể dạy vật lý, vừa có thể phá đảo những màn khó nhất của Geometry Dash, vừa có những kiến thức cơ bản về quản trị kinh doanh.</p>
-
 <p>Anh cũng nhận thấy rằng mình có thể tích trữ những tia sáng này trong một cái túi. Anh chợt nhận ra một điều: Những tia sáng này đại diện cho kĩ năng của một người. Những tia sáng vàng từ hôm nọ đã bị hút từ tất cả mọi người đến căn phòng này.</p>
-
-<p>Giờ anh có hai nhiệm vụ cần làm:</p>
-
-<ol>
-  <li>Xác định vì sao những "kĩ năng" lại đến với Phòng Thời Gian.</li>
-  <li>Chia sẻ những tia sáng vàng cho Scratch, để anh trở thành người mà Primera thực sự coi là Scratch.</li>
-</ol>
-
+<p>Giờ anh có hai nhiệm vụ cần làm</p>
+<p>1. Xác định vì sao những “kĩ năng” lại đến với Phòng Thời Gian</p>
+<p>2. Chia sẻ những tia sáng vàng cho Scratch, để anh trở thành người mà Primera thực sự coi là Scratch.</p>
 <p>Primera đi vào Phòng Thời Gian, mặc kệ những biển báo ở ngoài cửa ghi rằng không được vào, và cảnh sát thì đang không biết chuyện gì vừa xảy ra. Anh thấy ở giữa phòng có một cây gậy và một cái nút, trong đó cái nút đang bị ống kẽm đè lên. Thấy vậy, anh nghĩ rằng nếu anh bỏ ống kẽm ra khỏi cái nút, mọi người sẽ có kĩ năng trở lại. Vì vậy, anh cứ để yên cái ống kẽm ở đấy.</p>
-
 <p>Anh còn đọc được một tờ hướng dẫn về cách cái nút vận hành. Thấy nội dung rất quan trọng và hay ho, anh quyết định giữ nó cho mình.</p>
-
 <p>Sau khi thu thập rất nhiều tia sáng vàng vào một chiếc túi, anh quay về nhà Scratch với tri thức của… khá nhiều người. Nhưng… Scratch lại không nhận ra Primera nữa, và thậm chí cho rằng Primera là người lạ. Thấy được sự mất trí nhớ và kĩ năng trầm trọng của Scratch, Primera liền đổ hết tia sáng vàng vào người Scratch mà không có do dự nào.</p>
-
 <p>Scratch đã phục hồi lại trí nhớ ban đầu.</p>
-
-<blockquote>
-  <span class="speaker">SCRATCH:</span> "…Primera à?"<br><br>
-  <span class="speaker">PRIMERA:</span> "Ừ, tôi đây."<br><br>
-  <span class="speaker">SCRATCH:</span> "…Chuyện gì vừa xảy ra vậy?"<br><br>
-  <span class="speaker">PRIMERA:</span> "Khá nhiều thứ đấy."<br><br>
-  <span class="speaker">SCRATCH:</span> "Gồm có những thứ gì?"<br><br>
-  <span class="speaker">PRIMERA:</span> "Ừm… ông nhớ được chuyện gì nào?"<br><br>
-  <span class="speaker">SCRATCH:</span> "Tôi nhớ có cái vụ mà tôi chở ông đi ăn quán rồi hai đứa suýt ngã, xong rồi cái gì sau đó là tôi quên hết."<br><br>
-  <span class="speaker">PRIMERA:</span> "Vậy là ông vẫn nhớ về cái vụ hút cạn kĩ năng chứ?"<br><br>
-  <span class="speaker">SCRATCH:</span> "Chuẩn."<br><br>
-  <span class="speaker">PRIMERA:</span> "Vậy thì ông nên đọc cái này."
-</blockquote>
-
-<blockquote class="document-excerpt">
-  <p>Phòng Thời Gian là một công trình xây dựng của Garloyle II vào năm 274 TCN, với mục đích làm hài lòng Tam Quỷ thời bấy giờ. Vào khoảng đầu thế kỉ III TCN, Tam Quỷ là người đã giúp Garloyle đạt được thành tích cao trong học tập, và thậm chí làm quan to của nhà nước. Tuy nhiên, để đáp lại những sự giúp đỡ đó, Tam Quỷ yêu cầu Garloyle xây dựng một công trình có tên là Phòng Thời Gian, để sau này nếu Garloyle làm việc ác, Tam Quỷ có khả năng hút cạn kĩ năng và trí nhớ của Garloyle trong vòng 30 năm gần đây thông qua một nút nhấn mà chỉ Tam Quỷ nhấn được. Nếu không, thì ông sẽ phải "ra đi" trong sự im lặng và sau này không ai nhớ tới nữa.</p>
-  <p>Sau khi thử nghiệm nút với khoảng thời gian ngắn 1 phút – 30 phút, Tam Quỷ chấp nhận công trình xây dựng của Garloyle II, và yêu cầu Garloyle chỉnh sửa lại nút đó để áp dụng cho diện rộng hơn, nhằm trừng phạt người dân nếu đi trái với lời của Tam Quỷ. Garloyle II từ chối, và bị Tam Quỷ cho ra đi trong sự im lặng. Tam Quỷ đã tự chỉnh sửa nút đó theo mong muốn của mình, nhưng không để lại bất cứ lớp bảo mật nào ngăn chặn việc có ai đó vô tình nhấn nút, và để vấn đề đó cho thế hệ sau.</p>
-  <p>Đến bây giờ, nút nhấn vẫn có tác dụng y nguyên. Hút cạn phần lớn kĩ năng và trí nhớ của mọi người trên diện rộng, miễn là nhấn được nút và có Master Emblem. Chính vì vậy, chúng tôi quyết định nghiêm cấm bất cứ ai vào trong căn phòng này, kể cả thủ tướng hay là người nổi tiếng. […]</p>
-  <footer>— Trích <cite>Về Phòng Thời Gian</cite> của Chủ tịch UBND thành phố Saji.</footer>
-</blockquote>
-
-<blockquote>
-  <span class="speaker">SCRATCH:</span> "Wow. Thật là điên rồ…"<br><br>
-  <span class="speaker">PRIMERA:</span> "Bây giờ thế này. Hai đứa mình cùng ra Phòng Thời Gian, cướp hết các tia sáng vàng kia. Như vậy, chúng ta cùng trở thành người được cả thành phố trọng vọng!"<br><br>
-  <span class="speaker">SCRATCH:</span> "Nah. Tôi nghĩ như vậy là đủ rồi."<br><br>
-  <span class="speaker">PRIMERA:</span> "Tuỳ ông thôi."
-</blockquote>
-
-<div class="scene-break">· · ·</div>
-
+<blockquote><span class="speaker">SCRATCH:</span> "…Primera à?"<br><br><span class="speaker">PRIMERA:</span> "Ừ, tôi đây."<br><br><span class="speaker">SCRATCH:</span> "…Chuyện gì vừa xảy ra vậy?"<br><br><span class="speaker">PRIMERA:</span> "Khá nhiều thứ đấy."<br><br><span class="speaker">SCRATCH:</span> "Gồm có những thứ gì?"<br><br><span class="speaker">PRIMERA:</span> "Ừm… ông nhớ được chuyện gì nào?"<br><br><span class="speaker">SCRATCH:</span> "Tôi nhớ có cái vụ mà tôi chở ông đi ăn quán rồi hai đứa suýt ngã, xong rồi cái gì sau đó là tôi quên hết."<br><br><span class="speaker">PRIMERA:</span> "Vậy là ông vẫn nhớ về cái vụ hút cạn kĩ năng chứ?"<br><br><span class="speaker">SCRATCH:</span> "Chuẩn."<br><br><span class="speaker">PRIMERA:</span> "Vậy thì ông nên đọc cái này."</blockquote>
+<p>Phòng Thời Gian là một công trình xây dựng của Garloyle II vào năm 274 TCN, với mục đích làm hài lòng Tam Quỷ thời bấy giờ. Vào khoảng đầu thế kỉ III TCN, Tam Quỷ là người đã giúp Garloyle đạt được thành tích cao trong học tập, và thậm chí làm quan to của nhà nước. Tuy nhiên, để đáp lại những sự giúp đỡ đó, Tam Quỷ yêu cầu Garloyle xây dựng một công trình có tên là Phòng Thời Gian, để sau này nếu Garloyle làm việc ác, Tam Quỷ có khả năng hút cạn kĩ năng và trí nhớ của Garloyle trong vòng 30 năm gần đây thông qua một nút nhấn mà chỉ Tam Quỷ nhấn được. Nếu không, thì ông sẽ phải “ra đi” trong sự im lặng ra đi và sau này không ai nhớ tới nữa.</p>
+<p>Sau khi thử nghiệm nút với khoảng thời gian ngắn 1 phút – 30 phút, Tam Quỷ chấp nhận công trình xây dựng của Garloyle II, và yêu cầu Garloyle chỉnh sửa lại nút đó để áp dụng cho diện rộng hơn, nhằm trừng phạt người dân nếu đi trái với lời của Tam Quỷ. Garloyle II từ chối, và bị Tam Quỷ cho ra đi trong sự im lặng. Tam Quỷ đã tự chỉnh sửa nút đó theo mong muốn của mình, nhưng không để lại bất cứ lớp bảo mật nào ngăn chặn việc có ai đó vô tình nhấn nút, và để vấn đề đó cho thế hệ sau.</p>
+<p>Đến bây giờ, nút nhấn vẫn có tác dụng y nguyên. Hút cạn phần lớn kĩ năng và trí nhớ của mọi người trên diện rộng, miễn là nhấn được nút và có Master Emblem. Chính vì vậy, chúng tôi quyết định nghiêm cấm bất cứ ai vào trong căn phòng này, kể cả thủ tướng hay là người nổi tiếng. […]</p>
+<p>Trích “Về Phòng Thời Gian” của Chủ tịch UBND thành phố Scratch & Primera đang ở.</p>
+<blockquote><span class="speaker">SCRATCH:</span> "Wow. Thật là điên rồ…"<br><br><span class="speaker">PRIMERA:</span> "Bây giờ thế này. Hai đứa mình cùng ra Phòng Thời Gian, cướp hết các tia sáng vàng kia. Như vậy, chúng ta cùng trở thành người được cả thành phố trọng vọng!"<br><br><span class="speaker">SCRATCH:</span> "Nah. Tôi nghĩ như vậy là đủ rồi."<br><br><span class="speaker">PRIMERA:</span> "Tuỳ ông thôi"</blockquote>
 <p>Rất nhanh chóng, Primera đã thu thập hết các tia sáng vàng ở Phòng Thời Gian. Trong lúc anh chuẩn bị thu xếp và về nhà mình, anh nhận ra một Master Emblem nằm ở giữa chiếc nút nhấn. Anh chợt nhớ ra rằng…</p>
-
-<ul>
-  <li>Atrii đã mua Master Emblem.</li>
-  <li>Hẳn cái Master Emblem là để kích hoạt nút bấm đó.</li>
-  <li>Có lẽ nào Atrii đang cố tình cho mọi người "ngu" đi?</li>
-</ul>
-
-<p>Tại sao lại phải làm vậy? Động cơ là gì? Vì sao Scratch lại bán một tấm vé "tẩy xoá trí nhớ"? Primera cũng chỉ biết đặt câu hỏi và để đó.</p>
-
+<p>Atrii đã mua Master Emblem.</p>
+<p>Hẳn cái Master Emblem là để kích hoạt nút bấm đó</p>
+<p>Có lẽ nào Atrii đang cố tình cho mọi người “ngu” đi?</p>
+<p>Tại sao lại phải làm vậy? Động cơ là gì? Vì sao Scratch lại bán một tấm vé “tẩy xoá trí nhớ”? Primera cũng chỉ biết đặt câu hỏi và để đó.</p>
 <p>Primera hi vọng rằng Atrii sẽ trả lời, và quyết định đợi đến những ngày hôm sau, Atrii sẽ đến trường và giải đáp.</p>
-
-<div class="scene-break">· · ·</div>
-
 <p>Ngày hôm sau, thấy Atrii đến trường, Primera liền hỏi ngay cô ta về vụ việc này. Do Atrii vẫn bị hút mất kĩ năng và trí nhớ, cô ta chỉ bảo rằng cô không hề liên quan đến vụ việc đó. Mọi người thì vẫn đang loay hoay không biết phải làm gì.</p>
-
 <p>Primera định đổ tiếp các tia sáng vàng vào người Atrii, nhưng trong túi không còn, vì đã cho hết cho Scratch rồi. Primera đợi hết giờ học, đi tới Phòng Thời Gian, thì cũng không có tia sáng vàng nào hết. Rồi Primera nhận ra: Mình đang nắm giữ quyền lực và tri thức của cả thành phố.</p>
-
 <p>Primera đọc mặt sau của tờ hướng dẫn kia:</p>
-
-<blockquote class="document-excerpt">
-  <p>"…Tuy nhiên, việc mất trí nhớ chỉ diễn ra khi nút vẫn đang được nhấn giữ. Cần phải bỏ tay ra khỏi nút để trả lại trí nhớ ban đầu."</p>
-</blockquote>
-
+<p>“…Tuy nhiên, việc mất trí nhớ chỉ diễn ra khi nút vẫn đang được nhấn giữ. Cần phải bỏ tay ra khỏi nút để trả lại trí nhớ ban đầu.”</p>
 <p>Nhìn lại cái nút đấy, Primera có hai lựa chọn:</p>
-
-<ol>
-  <li>Trải nghiệm cuộc sống của một người biết tất cả mọi thứ, nhưng không để cho mọi người thông minh.</li>
-  <li>Bỏ ống kẽm khỏi cái nút và trả lại tri thức về trạng thái trước khi nhấn nút, đồng thời biết thêm động cơ nhấn nút của Atrii.</li>
-</ol>
-
+<p>Trải nghiệm cuộc sống của một người biết tất cả mọi thứ, nhưng không để cho mọi người thông minh.</p>
+<p>HOẶC</p>
+<p>Bỏ ống kẽm khỏi cái nút và trả lại tri thức về trạng thái trước khi nhấn nút, đồng thời biết thêm động cơ nhấn nút của Atrii.</p>
 <p>Primera quyết định chọn cái thứ hai. Anh cho rằng tri thức hay mà chia sẻ cho những người không hiểu gì thì cũng… phế.</p>
-
 <p>Trước khi thật sự nâng ống kẽm khỏi cái nút, anh dành ba tiếng đồng hồ để ghi chú lại nhiều tri thức và kĩ năng hiện có nhất có thể.</p>
-
 <p>Vậy là thế giới đã quay trở lại bình thường. Các tia sáng vàng chạy về những người chủ của nó.</p>
-
-<div class="scene-break">· · ·</div>
-
-<p>Sáng hôm sau, anh gặp lại Atrii để hỏi về cái vụ Phòng Thời Gian đó. Cô cho rằng bố mẹ mình đã cư xử không tốt với mình, và luôn có những hành động như đánh đập và mắng mỏ. Thậm chí, bố mẹ cô còn chụp lén những thông tin riêng tư của cô. Cảm giác bị tổn thương và thiếu tôn trọng thực sự. Chính vì vậy, cô mới tìm đến Phòng Thời Gian như một cách hút cạn kĩ năng "hành động xấu" của bố mẹ, nhưng không nghĩ tới tác động của nó lên tất cả những người khác. Cô còn thông minh hơn khi dùng ống kẽm để giữ cho nút luôn được đè để kỹ năng nằm yên ở Phòng Thời Gian. Trùng hợp thay, lúc Atrii nhấn nút cũng là lúc Primera kích hoạt Skill Drain trong lúc chơi Yu-Gi-Oh với Scratch.</p>
-
-<p><em>Đúng là một người nóng tính</em> – Primera cho hay.</p>
-
-<div class="scene-break">· · ·</div>
-
-<p>Chiều hôm đó, Primera hỏi Scratch về vụ việc anh ta bán Master Emblem ("tấm vé" vào Phòng Thời Gian.)</p>
-
-<blockquote>
-  <span class="speaker">SCRATCH:</span> "…Ừ thì… tôi thấy nó ở ngoài đường khi đi dạo. Tôi nghĩ rằng nó chỉ để trang trí và cho rằng 'tôi có thể bán thứ vô dụng này với giá cắt cổ và thuyết phục mọi người mua nó'. Lúc đầu tôi để tên là Master Emblem để lùa gà, ai ngờ Phòng Thời Gian cũng có một thứ tương tự như vậy."<br><br>
-  <span class="speaker">PRIMERA:</span> "Lần sau ông nên tìm hiểu kĩ hơn trước khi đi bán mấy thứ trông vô dụng như vậy…"<br><br>
-  <span class="speaker">SCRATCH:</span> "Ý tôi là, những thứ vô dụng sẽ mãi là vô dụng trong mắt tôi trừ khi có hướng dẫn sử dụng trong đó…"
-</blockquote>
+<p>Sáng hôm sau, anh gặp lại Atrii để hỏi về cái vụ Phòng Thời Gian đó. Cô cho rằng bố mẹ mình đã cư xử không tốt với mình, và luôn có những hành động như đánh đập và mắng mỏ. Thậm chí, bố mẹ cô còn chụp lén những thông tin riêng tư của cô. Cảm giác bị tổn thương và thiếu tôn trọng thực sự. Chính vì vậy, cô mới tìm đến Phòng Thời Gian như một cách hút cạn kĩ năng “hành động xấu” của bố mẹ, nhưng không nghĩ tới tác động của nó lên tất cả những người khác. Cô còn thông minh hơn khi dùng ống kẽm để giữ cho nút luôn được đè để kỹ năng nằm yên ở Phòng Thời Gian. Trùng hợp thay, lúc Atrii nhấn nút cũng là lúc Primera kích hoạt Skill Drain trong lúc chơi Yu-Gi-Oh với Scratch.</p>
+<p>Đúng là một người nóng tính – Primera cho hay.</p>
+<p>Chiều hôm đó, Primera hỏi Scratch về vụ việc anh ta bán Master Emblem – tấm vé vào Phòng Thời Gian.</p>
+<blockquote><span class="speaker">SCRATCH:</span> "…Ừ thì… tôi thấy nó ở ngoài đường khi đi dạo. Tôi nghĩ rằng nó chỉ để trang trí và cho rằng “tôi có thể bán thứ vô dụng này với giá cắt cổ và thuyết phục mọi người mua nó”. Lúc đầu tôi để tên là Master Emblem để lùa gà, ai ngờ Phòng Thời Gian cũng có một thứ tương tự như vậy."<br><br><span class="speaker">PRIMERA:</span> "Lần sau ông nên tìm hiểu kĩ hơn trước khi đi bán mấy thứ trông vô dụng như vậy…"<br><br><span class="speaker">SCRATCH:</span> "Ý tôi là, những thứ vô dụng sẽ mãi là vô dụng trong mắt tôi trừ khi có hướng dẫn sử dụng trong đó…"</blockquote>
   </div>
-
   <div class="divider"></div>
-
-  <!-- PREV / NEXT NAV -->
   <div class="story-nav">
     <a href="/anthology/8" class="nav-btn active">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -413,7 +200,6 @@ ol li, ul li {
         <span class="nav-title">Một hình ảnh đáng giá một nghìn từ</span>
       </div>
     </a>
-
     <a href="/anthology/10" class="nav-btn active">
       <div class="nav-btn-inner" style="text-align:right;">
         <span class="nav-label">Next</span>
@@ -424,7 +210,6 @@ ol li, ul li {
       </svg>
     </a>
   </div>
-
 </div>
 </body>
 </html>
