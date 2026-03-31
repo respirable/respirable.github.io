@@ -107,3 +107,23 @@ html:not([data-theme="dark"]) .moon-icon { display: none; }
 .btn-story[disabled], .btn-story:disabled {
   opacity: 0.75 !important; /* Better visibility for WIP placeholders */
 }
+
+/* Story Images */
+.story-image {
+  margin: 36px 0;
+  text-align: center;
+}
+
+.story-image img {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.story-image figcaption {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 10px;
+}

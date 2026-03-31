@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Soi mói — Anthology</title>
   <link rel="stylesheet" href="/theme.css">
   <script src="/theme.js" defer></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
       background: var(--bg);
@@ -15,11 +21,13 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+
     .container {
       max-width: 720px;
       margin: 0 auto;
       padding: 80px 24px 100px;
     }
+
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -31,17 +39,23 @@
       margin-bottom: 40px;
       transition: color 0.15s;
     }
-    .back-link:hover { color: var(--text); }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
     .story-header {
       margin-bottom: 40px;
-      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
+
     .story-meta {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-bottom: 16px;
     }
+
     .story-part-badge {
       font-size: 0.72rem;
       font-weight: 700;
@@ -53,6 +67,7 @@
       border-radius: 20px;
       border: 1px solid rgba(9, 105, 218, 0.2);
     }
+
     .story-number {
       font-size: 0.72rem;
       font-weight: 600;
@@ -60,6 +75,7 @@
       text-transform: uppercase;
       color: var(--muted);
     }
+
     h1.story-title {
       font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
       font-size: clamp(2.2rem, 8vw, 4rem);
@@ -69,28 +85,97 @@
       color: var(--text);
       margin-bottom: 16px;
     }
+
     .story-subtitle {
       font-size: 0.95rem;
       color: var(--muted);
       font-style: italic;
       line-height: 1.6;
     }
-    .divider { height: 1px; background: var(--border); margin: 36px 0; }
-    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
-    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
-    .story-body blockquote {
-      border-left: 3px solid var(--border);
-      margin: 28px 0;
-      padding: 12px 0 12px 20px;
-      color: var(--muted);
-      font-style: italic;
-      font-size: 0.97rem;
-      line-height: 1.8;
-      background: rgba(0,0,0,0.02);
-      border-radius: 4px;
+
+    /* ── SUMMARY CARD ── */
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
     }
-    .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; }
-    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
+
+    .summary-card-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .summary-card p {
+      font-size: 0.97rem !important;
+      line-height: 1.8 !important;
+      color: var(--text) !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* ── UNDER CONSTRUCTION NOTICE ── */
+    .under-construction {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 48px 24px;
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      margin-top: 8px;
+    }
+
+    .construction-icon {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .construction-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .construction-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 380px;
+    }
+
+    .construction-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a6700;
+      background: rgba(154, 103, 0, 0.1);
+      border: 1px solid rgba(154, 103, 0, 0.25);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    [data-theme="dark"] .construction-badge {
+      color: #e3b341;
+      background: rgba(227, 179, 65, 0.1);
+      border-color: rgba(227, 179, 65, 0.25);
+    }
+
+    .story-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 60px;
+    }
+
     .nav-btn {
       display: inline-flex;
       align-items: center;
@@ -106,64 +191,148 @@
       text-decoration: none;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
-    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
-    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
-    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
-    .nav-btn-inner { display: flex; flex-direction: column; }
 
-    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-btn.active {
+      cursor: pointer;
+      opacity: 1;
+      color: var(--text);
+    }
+
+    .nav-btn.active:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+    }
+
+    .nav-btn .nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn .nav-title {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav-btn-inner {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
+
 <body>
-<div class="theme-toggle-wrap">
-  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
-</div>
-<div class="container">
-  <a href="/anthology" class="back-link">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-    anthology
-  </a>
-  <div class="story-header">
-    <div class="story-meta">
-      <span class="story-part-badge">Part 1</span>
-      <span class="story-number">Story 12</span>
+  <div class="theme-toggle-wrap">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5" />
+        <path
+          d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+      </svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+  </div>
+  <div class="container">
+    <a href="/anthology" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+      anthology
+    </a>
+    <div class="story-header">
+      <div class="story-meta">
+        <span class="story-part-badge">Part 1</span>
+        <span class="story-number">Story 12</span>
+      </div>
+      <h1 class="story-title">Soi mói</h1>
+      <p class="story-subtitle">Primera phát hiện ra niềm vui bí mật: stalk Facebook của bố mẹ các bạn cùng lớp.</p>
     </div>
-    <h1 class="story-title">Soi mói</h1>
-    <p class="story-subtitle">Tóm tắt câu chuyện: Primera đang ngắm… gái?... trên điện thoại của mình, và phát ra những tiếng kêu rên rỉ to đến mức Scratch cũng có thể nghe thấy đư...</p>
-  </div>
-  <div class="divider"></div>
-  <div class="story-body">
-    <p>Tóm tắt câu chuyện: Primera đang ngắm… gái?... trên điện thoại của mình, và phát ra những tiếng kêu rên rỉ to đến mức Scratch cũng có thể nghe thấy được. Scratch thấy hoài nghi, sang nhà Scratch điều tra xem có chuyện gì đang xảy ra. Hoá ra là Scratch đang soi hồ sơ Facebook của bố mẹ mấy đứa cùng lớp. Anh cho rằng tìm được hồ sơ có lúc như tìm thấy mỏ vàng, nhưng đôi lúc như tìm được cái nịt, vì không phải phụ huynh đứa nào cũng hay đăng bài lên Facebook. Scratch cho rằng: thứ nhất, đi soi tài khoản bố mẹ học sinh là không đúng, và cho rằng việc rên rỉ như vừa nãy sẽ khiến cho kế hoạch soi mói của Scratch bị lộ hết. Nói xong, Scratch chạy gấp về cửa hàng vì có khách. Primera thấy Scratch nói vậy, gật đầu, nhưng sau khi Scratch rời đi, anh vẫn tiếp tục đi stalk Facebook của phụ huynh các bạn trong lớp, như kiểu anh chưa tiếp thu một chữ nào từ Scratch vậy. Thời gian trôi đi, Scratch mới nhớ ra: Mình chưa hỏi Primera vì sao anh lại rên rỉ chỉ qua việc soi tài khoản Facebook của những người… tưởng chừng như không liên quan gì tới anh ta…</p>
-<p>Câu chuyện cuối cùng không thể đến tay bạn đọc được vì chứa rất nhiều nội dung nhạy cảm. Nếu bạn muốn tìm đọc, hãy tìm đến ban biên tập của tôi. :D</p>
-  </div>
-  <div class="divider"></div>
-  <div class="story-nav">
-    <a href="/anthology/11" class="nav-btn active">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      <div class="nav-btn-inner">
-        <span class="nav-label">Previous</span>
-        <span class="nav-title">Một ngày trọng đại… với Primera</span>
+    <div class="divider"></div>
+    <div class="story-body">
+
+      <div class="summary-card">
+        <div class="summary-card-label">📋 Tóm tắt câu chuyện</div>
+        <p>Primera đang ngắm… gái?... trên điện thoại của mình, và phát ra những tiếng kêu rên rỉ to đến mức Scratch
+          cũng có thể nghe thấy được. Scratch thấy hoài nghi, sang nhà Primera điều tra xem có chuyện gì đang xảy ra.
+          Hoá ra là Primera đang soi hồ sơ Facebook của bố mẹ mấy đứa cùng lớp. Anh cho rằng tìm được hồ sơ có lúc như
+          tìm thấy mỏ vàng, nhưng đôi lúc như tìm được cái nịt, vì không phải phụ huynh đứa nào cũng hay đăng bài lên
+          Facebook. Scratch cho rằng: thứ nhất, đi soi tài khoản bố mẹ học sinh là không đúng, và cho rằng việc rên rỉ
+          như vừa nãy sẽ khiến cho kế hoạch soi mói của Primera bị lộ hết. Nói xong, Scratch chạy gấp về cửa hàng vì có
+          khách. Primera thấy Scratch nói vậy, gật đầu, nhưng sau khi Scratch rời đi, anh vẫn tiếp tục đi stalk Facebook
+          của phụ huynh các bạn trong lớp, như kiểu anh chưa tiếp thu một chữ nào từ Scratch vậy. Thời gian trôi đi,
+          Scratch mới nhớ ra: Mình chưa hỏi Primera vì sao anh lại rên rỉ chỉ qua việc soi tài khoản Facebook của những
+          người… tưởng chừng như không liên quan gì tới anh ta…</p>
       </div>
-    </a>
-    <a href="/anthology/13" class="nav-btn active">
-      <div class="nav-btn-inner" style="text-align:right;">
-        <span class="nav-label">Next</span>
-        <span class="nav-title">Luyện viết, hay luyện phá luật?</span>
+
+      <div class="under-construction">
+        <div class="construction-icon">🚧</div>
+        <div class="construction-title">Under Construction</div>
+        <p class="construction-desc">The full story is not available yet. Check back in a quadrillion years. This story
+          may have been too far off my mind.</p>
+        <span class="construction-badge">Coming soon</span>
       </div>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
-      </svg>
-    </a>
+
+    </div>
+
+    <div class="divider"></div>
+    <div class="story-nav">
+      <a href="/anthology/11" class="nav-btn active">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <div class="nav-btn-inner">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">Một ngày trọng đại… với Primera</span>
+        </div>
+      </a>
+      <a href="/anthology/13" class="nav-btn active">
+        <div class="nav-btn-inner" style="text-align:right;">
+          <span class="nav-label">Next</span>
+          <span class="nav-title">Luyện viết, hay luyện phá luật?</span>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </a>
+    </div>
   </div>
-</div>
 </body>
+
 </html>

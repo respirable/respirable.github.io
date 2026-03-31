@@ -90,6 +90,77 @@
       border-radius: 4px;
     }
     .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; }
+
+    /* ── WRITING PROMPT STYLES ── */
+    .prompt-block {
+      margin: 32px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .prompt-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+    }
+    .prompt-en {
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text);
+      background: var(--surface);
+      font-style: italic;
+      border-bottom: 1px solid var(--border);
+    }
+    .prompt-vi {
+      padding: 12px 18px;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--muted);
+      background: var(--surface2);
+    }
+    .prompt-vi::before {
+      content: "🇻🇳 ";
+    }
+
+    /* ── PRIMERA'S RESPONSE ── */
+    .response-block {
+      margin: 24px 0 32px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .response-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      background: var(--surface2);
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .response-text {
+      padding: 16px 20px;
+      font-size: 0.97rem;
+      line-height: 1.85;
+      color: var(--text);
+      background: var(--surface);
+    }
+    .response-text p { margin-bottom: 14px; color: var(--text); }
+    .response-text p:last-child { margin-bottom: 0; }
+    .response-end {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-style: italic;
+      border-top: 1px solid var(--border);
+      padding: 8px 20px;
+      background: var(--surface2);
+    }
     .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
     .nav-btn {
       display: inline-flex;
@@ -141,21 +212,42 @@
   <div class="divider"></div>
   <div class="story-body">
     <p>Primera đang luyện viết truyện, nhưng mà anh là người hay phá vỡ các quy tắc văn học. Thế là những thứ anh viết ra… rất ngắn.</p>
-<p>Cụ thể hơn, Primera đang xem trang FAQ của Nicky Case về cách để viết truyện. Case cho rằng r/WritingPrompts trên Reddit là nơi để lấy các ý tưởng viết truyện. Trong subreddit đó, mọi người viết ra một mở đầu truyện, và người đọc sẽ viết tiếp câu chuyện từ thông tin đó bằng cách đăng phần viết của mình vào phần bình luận. Thấy có rất nhiều gợi ý mở đầu, Primera không ngần ngại nhúng tay vào và thử viết truyện theo một số gợi ý.</p>
-<p>Mở đầu 1: There are Rules to being a hero, and to being a villain. For example: Never interrupt a monologue; always leave a way to escape a death trap; and never forcibly unmask another. No one has ever broken the Rules more than once. Today, you found out why.</p>
-<p>Tạm dịch: Có những quy tắc để trở thành một anh hùng và để trở thành một kẻ phản diện. Ví dụ: Không bao giờ ngắt lời một bài diễn văn; luôn để lại một lối thoát khỏi bẫy tử thần; và không bao giờ ép buộc người khác tháo mặt nạ. Chưa ai từng vi phạm các quy tắc này hơn một lần. Hôm nay, bạn đã biết tại sao.</p>
-<p>Phần viết tiếp của Primera:</p>
-<p>Hôm nay, bạn sau đây sẽ được gọi là Primera có đọc một số văn bản luật để… giết thời gian. Trong đó có một bộ luật anh hùng và bộ luật ác nhân. Những bộ luật này nói về điều kiện tối thiểu để trở thành anh hùng và kẻ phản diện, cùng với những yêu cầu để duy trì vai trò đó.</p>
-<p>Các anh hùng và phản diện luôn phải nhớ trong đầu cả bộ luật đó để tránh chủ tịch nước phát hiện mình đang pháp luật và tước danh hiệu Anh hùng/Phản diện của mình.</p>
-<p>Nếu mức độ vi phạm quá cao, họ sẽ vừa bị phạt hành chính từ 50.000 USD, và vừa có thể ngồi tù, hoặc tệ hơn, là tước quyền sống. Thế nên anh hùng và kẻ ác cũng có những nỗi lo của riêng mình. [Hết phần viết tiếp]</p>
-<p>Mở đầu 2: In a world of magic, your potential is predetermined by a number at birth. Archmages born with a number in the millions, peasants in the single digits. When your child is born with a mana value of “H”, everyone is confused.</p>
-<p>Tạm dịch: Trong một thế giới phép thuật, tiềm năng của bạn được xác định bởi một con số ngay từ khi sinh ra. Các pháp sư cao cấp sinh ra với con số hàng triệu, còn nông dân chỉ có con số một chữ số. Khi con bạn sinh ra với giá trị mana là “H”, mọi người đều bối rối.</p>
-<p>Phần viết tiếp của Primera:</p>
-<p>Bạn thấy vậy, liền bay thẳng sang Hội Phép thuật Quốc tế để hỏi về vấn đề này. Một thành viên hội đồng cho hay:</p>
-<p>“Đó là lỗi đấy. Con bạn có chỉ số mana là 8.”</p>
-<p>Thế là con bạn trở thành người không biết gì về phép thuật, và ngồi chung mâm với nông dân. [Hết phần viết tiếp]</p>
-<p>Primera liền thấy hoạt động này hay, phải sang giới thiệu với Scratch cho đỡ phí.</p>
-<p>Scratch thì đang đếm tiền sau khi ra ngân hàng để chuyển đổi Orbs thành USD. Mùi tiền thơm phức, nhưng tháng này lại chỉ lãi được 5400 USD. Chắc là do anh không có sản phẩm mới để bán, mà chỉ xả hàng tồn kho.</p>
+    <p>Cụ thể hơn, Primera đang xem trang FAQ của Nicky Case về cách để viết truyện. Case cho rằng r/WritingPrompts trên Reddit là nơi để lấy các ý tưởng viết truyện. Trong subreddit đó, mọi người viết ra một mở đầu truyện, và người đọc sẽ viết tiếp câu chuyện từ thông tin đó bằng cách đăng phần viết của mình vào phần bình luận. Thấy có rất nhiều gợi ý mở đầu, Primera không ngần ngại nhúng tay vào và thử viết truyện theo một số gợi ý.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-label">Mở đầu 1 · r/WritingPrompts</div>
+      <div class="prompt-en">There are Rules to being a hero, and to being a villain. For example: Never interrupt a monologue; always leave a way to escape a death trap; and never forcibly unmask another. No one has ever broken the Rules more than once. Today, you found out why.</div>
+      <div class="prompt-vi">Có những quy tắc để trở thành một anh hùng và để trở thành một kẻ phản diện. Ví dụ: Không bao giờ ngắt lời một bài diễn văn; luôn để lại một lối thoát khỏi bẫy tử thần; và không bao giờ ép buộc người khác tháo mặt nạ. Chưa ai từng vi phạm các quy tắc này hơn một lần. Hôm nay, bạn đã biết tại sao.</div>
+    </div>
+
+    <div class="response-block">
+      <div class="response-label">✍️ Phần viết tiếp của Primera</div>
+      <div class="response-text">
+        <p>Hôm nay, bạn — sau đây sẽ được gọi là Primera — có đọc một số văn bản luật để… giết thời gian. Trong đó có một bộ luật anh hùng và bộ luật ác nhân. Những bộ luật này nói về điều kiện tối thiểu để trở thành anh hùng và kẻ phản diện, cùng với những yêu cầu để duy trì vai trò đó.</p>
+        <p>Các anh hùng và phản diện luôn phải nhớ trong đầu cả bộ luật đó để tránh chủ tịch nước phát hiện mình đang vi phạm pháp luật và tước danh hiệu Anh hùng/Phản diện của mình.</p>
+        <p>Nếu mức độ vi phạm quá cao, họ sẽ vừa bị phạt hành chính từ 50.000 USD, và vừa có thể ngồi tù, hoặc tệ hơn, là tước quyền sống. Thế nên anh hùng và kẻ ác cũng có những nỗi lo của riêng mình.</p>
+      </div>
+      <div class="response-end">Hết phần viết tiếp</div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-label">Mở đầu 2 · r/WritingPrompts</div>
+      <div class="prompt-en">In a world of magic, your potential is predetermined by a number at birth. Archmages born with a number in the millions, peasants in the single digits. When your child is born with a mana value of “H”, everyone is confused.</div>
+      <div class="prompt-vi">Trong một thế giới phép thuật, tiềm năng của bạn được xác định bởi một con số ngay từ khi sinh ra. Các pháp sư cao cấp sinh ra với con số hàng triệu, còn nông dân chỉ có con số một chữ số. Khi con bạn sinh ra với giá trị mana là “H”, mọi người đều bối rối.</div>
+    </div>
+
+    <div class="response-block">
+      <div class="response-label">✍️ Phần viết tiếp của Primera</div>
+      <div class="response-text">
+        <p>Bạn thấy vậy, liền bay thẳng sang Hội Phép thuật Quốc tế để hỏi về vấn đề này. Một thành viên hội đồng cho hay:</p>
+        <p><em>“Đó là lỗi đấy. Con bạn có chỉ số mana là 8.”</em></p>
+        <p>Thế là con bạn trở thành người không biết gì về phép thuật, và ngồi chung mâm với nông dân.</p>
+      </div>
+      <div class="response-end">Hết phần viết tiếp</div>
+    </div>
+
+    <p>Primera liền thấy hoạt động này hay, phải sang giới thiệu với Scratch cho đỡ phí.</p>
+    <p>Scratch thì đang đếm tiền sau khi ra ngân hàng để chuyển đổi Orbs thành USD. Mùi tiền thơm phức, nhưng tháng này lại chỉ lãi được 5400 USD. Chắc là do anh không có sản phẩm mới để bán, mà chỉ xả hàng tồn kho.</p>
 <blockquote><span class="speaker">PRIMERA:</span> "Sao ông buồn vậy?"<br><br><span class="speaker">SCRATCH:</span> "Lợi nhuận tháng này thấp hơn thường. Tháng nào cũng phải từ 7 đến 10 nghìn USD, mà tháng này có hơn 5 nghìn USD à…"<br><br><span class="speaker">PRIMERA:</span> "Thôi, ông cố hoàn thiện nốt cái Quả bóng Cycles đi. Mọi người đang chờ đón cái đấy của ông á! Lợi nhuận hứa hẹn sẽ tăng vọt! Dù sao thì… tôi có cái này rất hay mà tôi nghĩ tôi phải chia sẻ với ông."<br><br><span class="speaker">SCRATCH:</span> "Cái gì vậy?"<br><br><span class="speaker">PRIMERA:</span> "Tôi vừa mới tìm được cái subreddit r/WritingPrompt này, cực kì hay luôn. Cứ khi nào ông thấy chán thì ông cầm một cái bút, một cuốn sổ, và viết theo mấy cái gợi ý mà người ta đề ra ấy."<br><br><span class="speaker">SCRATCH:</span> "Nghe hay đấy. Ông đã viết gì chưa?"<br><br><span class="speaker">PRIMERA:</span> "Đây, tôi vừa mới viết hai cái truyện ngắn cũn. Có thể nó hơi nhạt, nhưng ai cũng phải bắt đầu từ đâu đó."</blockquote>
 <p>Scratch đọc thử hai câu chuyện trên của Primera.</p>
 <blockquote><span class="speaker">SCRATCH:</span> "Phải nói là [chuyện] của ông đúng là độc đáo… theo hướng không mấy tích cực. Người ta cho ý tưởng hay như thế. Có rất nhiều cách mở rộng, thế mà ông chọn cách… nhàm chán nhất. Ông mà đăng cái này lên thì người ta chửi chết."<br><br><span class="speaker">PRIMERA:</span> "Không sao. Tôi toàn giữ cho riêng mình thì chẳng ai biết gì đâu."<br><br><span class="speaker">SCRATCH:</span> "Nhưng tôi thì biết. Dù sao thì, ý tưởng hay đấy, tôi cũng sẽ làm thử!"</blockquote>

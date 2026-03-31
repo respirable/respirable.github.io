@@ -186,6 +186,90 @@
   background: #1c8c3d;
 }
 
+    /* ── UTILITIES ── */
+    .utilities-section {
+      animation: fadeSlideUp 0.8s 0.28s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .util-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .util-card {
+      position: relative;
+      background-color: var(--surface2);
+      background-size: cover;
+      background-position: center;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 36px 20px;
+      /* Clipped octagon corners for the Hearthstone/Yu-Gi-Oh feel */
+      clip-path: polygon(24px 0, calc(100% - 24px) 0, 100% 24px, 100% calc(100% - 24px), calc(100% - 24px) 100%, 24px 100%, 0 calc(100% - 24px), 0 24px);
+      transition: transform 0.2s, filter 0.2s;
+      min-height: 180px;
+      overflow: hidden;
+    }
+
+    .util-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 1;
+      transition: background 0.2s;
+    }
+
+    .util-card:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .util-card:hover::before {
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .util-card-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .util-desc {
+      font-size: 1.15rem;
+      font-family: inherit;
+      font-weight: 500;
+      color: #ffffff;
+      line-height: 1.5;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7);
+      max-width: 95%;
+    }
+
+    .util-btn {
+      display: inline-block;
+      background: #8c4b20;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 10px 24px;
+      border-radius: 6px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.2s;
+    }
+
+    .util-card:hover .util-btn {
+      background: #a35a29;
+    }
+
     /* ── FAQ ── */
     .faq-section {
       animation: fadeSlideUp 0.8s 0.3s cubic-bezier(0.22,1,0.36,1) both;
@@ -318,6 +402,26 @@
   </svg>
   Read
 </a>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- UTILITIES -->
+  <div class="utilities-section">
+    <div class="section-label">Utilities</div>
+    <div class="util-grid">
+      
+      <!-- Tool 1: Master Duel Draft -->
+      <a href="#" class="util-card" style="background-image: url('yugioh-bg.png');">
+        <div class="util-card-content">
+          <span class="util-desc">Hearthstone-inspired Arena deck to play for Yu-Gi-Oh! Master Duel? Try drafting now!</span>
+          <span class="util-btn">Master Duel Arena</span>
+        </div>
+      </a>
+
+      <!-- You can easily add more by copying the block above, and changing the image URL, description, and button text! -->
+      
+    </div>
   </div>
 
   <div class="divider"></div>
