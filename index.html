@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>respirable</title>
   <link rel="stylesheet" href="/theme.css">
   <script src="/theme.js" defer></script>
@@ -37,18 +38,21 @@
       line-height: 1;
       margin-bottom: 36px;
       color: #1F2328;
-      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
     /* ── PROFILE ── */
-.profile {
-  display: flex;
-  flex-direction: column;  /* stack vertically */
-  gap: 16px;
-  margin-bottom: 24px;
-}
+    .profile {
+      display: flex;
+      flex-direction: column;
+      /* stack vertically */
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
-    .avatar-wrap { flex-shrink: 0; }
+    .avatar-wrap {
+      flex-shrink: 0;
+    }
 
     .avatar {
       width: 110px;
@@ -76,10 +80,13 @@
     }
 
     .anthology-section p {
-  margin-bottom: 14px;
-}
+      margin-bottom: 14px;
+    }
 
-    .bio { flex: 1; padding-top: 4px; }
+    .bio {
+      flex: 1;
+      padding-top: 4px;
+    }
 
     .bio-name {
       font-size: 1.1rem;
@@ -94,7 +101,9 @@
       color: var(--muted);
     }
 
-    .bio p + p { margin-top: 8px; }
+    .bio p+p {
+      margin-top: 8px;
+    }
 
     /* ── SOCIAL LINKS ── */
     .social-grid {
@@ -102,7 +111,7 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 0;
-      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
     .social-btn {
@@ -132,15 +141,50 @@
       flex-shrink: 0;
     }
 
-    .btn-discord  { background: #5865F2; color: #fff; }
-    .btn-github   { background: #24292e; color: #fff; }
-    .btn-bluesky  { background: #0085ff; color: #fff; }
-    .btn-mastodon { background: #6364ff; color: #fff; }
-    .btn-threads  { background: #1c1c1c; color: #fff; }
-    .btn-twitter  { background: #000000; color: #fff; }
-    .btn-reddit   { background: #ff4500; color: #fff; }
-    .btn-email    { background: #c0392b; color: #fff; }
-    .btn-youtube { background: #ff0000; color: #fff; }
+    .btn-discord {
+      background: #5865F2;
+      color: #fff;
+    }
+
+    .btn-github {
+      background: #24292e;
+      color: #fff;
+    }
+
+    .btn-bluesky {
+      background: #0085ff;
+      color: #fff;
+    }
+
+    .btn-mastodon {
+      background: #6364ff;
+      color: #fff;
+    }
+
+    .btn-threads {
+      background: #1c1c1c;
+      color: #fff;
+    }
+
+    .btn-twitter {
+      background: #000000;
+      color: #fff;
+    }
+
+    .btn-reddit {
+      background: #ff4500;
+      color: #fff;
+    }
+
+    .btn-email {
+      background: #c0392b;
+      color: #fff;
+    }
+
+    .btn-youtube {
+      background: #ff0000;
+      color: #fff;
+    }
 
 
     /* ── DIVIDER ── */
@@ -162,33 +206,33 @@
 
     /* ── ANTHOLOGY BUTTON ── */
     .anthology-section {
-      animation: fadeSlideUp 0.8s 0.25s cubic-bezier(0.22,1,0.36,1) both;
+      animation: fadeSlideUp 0.8s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-.btn-anthology {
-  background: #1a7f37;
-  color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-  display: flex;
-  width: fit-content;
-  min-width: 160px;
-  padding: 12px 20px;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  gap: 8px;
-}
+    .btn-anthology {
+      background: #1a7f37;
+      color: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      width: fit-content;
+      min-width: 160px;
+      padding: 12px 20px;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      gap: 8px;
+    }
 
-.btn-anthology:hover {
-  background: #1c8c3d;
-}
+    .btn-anthology:hover {
+      background: #1c8c3d;
+    }
 
     /* ── UTILITIES ── */
     .utilities-section {
-      animation: fadeSlideUp 0.8s 0.28s cubic-bezier(0.22,1,0.36,1) both;
+      animation: fadeSlideUp 0.8s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
     .util-grid {
@@ -243,43 +287,35 @@
       gap: 16px;
     }
 
+    .util-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.7);
+      margin-bottom: -4px;
+    }
+
     .util-desc {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-family: inherit;
       font-weight: 500;
       color: #ffffff;
       line-height: 1.5;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7);
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.7);
       max-width: 95%;
     }
 
-    .util-btn {
-      display: inline-block;
-      background: #8c4b20;
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 0.95rem;
-      padding: 10px 24px;
-      border-radius: 6px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: background 0.2s;
-    }
-
-    .util-card:hover .util-btn {
-      background: #a35a29;
-    }
 
     /* ── FAQ ── */
     .faq-section {
-      animation: fadeSlideUp 0.8s 0.3s cubic-bezier(0.22,1,0.36,1) both;
+      animation: fadeSlideUp 0.8s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
     .faq-item {
       border: 1px solid var(--border);
       border-radius: 10px;
       overflow: hidden;
-        margin-bottom: 8px; 
+      margin-bottom: 8px;
     }
 
     .faq-question {
@@ -300,7 +336,9 @@
       transition: background 0.15s;
     }
 
-    .faq-question:hover { background: var(--surface2); }
+    .faq-question:hover {
+      background: var(--surface2);
+    }
 
     .faq-chevron {
       flex-shrink: 0;
@@ -308,7 +346,9 @@
       transition: transform 0.25s ease;
     }
 
-    .faq-chevron.rotated { transform: rotate(180deg); }
+    .faq-chevron.rotated {
+      transform: rotate(180deg);
+    }
 
     .faq-answer {
       display: none;
@@ -316,7 +356,9 @@
       background: #fff;
     }
 
-    .faq-answer.open { display: block; }
+    .faq-answer.open {
+      display: block;
+    }
 
     .faq-answer-inner {
       padding: 14px 18px;
@@ -328,218 +370,267 @@
     .faq-answer {
       background: var(--surface);
     }
-    
+
     .faq-answer-inner {
       color: var(--text);
     }
   </style>
 </head>
+
 <body>
-<div class="theme-toggle-wrap">
-  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
-</div>
-<div class="container">
+  <div class="theme-toggle-wrap">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+  </div>
+  <div class="container">
 
-  <!-- HEADING -->
-  <h1 class="site-title">respirable</h1>
+    <!-- HEADING -->
+    <h1 class="site-title">respirable</h1>
 
-  <!-- PROFILE -->
-  <div class="profile">
-    <div class="avatar-wrap">
+    <!-- PROFILE -->
+    <div class="profile">
+      <div class="avatar-wrap">
         <img src="respirable.png" alt="respirable" class="avatar" />
 
+      </div>
+      <div class="bio">
+        <div class="bio-name">about me</div>
+        <p>hi, i'm respirable. i do a lot of things, but i'm best at coding WWTBAM HTML5 stuff.</p>
+        <p>i would say i'm the "jack of no trades, master of none" guy. i'm just good at doing things nobody ask for,
+          and bad at essential skills.</p>
+        <p>if you want to talk to me (for some reason), check the links below.</p>
+
+      </div>
     </div>
-    <div class="bio">
-      <div class="bio-name">about me</div>
-      <p>hi, i'm respirable. i do a lot of things, but i'm best at coding WWTBAM HTML5 stuff.</p>
-      <p>i would say i'm the "jack of no trades, master of none" guy. i'm just good at doing things nobody ask for, and bad at essential skills.</p>
-      <p>if you want to talk to me (for some reason), check the links below.</p>
 
-    </div>
-  </div>
+    <!-- SOCIAL LINKS -->
+    <div class="social-grid">
 
-  <!-- SOCIAL LINKS -->
-  <div class="social-grid">
-
-    <a href="https://github.com/respirable" class="social-btn btn-github" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-      github
-    </a>
-
-    <a href="https://reddit.com/u/totally-a-randomname" class="social-btn btn-reddit" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
-      reddit
-    </a>
-
-    <a href="mailto:cab345127@gmail.com" class="social-btn btn-email">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-      contact e-mail
-    </a>
-
-       <a href="https://twitter.com/terribledom" class="social-btn btn-twitter" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.84L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      twitter
-    </a>
-
-        <a href="https://youtube.com/@respirable" class="social-btn btn-youtube" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-      youtube
-    </a>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- ANTHOLOGY BUTTON -->
-  <div class="anthology-section">
-    <div class="section-label">my "literary" works</div>
-          <p>i'm currently writing an anthology of short stories about myself, in the form of Geometry Dash characters. when it's done, the button below shouldn't be gray. it tells me a lot about my life, but a lot of details are fictional, and i couldn't be bothered to tell you which detail is real and which isn't.</p>
-<a href="/anthology" class="btn-anthology">
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-  </svg>
-  Read
-</a>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- UTILITIES -->
-  <div class="utilities-section">
-    <div class="section-label">Utilities</div>
-    <div class="util-grid">
-      
-      <!-- Tool 1: Master Duel Draft -->
-      <a href="#" class="util-card" style="background-image: url('yugioh-bg.png');">
-        <div class="util-card-content">
-          <span class="util-desc">Hearthstone-inspired Arena deck to play for Yu-Gi-Oh! Master Duel? Try drafting now!</span>
-          <span class="util-btn">Master Duel Arena</span>
-        </div>
+      <a href="https://github.com/respirable" class="social-btn btn-github" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+        </svg>
+        github
       </a>
 
-      <!-- You can easily add more by copying the block above, and changing the image URL, description, and button text! -->
-      
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- FAQ -->
-  <div class="faq-section">
-    <div class="section-label">Cursed FAQ Section</div>
-    <div class="faq-item">
-      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
-        Do you watch anime?
-        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+      <a href="https://reddit.com/u/totally-a-randomname" class="social-btn btn-reddit" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
         </svg>
-      </button>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">
-Most of the time, no. I couldn't be bothered to pay 2+ dollars a month for Crunchyroll. Even if I found episodes of Frieren somewhere on YouTube, my brain told me to do other things.
+        reddit
+      </a>
+
+      <a href="mailto:cab345127@gmail.com" class="social-btn btn-email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <polyline points="2,4 12,13 22,4" />
+        </svg>
+        contact e-mail
+      </a>
+
+      <a href="https://twitter.com/terribledom" class="social-btn btn-twitter" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.84L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+        twitter
+      </a>
+
+      <a href="https://youtube.com/@respirable" class="social-btn btn-youtube" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+        </svg>
+        youtube
+      </a>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ANTHOLOGY BUTTON -->
+    <div class="anthology-section">
+      <div class="section-label">my "literary" works</div>
+      <p>i'm currently writing an anthology of short stories about myself, in the form of Geometry Dash characters. when
+        it's done, the button below shouldn't be gray. it tells me a lot about my life, but a lot of details are
+        fictional, and i couldn't be bothered to tell you which detail is real and which isn't.</p>
+      <a href="/anthology" class="btn-anthology">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+        Read
+      </a>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- UTILITIES -->
+    <div class="utilities-section">
+      <div class="section-label">Utilities</div>
+      <div class="util-grid">
+
+        <!-- Tool 1: Genesys Point List Creator -->
+        <a href="/genesys/" class="util-card" style="background-image: url('yugioh-bg.png');">
+          <div class="util-card-content">
+            <div class="util-title">Genesys Point List Creator</div>
+            <span class="util-desc">Easily create point lists for Yu-Gi-Oh's Genesys Format! Great if you want all stun
+              cards to be at 0 points and all meta cards to be at 100 points!</span>
+          </div>
+        </a>
+
+        <!-- You can easily add more by copying the block above, and changing the image URL, description, and button text! -->
+
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <div class="section-label">Cursed FAQ Section</div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+          Do you watch anime?
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Most of the time, no. I couldn't be bothered to pay 2+ dollars a month for Crunchyroll. Even if I found
+            episodes of Frieren somewhere on YouTube, my brain told me to do other things.
+          </div>
         </div>
       </div>
     </div>
-  </div>
-      <div class="faq-item">
+    <div class="faq-item">
       <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
         What games do you play?
-        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-Yu-Gi-Oh Master Duel & Geometry Dash. I don't play any other games because I was born with potato devices.
+          Yu-Gi-Oh Master Duel & Geometry Dash. I don't play any other games because I was born with potato devices.
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="faq-item">
+    <div class="faq-item">
       <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
         Can you do [whatever feature] in WWTBAM HTML5?
-        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-My programming skills are subpar. Could you try asking someone else?
+          My programming skills are subpar. Could you try asking someone else?
+        </div>
       </div>
     </div>
-  </div>
 
     <div class="faq-item">
       <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
         I need some personal information about you.
-        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-I was born on August 24th, I'm Vietnamese, and I'm 5'5 (166 cm). I was born with autism (maybe?), and I don't believe that astrological signs determine my personality. That's all you're getting from me.
+          I was born on August 24th, I'm Vietnamese, and I'm 5'5 (166 cm). I was born with autism (maybe?), and I don't
+          believe that astrological signs determine my personality. That's all you're getting from me.
+        </div>
       </div>
     </div>
-  </div>
 
-      <div class="faq-item">
+    <div class="faq-item">
       <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
-       Favorite quote?
-        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+        Favorite quote?
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-"Creator of nothing, owner of nowhere" - I made it myself. You never said it has to be from someone popular.
+          "Creator of nothing, owner of nowhere" - I made it myself. You never said it has to be from someone popular.
+        </div>
       </div>
     </div>
-  </div>
 
-        <div class="faq-item">
+    <div class="faq-item">
       <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
-       I have other questions about you, (and would like you to [insert some kind of activity here]).
-        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+        I have other questions about you, (and would like you to [insert some kind of activity here]).
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-1. Look at the social links at the top of the page <br>
-2. Similar to programming, you should try contacting someone else. Like I said before, I'm a jack-of-no-trades, master of none.
+          1. Look at the social links at the top of the page <br>
+          2. Similar to programming, you should try contacting someone else. Like I said before, I'm a
+          jack-of-no-trades, master of none.
+        </div>
       </div>
     </div>
-  </div>
 
-          <div class="faq-item">
+    <div class="faq-item">
       <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
-       This websites' design is really terrible!
-        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
+        This websites' design is really terrible!
+        <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-1. This website is a WIP <br>
-2. Either deal with it, or look for other websites to visit. Make sure to come back to this website later to see if anything changes.
+          1. This website is a WIP <br>
+          2. Either deal with it, or look for other websites to visit. Make sure to come back to this website later to
+          see if anything changes.
+        </div>
       </div>
     </div>
-  </div>
-  
-</div>
 
-<script>
-  function toggleFaq(btn) {
-    const answer = btn.nextElementSibling;
-    const chevron = btn.querySelector('.faq-chevron');
-    const isOpen = !answer.classList.contains('open');
-    answer.classList.toggle('open', isOpen);
-    chevron.classList.toggle('rotated', isOpen);
-    btn.setAttribute('aria-expanded', String(isOpen));
-  }
-</script>
+  </div>
+
+  <script>
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const chevron = btn.querySelector('.faq-chevron');
+      const isOpen = !answer.classList.contains('open');
+      answer.classList.toggle('open', isOpen);
+      chevron.classList.toggle('rotated', isOpen);
+      btn.setAttribute('aria-expanded', String(isOpen));
+    }
+  </script>
 </body>
+
 </html>
