@@ -1,8 +1,3 @@
-# Development scripts
-extract_docx.py
-generate_stories.py
-patch_story13.py
-
 # Private reference controllers (NEVER commit)
 PLEASE PUT THIS IN GITIGNORE/
 _reference/
