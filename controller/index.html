@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WWTBAM HTML5 Controller Online – respirable</title>
+  <meta name="description"
+    content="Run a Who Wants to Be a Millionaire HTML5 controller directly in your browser. No IIS required." />
+  <meta property="og:title" content="WWTBAM HTML5 Controller Online" />
+  <meta property="og:description"
+    content="Run a WWTBAM HTML5 controller on the web without Internet Information Service." />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" data-name="vs/editor/editor.main"
+    href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/editor/editor.main.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/loader.min.js"></script>
+  <style>
+    /* ── PHASE 3 REFURBISHED IDE (DRIVE STYLE) ── */
+    :root {
+      --sidebar-w: 72px;
+      /* Slim rail */
+      --ide-bg: #0d1117;
+      --ide-sidebar: #161b22;
+      --ide-border: #30363d;
+      --ide-accent: #2f81f7;
+      --ide-text: #848d97;
+      --ide-text-bright: #ffffff;
+      --ide-hover: rgba(255, 255, 255, 0.08);
+      --font-main: "Segoe UI Variable Text", "Interop", "Inter", system-ui, sans-serif;
+      --font-code: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+    }
+
+    .edit-menu-overlay * {
+      font-family: var(--font-main);
+    }
+
+    /* Force font-code for editor related components */
+    .edit-menu-overlay .monaco-editor,
+    .edit-menu-overlay .monaco-editor * {
+      font-family: var(--font-code) !important;
+    }
+
+    .edit-menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px) saturate(180%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2vh 2vw;
+    }
+
+    .edit-menu-overlay.active {
+      display: flex;
+    }
+
+    .edit-menu {
+      width: 100%;
+      max-width: 1400px;
+      height: 96vh;
+      background: var(--ide-bg);
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex;
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8);
+      border: 1px solid var(--ide-border);
+    }
+
+    /* Vertical Navigation Rail */
+    .edit-menu-sidebar {
+      width: var(--sidebar-w);
+      background: var(--ide-sidebar);
+      border-right: 1px solid var(--ide-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0;
+      gap: 16px;
+    }
+
+    .nav-rail-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--ide-text);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .nav-rail-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .nav-rail-btn:hover {
+      background: var(--ide-hover);
+      color: var(--ide-text-bright);
+    }
+
+    .nav-rail-btn.active {
+      background: rgba(47, 129, 247, 0.15);
+      color: var(--ide-accent);
+      border-color: var(--ide-accent);
+    }
+
+    .nav-rail-btn[title]::after {
+      content: attr(title);
+      position: absolute;
+      left: 64px;
+      background: #30363d;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.2s;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-rail-btn:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Main Area */
+    .edit-menu-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      /* Fix infinite height expansion */
+    }
+
+    .edit-menu-header {
+      height: 72px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--ide-border);
+      gap: 16px;
+    }
+
+    .edit-menu-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-right: auto;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      margin-right: 24px;
+    }
+
+    .header-btn {
+      background: transparent;
+      border: 1px solid var(--ide-border);
+      color: var(--ide-text);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .header-btn:hover {
+      background: var(--ide-hover);
+      color: var(--ide-accent);
+      border-color: var(--ide-accent);
+    }
+
+    .header-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .tab-content {
+      flex: 1;
+      display: none;
+      overflow-y: auto;
+      height: 100%;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Specialized overflow for Editor to prevent infinite scrolling bugs */
+    #tab-editor {
+      overflow: hidden;
+    }
+
+    /* Drive-Style File List */
+    .file-grid-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 100px;
+      padding: 12px 32px;
+      border-bottom: 1px solid var(--ide-border);
+      color: var(--ide-text);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .file-list-view {
+      padding: 8px 16px;
+      min-height: 400px;
+    }
+
+    .tree-folder {
+      margin-bottom: 4px;
+    }
+
+    .tree-folder-header {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--ide-text-bright);
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 8px;
+      transition: 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .tree-folder-header:hover {
+      background: var(--ide-hover);
+    }
+
+    .tree-folder-header.selected {
+      background: rgba(47, 129, 247, 0.1);
+      border-color: rgba(47, 129, 247, 0.3);
+    }
+
+    .folder-toggle-icon {
+      width: 14px;
+      transition: 0.2s;
+      user-select: none;
+    }
+
+    .tree-folder.collapsed .folder-toggle-icon {
+      transform: rotate(-90deg);
+    }
+
+    .tree-folder-content {
+      margin-left: 12px;
+      border-left: 1px solid var(--ide-border);
+      display: block;
+    }
+
+    .tree-folder.collapsed .tree-folder-content {
+      display: none;
+    }
+
+    .file-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 100px;
+      padding: 12px 16px;
+      align-items: center;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--ide-text);
+      font-size: 14px;
+      transition: 0.2s;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .file-row:hover {
+      background: var(--ide-hover);
+      color: var(--ide-text-bright);
+    }
+
+    .file-row.selected {
+      background: rgba(47, 129, 247, 0.1);
+      border-color: rgba(47, 129, 247, 0.3);
+      color: var(--ide-accent);
+      font-weight: 600;
+    }
+
+    .file-row .file-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .file-row .file-icon-cell {
+      font-size: 18px;
+    }
+
+    .row-actions {
+      opacity: 0;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .file-row:hover .row-actions,
+    .tree-folder-header:hover .row-actions {
+      opacity: 1;
+    }
+
+    .row-actions button {
+      background: transparent;
+      border: none;
+      color: var(--ide-text);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: 0.2s;
+    }
+
+    .row-actions button:hover {
+      background: var(--ide-sidebar);
+      color: var(--ide-accent);
+    }
+
+    .row-actions button.delete-btn:hover {
+      color: #f85149;
+      background: rgba(248, 81, 73, 0.1);
+    }
+
+    .row-actions svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 82px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+      /* Allow clicks through to controller unless on toast */
+    }
+
+    .toast {
+      background: var(--ide-sidebar);
+      border: 1px solid var(--ide-border);
+      color: var(--ide-text-bright);
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: toastPop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1.2);
+      min-width: 320px;
+      pointer-events: auto;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .toast-progress {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .toast-bar {
+      height: 100%;
+      background: var(--ide-accent);
+      transition: width 0.3s;
+    }
+
+    #toastAction {
+      display: flex;
+      align-items: center;
+    }
+
+    .toast-btn {
+      background: rgba(255, 255, 255, 0.05);
+      color: #58a6ff;
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      letter-spacing: 0.05em;
+      font-family: inherit;
+    }
+
+    .toast-btn:hover {
+      background: rgba(88, 166, 255, 0.1);
+      border-color: #58a6ff;
+      transform: translateY(-1px);
+    }
+
+    .toast-close-btn {
+      background: transparent;
+      border: none;
+      color: #848d97;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      margin-left: 4px;
+    }
+
+    .toast-close-btn:hover {
+      color: #fff;
+    }
+
+    @keyframes toastPop {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+    }
+
+    /* Conflict Modal */
+    .conflict-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 200000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(8px);
+    }
+
+    .conflict-overlay.active {
+      display: flex;
+    }
+
+    .conflict-modal {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 32px 64px rgba(0, 0, 0, 0.7);
+      animation: modalPop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1.2);
+    }
+
+    @keyframes modalPop {
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+    }
+
+    .conflict-modal h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .conflict-modal p {
+      color: #848d97;
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .conflict-modal label {
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .conflict-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .conflict-actions button {
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+
+    #conflictSkipBtn {
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #fff;
+    }
+
+    #conflictSkipBtn:hover {
+      background: #30363d;
+    }
+
+    #conflictReplaceBtn {
+      background: #238636;
+      border: 1px solid #2ea043;
+      color: #fff;
+    }
+
+    #conflictReplaceBtn:hover {
+      background: #2ea043;
+    }
+
+    /* Restriction Modal */
+    .restriction-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 210000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    .restriction-overlay.active {
+      display: flex;
+    }
+
+    .restriction-card {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 32px 64px rgba(0, 0, 0, 0.8);
+      animation: modalPop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1.2);
+      text-align: center;
+    }
+
+    .restriction-card h3 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .restriction-card p {
+      color: #848d97;
+      font-size: 14px;
+      margin-bottom: 32px;
+      line-height: 1.7;
+    }
+
+    /* Floating Action Button (FAB) + Menu */
+    .fab-container {
+      position: absolute;
+      bottom: 32px;
+      right: 32px;
+      z-index: 100;
+    }
+
+    .fab-main {
+      width: 96px;
+      height: 48px;
+      border-radius: 24px;
+      background: var(--ide-accent);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(47, 129, 247, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .fab-main:hover {
+      transform: scale(1.05);
+    }
+
+    .fab-main svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .fab-menu {
+      position: absolute;
+      bottom: 60px;
+      right: 0;
+      background: var(--ide-sidebar);
+      border: 1px solid var(--ide-border);
+      border-radius: 12px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 160px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      transform-origin: bottom right;
+      animation: menuPop 0.2s cubic-bezier(0.2, 0.8, 0.2, 1.2);
+    }
+
+    .fab-menu.active {
+      display: flex;
+    }
+
+    .fab-menu-item {
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: var(--ide-text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .fab-menu-item:hover {
+      background: var(--ide-hover);
+      color: var(--ide-accent);
+    }
+
+    .fab-menu-item svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    @keyframes menuPop {
+      from {
+        transform: scale(0.85);
+        opacity: 0;
+      }
+    }
+
+    /* Editor and Previews */
+    #editorContainer {
+      flex: 1;
+      background: #0d1117;
+      position: relative;
+      height: 100%;
+      width: 100%;
+      min-height: 0;
+    }
+
+    .no-file-selected {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .no-file-selected p {
+      font-size: 15px;
+      opacity: 0.7;
+      color: #fff !important;
+    }
+
+    .image-preview-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: #090c10;
+    }
+
+    .image-preview-container img {
+      max-width: 100%;
+      max-height: 80%;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--ide-border);
+    }
+
+    .image-preview-meta {
+      margin-top: 20px;
+      color: var(--ide-text);
+      font-size: 13px;
+    }
+
+    /* Premium Settings Buttons */
+    .settings-btn {
+      padding: 10px 24px;
+      background: transparent;
+      border: 1px solid var(--ide-border);
+      color: var(--ide-text-bright);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+      /* Unified font */
+    }
+
+    .settings-btn:hover {
+      background: var(--ide-hover);
+      border-color: var(--ide-accent);
+    }
+
+    .settings-btn.danger {
+      color: #f85149;
+      border-color: rgba(248, 81, 73, 0.3);
+    }
+
+    .settings-btn.danger:hover {
+      background: rgba(248, 81, 73, 0.1);
+      border-color: #f85149;
+    }
+
+    .info-doc,
+    .settings-panel {
+      padding: 48px 64px;
+      max-width: 1000px;
+      margin: 0 auto;
+      color: var(--ide-text-bright);
+      line-height: 1.8;
+    }
+
+    .info-doc h1 {
+      margin-bottom: 32px;
+      font-size: 32px;
+      letter-spacing: -0.02em;
+    }
+
+    .info-doc h3 {
+      margin-bottom: 12px;
+      margin-top: 32px;
+      font-size: 20px;
+      color: var(--ide-text-bright);
+    }
+
+    .info-doc p {
+      margin-bottom: 24px;
+      color: rgba(255, 255, 255, 0.85);
+      /* Slightly whiter */
+      font-size: 15px;
+    }
+
+    .setting-card {
+      background: var(--ide-sidebar);
+      border: 1px solid var(--ide-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .setting-card:hover {
+      border-color: rgba(47, 129, 247, 0.4);
+    }
+
+    .header-close-btn {
+      background: rgba(248, 81, 73, 0.1);
+      color: #f85149;
+      border: 1px solid transparent;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .header-close-btn:hover {
+      background: #f85149;
+      color: #fff;
+    }
+
+    /* ── Editor Toolbar ── */
+    .editor-toolbar {
+      height: 48px;
+      padding: 0 16px;
+      background: var(--ide-sidebar);
+      border-bottom: 1px solid var(--ide-border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .editor-toolbar-btn {
+      background: transparent;
+      border: none;
+      color: var(--ide-text);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .editor-toolbar-btn:hover {
+      background: var(--ide-hover);
+      color: var(--ide-accent);
+    }
+
+    .editor-toolbar-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .editor-toolbar-btn.save-btn:hover {
+      color: #4CAF50;
+      background: rgba(76, 175, 80, 0.1);
+    }
+
+    /* ── Custom Find/Replace Bar ── */
+    .editor-find-bar {
+      background: var(--ide-sidebar);
+      border-bottom: 1px solid var(--ide-border);
+      padding: 8px 16px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .editor-find-bar.active {
+      display: flex;
+    }
+
+    .find-input-group {
+      display: flex;
+      align-items: center;
+      background: var(--ide-bg);
+      border: 1px solid var(--ide-border);
+      border-radius: 6px;
+      padding: 2px 8px;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .find-input-group input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 13px;
+      padding: 6px;
+      outline: none;
+      width: 100%;
+    }
+
+    .find-btn {
+      background: transparent;
+      border: 1px solid var(--ide-border);
+      color: var(--ide-text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .find-btn:hover {
+      background: var(--ide-hover);
+      color: var(--ide-accent);
+      border-color: var(--ide-accent);
+    }
+
+    .find-btn.primary {
+      background: var(--ide-accent);
+      color: #fff;
+      border-color: var(--ide-accent);
+    }
+
+    .top-bar-tip {
+      font-size: 11px;
+      opacity: 0.5;
+      margin-left: 20px;
+      font-weight: normal;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 8px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    /* ── Restriction Overlay ── */
+    .restriction-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .restriction-overlay.active {
+      display: flex;
+    }
+
+    .restriction-card {
+      background: var(--ide-sidebar);
+      border: 1px solid var(--ide-border);
+      max-width: 450px;
+      padding: 32px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      animation: restrictionPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes restrictionPop {
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .restriction-card h3 {
+      color: #f85149;
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+
+    .restriction-card p {
+      color: var(--ide-text);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* ── iOS Toggle ── */
+    .ios-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .ios-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .ios-toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--ide-border);
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .ios-toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.ios-toggle-slider {
+      background-color: var(--ide-accent);
+    }
+
+    input:checked+.ios-toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* ── Restriction Overlay ── */
+    .restriction-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .restriction-overlay.active {
+      display: flex;
+    }
+
+    .restriction-card {
+      background: var(--ide-sidebar);
+      border: 1px solid var(--ide-border);
+      max-width: 450px;
+      padding: 40px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8);
+      animation: restrictionPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes restrictionPop {
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .restriction-card h3 {
+      color: #fff;
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .restriction-card p {
+      color: var(--ide-text);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    .back-link-bar {
+      height: 50px;
+    }
+
+    .controller-frame {
+      position: fixed;
+      top: 50px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 50px);
+      border: none;
+      z-index: 10;
+      /* Animation removed to avoid flicker of background modals */
+    }
+
+    body.topbar-hidden #topBar {
+      display: none !important;
+    }
+
+    body.topbar-hidden .controller-frame {
+      top: 0;
+      height: 100%;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ── MOBILE GATE ── */
+    .mobile-gate {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      gap: 20px;
+    }
+
+    .mobile-gate.active {
+      display: flex;
+    }
+
+    .mobile-gate-icon {
+      width: 64px;
+      height: 64px;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    .mobile-gate h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .mobile-gate p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 400px;
+    }
+
+    .mobile-gate-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: filter 0.15s, transform 0.15s;
+    }
+
+    .mobile-gate-link:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    /* ── LOADING SCREEN ── */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.4s ease;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .loading-subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 400px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .progress-bar-container {
+      width: 320px;
+      max-width: 80vw;
+      height: 8px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .loading-status {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ── BACK LINK ── */
+    .back-link-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 44px;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .back-link-bar a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .back-link-bar a:hover {
+      color: var(--text);
+    }
+
+    .back-link-bar .page-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-left: auto;
+    }
+
+    /* ── CONTROLLER IFRAME ── */
+    .controller-frame {
+      position: fixed;
+      top: 44px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: none;
+      width: 100%;
+      height: calc(100vh - 44px);
+      background: #000;
+    }
+
+    /* ── WELCOME MODAL ── */
+    .welcome-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .welcome-overlay.active {
+      display: flex;
+    }
+
+    .welcome-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px 28px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .welcome-modal h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .welcome-modal p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .welcome-ok-btn {
+      align-self: center;
+      padding: 10px 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--accent);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.15s;
+    }
+
+    .welcome-ok-btn:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    /* ── ERROR STATE ── */
+    .error-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: var(--bg);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .error-screen.active {
+      display: flex;
+    }
+
+    .error-screen h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .error-screen p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 450px;
+    }
+
+    .retry-btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.15s;
+    }
+
+    .retry-btn:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    /* ── DEV TOOLS (hidden until Esc) ── */
+    .dev-upload-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 300;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .dev-upload-bar.active {
+      display: flex;
+    }
+
+    .dev-upload-bar button {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .dev-upload-bar button:hover {
+      background: var(--border);
+    }
+
+    .dev-upload-bar button.danger {
+      background: transparent;
+      color: #d73a49;
+      border-color: #d73a49;
+    }
+
+    .dev-upload-bar button.danger:hover {
+      background: rgba(215, 58, 73, 0.1);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════ MOBILE GATE ═══════════════════ -->
+  <div class="mobile-gate" id="mobileGate">
+    <svg class="mobile-gate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+      <line x1="12" y1="18" x2="12.01" y2="18" />
+    </svg>
+    <h1>Hold up!</h1>
+    <p>You need to visit this website on a desktop to access WWTBAM HTML5 Controller</p>
+    <p>The controller is designed to work on a desktop computer only, not mobile devices. And don't try to be sneaky
+      by using desktop mode on mobile browsers.
+    </p>
+    <a href="/" class="mobile-gate-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to Main Page
+    </a>
+  </div>
+
+  <!-- ═══════════════════ LOADING SCREEN ═══════════════════ -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="spinner"></div>
+    <div class="loading-title">Loading Controller...</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+    <div class="loading-status" id="loadingStatus">Preparing...</div>
+    <div class="loading-subtitle">This may take a while. While you wait, why not donate to me at <a
+        href="https://ko-fi.com/respirable" target="_blank"
+        style="color: var(--accent); text-decoration: underline; pointer-events: auto;">https://ko-fi.com/respirable</a>?
+      It's definitely for a good cause!</div>
+  </div>
+
+  <!-- ═══════════════════ ERROR SCREEN ═══════════════════ -->
+  <div class="error-screen" id="errorScreen">
+    <h2>Hmm... Something happened</h2>
+    <p id="errorMessage">Unable to load the controller bundle.</p>
+    <button class="retry-btn" onclick="location.reload()">Try Again</button>
+    <a href="/" class="mobile-gate-link"
+      style="background: var(--surface2); color: var(--text); border: 1px solid var(--border); margin-top: 4px;">Back to
+      respirable</a>
+  </div>
+
+  <!-- ═══════════════════ TOP BAR ═══════════════════ -->
+  <div class="back-link-bar" id="topBar" style="display: none; align-items: center; gap: 16px;">
+    <a href="/">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      respirable
+    </a>
+    <span class="page-title">WWTBAM HTML5 Controller Online</span>
+    <span class="top-bar-tip">Press Backspace to toggle this bar.</span>
+  </div>
+
+  <!-- ═══════════════════ CONTROLLER IFRAME ═══════════════════ -->
+  <iframe class="controller-frame" id="controllerFrame" style="display: none;"
+    sandbox="allow-scripts allow-same-origin"></iframe>
+
+  <!-- ═══════════════════ WELCOME MODAL ═══════════════════ -->
+  <div class="welcome-overlay" id="welcomeOverlay">
+    <div class="welcome-modal">
+      <h2>Welcome to the Online WWTBAM HTML5 Controller!</h2>
+      <p>This site allows you to use the controller without having to enable Internet Information Service on your
+        computer! Should you want to edit the controller's files and/or learn more about how this controller works,
+        press the Esc key.</p>
+      <button class="welcome-ok-btn" id="welcomeOkBtn">OK</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ EDIT MENU OVERLAY (PHASE 3) ═══════════════════ -->
+  <div class="edit-menu-overlay" id="editMenuOverlay">
+    <div class="edit-menu">
+      <!-- Navigation Rail -->
+      <div class="edit-menu-sidebar">
+        <button id="tabBtn-files" class="nav-rail-btn active" onclick="switchTab('files')" title="Files">
+          <svg viewBox="0 0 24 24">
+            <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
+          </svg>
+        </button>
+        <button id="tabBtn-editor" class="nav-rail-btn" onclick="switchTab('editor')" title="Editor">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12.89 3L14.85 3.4L11.11 21L9.15 20.6L12.89 3M19.59 12L16 8.41V5.58L22.42 12L16 18.41V15.58L19.59 12M1.58 12L8 5.58V8.41L4.41 12L8 15.58V18.41L1.58 12Z" />
+          </svg>
+        </button>
+        <button id="tabBtn-info" class="nav-rail-btn" onclick="switchTab('info')" title="Documentation">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
+          </svg>
+        </button>
+        <div style="flex: 1;"></div>
+        <button id="tabBtn-settings" class="nav-rail-btn" onclick="switchTab('settings')" title="Settings">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.35 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.66 15.47,5.34 14.86,5.12L14.47,2.46C14.43,2.24 14.24,2.08 14,2.08H10C9.76,2.08 9.57,2.24 9.53,2.46L9.14,5.12C8.53,5.34 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.97 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.35 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.95C7.96,18.34 8.53,18.66 9.14,18.88L9.53,21.54C9.57,21.76 9.76,21.92 10,21.92H14C14.24,21.92 14.43,21.76 14.47,21.54L14.86,18.88C15.47,18.66 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Main Area -->
+      <div class="edit-menu-main">
+        <div class="edit-menu-header">
+          <h2 id="currentTabTitle">Explorer</h2>
+          <div class="header-actions">
+
+          </div>
+          <button class="header-close-btn" onclick="toggleDevBar()">Close (Esc)</button>
+        </div>
+
+        <!-- Files Tab -->
+        <div id="tab-files" class="tab-content active">
+          <div class="file-grid-header">
+            <span>Name</span>
+            <span>Type</span>
+            <span>Path</span>
+            <span></span>
+          </div>
+          <div class="file-list-view" id="fileList">
+            <!-- Files will be injected here as .file-row -->
+          </div>
+
+          <!-- Combined FAB for New Item -->
+          <div class="fab-container">
+            <div class="fab-menu" id="newMenu">
+              <div class="fab-menu-item" onclick="toggleNewMenu(); createNewFolder()">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 12h2v2h2v2h-2v2h-2v-2h-2v-2h2v-2zm10-4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h6l2 2h8c1.1 0 2 .9 2 2z" />
+                </svg>
+                New Folder
+              </div>
+              <div class="fab-menu-item" onclick="toggleNewMenu(); document.getElementById('fileInput').click()">
+                <svg viewBox="0 0 24 24">
+                  <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                </svg>
+                File Upload
+              </div>
+            </div>
+            <button class="fab-main" onclick="toggleNewMenu()" title="New Item">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              New
+            </button>
+            <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileUpload(this.files)" />
+          </div>
+        </div>
+
+        <!-- Editor Tab -->
+        <div id="tab-editor" class="tab-content">
+          <div class="editor-toolbar">
+            <button class="editor-toolbar-btn" onclick="editorAction('undo')" title="Undo (Ctrl+Z)">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8Z" />
+              </svg>
+            </button>
+            <button class="editor-toolbar-btn" onclick="editorAction('redo')" title="Redo (Ctrl+Y)">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7L18.4 10.6Z" />
+              </svg>
+            </button>
+            <div style="width: 1px; height: 20px; background: var(--ide-border); margin: 0 4px;"></div>
+            <button class="editor-toolbar-btn" onclick="toggleFindBar()" title="Find & Replace (Ctrl+F)">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+              </svg>
+            </button>
+            <div style="width: 1px; height: 20px; background: var(--ide-border); margin: 0 4px;"></div>
+            <button class="editor-toolbar-btn save-btn" onclick="saveEditorContent()" title="Save File (Ctrl+S)">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7L17 3zM12 19c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zM15 9H5V5h10v4z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Custom Find/Replace Bar -->
+          <div class="editor-find-bar" id="editorFindBar">
+            <div class="find-input-group">
+              <input type="text" id="findInput" placeholder="Find text..." onkeyup="if(event.key==='Enter') findNext()">
+            </div>
+            <div class="find-input-group">
+              <input type="text" id="replaceInput" placeholder="Replace with...">
+            </div>
+            <button class="find-btn primary" onclick="findNext()">Next</button>
+            <button class="find-btn" onclick="findPrev()">Prev</button>
+            <button class="find-btn" onclick="replaceOne()">Replace</button>
+            <button class="find-btn" onclick="replaceAll()">Replace All</button>
+            <button class="find-btn" onclick="toggleFindBar()">Close</button>
+          </div>
+
+          <div id="editorContainer">
+            <div class="no-file-selected">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
+              </svg>
+              <p>Select a file to edit or view</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-info" class="tab-content">
+          <div class="info-doc">
+            <h1>WWTBAM HTML5 CONTROLLER ONLINE GUIDE</h1>
+            <p>This guide will teach you the basics of using the WWTBAM HTML5 sandbox. It’s actually super
+              straightforward if you’ve used it before. All you need to do is load up the website and use the controller
+              just like what you’d do after setting up IIS and opening the default.html file in your project.</p>
+            <p>Currently, only the Olga V2.5 graphics is available for testing.</p>
+
+            <h3>What if I don’t know how to use the controller in the first place?</h3>
+            <p>Well… sucks to suck, as GD Colon once said. There is a keystrokes tutorial in Kuby’s Project files. You
+              should take a look at that file because I’m too lazy to cite them here.</p>
+
+            <h3>How does this work?</h3>
+            <p>This website uses <strong>IndexedDB</strong> for storing the controller’s file and <strong>Monaco
+                Editor</strong> for the editor interface. As for processing the files, there is a <strong>Service
+                Worker</strong> just for that.</p>
+            <p>The default controller is stored on a Cloudflare R2 “database” (or whatever you call that thing), and it
+              goes into your memory the moment you load the controller. So… no server needed, and I can still host this
+              thing on GitHub! All modifications you make to the sandbox are saved in your browser’s cache. If you need
+              to reset everything, you can head to the settings menu.</p>
+
+            <h3>What other special keybinds are used here that I should remember?</h3>
+            <p>The only two special keybinds you’ll ever need here are <strong>Esc</strong> and
+              <strong>Backspace</strong>. The former brings up the file explorer & editor, and the latter brings up a
+              top bar that can get you back to the main page.
+            </p>
+            <p>Make sure that you don’t set any functions to use this key, as it will cause conflicts with the sandbox.
+            </p>
+
+            <h3>I need to use another graphics set!</h3>
+            <p>For now, you have to manually upload all your custom graphics to your controller.</p>
+            <p
+              style="background: rgba(248,81,73,0.1); border-left: 4px solid #f85149; padding: 16px; border-radius: 8px; color: #fff;">
+              <strong>IMPORTANT:</strong> Before uploading the graphics, make sure your <strong>Images</strong> folder
+              is highlighted. Otherwise, all your files will be at the main directory, and multi-select + in-explorer
+              drag-and-drop have not been implemented yet.
+            </p>
+            <p style="margin-top: 16px; opacity: 0.8;">If enough people like the idea, I will upload all graphic
+              variations of the controller to the database, as long as they don’t exceed 10 GB in size.</p>
+            <p>Also, please keep in mind that this is a work in progress, and any features you see here are subject to
+              change. Also there's like a million bugs
+              that I'm not going to bother fix (or maybe I will but in like a year or two).
+            </p>
+
+          </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="tab-content">
+          <div class="settings-panel">
+            <h3>General Settings</h3>
+            <div class="setting-card" style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="flex: 1;">
+                <h4>Prompt before overwriting files</h4>
+                <p>Show a confirmation modal when uploading a file that already exists in the sandbox.</p>
+              </div>
+              <label class="ios-toggle">
+                <input type="checkbox" id="settingConflictPrompt" checked>
+                <span class="ios-toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-card">
+              <h4 style="color: #fff; margin-bottom: 12px;">Maintenance</h4>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="settings-btn" onclick="hardRefresh()">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path
+                      d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+                  </svg>
+                  Force Cache Refresh
+                </button>
+                <button class="settings-btn" onclick="restoreDefaultQuestions()">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path
+                      d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+                  </svg>
+                  Restore Default Questions
+                </button>
+                <button class="settings-btn danger" onclick="resetSandbox()">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path
+                      d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
+                  </svg>
+                  Reset Entire Sandbox
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ CONFLICT MODAL ═══════════════════ -->
+  <div class="conflict-overlay" id="conflictOverlay">
+    <div class="conflict-modal">
+      <h3>File Already Exists</h3>
+      <p id="conflictMsg">A file named "example.js" already exists. What would you like to do?</p>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="conflictRemember"> Don't ask again (Remember choice)
+        </label>
+      </div>
+      <div class="conflict-actions">
+        <button id="conflictSkipBtn">Skip</button>
+        <button class="primary-btn" id="conflictReplaceBtn">Replace</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ THEME TOGGLE ═══════════════════ -->
+  <div class="theme-toggle-wrap" id="themeToggleWrap" style="display: none;">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- ═══════════════════ TOAST CONTAINER ═══════════════════ -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+  <script src="/controller/db.js?v=1.1"></script>
+  <script src="/controller/loader.js?v=1.1"></script>
+  <script src="/controller/main.js?v=1.1"></script>
+  <!-- ═══════════════════ RESTRICTION MODAL ═══════════════════ -->
+  <div class="restriction-overlay" id="restrictionOverlay">
+    <div class="restriction-card">
+      <h3>One second!</h3>
+      <p id="restrictionMsg">Ummm... This is a WWTBAM HTML5 Sandbox, not your second Google Drive. I know you want to
+        upload some kind of YDK or EXE file that links to your controller, but I'm scared that you will give your
+        sandbox and/or my editor a virus (whatever that means). Sorry for that.</p>
+      <button class="settings-btn" style="width: 100%; justify-content: center;"
+        onclick="document.getElementById('restrictionOverlay').classList.remove('active')">OK</button>
+    </div>
+  </div>
+</body>
+
+</html>
