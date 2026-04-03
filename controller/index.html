@@ -4,13 +4,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WWTBAM HTML5 Controller Online – respirable</title>
+  <title>WWTBAM HTML5 Controller Online</title>
   <meta name="description"
     content="Run a Who Wants to Be a Millionaire HTML5 controller directly in your browser. No IIS required." />
+  <meta name="robots" content="noindex, nofollow" />
   <meta property="og:title" content="WWTBAM HTML5 Controller Online" />
   <meta property="og:description"
     content="Run a WWTBAM HTML5 controller on the web without Internet Information Service." />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="/wwtbam-bg.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="stylesheet" href="/theme.css">
   <script src="/theme.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1507,9 +1510,8 @@
       <line x1="12" y1="18" x2="12.01" y2="18" />
     </svg>
     <h1>Hold up!</h1>
-    <p>You need to visit this website on a desktop to access WWTBAM HTML5 Controller</p>
-    <p>The controller is designed to work on a desktop computer only, not mobile devices. And don't try to be sneaky
-      by using desktop mode on mobile browsers.
+    <p>You need to visit this website on a desktop to access the WWTBAM HTML5 Controller</p>
+    <p>The controller is designed to work on a desktop computer only, not mobile devices.
     </p>
     <a href="/" class="mobile-gate-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1529,10 +1531,8 @@
       <div class="progress-bar-fill" id="progressBar"></div>
     </div>
     <div class="loading-status" id="loadingStatus">Preparing...</div>
-    <div class="loading-subtitle">This may take a while. While you wait, why not donate to me at <a
-        href="https://ko-fi.com/respirable" target="_blank"
-        style="color: var(--accent); text-decoration: underline; pointer-events: auto;">https://ko-fi.com/respirable</a>?
-      It's definitely for a good cause!</div>
+    <div class="loading-subtitle">This may take a while. While you wait, remember to check out other projects made by
+      respirable!</div>
   </div>
 
   <!-- ═══════════════════ ERROR SCREEN ═══════════════════ -->
@@ -1568,7 +1568,7 @@
     <div class="welcome-modal">
       <h2>Welcome to the Online WWTBAM HTML5 Controller!</h2>
       <p>This site allows you to use the controller without having to enable Internet Information Service on your
-        computer! Should you want to edit the controller's files and/or learn more about how this controller works,
+        computer! Should you want to edit the controller's files and/or learn more about how this works,
         press the Esc key.</p>
       <button class="welcome-ok-btn" id="welcomeOkBtn">OK</button>
     </div>
@@ -1716,7 +1716,7 @@
             <h1>WWTBAM HTML5 CONTROLLER ONLINE GUIDE</h1>
             <p>This guide will teach you the basics of using the WWTBAM HTML5 sandbox. It’s actually super
               straightforward if you’ve used it before. All you need to do is load up the website and use the controller
-              just like what you’d do after setting up IIS and opening the default.html file in your project.</p>
+              just like what you’d do with a local environment.</p>
             <p>Currently, only the Olga V2.5 graphics is available for testing.</p>
 
             <h3>What if I don’t know how to use the controller in the first place?</h3>
@@ -1754,7 +1754,15 @@
               change. Also there's like a million bugs
               that I'm not going to bother fix (or maybe I will but in like a year or two).
             </p>
-
+            <p
+              style="margin-top: 32px; padding: 24px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--ide-border); font-size: 13px; color: var(--ide-text); line-height: 1.6;">
+              <strong>DISCLAIMER:</strong> The set of HTML5 controllers are based on and are modified versions of the
+              classic edition of "Who Wants to Be a Millionaire?". All rights go to their original owners. This website
+              is a non-commercial project created for educational and research purposes. I am not affiliated with,
+              sponsored by, or endorsed by Sony or any owner of the ‘Who Wants to Be a Millionaire?’ program. All
+              identifying elements of the original program used here fall within the scope of Fair Use and are not
+              intended for commercial competition.
+            </p>
           </div>
         </div>
 
@@ -1855,8 +1863,8 @@
     <div class="restriction-card">
       <h3>One second!</h3>
       <p id="restrictionMsg">Ummm... This is a WWTBAM HTML5 Sandbox, not your second Google Drive. I know you want to
-        upload some kind of YDK or EXE file that links to your controller, but I'm scared that you will give your
-        sandbox and/or my editor a virus (whatever that means). Sorry for that.</p>
+        upload some kind of binary file that links to your controller, but I'm careful about security here. Sorry for
+        that.</p>
       <button class="settings-btn" style="width: 100%; justify-content: center;"
         onclick="document.getElementById('restrictionOverlay').classList.remove('active')">OK</button>
     </div>
