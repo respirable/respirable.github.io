@@ -14,6 +14,21 @@ let currentPath = '';
 let currentFile = null;
 let currentEditorFile = null;
 let uploadToast = null;
+let selectedVariant = sessionStorage.getItem('wwtbam-variant') || null;
+let selectedFormat = sessionStorage.getItem('wwtbam-format') || null;
+
+const VARIANTS = {
+  'olga': {
+    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_12q.zip',
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5.zip'
+  },
+  '1998_classic': {
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/1998_Classic.zip'
+  },
+  '1999_endemol': {
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/1999_Endemol.zip'
+  }
+};
 
 function showNotification(message, isProgress = false) {
   const container = document.getElementById('toastContainer');
@@ -107,6 +122,61 @@ function switchTab(tabId) {
 function toggleTopBar() {
   document.body.classList.toggle('topbar-hidden');
   localStorage.setItem('topbar-hidden', document.body.classList.contains('topbar-hidden'));
+}
+
+// ─── SELECTION SCREEN LOGIC ───
+function openFormatPicker(variantId) {
+  selectedVariant = variantId;
+  
+  if (variantId === '1998_classic' || variantId === '1999_endemol') {
+    selectedFormat = '15';
+    startWithSelection(true);
+  } else {
+    document.getElementById('formatOverlay').classList.add('active');
+  }
+}
+
+function closeFormatPicker() {
+  document.getElementById('formatOverlay').classList.remove('active');
+}
+
+async function startWithSelection(skipDom = false) {
+  let format = '15';
+  
+  if (!skipDom) {
+    const formats = document.getElementsByName('gameFormat');
+    for (const f of formats) {
+      if (f.checked) {
+        format = f.value;
+        break;
+      }
+    }
+    selectedFormat = format;
+  }
+  sessionStorage.setItem('wwtbam-variant', selectedVariant);
+  sessionStorage.setItem('wwtbam-format', selectedFormat);
+  
+  document.getElementById('formatOverlay').classList.remove('active');
+  document.getElementById('selectionOverlay').classList.remove('active');
+  
+  const zipUrl = VARIANTS[selectedVariant][selectedFormat];
+  
+  // Show loading screen and boot
+  document.getElementById('loadingScreen').classList.remove('hidden');
+  document.getElementById('loadingScreen').style.display = 'flex';
+  
+  try {
+    const l = await loadBundle(zipUrl, (loaded, total) => {
+      const pb = document.getElementById('progressBar');
+      if (pb) pb.style.width = Math.round((loaded / total) * 100) + '%';
+    });
+    await bootController();
+  } catch (err) {
+    console.error("Selection Boot Error:", err);
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('errorScreen').style.display = 'flex';
+    document.getElementById('errorMessage').textContent = "Failed to load the selected variant.";
+  }
 }
 
 // ─── DRIVE-STYLE FILE LIST ───
@@ -549,7 +619,14 @@ async function restoreDefaultQuestions() {
     renderFileList(); hardRefresh();
   }
 }
-async function resetSandbox() { if (confirm('Wipe Sandbox?')) { await clearAll(); location.reload(); } }
+async function resetSandbox() { 
+  if (confirm('Wipe Sandbox? This will also reset your graphic selection.')) { 
+    sessionStorage.removeItem('wwtbam-variant');
+    sessionStorage.removeItem('wwtbam-format');
+    await clearAll(); 
+    location.reload(); 
+  } 
+}
 async function bootController() { document.getElementById('controllerFrame').src = '/controller/sandbox/'; document.getElementById('controllerFrame').style.display = 'block'; document.getElementById('topBar').style.display = 'flex'; setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 800); }
 
 function showConflictModal(msg) {
@@ -648,13 +725,29 @@ if (localStorage.getItem('topbar-hidden') === 'true') {
 
 async function init() {
   if ('serviceWorker' in navigator) await navigator.serviceWorker.register('/controller/sw.js', { scope: '/controller/' });
-  if (await hasBundle()) await bootController();
-  else {
-    await loadBundle('https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5.zip', (l, t) => {
-      const pb = document.getElementById('progressBar');
-      if (pb) pb.style.width = Math.round((l / t) * 100) + '%';
-    });
+  
+  // ─── SESSION MANAGEMENT (NEW) ───
+  // If this is a new tab/session, wipe the old data automatically
+  if (!sessionStorage.getItem('wwtbam-session-active')) {
+    console.log("New session detected. Clearing sandbox data...");
+    await clearAll();
+    sessionStorage.removeItem('wwtbam-variant');
+    sessionStorage.removeItem('wwtbam-format');
+    sessionStorage.setItem('wwtbam-session-active', 'true');
+    // Refresh selections from sessionStorage now that they've been cleared
+    selectedVariant = null;
+    selectedFormat = null;
+  }
+
+  const hasData = await hasBundle();
+  
+  if (hasData && selectedVariant) {
     await bootController();
+  } else {
+    // No data or no selection: Show the selection overlay
+    document.getElementById('selectionOverlay').classList.add('active');
+    // Ensure loading screen is hidden if it was showing
+    document.getElementById('loadingScreen').style.display = 'none';
   }
 }
 
@@ -667,3 +760,4 @@ window.renameFolderWrapper = renameFolderWrapper; window.deleteFolderWrapper = d
 window.deleteFileWrapper = deleteFileWrapper; window.editorAction = editorAction; window.toggleTopBar = toggleTopBar;
 window.toggleFindBar = toggleFindBar; window.findNext = findNext; window.findPrev = findPrev;
 window.replaceOne = replaceOne; window.replaceAll = replaceAll;
+window.openFormatPicker = openFormatPicker; window.closeFormatPicker = closeFormatPicker; window.startWithSelection = startWithSelection;
