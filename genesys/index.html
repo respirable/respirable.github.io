@@ -408,6 +408,140 @@
             margin-bottom: 16px;
             border-bottom: 2px solid var(--border);
             padding-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .custom-dropdown {
+            position: relative;
+            min-width: 220px;
+        }
+
+        .sort-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: var(--surface2);
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sort-container:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .sort-container.open {
+            border-color: var(--accent);
+            background: var(--surface);
+        }
+
+        .sort-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .sort-current-val {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .sort-select-arrow {
+            color: var(--muted);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s;
+        }
+
+        .sort-container.open .sort-select-arrow {
+            transform: rotate(180deg);
+            color: var(--accent);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-top: 8px;
+            padding: 6px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: dropdown-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top center;
+        }
+
+        @keyframes dropdown-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.15s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-item:hover {
+            background: var(--surface2);
+            color: var(--accent);
+            padding-left: 18px;
+        }
+
+        .dropdown-item.active {
+            background: rgba(47, 129, 247, 0.1);
+            color: var(--accent);
+        }
+
+        .dropdown-item.active::after {
+            content: "✓";
+            font-weight: 800;
+            font-size: 0.8rem;
+        }
+
+        .card-grid-item.new-card-highlight {
+            animation: highlight-pulse 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes highlight-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(9, 105, 218, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(9, 105, 218, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(9, 105, 218, 0);
+            }
         }
 
         .card-list-header h3 {
@@ -638,6 +772,14 @@
             <div class="config-item">
                 <label for="maxPoints">Max Genesys Points per Deck</label>
                 <input type="number" id="maxPoints" class="base-input" value="100" min="0" />
+                <div class="config-checkbox-group">
+                    <label class="disabled-label" title="Strict Genesys format rules">
+                        <input type="checkbox" id="noPendulum" checked disabled> Prohibit Pendulum
+                    </label>
+                    <label class="disabled-label" title="Strict Genesys format rules">
+                        <input type="checkbox" id="noLink" checked disabled> Prohibit Link
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -708,6 +850,30 @@
 
         <div class="card-list-header">
             <h3>Registered Cards <span id="cardCount" class="card-count">0</span></h3>
+            <div class="custom-dropdown" id="sortDropdown">
+                <div class="sort-container" id="sortTrigger" onclick="toggleDropdown()">
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="sort-label">Sort By</span>
+                        <span class="sort-current-val" id="currentSortLabel">Alphabetical (A-Z)</span>
+                    </div>
+                    <svg class="sort-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+                <div class="dropdown-menu hidden" id="sortMenu">
+                    <div class="dropdown-item active" data-value="name_asc"
+                        onclick="selectSortOption('name_asc', 'Alphabetical (A-Z)')">Alphabetical (A-Z)</div>
+                    <div class="dropdown-item" data-value="name_desc"
+                        onclick="selectSortOption('name_desc', 'Alphabetical (Z-A)')">Alphabetical (Z-A)</div>
+                    <div class="dropdown-item" data-value="points_desc"
+                        onclick="selectSortOption('points_desc', 'Points (High to Low)')">Points (High to Low)</div>
+                    <div class="dropdown-item" data-value="points_asc"
+                        onclick="selectSortOption('points_asc', 'Points (Low to High)')">Points (Low to High)</div>
+                    <div class="dropdown-item" data-value="type" onclick="selectSortOption('type', 'Card Type')">Card
+                        Type</div>
+                </div>
+            </div>
         </div>
 
         <!-- Moved filters-container up -->
@@ -879,6 +1045,13 @@
 
         function addCard(apiCard) {
             if (cardMap.has(apiCard.id)) {
+                // Focus and scroll to existing
+                const existing = document.querySelector(`[data-id="${apiCard.id}"]`);
+                if (existing) {
+                    existing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    existing.classList.add('new-card-highlight');
+                    setTimeout(() => existing.classList.remove('new-card-highlight'), 2000);
+                }
                 searchInput.value = '';
                 searchResults.classList.add('hidden');
                 return;
@@ -891,13 +1064,55 @@
                 type: apiCard.type,
                 frameType: apiCard.frameType,
                 race: apiCard.race,
-                attribute: apiCard.attribute
+                attribute: apiCard.attribute,
+                level: apiCard.level || apiCard.rank || apiCard.linkval || 0
             };
             cardMap.set(apiCard.id, cardData);
             renderCardList();
+
+            // Scroll to the newly added card
+            setTimeout(() => {
+                const newCard = document.querySelector(`[data-id="${apiCard.id}"]`);
+                if (newCard) {
+                    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    newCard.classList.add('new-card-highlight');
+                    setTimeout(() => newCard.classList.remove('new-card-highlight'), 2000);
+                }
+            }, 50);
+
             searchResults.classList.add('hidden');
             searchInput.value = '';
         }
+
+        let currentSortVal = 'name_asc';
+
+        function toggleDropdown() {
+            const menu = document.getElementById('sortMenu');
+            const trigger = document.getElementById('sortTrigger');
+            menu.classList.toggle('hidden');
+            trigger.classList.toggle('open');
+        }
+
+        function selectSortOption(val, label) {
+            currentSortVal = val;
+            document.getElementById('currentSortLabel').innerText = label;
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.toggle('active', item.getAttribute('data-value') === val);
+            });
+            toggleDropdown();
+            renderCardList();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('sortDropdown');
+            const menu = document.getElementById('sortMenu');
+            const trigger = document.getElementById('sortTrigger');
+            if (!dropdown.contains(e.target)) {
+                menu.classList.add('hidden');
+                trigger.classList.remove('open');
+            }
+        });
 
         function renderCardList() {
             cardList.innerHTML = '';
@@ -910,11 +1125,55 @@
                 return;
             }
 
-            const sorted = Array.from(cardMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+            const sortVal = currentSortVal;
+            let sorted = Array.from(cardMap.values());
+
+            if (sortVal === 'name_asc') {
+                sorted.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortVal === 'name_desc') {
+                sorted.sort((a, b) => b.name.localeCompare(a.name));
+            } else if (sortVal === 'points_desc') {
+                sorted.sort((a, b) => (b.points - a.points) || a.name.localeCompare(b.name));
+            } else if (sortVal === 'points_asc') {
+                sorted.sort((a, b) => (a.points - b.points) || a.name.localeCompare(b.name));
+            } else if (sortVal === 'type') {
+                sorted.sort((a, b) => {
+                    const typeOrder = { 'monster': 1, 'spell': 2, 'trap': 3 };
+                    const getCategory = (c) => {
+                        const t = (c.type || '').toLowerCase();
+                        if (t.includes('spell')) return 'spell';
+                        if (t.includes('trap')) return 'trap';
+                        return 'monster';
+                    };
+                    const catA = getCategory(a);
+                    const catB = getCategory(b);
+
+                    if (catA !== catB) return typeOrder[catA] - typeOrder[catB];
+
+                    if (catA === 'monster') {
+                        const rA = Number(a.level) || 0;
+                        const rB = Number(b.level) || 0;
+                        if (rB !== rA) return rB - rA;
+
+                        // Within same rating, sort by Frame Type
+                        const framePriority = ['fusion', 'ritual', 'synchro', 'xyz', 'link', 'pendulum', 'effect', 'normal'];
+                        const getFrameIdx = (c) => {
+                            const ft = (c.frameType || '').toLowerCase();
+                            const idx = framePriority.findIndex(fp => ft.includes(fp));
+                            return idx === -1 ? 99 : idx;
+                        };
+                        const fA = getFrameIdx(a);
+                        const fB = getFrameIdx(b);
+                        if (fA !== fB) return fA - fB;
+                    }
+                    return a.name.localeCompare(b.name);
+                });
+            }
 
             sorted.forEach(card => {
                 const div = document.createElement('div');
                 div.className = 'card-grid-item';
+                div.setAttribute('data-id', card.id);
                 div.innerHTML = `
                     <div class="card-points-badge">
                         <input type="number" class="points-input" value="${card.points}" min="0" onchange="updatePoints(${card.id}, this.value)" title="Assign Points" />
@@ -1007,9 +1266,11 @@
                 if (line.startsWith('!') && !line.includes('Genesys Points List')) {
                     document.getElementById('listName').value = line.substring(1).trim();
                 } else if (line.startsWith('@type 16777216')) {
-                    document.getElementById('noPendulum').checked = true;
+                    const el = document.getElementById('noPendulum');
+                    if (el) el.checked = true;
                 } else if (line.startsWith('@type 67108864')) {
-                    document.getElementById('noLink').checked = true;
+                    const el = document.getElementById('noLink');
+                    if (el) el.checked = true;
                 } else if (line.startsWith('$setmaxgenesyspoints')) {
                     const parts = line.split(' ');
                     if (parts[1]) document.getElementById('maxPoints').value = parts[1];
@@ -1027,7 +1288,8 @@
                                 id: id,
                                 name: "Unknown Card (Imported)",
                                 points: pts,
-                                image: "https://images.ygoprodeck.com/images/cards_small/" + id + ".jpg"
+                                image: "https://images.ygoprodeck.com/images/cards_small/" + id + ".jpg",
+                                level: 0
                             });
                         }
                     }
@@ -1051,7 +1313,8 @@
                                     type: c.type,
                                     frameType: c.frameType,
                                     race: c.race,
-                                    attribute: c.attribute
+                                    attribute: c.attribute,
+                                    level: c.level || c.rank || c.linkval || 0
                                 });
                             });
                         }
