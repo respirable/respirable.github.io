@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Luyện viết, hay luyện phá luật? (tiếp) — Anthology</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 12px 0 12px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      background: rgba(0,0,0,0.02);
+      border-radius: 4px;
+    }
+
+    /* ── EXAM PROMPT ── */
+    .prompt-block {
+      margin: 32px 0 0;
+      border-radius: 10px 10px 0 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+    .prompt-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      background: rgba(9, 105, 218, 0.08);
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+    .prompt-text {
+      padding: 14px 18px;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--surface);
+      font-style: italic;
+    }
+
+    /* ── PRIMERA'S ESSAY RESPONSE ── */
+    .essay-block {
+      margin: 0 0 32px;
+      border-radius: 0 0 10px 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-top: none;
+    }
+    .essay-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      background: rgba(26, 127, 55, 0.08);
+      color: #1a7f37;
+      border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+    }
+    .essay-text {
+      padding: 16px 20px;
+      font-size: 0.97rem;
+      line-height: 1.85;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .essay-text p { margin-bottom: 12px; color: var(--text); font-size: 0.97rem; }
+    .essay-text p:last-child { margin-bottom: 0; }
+
+    .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; }
+    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
+    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
+    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .nav-btn-inner { display: flex; flex-direction: column; }
+
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="theme-toggle-wrap">
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+<div class="container">
+  <a href="/anthology" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    anthology
+  </a>
+  <div class="story-header">
+    <div class="story-meta">
+      <span class="story-part-badge">Part 2</span>
+      <span class="story-number">Story 3</span>
+    </div>
+    <h1 class="story-title">Luyện viết, hay luyện phá luật? (tiếp)</h1>
+    <p class="story-subtitle">Primera nhận ra rằng mình luôn bị "bắt" viết văn từ lớp 3 đến lớp 12, và cái anh viết ra thường không theo ý mà mọi người mong muốn.</p>
+  </div>
+  <div class="divider"></div>
+  <div class="story-body">
+
+    <p>Primera nhận ra rằng: Từ lớp 3 đến lớp 12, chúng ta (hay đúng hơn là anh) luôn bị "bắt" viết văn. Cụ thể hơn, sách giáo khoa thường dạy những kiểu bài văn mà chúng ta… không thích viết cho lắm, và chắc cũng sẽ không bao giờ dùng đến (với các bài tập làm văn từ lớp 7 trở lên, chứ các lớp dưới thì nó vẫn quan trọng). Anh chỉ thích viết những gì mà anh đã biết và thích. Để bảo anh viết cái gì khác thì… bó tay chấm com (nếu bắt anh viết theo ý mà mọi người mong muốn).</p>
+
+    <p>Để chứng minh cho luận điểm đó, anh đi lục lại những bài tập làm văn từ nay đến xưa:</p>
+
+    <div class="prompt-block">
+      <div class="prompt-label">Đề bài · Tập làm văn lớp 12</div>
+      <div class="prompt-text">"Có ý kiến cho rằng Văn tế nghĩa sĩ Cần Giuộc chỉ có ý nghĩa lịch sử đối với thời Nguyễn Đình Chiểu; nhưng có người cho rằng nó vẫn có tính thời sự đối với ngày nay. Giả sử bạn tán thành ý kiến thứ hai. Bạn sẽ bảo vệ ý kiến như thế nào?"</div>
+    </div>
+    <div class="essay-block">
+      <div class="essay-label">✍️ Bài viết của Primera</div>
+      <div class="essay-text">
+        <p>Tôi không bảo vệ ý kiến đó. Tôi tán thành với ý đầu tiên luôn.</p>
+      </div>
+    </div>
+
+    <p>Hai câu vậy thôi chắc sẽ làm sốc các thầy cô giáo, các thành viên biên soạn SGK, và thậm chí là những nhà thơ.</p>
+
+    <p>Anh nghĩ rằng: Nếu được thảo luận về một vấn đề có ý kiến trái chiều nhau, họ phải được chọn phe. Việc bắt học sinh phải đồng ý giống như việc bắt họ đi theo một con đường nhất định được định ra sẵn trên hành trình trưởng thành. Họ không có quyền đi làm việc khác, mà bắt buộc phải đi theo một lộ trình cụ thể. Thế thì còn gì là thảo luận nữa? Nếu đề bài bảo là <em>"vì sao ý kiến thứ hai có vẻ đúng hơn ý kiến thứ nhất?"</em> thì Primera tạm chấp nhận.</p>
+
+    <p>Quay về bài viết, Primera giải thích: Muốn một văn bản có tính thời sự, nó phải xuất hiện trên mọi mặt báo. Nó phải được nhắc đến thường xuyên, không chỉ riêng chủ đề xoay quanh nó. Trên VTV1, anh không thấy <em>Văn tế Nghĩa sĩ Cần Giuộc</em>. Chỉ thấy những người như Lý Thái Tổ, Ngô Quyền, Hồ Chí Minh, Lê Thánh Tông có lúc được lên báo chí để nói về đóng góp và công lao lớn của đất nước. Không thấy nghĩa sĩ Cần Giuộc đâu cả. Tương tự như vậy. Facebook, Báo Nhân Dân, hay Morning Brew cũng không đề cập gì về bài văn tế.</p>
+
+    <p>Có thể vào thời kháng chiến, nghĩa sĩ Cần Giuộc đã có những chiến tích vang dội. Họ được tung hô trong khoảng 10 đến 20 năm. Xong rồi các ông khác lấn tới, và để những nghĩa sĩ đó sang một bên.</p>
+
+    <p>Primera biết mọi người nói rằng "thời sự" không có nghĩa là nó bắt buộc phải lên mặt báo. Nó chỉ cần có liên hệ với hiện tại là được rồi.</p>
+
+    <p>Primera nghe vậy, lập tức đổ lỗi luôn cho những người đọc đó, hệ thống giáo dục, và cả ngôn ngữ tiếng Việt. Chính họ cho rằng thời sự là thông tin về <em>các sự kiện hiện tại</em>. Họ đâu có định nghĩa rằng nó là thông tin về sự kiện quá khứ có liên hệ với hiện tại? Khi Primera học Tiếng Việt vào hồi lớp 5, anh cho rằng thời sự nói về các sự kiện hiện tại, và không hề có gì liên quan đến các thứ như Chiến tranh Lạnh hay là Chiến tranh Mùa Đông. Cái đó nên thuộc vào phim tài liệu. Nếu "thời sự" muốn đề cập đến các thời khắc lịch sử như kia, thì Primera phải được biết nghĩa đó lúc anh học từ đó, cái mà anh hoàn toàn không thấy. Anh cho rằng nếu bất cứ ai khác phản đối định nghĩa rõ ràng đó, thì chứng tỏ họ nên đi học lại Tiếng Việt.</p>
+
+    <p>Quay về vấn đề vì sao nó chỉ có ý nghĩa với thời của Nguyễn Đình Chiểu. Primera cho rằng bởi vì những người nông dân ở đó khác thường. Họ dám đấu tranh với thực dân Pháp, cái mà những người đang sống trong thời bình không thể làm được vì thực dân Pháp không còn nữa và vì nông dân giờ lo kiếm tiền hơn.</p>
+
+    <blockquote><em>Hết bài văn.</em></blockquote>
+
+    <p>Primera thấy bài văn kia hay quá. Nó đúng ý mình. Nó không giả vờ chấp nhận. Nó dám đi ngược lại những góc nhìn phổ biến và được khen ngợi. Những góc nhìn như Primera có khi cũng tồn tại ở đâu khác, nhưng lại không dám nói ra mà thôi.</p>
+
+  </div>
+  <div class="divider"></div>
+  <div class="story-nav">
+    <a href="/anthology/18" class="nav-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <div class="nav-btn-inner">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">Primera đi tìm sự thẳng thắn</span>
+      </div>
+    </a>
+    <a href="/anthology/22" class="nav-btn active">
+      <div class="nav-btn-inner" style="text-align:right;">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Giải nghĩa</span>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+  </div>
+</div>
+</body>
+</html>

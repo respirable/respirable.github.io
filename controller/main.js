@@ -726,18 +726,14 @@ if (localStorage.getItem('topbar-hidden') === 'true') {
 async function init() {
   if ('serviceWorker' in navigator) await navigator.serviceWorker.register('/controller/sw.js', { scope: '/controller/' });
   
-  // ─── SESSION MANAGEMENT (NEW) ───
-  // If this is a new tab/session, wipe the old data automatically
-  if (!sessionStorage.getItem('wwtbam-session-active')) {
-    console.log("New session detected. Clearing sandbox data...");
-    await clearAll();
-    sessionStorage.removeItem('wwtbam-variant');
-    sessionStorage.removeItem('wwtbam-format');
-    sessionStorage.setItem('wwtbam-session-active', 'true');
-    // Refresh selections from sessionStorage now that they've been cleared
-    selectedVariant = null;
-    selectedFormat = null;
-  }
+  // ─── SESSION MANAGEMENT ───
+  // Unconditionally wipe data on EVERY load (fully stateless on revisit/refresh)
+  console.log("Clearing sandbox data for new visit...");
+  await clearAll();
+  sessionStorage.removeItem('wwtbam-variant');
+  sessionStorage.removeItem('wwtbam-format');
+  selectedVariant = null;
+  selectedFormat = null;
 
   const hasData = await hasBundle();
   

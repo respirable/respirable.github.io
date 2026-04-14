@@ -1548,6 +1548,24 @@
       font-size: 18px;
       font-weight: 600;
       color: var(--ide-text-bright);
+      font-family: var(--font-main);
+    }
+
+    /* ── SETUP HEADING ── */
+    .setup-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--ide-text-bright);
+      font-family: var(--font-main);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .setup-subtitle {
+      font-size: 15px;
+      color: var(--ide-text);
+      font-family: var(--font-main);
+      margin-bottom: 40px;
     }
 
     .variant-card {
@@ -1578,12 +1596,14 @@
       font-size: 16px;
       font-weight: 700;
       color: var(--ide-text-bright);
+      font-family: var(--font-main);
       margin-bottom: 4px;
     }
 
     .variant-meta {
       font-size: 13px;
       color: var(--ide-text);
+      font-family: var(--font-main);
       line-height: 1.4;
     }
 
@@ -1648,7 +1668,7 @@
       font-size: 14px;
       font-weight: 600;
       color: var(--ide-text-bright);
-      font-family: inherit;
+      font-family: var(--font-main);
     }
 
     .start-btn {
@@ -1660,6 +1680,8 @@
       border-radius: 14px;
       font-size: 16px;
       font-weight: 700;
+      font-family: var(--font-main);
+      letter-spacing: 0.01em;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1686,11 +1708,10 @@
 
 <body>
 
-  <!-- ═══════════════════ GRAPHIC SELECTION SCREEN (NEW) ═══════════════════ -->
   <div class="selection-overlay" id="selectionOverlay">
     <div class="selection-container">
-      <h2 class="setup-title" style="font-size: 32px; margin-bottom: 8px;">Choose Graphic Variation</h2>
-      <p class="setup-subtitle" style="margin-bottom: 40px;">Select a visual style to start the controller.</p>
+      <h2 class="setup-title">Choose Graphic Variation</h2>
+      <p class="setup-subtitle">Select a visual style to start the controller.</p>
 
       <div class="category-group">
         <div class="category-header">
@@ -1715,12 +1736,9 @@
           </div>
           <div class="variant-card" onclick="openFormatPicker('1999_endemol')">
             <span class="variant-name">1999 Endemol</span>
-            <span class="variant-meta">The early 1999 style graphics.</span>
+            <span class="variant-meta">The graphics style used in the Netherlands.</span>
           </div>
-          <div class="variant-card disabled">
-            <span class="variant-name">Netherlands</span>
-            <span class="variant-meta">Classic Netherlands variation.</span>
-          </div>
+
         </div>
       </div>
 
@@ -1729,11 +1747,10 @@
     </div>
   </div>
 
-  <!-- ═══════════════════ GAME FORMAT PICKER (NEW MODAL) ═══════════════════ -->
   <div class="format-overlay" id="formatOverlay">
     <div class="format-modal">
-      <h2 style="font-size: 20px; color: #fff; margin-bottom: 8px;">Game Format</h2>
-      <p style="font-size: 14px; color: var(--ide-text);">Select the question format for Olga V2.5</p>
+      <h2 class="setup-title" style="font-size: 20px;">Game Format</h2>
+      <p class="setup-subtitle" style="margin-bottom: 0;">Select the question format for Olga V2.5</p>
 
       <div class="format-options">
         <label class="format-option">
@@ -2121,7 +2138,7 @@
     <div class="restriction-card">
       <h3>One second!</h3>
       <p id="restrictionMsg">Ummm... This is a WWTBAM HTML5 Sandbox, not your second Google Drive. I know you want to
-        upload some kind of binary file that links to your controller, but I'm careful about security here. Sorry for
+        upload some kind of EXE file that links to your controller, but I'm careful about security here. Sorry for
         that.</p>
       <button class="settings-btn" style="width: 100%; justify-content: center;"
         onclick="document.getElementById('restrictionOverlay').classList.remove('active')">OK</button>

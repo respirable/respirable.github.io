@@ -8,3 +8,7 @@ node_modules/
 *.log
 .env
 controller/manifest.json
+
+# Tarot utility — encoded card script & local plaintext working data
+anthology/tarot/cards.js
+tarot-data/

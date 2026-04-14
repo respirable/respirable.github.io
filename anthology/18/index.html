@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Primera đi tìm sự thẳng thắn — Anthology</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 12px 0 12px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      background: rgba(0,0,0,0.02);
+      border-radius: 4px;
+    }
+
+    /* ── CRITIQUE QUOTE (book passages being critiqued) ── */
+    .critique-quote {
+      margin: 32px 0 0;
+      border-radius: 10px 10px 0 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+    .critique-quote-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      background: var(--surface2);
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .critique-quote-label:empty {
+      display: none;
+    }
+    .critique-quote-text {
+      padding: 14px 18px;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--surface);
+      font-style: italic;
+    }
+
+    /* ── CRITIQUE RESPONSE (Primera's commentary) ── */
+    .critique-response {
+      margin: 0 0 32px;
+      border-radius: 0 0 10px 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-top: none;
+    }
+    .critique-response-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      background: rgba(26, 127, 55, 0.08);
+      color: #1a7f37;
+      border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+    }
+    .critique-response-text {
+      padding: 14px 20px;
+      font-size: 0.97rem;
+      line-height: 1.85;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .critique-response-text p { margin-bottom: 12px; color: var(--text); font-size: 0.97rem; }
+    .critique-response-text p:last-child { margin-bottom: 0; }
+
+    /* ── FOOTNOTE ── */
+    .footnote {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-style: italic;
+      border-top: 1px solid var(--border);
+      padding: 10px 20px;
+      background: var(--surface2);
+    }
+
+    /* ── NUMBERED LIST (16 items) ── */
+    .list-critique {
+      margin: 4px 0 32px 0;
+      padding: 0;
+      list-style: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .list-critique li {
+      display: flex;
+      gap: 14px;
+      padding: 12px 18px;
+      font-size: 0.96rem;
+      line-height: 1.75;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .list-critique li:last-child { border-bottom: none; }
+    .list-critique li:nth-child(even) { background: var(--surface2); }
+    .list-item-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      opacity: 0.6;
+      min-width: 20px;
+      padding-top: 3px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .list-item-content { flex: 1; }
+    .list-item-title { font-weight: 600; margin-bottom: 4px; }
+
+    .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; }
+    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
+    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
+    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .nav-btn-inner { display: flex; flex-direction: column; }
+
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="theme-toggle-wrap">
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+<div class="container">
+  <a href="/anthology" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    anthology
+  </a>
+  <div class="story-header">
+    <div class="story-meta">
+      <span class="story-part-badge">Part 2</span>
+      <span class="story-number">Story 1</span>
+    </div>
+    <h1 class="story-title">Primera đi tìm sự thẳng thắn</h1>
+    <p class="story-subtitle">Primera chỉ còn 4 ngày nữa là kết thúc học kỳ 2 của lớp 12. Anh rảnh rỗi vì đã được tuyển thẳng vào đại học, và quyết định dùng thời gian đó để làm một thứ mà anh cho là "tao nhã": khịa một cuốn sách.</p>
+  </div>
+  <div class="divider"></div>
+  <div class="story-body">
+
+    <p>Primera nhận thấy chỉ còn 4 ngày nữa là kết thúc học kỳ 2 của lớp 12. Anh thì ngồi chơi vì đã được tuyển thẳng vào đại học. Còn các bạn khác thì… vẫn cúi đầu và giải đề. Họ nhất quyết không nghĩ đến việc chơi, và dồn hết sức vào việc học khi còn có thể. Trong lúc ngồi chơi, anh nhìn lại cuốn <em>"Tôi khịa tác phẩm văn học"</em> còn dở dang từ hơn một năm trước đó. Trong đầu anh, anh lại chợt nghĩ tới một tác phẩm không mang tính văn học, nhưng vẫn có thế lực nào đó bắt anh phải khịa nó: <em>Hãy sống hết mình vì đời ngắn lắm</em> của Phạm Ngọc Phương Thảo.</p>
+
+    <p>Anh tìm hiểu thêm về cuốn sách, và suy nghĩ rằng: <em>"Cuốn sách có bối cảnh ra đời khác lạ thế thì sẽ phải có nhiều thứ để khịa hơn mấy tác phẩm như Không gia đình của Hector Malot hay là Những người khốn khổ của Victor Hugo".</em></p>
+
+    <p>Anh nhận ra rằng có một bản của cuốn sách đó nằm lù lù trên tủ của lớp. Nhưng một câu hỏi được đặt ra: Có nên lấy nó về không? Sách này đáng ra phải để lại cho cả lớp để đọc chung, nhưng có nên lấy nó về chỉ để thoả mãn thú vui tao nhã của mình?</p>
+
+    <p>Anh biết rằng bản PDF của cuốn sách đã bị xoá sổ hoàn toàn, nên anh phải quyết định nhanh.</p>
+
+    <p>Thôi thì, anh thử đọc xem nó có thực sự làm mình rút ra bài học nào đó không. Hay là lại đầy lỗ hổng như mấy tác phẩm văn học kia…</p>
+
+    <p>Và, không bất ngờ lắm, giống như bao tác phẩm văn học khác, mới đọc vài trang đầu thôi, trong đầu anh đã có quá nhiều thứ để chỉ trích:</p>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Xung quanh tôi chỉ là một chậu hoa và bốn bức tường."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Lúc đó, Thảo đang nằm chữa bệnh, mà xung quanh chỉ có thế, thì tivi đâu? Bệnh nhân khác đâu? Máy chụp cộng hưởng từ đâu? Bác sĩ đâu? Giường bệnh đâu? Bệnh viện mà chỉ có một cái chậu hoa và bốn bức tường thì hẳn đó phải là một bệnh nhân "khác thường", mà cô này thì luôn được đủ ông bác sĩ ưu ái.</p>
+      </div>
+    </div>
+
+    <p>Anh biết mọi người sẽ cố gắng bào chữa cho "phép ẩn dụ" đó. Chính vì vậy, anh quyết định đọc thêm, cố gắng tìm những điểm yếu, chứng minh rằng không cần nghệ thuật vòng vo thì vẫn có thể truyền đạt ý nghĩa đến người đọc.</p>
+
+    <p>Đọc được ¼ cuốn sách, Primera tìm được nhiều ý tưởng khịa và chỉ trích đến mức đếm không xuể. Lúc đọc đến đấy, anh còn thấy nội dung sách thậm chí còn không liên quan gì đến nhan đề kia cả! Toàn là chuyện nhật kí cuộc sống với cả "tôi có một giấc mơ". Chẳng thấy bảo người đọc vì sao phải sống hết mình vì đời ngắn. Đây là 1 trong 3 yêu cầu để tạo nên một tác phẩm văn học mà anh cho là "hoàn hảo": nội dung phải luôn đúng với tiêu đề.</p>
+
+    <p>Cơ hội này nghìn năm có một. Không khịa thì sẽ mãi không bao giờ khịa được, vì cả thế giới có đúng 500 quyển. Vậy nên, anh đã đưa ra một quyết định: Lấy quyển sách này về.</p>
+
+    <p>Rất may cho anh, các bạn khác mải giải đề quá nên cũng chẳng quan tâm đến mấy cuốn sách kiểu vậy nữa.</p>
+
+    <p>Vậy là Primera quay về việc bắt bẻ, chỉ trích, và chỉnh đốn câu chữ của người khác. Đúng như cái anh làm hồi một năm trước. Anh đem cuốn sách về với hi vọng mình cũng sẽ đem được sự rõ ràng, mạch lạc trong câu chữ khi viết một cái gì đó đến với tất cả mọi người, thông qua việc khịa kia…</p>
+
+    <p>Đến tối, anh chuẩn bị lôi sách ra khịa thì nhận ra một điều: mình quên mang sách đó về nhà. Nó vẫn ở trong ngăn bàn của anh trên lớp. Rất may là anh còn ba ngày để lấy lại sách. Thế là hành trình đi tìm sự thẳng thắn bị lùi lịch. Trong khi chờ đợi, anh đi soi trang Facebook của Thảo và bắt đầu chỉ trích các bài đăng theo một cách mà nhiều người sẽ cho là… "vô lý". Nó giống như một buổi "thử nghiệm" trong hành trình tìm sự thẳng thắn vậy.</p>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Winter seems to be the season of inertia."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Inertia là quán tính. Mùa đông là mùa của quán tính? Ừ thì bọn lớp 10 được học quán tính vào giữa học kỳ 1. Lúc đó thì cũng là mùa đông. Anh tạm chấp nhận câu nói trên.</p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Xuxj is preparing to go to Soobin's concert in January&nbsp;&nbsp;&nbsp;. Every year, it always arranges its schedule around concerts like these."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Trước đó, Xuxj được xưng như một nhân vật nữ, nhưng giờ lại bị chuyển thành "it", tức là một vật thể. Và đó không phải là lỗi ngữ pháp tạm thời. Nó kéo dài đến tận cuối bài viết. Anh không hiểu cô này có làm tốt công việc gia sư tiếng Anh kia không nếu cứ mắc "lỗi" kiểu này*…</p>
+      </div>
+      <div class="footnote">* Sau khi điều tra kĩ hơn, Primera nhận ra rằng trong bản dịch tiếng Việt của bài viết, Xuxj được xưng là "nó". Chị này có vẻ như đã dịch bài viết một cách "cứng cáp", và không tinh chỉnh theo ngữ cảnh. Nếu đây là một người bình thường thì tôi tạm tha thứ, bởi vì có thể họ không quá giỏi tiếng Anh, nhưng đây lại là một người thoát chết, viết một cuốn sách gần 300 trang kể về đời mình, và là gia sư tiếng Anh! Chị thực sự vẫn còn nhiều thứ để học hơn Primera và chị tưởng đấy…</div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Inside the restaurant hung a painting of that stream (ngòi)."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Ngòi phải là "nib" chứ? Stream là dòng chảy mà?</p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Christmas is often considered as the best time of the year."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Với trải nghiệm hẹp hòi của mình, Primera nghĩ: Cô này sống ở Mỹ lâu quá để đưa ra quan niệm này. Chỉ có 30–45% số dân trên toàn thế giới ăn mừng Giáng sinh theo một cách nào đó, nên cùng lắm khoảng 50% mới đưa ra ý kiến như vậy. Theo Primera định nghĩa, "often" thường phải nằm trong khoảng 70% đổ lên, và Tết mới coi là "best time of the year".</p>
+        <p><em>"Christmas is actually considered the 1.5th best time of the year" – Primera</em><br><small style="color:var(--muted)">(Tạm dịch: Giáng Sinh thực ra được coi là thời gian tuyệt thứ 1,5 trong năm.)</small></p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Every corner is a painting.<br>Every moment tells a story."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Đương nhiên rồi. Primera không chịu hiểu theo nghĩa ấy. Góc nào cũng là một bức tranh, nhưng bức tranh ấy cũng chỉ có tông màu trắng đen, vì nó là bức tường. Khoảnh khắc nào cũng kể một câu chuyện. Khoảnh khắc vừa không thể nói ra được, cũng vừa chưa chắc có đầy ý nghĩa để thành một câu chuyện đáng mong đợi.</p>
+      </div>
+    </div>
+
+    <p>Primera khịa xong thấy vui hơn hẳn. Có lẽ là vì mình đã nghĩ ra cách để mọi thứ đi theo mong muốn của mình. Nhưng anh nhận ra một cái gì đó…</p>
+
+    <blockquote><em>(Lược một đoạn: Anh nhận ra rằng so với bạn bè, mình non lắm)</em></blockquote>
+
+    <p>Anh nhận ra rằng… mình chưa đọ được với những người giỏi hơn mình kia. Việc cay cú như nãy cũng chỉ như làm trò đùa cho thiên hạ thôi. Anh lại đắn đo về việc liệu mình có nên tiếp tục khịa cuốn sách kia hay không… Và rồi anh nghĩ lại: Thôi. Cứ khịa đi. Ai hỏi đến thì mình trả lời.</p>
+
+    <p>Anh nghĩ lại rằng càng ít người biết vụ việc này thì càng tốt. Suy nghĩ nội tâm của mình nên được ít người biết để tránh bị là trò cười cho thiên hạ.</p>
+
+    <p>Sáng hôm sau, anh đến lớp lấy sách, ngồi chơi 4 tiết, ăn trưa, sau đó bắt tay vào khịa tác phẩm. Kĩ năng bắt bẻ câu chữ của anh được phát huy đến tối đa:</p>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"khi ta gieo điều gì thì gặp điều nấy."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Vậy thì gieo hi vọng phá đảo Orbit (Geometry Dash) thì sẽ gặp điều đó? Chưa chắc. Level thì khó vãi cả *** ra, gieo hi vọng thì còn không được khi mà chưa đạt được 2% trong màn đấy thì nói gì đến việc phá đảo?</p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Muốn giỏi tiếng Anh thì bắt buộc phải học từ vựng."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>…Không? Không cần phải chép từ ngữ một cách "cơ học". Chỉ cần xem phim hoạt hình Disney và tám chuyện trên Discord 2 đến 5 năm liên tiếp là đủ 9, 10 điểm tiếng Anh trên lớp rồi nhé! Primera sẽ làm nhân chứng sống cho việc đó. Hãy nhớ là Primera sinh ra đã có bất lợi thế là anh bị tự kỉ. Nên người thường có thể làm điều đó nhanh hơn nhiều.</p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Sống xa nhà khiến con nhận ra thời gian bên bố mẹ mình thật ít ỏi."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>…Thì đưa bố mẹ cùng mình? Lúc nhỏ thì chị bảo mình muốn trưởng thành và không phụ thuộc vào bố mẹ, và giờ lại muốn dành nhiều thời gian cho bố mẹ hơn? Vậy thì chị muốn gì?? Chắc cho công ty cô đang làm việc ở gần nhà bố mẹ cô để cô đỡ "than phiền" mất.</p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Do one thing every day that scares you."</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Đó là lời khuyên tệ nhất trần đời mà Primera từng nghe thấy, vậy mà chị Thảo lại cho nó vào quyển sách này. Sợ nhện thì tiếp xúc với nhện một ngày? Cô không sợ nó cắn lại mình rồi dính độc? Sợ độ cao thì đứng thẳng lên đỉnh của Burj Khalifa? Vừa tốn tiền, vừa có nguy cơ cao bị rơi xuống đất. Cách duy nhất để vượt qua nỗi sợ là tiến gần hơn với nó, từng bước một. Primera không biết giải thích như nào cho đúng, nhưng tóm lại là cứ tăng độ sợ hãi lên một cách chậm rãi, cho đến khi mình sợ đến mức tiểu ra quần thì tạm dừng.</p>
+      </div>
+    </div>
+
+    <p>Trong cuốn sách, độc giả cũng biết 16 thứ mà Thảo làm khi chị buồn, và Primera thấy cái gì cũng có "rủi ro" của nó:</p>
+
+    <ul class="list-critique">
+      <li>
+        <span class="list-item-num">1</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Cầu nguyện</div>
+          Cầu nguyện cái gì? Rằng nỗi buồn tự biến mất đi? Nó không hoạt động đâu. Tôi (Primera) đã thử rồi.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">2</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Trò chuyện với bạn/gia đình</div>
+          Gọi ai cũng "không liên lạc được" thì cũng dở. Với lại, cô không sợ chuyện cá nhân của mình bị leak?
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">3</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Nấu ăn</div>
+          Buồn thì tâm trạng đâu mà nấu ăn??? Không khéo là bỏng tay đấy.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">4</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Đọc sách</div>
+          Đọc sách trong tâm thế buồn thì không có tâm trí để rút ra bài học, mục đích lớn nhất mà sách tồn tại.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">5</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Viết lách</div>
+          Lúc buồn thì tỉ lệ mắc lỗi ngữ pháp và chính tả là cao hơn. Thành ra diễn đạt ý không thành.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">6</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Chăm cây</div>
+          Lỡ đâu lúc đó là 2 giờ sáng? Ai lại tưới cây vào ban đêm?
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">7</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Mua sắm</div>
+          Có tiền đâu mà mua sắm? Nếu có thì đó là cách ngu nhất để tiêu tiền, vì lúc đó hiện tượng mua hàng không có kế hoạch (impulsive buying) chắc chắn sẽ xảy ra.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">8</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Học cái gì đó mới</div>
+          Tưởng tượng bạn học đạo hàm trong khi nghe tin rằng mình mất đi một kỷ vật gì đó. Nỗi buồn tiếp tục xâm chiếm.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">9</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Thử thách bản thân</div>
+          Đó là cách tốt nhất để rơi vào trầm cảm nặng hơn. Thành công thử thách khó hơn mọi người nghĩ gấp hàng triệu lần.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">10</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Cho đi nhiều hơn</div>
+          Hết thứ để cho đi thì làm sao? Cho đi ngôi nhà của mình à? Quá nguy hiểm. Cho đi lòng biết ơn không tính, vì Primera yêu cầu mọi thứ phải hữu hình.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">11</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Sống biết ơn</div>
+          Giống như thiền vậy. Chúng ta ai cũng làm vậy mỗi ngày. Việc biết ơn thường không thể gánh được nỗi buồn.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">12</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Đi du lịch</div>
+          Cô này hẳn phải giàu như Scrooge McDuck mới làm được vậy.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">13</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Thiền</div>
+          Giả sử công ty đang họp mà bạn đang buồn chuyện này chuyện nọ. Thiền bằng cái gì? Giám đốc thấy bạn thiền thì bị coi là không tập trung.
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">14</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Tập yoga</div>
+          Lỡ đâu đang buồn ở giữa đường thì sao? Thảm đâu mà tập?
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">15</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Vẽ</div>
+          Lỡ đâu cô nằm viện tiếp thì sao? Điện thoại và giấy bút cũng bị tước nốt thì sao? Có mà vẽ bằng trứng Ra ấy*.<br>
+          <small style="color:var(--muted)">* Tức là không vẽ được.</small>
+        </div>
+      </li>
+      <li>
+        <span class="list-item-num">16</span>
+        <div class="list-item-content">
+          <div class="list-item-title">Hát khi làm việc gì đó</div>
+          Lúc buồn thì chỉ thích nghe nhạc buồn thôi. Nhạc vui không tự làm mình vui lên đâu.
+        </div>
+      </li>
+    </ul>
+
+    <p>Primera cho rằng việc duy nhất để làm mình đỡ buồn là chờ đợi một tin gì đó tốt hơn nhiều lần cái mình đang buồn về. Các cách trên không phải lúc nào cũng hoạt động, nhưng có tin vui thì ai cũng phải vui chứ!</p>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Cá sống khi bơi ngược dòng…"</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Khoan… vậy là cá BẮT BUỘC PHẢI bơi ngược dòng thì mới sống được? Vậy thì bơi đúng dòng là thần Chết xuất hiện phía sau và giết con cá ngay tại chỗ? Hay là có pháp luật nào nghiêm cấm cá bơi đúng dòng? Tôi* được biết là cá có lúc bơi xuôi dòng, vậy nên câu nói trên quá lươn lẹo.</p>
+      </div>
+      <div class="footnote">* Cho đến hết màn khịa, Primera sẽ xưng bằng "tôi".</div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Trước khi bắt đầu làm một việc gì, hãy bắt đầu nó bằng một niềm tin!"</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Tôi cho rằng câu này có nhiều thứ sai. Nếu chưa bắt đầu, thì bắt đầu bằng niềm tin kiểu gì? Bắt đầu bằng mắt à? Đúng ra, phải bắt đầu bằng cách xác định mình cần phải làm gì. Nếu những thứ đó có thể làm được thì hẵng có niềm tin. Nếu mình không có trình, thì bỏ đi. Nó có khi không đáng đâu.</p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Nothing is impossible." (Không có gì là không thể)</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>…Ừm, xin lỗi. Có rất nhiều thứ là không thể. Nếu bạn không phiền, hãy chứng minh rằng:</p>
+        <p>• Việc chia hết cho 0 là có thể.<br>
+        • Việc đi nhanh hơn tốc độ ánh sáng là có thể.<br>
+        • Việc không chết là có thể.<br>
+        • Việc du hành thời gian về quá khứ là có thể.<br>
+        • Việc gọi lại người chết là có thể.</p>
+        <p>Chứng tỏ rằng, tồn tại một và nhiều thứ không thể làm được.</p>
+      </div>
+    </div>
+
+    <div class="critique-quote">
+      <div class="critique-quote-label"></div>
+      <div class="critique-quote-text">"Tao nhớ một nhận định của Dr.Pepper…"</div>
+    </div>
+    <div class="critique-response">
+      <div class="critique-response-label">🔍 Primera bắt bẻ</div>
+      <div class="critique-response-text">
+        <p>Khoan! Dr. Pepper là thức uống phổ biến ở Mỹ với Canada mà? Hay đây là ai mà tôi không biết? Và Thảo cũng mắc lỗi của "bọn biên soạn SGK": Không giải thích với người đọc. Hoặc là có rồi nhưng mà không để ở chân trang. Nếu cô ta có làm vậy thì hãy để ở chỗ nào đó nổi bật.</p>
+        <p>Và thế là hết (một phần) màn khịa.</p>
+      </div>
+    </div>
+
+    <p>Còn một số chi tiết khác mà Primera cũng rất "tâm đắc" (theo hướng tiêu cực). Chẳng hạn như việc viết nhật kí vào 1 giờ sáng trong lúc đáng ra phải ngủ sớm, hay là việc tác giả tự nhận mình ích kỷ, nhưng cũng lại là người cho đi vào lúc buồn. Hay là việc giấu tên nhân vật như kiểu nó là bí mật quốc gia mà không có giải thích gì cả. Primera càng tin rằng cô này đang trong trạng thái cô đơn trong lúc viết và chỉ đang tự bịa nhân vật để hoàn thiện sách.</p>
+
+    <p>Với những chi tiết và câu nói đầy ắp sự phi logic dưới góc nhìn của Primera, anh đã hoàn thành cả màn khịa trong 4 đến 5 tiếng.</p>
+
+    <p>Khi bạn Stellarknight ở cùng lớp với Primera kể chuyện đọc sách này với thầy Cóc dạy văn, bạn cho rằng mình rút ra nhiều bài học. Thậm chí, thầy C. còn khuyên bạn tìm đọc nhiều truyện ngắn khác có ý nghĩa nhân văn tương tự. Giờ Primera sợ thầy C. bắt gặp mình đọc sách này, và hỏi rằng mình học được những gì. Chẳng lẽ anh phải trả lời rằng mình đang tìm lỗ hổng luận điểm để tấn công cô này? Nah, như vậy thì có khác gì tự bắn vào chân mình không. Anh có lẽ phải tự bịa rằng mình đang tìm ý để viết truyện.</p>
+
+    <p>Mà cũng khá là kì lạ. Primera không thẳng thắn về việc đọc cuốn sách kia để làm gì. Nhưng anh lại bắt mọi người chỉnh đốn câu chữ. Nó giống như kiểu Primera đang bắt mọi người thay đổi trước khi mình thay đổi. Đó là một tư tưởng mà Adam Khoo (tác giả cuốn <em>"Tôi tài giỏi, bạn cũng thế!"</em>) luôn "căm thù" từ bé đến lớn.</p>
+
+    <p>Quái lạ.</p>
+
+    <p>Như vậy, mặc dù có một mâu thuẫn trong tư tưởng, cuộc hành trình tìm kiếm sự thẳng thắn vẫn tiếp tục. Và không biết đến lúc nào thì Primera mới tìm được sự thẳng thắn. Anh chỉ muốn một cái gì đó đúng sự thật hoàn toàn mà cũng không xong…</p>
+
+  </div>
+  <div class="divider"></div>
+  <div class="story-nav">
+    <a href="/anthology/17" class="nav-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <div class="nav-btn-inner">
+        <span class="nav-label">Previous · Part 1</span>
+        <span class="nav-title">Ngày cuối cùng</span>
+      </div>
+    </a>
+    <a href="/anthology/20" class="nav-btn active">
+      <div class="nav-btn-inner" style="text-align:right;">
+        <span class="nav-label">Next</span>
+        <span class="nav-title">Luyện viết, hay luyện phá luật? (tiếp)</span>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+  </div>
+</div>
+</body>
+</html>
