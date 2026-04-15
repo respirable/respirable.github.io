@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Làm giàu sớm, nhưng bằng một cách khác — Anthology</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 12px 0 12px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      background: rgba(0,0,0,0.02);
+      border-radius: 4px;
+    }
+    
+    .dialogue-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .dialogue-line {
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+    .dialogue-line:last-child {
+      margin-bottom: 0;
+    }
+    .dialogue-box blockquote {
+      margin: 16px 0 0;
+      border-left: 3px solid var(--accent);
+      padding: 12px 16px;
+      font-style: italic;
+      background: rgba(9, 105, 218, 0.05);
+      font-size: 0.95rem;
+    }
+    .speaker { font-weight: 700; font-style: normal; color: var(--text); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.03em; margin-right: 4px; }
+    
+    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
+    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
+    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .nav-btn-inner { display: flex; flex-direction: column; }
+
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="theme-toggle-wrap">
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+<div class="container">
+  <a href="/anthology" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    anthology
+  </a>
+  <div class="story-header">
+    <div class="story-meta">
+      <span class="story-part-badge">Part 2</span>
+      <span class="story-number">Story 6</span>
+    </div>
+    <h1 class="story-title">Làm giàu sớm, nhưng bằng một cách khác</h1>
+    <p class="story-subtitle">Primera bắt đầu tìm hiểu về nghề gia sư tiếng Anh như những người bạn cùng trang lứa, nhưng với cách dạy lạ đời đến mức chẳng ai muốn học.</p>
+  </div>
+  <div class="divider"></div>
+  <div class="story-body">
+    <p>Primera chỉ cách ngày đi đại học tầm hai tháng. Mọi người giờ đang rất sốt ruột về kì thi tốt nghiệp sắp tới. Nhưng Primera thì không. Anh được một suất tuyển thẳng, và một thứ mà các bạn khác trong lớp giờ chưa có: tự do. Tưởng rằng anh đã thực sự tự do, nhưng anh lại dính… “ảo giác lựa chọn” (illusion of choice).</p>
+    <p>Anh không biết phải làm gì mỗi ngày. Thứ 7, chủ nhật mới có giải đấu YuGiOh, mà giờ mới có thứ 5. Anh không biết việc gì tốt hơn để làm ngoài việc chơi Geometry Dash. Hiện tại, anh đang loay hoay phá đảo Electrodynamix trong nhà Scratch. Có vẻ như đoạn 61% có tốc độ quá nhanh nên anh cứ thua suốt thôi.</p>
+    <p>Scratch sau khi xử lý xong một đoàn khách đến thăm cửa hàng, anh liền thấy Primera luyện đoạn đấy suốt mà chẳng có tiến triển gì.</p>
+    
+    <div class="dialogue-box">
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông có bao giờ nghĩ rằng ông… nên từ bỏ không? Đoạn đấy khó lắm! Điện thoại cùi bắp như của ông có mà qua được đoạn đấy.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi có việc gì khác làm đâu mà từ bỏ.</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Kiếm tiền! Ông suốt ngày bảo người khác đi làm việc mà chính ông còn không làm gì cả.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Hmm… Nhắc đến kiếm tiền mới nhớ…</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Gì?</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi mới nhận thấy rằng, ai trong lớp tôi cũng đang làm gia sư… trừ tôi ra.</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Có vẻ như nghề đấy rất nổi, không như nghề của tôi. Có đúng 4 người khác làm cùng nghề bán icon với tôi.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Và ông biết cái ngớ ngẩn nhất ở đây là gì không?</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Gì?</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Là lương một buổi cao như toà Burj Khalifa luôn! 350,000 đến 400,000 Orbs một tháng!</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Nếu so với lương hàng tháng của tôi thì trông như con muỗi, nhưng mà đối với một đứa 17 tuổi thì đó là một con số điên rồ!</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Và ông biết gì không? 400,000 Orbs một tháng, đổi lấy sự tức giận vì học sinh không biết giải bài tập. Có thể 2 tháng sau nó đỡ dốt hơn một tí, nhưng nếu so với tiêu chuẩn của lớp, thì chắc nó vẫn dốt!</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tôi nghĩ như vậy là hoàn toàn xứng đáng!</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Ông không biết chứ! Tôi tức giận với mấy tác phẩm văn học đến mức tôi suýt xuất bản cuốn “Tôi khịa tác phẩm văn học” để chọc tức bọn biên soạn SGK kia mà!</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Chắc đó là cảm xúc nhất thời thôi! Tôi chắc là ông sẽ hợp với nghề “giáo viên” này thôi mà.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi không tin lắm đâu. Đây, để tôi chứng minh cho ông.</div>
+    </div>
+    
+    <p>Primera bê tấm bảng trắng từ nhà mình sang. Anh yêu cầu Scratch ngồi xuống, chuẩn bị giấy bút như học sinh gương mẫu.</p>
+    <p>Anh sẽ dạy Scratch cách để làm 1 bài Writing Task 1 trong IELTS.</p>
+    
+    <div class="dialogue-box">
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> OK. Nếu ông chưa biết, bài Writing Task 1 trong IELTS chiếm 1/3 số điểm của phần thi Viết, và mọi người nên dành từ 15-20 phút để làm phần này. Sẽ có ba loại bài mà ông sẽ gặp: Tả biểu đồ, tả bản đồ, và tả quá trình. Tôi thích cái thứ nhất hơn nên chúng ta sẽ dạy cái đó trước.</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tôi đồng ý. Nghe có vẻ hứa hẹn đấy.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Vậy thì quy trình viết 1 bài tả biểu đồ cũng rất đơn giản thôi:</div>
+      <div class="dialogue-line" style="margin-left: 20px; color: var(--muted);">Bước 1: Viết mở bài.<br>Bước 2: Viết một đoạn khái quát, nêu các số liệu đáng chú ý. Trong phần này, không nên nói cụ thể số liệu.<br>Bước 3: Viết đoạn thân bài, và phân loại dữ liệu sao cho hợp lí. Nhớ phải so sánh số liệu và lọc “dữ liệu thừa”.<br>Bước 4: Kiểm tra xem mình có mắc lỗi sai chính tả không, phòng trường hợp anh Võ Quang Bách chấm bài của mình.</div>
+      <div class="dialogue-line" style="margin-left: 20px; font-size: 0.85rem; font-style: italic; color: var(--muted); margin-top: 8px;">[Thông tin thêm: Võ Quang Bách sinh vào khoảng năm 2004, quê ở Hà Nội. Anh là người hay soi mói lỗi chính tả trên VTV, và hay chụp hình với người nổi tiếng.]</div>
+      <div class="dialogue-line" style="margin-top: 14px;"><span class="speaker">PRIMERA:</span> Không biết là ông có câu hỏi gì không nhỉ?</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Không. Tôi hiểu rõ rồi.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Được rồi. Vậy thì ta bắt tay vào thực hành luôn nhỉ. Ông thấy đấy. Tôi chỉ cần 5 phút để dạy hết lý thuyết. Còn lại thì chỉ có ngồi làm bài tập thôi.</div>
+    </div>
+    
+    <p>Primera lục lại đống đề Task 1 cũ. Anh tìm ra một bài khá là rối rắm: Nó liên quan đến thời gian trung bình để sản xuất 1 ô tô của các hãng xe khác nhau theo thời gian.</p>
+    
+    <div class="dialogue-box">
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Đề bài thì đã rõ rồi. Mời ông viết thử mở bài nó.</div>
+      <div class="dialogue-line">Scratch viết: <span style="font-family: monospace; background: var(--surface2); padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border);">The graph shows the average time spent by four car manufacturers to produce vehicles at their US factories.</span></div>
+      <div class="dialogue-line">Primera lắc đầu.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Ông viết như thế này có chết tôi không… Viết thế thì điểm kém lắm!</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Vì sao?</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Ông nào đi chép nguyên văn đề bài vào làm mở bài thì ông ấy đã vứt 800,000 Orbs ra ngoài cửa sổ. Làm vậy là điểm kém lắm!</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Vậy thì phải làm gì?</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Hãy tìm những từ có ý nghĩa na ná những gì đề bài đã cho.</div>
+      <div class="dialogue-line">Vì Primera không chỉ rõ phải chỉnh từ nào, anh thay từ “average time” thành “mean time”.</div>
+      <div class="dialogue-line">Primera ôm mặt.</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Từ “mean” đúng có nghĩa là trung bình thật… Nhưng nó được dùng ở trong thống kê và bảng số liệu toán học! Giữ nguyên từ “average” hộ tôi!</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông có bảo tôi đổi từ gì đâu!</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Ông phải đổi từ sao cho từng từ một trong câu không có một sự thay đổi quá đột ngột!</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Và làm sao tôi biết được điều đó?</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> …Tôi không biết. Ông chắc phải làm như những gì tôi đã làm. Xem phim hoạt hình, trò chuyện trên Discord, và xem video dài bằng tiếng Anh với phụ đề tiếng Anh. Tất cả trong vòng 5 năm, và ông sẽ có thể xác định thế nào là ổn và không ổn. Nhưng cũng chỉ ở mức trung bình thôi…</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông làm thế thì bọn học sinh nó cũng để đấy thôi…</div>
+      <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Đó là vấn đề. Ông thấy đấy. Tôi không thể dạy môn nào khác được vì tôi khá là kém các môn ngoài Tiếng Anh. Còn môn Tiếng Anh thì… tôi học một cách khác đến mức… không ai làm theo được. Nó quá lâu, và khó với rất nhiều người. Các bạn khác trong lớp tôi thì học theo một cách rất… học sinh. Trên lớp học gì, ta học cái nấy. Còn phương pháp của tôi thì phải nói là… mới chỉ có cùng lắm 2-3 người bắt chước được. Lúc nào tôi đưa ra phương pháp đó, họ kêu rằng nó mất quá nhiều thời gian, và kết quả cho ra quá chậm chạp so với yêu cầu. Chính vì vậy, khi có ai đó muốn nhờ tôi làm gia sư tiếng Anh, tôi chỉ có thể chuyển lời này thôi:
+        <blockquote>“Em à. Gia sư không thể làm em tốt hơn hẳn được đâu. Họ đang bắt chước những gì giáo viên đã/sẽ dạy, với hi vọng rằng em sẽ nhớ lâu hơn vì em có cảm giác “đã chơi trò chơi này rồi”. Nếu muốn học chỉ để qua môn, thì cứ tìm gia sư khác đi. Nếu muốn học chỉ để qua môn, thì tìm gia sư khác đi. Họ biết cách để học sinh sống ở mức “vừa đủ để sống”. Anh không học với tâm thế như vậy. Anh học vì anh có mục đích sử dụng khác của tiếng Anh, nên anh không thể dạy như người ta được, và anh phải tìm cách học khác. Một cách mà phải từ ba đến năm năm mới thành công. Anh nghĩ thời gian lâu như vậy sẽ không hứng thú được ai đâu. Còn nếu em vẫn muốn biết, thì đó là xem phim hoạt hình tiếng Anh với phụ đề Việt, trò chuyện trên Discord, xem các video YouTube tiếng Anh mà không cần xem phụ đề tiếng Việt, và suy nghĩ bằng tiếng Anh. Chi tiết như thế nào thì… anh không kể ra được, vì mỗi người có cách hoạt động khác nhau. Nghe có vẻ thất vọng, nhưng nó là để cho cả hai người tốt hơn. Anh không làm được gì ra hồn thì thà không làm còn hơn, để anh không tốn công vào việc vô ích và em không cảm thấy mình vừa lãng phí thời gian.”</blockquote>
+      </div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="story-nav">
+    <a href="/anthology/22" class="nav-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <div class="nav-btn-inner">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">Giải nghĩa</span>
+      </div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

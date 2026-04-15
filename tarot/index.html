@@ -5,13 +5,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hyper-Literalism Tarot</title>
-  <meta name="description" content="Nothing to see here." />
-  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description"
+    content="Experience Tarot through Primera's brutally literal lens. No mysticism. Just uncomfortable logic." />
   <link rel="stylesheet" href="/theme.css">
   <script src="/theme.js" defer></script>
+  <script src="/tarot/cards.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
     * {
       margin: 0;
       padding: 0;
@@ -19,308 +18,357 @@
     }
 
     body {
-      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
-      position: relative;
     }
 
-    /* ── STARFIELD ── */
-    .stars {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    .star {
-      position: absolute;
-      border-radius: 50%;
-      background: var(--text);
-      animation: twinkle var(--dur) ease-in-out infinite alternate;
-    }
-
-    @keyframes twinkle {
-      from {
-        opacity: var(--min-op);
-        transform: scale(1);
-      }
-
-      to {
-        opacity: var(--max-op);
-        transform: scale(1.4);
-      }
-    }
-
-    /* ── LAYOUT ── */
     .container {
-      position: relative;
-      z-index: 1;
-      max-width: 680px;
+      max-width: 760px;
       margin: 0 auto;
       padding: 80px 24px 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      min-height: 100vh;
-      justify-content: center;
     }
 
     /* ── BACK LINK ── */
     .back-link {
-      position: fixed;
-      top: 32px;
-      left: 32px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.82rem;
+      font-size: 0.88rem;
       font-weight: 600;
       color: var(--muted);
       text-decoration: none;
-      transition: color 0.2s;
-      z-index: 10;
+      margin-bottom: 40px;
+      transition: color 0.15s;
     }
 
     .back-link:hover {
       color: var(--text);
     }
 
-    /* ── LOCK ICON ── */
-    .lock-wrap {
-      margin-bottom: 32px;
-      position: relative;
-      animation: floatY 4s ease-in-out infinite;
+    /* ── HEADER ── */
+    .page-header {
+      margin-bottom: 48px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .lock-icon {
-      font-size: 3.5rem;
-      display: block;
-      filter: drop-shadow(0 0 18px rgba(147, 51, 234, 0.6));
-    }
-
-    .lock-ring {
-      position: absolute;
-      inset: -14px;
-      border: 1px solid rgba(147, 51, 234, 0.25);
-      border-radius: 50%;
-      animation: spinRing 12s linear infinite;
-    }
-
-    .lock-ring::before {
-      content: '';
-      position: absolute;
-      top: -3px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(147, 51, 234, 0.8);
-      box-shadow: 0 0 8px rgba(147, 51, 234, 1);
-    }
-
-    @keyframes floatY {
-
-      0%,
-      100% {
-        transform: translateY(0px);
-      }
-
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-
-    @keyframes spinRing {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* ── EYEBROW ── */
-    .eyebrow {
-      font-size: 0.68rem;
+    .page-eyebrow {
+      font-size: 0.72rem;
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(147, 51, 234, 0.75);
-      margin-bottom: 16px;
-      animation: fadeIn 1s 0.2s both;
+      color: var(--accent);
+      margin-bottom: 10px;
+      opacity: 0.8;
     }
 
-    /* ── TITLE ── */
-    .page-title {
-      font-size: clamp(2rem, 8vw, 3.2rem);
-      font-weight: 700;
+    h1.page-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2rem, 9vw, 3.5rem);
+      font-weight: 600;
       letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .page-subtitle {
+      font-size: 0.97rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 540px;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 36px 0;
+    }
+
+    /* ── DRAW ZONE ── */
+    .draw-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      padding: 40px 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      animation: fadeSlideUp 0.8s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .draw-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── CARD STACK VISUAL ── */
+    .card-stack {
+      position: relative;
+      width: 140px;
+      height: 200px;
+      cursor: pointer;
+    }
+
+    .card-stack-layer {
+      position: absolute;
+      width: 130px;
+      height: 190px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .card-stack-layer:nth-child(1) {
+      top: 6px;
+      left: 8px;
+    }
+
+    .card-stack-layer:nth-child(2) {
+      top: 3px;
+      left: 4px;
+    }
+
+    .card-stack-layer:nth-child(3) {
+      top: 0;
+      left: 0;
+      background: linear-gradient(135deg, #1a2744, #0d1b3e);
+      border-color: rgba(59, 130, 246, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card-stack:hover .card-stack-layer:nth-child(3) {
+      transform: translateY(-4px) rotate(-2deg);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-stack-layer:nth-child(3)::after {
+      content: "✨";
+      font-size: 1.8rem;
+    }
+
+    /* ── DRAW BUTTON ── */
+    .draw-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: "Segoe UI", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.15s;
+      letter-spacing: 0.01em;
+    }
+
+    .draw-btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .draw-btn:active {
+      transform: translateY(0);
+    }
+
+    .draw-count {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* ── RESULT CARD ── */
+    .result-area {
+      margin-top: 40px;
+      animation: fadeSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .result-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .result-card-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-glyph {
+      font-size: 3.2rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .result-card-name {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
       line-height: 1.1;
-      margin-bottom: 28px;
-      animation: fadeSlideUp 0.8s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .result-reading {
+      padding: 24px;
+      background: var(--bg);
+    }
+
+    .result-reading-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .result-reading-text {
+      font-size: 1rem;
+      line-height: 1.85;
       color: var(--text);
     }
 
-    /* ── MESSAGE CARD ── */
-    .message-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 32px 36px;
-      max-width: 520px;
-      position: relative;
-      overflow: hidden;
-      animation: fadeSlideUp 0.9s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    .result-disclaimer {
+      padding: 14px 24px;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .message-card::before {
-      content: '';
-      position: absolute;
-      top: -40%;
-      left: -20%;
-      width: 60%;
-      height: 80%;
-      background: radial-gradient(ellipse, rgba(147, 51, 234, 0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .secret-label {
+    .share-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: rgba(147, 51, 234, 0.7);
-      border: 1px solid rgba(147, 51, 234, 0.25);
-      border-radius: 20px;
-      padding: 3px 10px;
-      margin-bottom: 18px;
-    }
-
-    .secret-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: rgba(147, 51, 234, 0.8);
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.4;
-        transform: scale(0.7);
-      }
-    }
-
-    .message-text {
-      font-size: 1.05rem;
-      line-height: 1.85;
-      color: var(--text);
-      font-weight: 300;
-    }
-
-    .message-text strong {
-      color: var(--text);
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.75rem;
       font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
     }
 
-    .message-text em {
-      color: rgba(147, 51, 234, 0.9);
-      font-style: normal;
-      font-weight: 600;
+    .share-btn:hover {
+      background: var(--surface);
+      border-color: var(--muted);
     }
 
-    /* ── PROGRESS HINT ── */
-    .progress-wrap {
+    /* ── HISTORY ── */
+    .history-section {
       margin-top: 40px;
-      width: 100%;
-      max-width: 380px;
-      animation: fadeIn 1s 0.8s both;
+      animation: fadeSlideUp 0.8s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
+    .history-label {
       font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .history-item:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+    }
+
+    .history-glyph {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .history-name {
+      flex: 1;
+      font-size: 0.93rem;
       font-weight: 600;
+      color: var(--text);
+    }
+
+    .history-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .progress-bar {
-      height: 3px;
-      background: var(--border);
+      padding: 2px 8px;
       border-radius: 10px;
-      overflow: hidden;
+      color: #0969da;
+      background: rgba(9, 105, 218, 0.1);
     }
 
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, rgba(147, 51, 234, 0.6), rgba(192, 132, 252, 0.9));
-      border-radius: 10px;
-      animation: fillBar 2.5s 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    @keyframes fillBar {
-      from {
-        width: 0%;
-      }
-
-      to {
-        width: 1%;
-      }
-    }
-
-    .progress-hint {
-      margin-top: 10px;
-      font-size: 0.75rem;
+    .empty-history {
+      font-size: 0.9rem;
       color: var(--muted);
       font-style: italic;
+      text-align: center;
+      padding: 20px;
     }
 
-    /* ── FOOTER NOTE ── */
-    .footer-note {
-      margin-top: 56px;
-      font-size: 0.78rem;
+    /* ── DISCLAIMER BOX ── */
+    .disclaimer-box {
+      margin-top: 48px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface2);
+      font-size: 0.85rem;
       color: var(--muted);
-      font-style: italic;
-      animation: fadeIn 1.2s 1.2s both;
+      line-height: 1.7;
+    }
+
+    .disclaimer-box strong {
+      color: var(--text);
     }
 
     /* ── ANIMATIONS ── */
-    @keyframes fadeIn {
+    @keyframes fadeSlideDown {
       from {
         opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(-20px);
       }
 
       to {
@@ -328,25 +376,57 @@
         transform: translateY(0);
       }
     }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cardFlip {
+      0% {
+        transform: rotateY(0deg) scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: rotateY(90deg) scale(0.9);
+        opacity: 0.4;
+      }
+
+      100% {
+        transform: rotateY(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .flipping {
+      animation: cardFlip 0.5s ease-in-out;
+    }
   </style>
 </head>
 
 <body>
-
-  <!-- Starfield -->
-  <div class="stars" id="stars" aria-hidden="true"></div>
-
-  <!-- Back link -->
-  <a href="/" class="back-link">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-      stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6" />
-    </svg>
-    respirable
-  </a>
-
-  <!-- Theme toggle -->
-  <div class="theme-toggle-wrap">
+  <div class="theme-toggle-wrap" style="display:flex; gap:8px;">
+    <button class="share-btn" id="shareTopBtn" onclick="sharePage()" style="margin: 0; align-self: stretch; display: flex; align-items: center; border-radius: 12px; gap: 6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"></circle>
+        <circle cx="6" cy="12" r="3"></circle>
+        <circle cx="18" cy="19" r="3"></circle>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+      </svg>
+      Share Page
+    </button>
+    <button id="lang-toggle" onclick="toggleLanguage()" class="lang-toggle" aria-label="Toggle language"
+      style="background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:inherit; font-weight:700; border-radius:12px; height:44px; padding:0 16px; cursor:pointer; transition:background 0.2s;">EN</button>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
       <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
@@ -362,73 +442,322 @@
   </div>
 
   <div class="container">
-    <!-- Lock icon -->
-    <div class="lock-wrap">
-      <span class="lock-icon">🔮</span>
-      <div class="lock-ring"></div>
+    <!-- TOP NAV -->
+    <div class="top-nav"
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+      <a href="/" class="back-link" style="margin-bottom: 0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        respirable
+      </a>
     </div>
 
-    <div class="eyebrow">Under Construction</div>
+    <!-- HEADER -->
+    <div class="page-header">
+      <div class="page-eyebrow">Utilities</div>
+      <h1 class="page-title">Hyper-Literalism Tarot</h1>
+      <p class="page-subtitle">How does Primera actually read the Tarot? Literally. Not spiritually, not metaphorically
+        — <em>literally</em>. Draw a card and find out what it actually says, with no mysticism attached. (Now using
+        Lenormand! Or... Lemonade, as I keep reading it.)</p>
 
-    <h1 class="page-title">Hey, you found my secret project!</h1>
-
-    <div class="message-card">
-      <div class="secret-label">
-        <span class="secret-dot"></span>
-        Classified
+      <div class="disclaimer-box" style="margin-top: 24px;">
+        <strong>Note from Primera</strong> <span style="opacity: 0.85;">(If you don't know who Primera is, read respirable's anthology)</span>: This tool reads Lenormand cards the way any honest person would (and by any,
+        I mean myself only) by taking
+        the imagery and text at face value. No metaphysical assumptions are made. If a card shows a dog, it means dog.
+        If a card shows a ring, it means a ring. Whether that's useful to you is your problem, not mine.
+        <div style="margin-top: 16px; font-weight: 600; color: var(--text);">A few things to note:</div>
+        <ol style="margin-left: 20px; margin-top: 8px; color: var(--text); display: flex; flex-direction: column; gap: 8px;">
+          <li>If a card's reading contradicts that of a previous card, that's not my fault. It's the computer's fault
+            (or maybe yours, I don't know).</li>
+          <li>Each card has exactly ONE meaning. No more, no less. So... you'll likely only need to use this utility
+            once.</li>
+          <li>If any of the readings coincide with your real life events, that's probably your fault. I've tried my best
+            to make it sound as impossible as possible.</li>
+          <li>I know some Tarot/"Lemonade" experts will come here and say Lenormand is fortune-telling and not tarot. To
+            that I say: They are the same in my eyes.</li>
+        </ol>
       </div>
-      <p class="message-text">
-        I'm working on it.<br><br>
-        <strong>Don't tell anyone.</strong><br><br>
-        Come back later when it's ready — and when it is,
-        it'll be worth it. Trust me. Or don't.
-        <em>It's tarot. Half of this is already out of my hands, as Claude once said.</em>
-      </p>
     </div>
 
-    <div class="progress-wrap">
-      <div class="progress-label">
-        <span>Progress</span>
-        <span id="pct">—</span>
+    <div class="divider"></div>
+
+    <!-- DRAW ZONE -->
+    <div class="draw-zone" id="drawZone">
+      <div class="draw-label">The Deck</div>
+
+      <div class="card-stack" id="cardStack" onclick="drawCard()" title="Click to draw">
+        <div class="card-stack-layer"></div>
+        <div class="card-stack-layer"></div>
+        <div class="card-stack-layer"></div>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
+
+      <button class="draw-btn" id="drawBtn" onclick="drawCard()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+          </path>
+        </svg>
+        Draw a Card
+      </button>
+
+      <div style="display: flex; justify-content: center; margin-top: 4px;">
+        <label
+          style="display:flex; align-items:center; gap:8px; font-size:0.85rem; font-weight:600; color:var(--text); cursor:pointer; user-select:none;">
+          <input type="checkbox" id="autoReveal" checked
+            style="accent-color: var(--accent); width: 16px; height: 16px; cursor:pointer;">
+          Auto-reveal drawn cards
+        </label>
       </div>
-      <div class="progress-hint">approximately somewhere between not started and finished</div>
+
+      <div class="draw-count" id="drawCount">0 cards drawn this session</div>
+      <div id="drawLimitMsg"
+        style="display:none; color: #d73a49; font-size: 0.85rem; text-align: center; max-width: 380px; font-weight: 500;">
+        You can only draw up to 7 cards at once. Click the Reset button in the Session History section to restart.</div>
     </div>
 
+    <!-- RESULT AREA -->
+    <div class="result-area" id="resultArea" style="display:none;"></div>
 
+    <!-- HISTORY -->
+    <div class="history-section">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
+        <div class="history-label" style="margin-bottom: 0;">Session History</div>
+        <button class="share-btn" onclick="clearHistory()" title="Reset session history" style="padding: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="empty-history">No cards drawn yet.</div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // ── Starfield generator ──
     (function () {
-      const container = document.getElementById('stars');
-      const count = 130;
-      const frag = document.createDocumentFragment();
-      for (let i = 0; i < count; i++) {
-        const s = document.createElement('div');
-        s.className = 'star';
-        const size = Math.random() * 2.2 + 0.5;
-        const x = Math.random() * 100;
-        const y = Math.random() * 100;
-        const dur = (Math.random() * 4 + 2).toFixed(2);
-        const minOp = (Math.random() * 0.1 + 0.05).toFixed(2);
-        const maxOp = (Math.random() * 0.5 + 0.3).toFixed(2);
-        const delay = (Math.random() * 5).toFixed(2);
-        s.style.cssText = `
-        width:${size}px; height:${size}px;
-        left:${x}%; top:${y}%;
-        --dur:${dur}s; --min-op:${minOp}; --max-op:${maxOp};
-        animation-delay:${delay}s;
-      `;
-        frag.appendChild(s);
+      // ── State ──
+      let drawCount = 0;
+      const history = [];
+      let db = []; // populated from cards.js
+      let currentLang = 'en';
+      let currentDisplayedCard = null;
+
+      const pokerMap = [
+        '', '9 of Hearts', '6 of Diamonds', '10 of Spades', 'King of Hearts', '7 of Hearts', 'King of Clubs', 'Queen of Clubs', '9 of Diamonds', 'Queen of Spades', 'Jack of Diamonds', 'Jack of Clubs', '7 of Diamonds', 'Jack of Spades', '9 of Clubs', '10 of Clubs', '6 of Hearts', 'Queen of Hearts', '10 of Hearts', '6 of Spades', '8 of Spades', '8 of Clubs', 'Queen of Diamonds', '7 of Clubs', 'Jack of Hearts', 'Ace of Clubs', '10 of Diamonds', '7 of Spades', 'Ace of Hearts', 'Ace of Spades', 'King of Spades', 'Ace of Diamonds', '8 of Hearts', '8 of Diamonds', 'King of Diamonds', '9 of Spades', '6 of Clubs'
+      ];
+
+      function formatPokerCard(str) {
+        if (!str) return '';
+        const parts = str.split(' of ');
+        if (parts.length !== 2) return str;
+        const rank = parts[0];
+        const suitName = parts[1];
+        const suitMap = { 'Hearts': '♥', 'Diamonds': '♦', 'Spades': '♠', 'Clubs': '♣' };
+        const colorMap = { 'Hearts': '#cf222e', 'Diamonds': '#cf222e', 'Spades': '#1F2328', 'Clubs': '#1F2328' };
+        const suit = suitMap[suitName] || '';
+        const color = colorMap[suitName] || '#1F2328';
+        const r = rank === '10' ? '10' : rank.charAt(0);
+        return `<span style="display:inline-flex; align-items:center; justify-content:center; background:#fff; color:${color}; border:1px solid #d0d7de; border-radius:4px; padding:1px 6px; font-weight:bold; font-size:0.85rem; box-shadow:0 1px 2px rgba(0,0,0,0.05); margin-left:8px; font-family:'Segoe UI', sans-serif;">${r} ${suit}</span>`;
       }
-      container.appendChild(frag);
+
+      // Wait for cards.js to populate window.__tarotDb
+      function init() {
+        if (window.__tarotDb && window.__tarotDb.length) {
+          db = window.__tarotDb;
+        } else {
+          // Fallback minimal deck if cards.js fails
+          db = [{
+            id: 1, name: "The Rider", img: "🏇",
+            upright_en: "Someone is literally riding a horse right now.",
+            upright_vi: "Có người cưỡi ngựa đến. Theo nghĩa đen là vậy đấy."
+          }];
+        }
+      }
+
+      init();
+
+      // ── Draw ──
+      window.drawCard = function () {
+        if (!db.length) return;
+
+        const drawnIds = history.map(item => item.card.id);
+        const availableCards = db.filter(c => !drawnIds.includes(c.id));
+        if (availableCards.length === 0) return;
+
+        const card = availableCards[Math.floor(Math.random() * availableCards.length)];
+        drawCount++;
+
+        if (drawCount >= 7) {
+          const btn = document.getElementById('drawBtn');
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
+          document.getElementById('drawLimitMsg').style.display = 'block';
+        }
+
+        // Update count
+        document.getElementById('drawCount').textContent =
+          drawCount + ' card' + (drawCount !== 1 ? 's' : '') + ' drawn this session';
+
+        const isAutoReveal = document.getElementById('autoReveal').checked;
+
+        // Add to history
+        history.unshift({ card, revealed: isAutoReveal });
+
+        // Animate stack
+        const stack = document.getElementById('cardStack');
+        stack.style.animation = 'none';
+        void stack.offsetWidth;
+        stack.style.animation = 'cardFlip 0.5s ease-in-out';
+
+        // Render result after flip
+        setTimeout(() => {
+          renderHistory();
+          if (isAutoReveal) {
+            renderResult(card);
+          }
+        }, 260);
+      };
+
+      function renderResult(card) {
+        currentDisplayedCard = card;
+        const reading = card['upright_' + currentLang];
+        const pokerEquiv = pokerMap[card.id];
+
+        const area = document.getElementById('resultArea');
+        area.style.display = 'block';
+        area.innerHTML = `
+      <div class="result-card" id="resultCardEl">
+        <div class="result-card-header">
+          <div class="result-glyph">${card.img}</div>
+          <div>
+            <div class="result-card-name">${escH(card.name)}</div>
+            <div style="font-size: 0.8rem; color: var(--muted); margin-top: 6px; display:flex; align-items:center;">Card #${card.id} ${formatPokerCard(pokerEquiv)}</div>
+          </div>
+        </div>
+        <div class="result-reading">
+          <div class="result-reading-label">Primera's Reading</div>
+          <div class="result-reading-text">${escH(reading)}</div>
+        </div>
+        <div class="result-disclaimer">
+          <span>Lenormand Deck · ${new Date().toLocaleTimeString()}</span>
+        </div>
+      </div>`;
+
+        // Animate in
+        const el = document.getElementById('resultCardEl');
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(12px)';
+        el.style.transition = 'opacity 0.4s, transform 0.4s';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          });
+        });
+
+        // Scroll to result (only if it's a new draw, usually handled by scrollIntoView)
+        // Keeping it here for simplicity, though when re-toggling language we might want to prevent jumping
+        area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      window.toggleLanguage = function () {
+        currentLang = currentLang === 'en' ? 'vi' : 'en';
+        document.getElementById('lang-toggle').innerText = currentLang.toUpperCase();
+
+        // If a card is currently displayed, re-render its text
+        if (currentDisplayedCard && document.getElementById('resultArea').style.display !== 'none') {
+          const reading = currentDisplayedCard['upright_' + currentLang];
+
+          const textEl = document.querySelector('.result-reading-text');
+          if (textEl) {
+            textEl.innerHTML = escH(reading);
+          }
+        }
+        renderHistory();
+      };
+
+      function renderHistory() {
+        const list = document.getElementById('historyList');
+        if (!history.length) {
+          list.innerHTML = '<div class="empty-history">No cards drawn yet.</div>';
+          return;
+        }
+        list.innerHTML = history.slice(0, 10).map((item, i) => {
+          if (!item.revealed) {
+            return `
+      <div class="history-item" onclick="replayHistory(${i})" title="Click to reveal">
+        <div style="display: flex; align-items: center; gap: 14px; width: 100%;">
+          <div class="history-glyph" style="opacity: 0.5;">❓</div>
+          <div class="history-name" style="font-style: italic; color: var(--muted);">Hidden Card</div>
+          <div class="history-badge" style="background: rgba(120,120,120,0.1); color: var(--muted);">Face Down</div>
+        </div>
+      </div>`;
+          }
+          return `
+      <div class="history-item" onclick="replayHistory(${i})" title="Click to re-read" style="flex-direction: column; align-items: stretch; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div class="history-glyph">${item.card.img}</div>
+          <div class="history-name">${escH(item.card.name)}</div>
+          <div class="history-badge">Drawn</div>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text); opacity: 0.8; padding-left: 42px; line-height: 1.5;">
+          ${escH(item.card['upright_' + currentLang])}
+        </div>
+      </div>`;
+        }).join('');
+      }
+
+      window.replayHistory = function (idx) {
+        const item = history[idx];
+        if (item) {
+          if (!item.revealed) {
+            item.revealed = true;
+            renderHistory();
+          }
+          renderResult(item.card);
+        }
+      };
+
+      window.clearHistory = function () {
+        history.length = 0;
+        drawCount = 0;
+        document.getElementById('drawCount').textContent = '0 cards drawn this session';
+        document.getElementById('resultArea').style.display = 'none';
+
+        const btn = document.getElementById('drawBtn');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        document.getElementById('drawLimitMsg').style.display = 'none';
+
+        renderHistory();
+      };
+
+      window.sharePage = function () {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          const btn = document.getElementById('shareTopBtn');
+          if (btn) {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg> Copied link!`;
+            setTimeout(() => {
+              btn.innerHTML = originalHTML;
+            }, 2000);
+          }
+        }).catch(console.error);
+      };
+
+      function escH(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br>');
+      }
     })();
-    setTimeout(() => {
-      document.getElementById('pct').textContent = '1%';
-    }, 1000);
   </script>
 </body>
 
