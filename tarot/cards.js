@@ -5,207 +5,273 @@
 
 (function () {
   function e(s) {
-    try { return btoa(unescape(encodeURIComponent(s))); } catch (err) { return s; }
+    try { return btoa(encodeURIComponent(s)); } catch (err) { return s; }
   }
   function d(s) {
-    try { return decodeURIComponent(escape(atob(s))); } catch (err) { return s; }
+    try { return decodeURIComponent(atob(s)); } catch (err) { return s; }
   }
 
   // Raw data for development. We encode it on the fly to simulate the "hidden" db
-  const rawCards = [
-    {
-      id: 1, name: "The Rider", img: "🏇",
-      upright_en: "You will play Umamusume: Pretty Derby OR you will go to a place so boring that people would rather stay at home.",
-      upright_vi: "Bạn sẽ chơi Umamusume: Pretty Derby HOẶC bạn sẽ đi đến một nơi nào đó nhàm chán đến mức mọi người thà ở nhà còn hơn."
-    },
-    {
-      id: 2, name: "The Clover", img: "🍀",
-      upright_en: "You're so bored you go outside and touch grass, and find this.",
-      upright_vi: "Bạn rảnh háng đến mức bạn không có gì để làm, nên bạn đi khám phá thiên nhiên, để rồi nhận được cái này."
-    },
-    {
-      id: 3, name: "The Ship", img: "⛵",
-      upright_en: "If you play Geometry Dash, you will become a ship-carried player in the future. If you don't play GD, it means you will eventually have to travel so far that you must use a boat to reach your destination. How far that is remains a mystery.",
-      upright_vi: "Nếu bạn chơi Geometry Dash, bạn sẽ trở thành một người chơi ship-carried trong tương lai. Nếu không chơi GD thì nó có nghĩa là bạn sẽ có lần phải đi xa đến mức phải dùng thuyền mới đến đích. Xa cỡ nào thì đó là một ẩn số."
-    },
-    {
-      id: 4, name: "The House", img: "🏠",
-      upright_en: "You will have a house. What kind of house it is, you'll have to wait to find out. Just rest assured knowing that much.",
-      upright_vi: "Bạn sẽ có một ngôi nhà. Ngôi nhà đó như thế nào thì bạn phải chờ đợi thì mới biết được. Cứ biết chắc là vậy đã."
-    },
-    {
-      id: 5, name: "The Tree", img: "🌳",
-      upright_en: "You will become a character in a literature lesson about writing essays in high school.",
-      upright_vi: "Bạn sẽ trở thành một hình tượng trong một bài Tập làm văn trong SGK."
-    },
-    {
-      id: 6, name: "The Clouds", img: "☁️",
-      upright_en: "In Rolling Sky, Cloud is the easiest level in the game, and it’s often overlooked once you’ve gotten good at it. Similarly, in the future, you’ll come to see the Cloud as just a formality, and you certainly won’t spend more than five minutes of your life thinking about it. As for the \"easy\" part... it's just there.",
-      upright_vi: "Trong Rolling Sky, Cloud là cấp độ dễ nhất trò chơi, và hay bị bỏ quên khi bạn đã giỏi rồi. Tương tự như vậy, trong tương lai, bạn sẽ coi như đám mây là thứ để cho có, và bạn chắc chắn sẽ không dành ra hơn 5 phút cuộc đời để nghĩ về nó. Cái đoạn \"dễ\" kia thì... tôi viết cho có thôi."
-    },
-    {
-      id: 7, name: "The Snake", img: "🐍",
-      upright_en: "You will possess an amount of knowledge far exceeding the sum of all human knowledge. Everyone will admire you, and even Terence Tao couldn't refute your words.",
-      upright_vi: "Bạn sẽ sở hữu một lượng tri thức vượt xa tổng tri thức nhân loại. Mọi người ai cũng sẽ bái phục bạn, và kể cả Terence Tao cũng không thể phản biện lời của bạn."
-    },
-    {
-      id: 8, name: "The Coffin", img: "⚰️",
-      upright_en: "When you pass away, you will definitely be inside this. Just in case you bring a 2-billion-year-old virus out to the world...",
-      upright_vi: "Khi bạn ra đi, bạn chắc chắn sẽ ở trong này. Phòng trường hợp bạn đem virus 2 tỷ năm tuổi ra thế giới…"
-    },
-    {
-      id: 9, name: "The Bouquet", img: "💐",
-      upright_en: "People will compliment you on something. It’s just a compliment, though. They might forget about it within 15 minutes.",
-      upright_vi: "Bạn sẽ được mọi người khen vì một thứ gì đó. Khen thế thôi nhưng họ có thể quên trong vòng 15 phút sau."
-    },
-    {
-      id: 10, name: "The Scythe", img: "🌾",
-      upright_en: "You will delete 50% of many people's power. Whether this 50% is very strong or just some lame skills is up to chance.",
-      upright_vi: "Bạn sẽ xoá 50% sức mạnh của rất nhiều người. 50% này có thể rất mạnh, hoặc chỉ trúng mấy kĩ năng phế vật."
-    },
-    {
-      id: 11, name: "The Whip", img: "🪢",
-      upright_en: "You will be whipped by someone whose name starts with an N, OR you will try/work in a craft profession. (A whip can be tied to crafts? I don't know the connection, but the world is absurd enough that this is acceptable).",
-      upright_vi: "Bạn sẽ bị một người có tên bắt đầu bằng chữ/âm N vụt một phát vào gậy HOẶC bạn sẽ đi làm/thử các nghề thủ công (Cây gậy có thể gắn liền với nghề thủ công? Tôi không biết sự liên kết này như thế nào, nhưng thế giới quá lươn lẹo đến mức cái này chấp nhận được)."
-    },
-    {
-      id: 12, name: "The Birds", img: "🐦",
-      upright_en: "You will not receive any attention at all, except from the scientific community.",
-      upright_vi: "Bạn sẽ không thể nhận được một chút sự chú ý nào hết, ngoại trừ từ giới khoa học ra."
-    },
-    {
-      id: 13, name: "The Child", img: "🧒",
-      upright_en: "You’ll have the heart of a child no matter how old you get, even if you live to be 99. Either you’ll encounter a troublesome child, or you’ll be just as troublesome as they are.",
-      upright_vi: "Bạn sẽ có một tâm hồn trẻ thơ dù bạn có già đến 99 tuổi. Hoặc là bạn sẽ gặp một đứa trẻ phiền toái, hoặc là bạn phiền y như chúng."
-    },
-    {
-      id: 14, name: "The Fox", img: "🦊",
-      upright_en: "You’ll have a dream or a goal. However, it’s always a million steps ahead of you. By the time you think you’ve achieved it, it’s already too late, because by then, the goal has new standards.",
-      upright_vi: "Bạn sẽ có một ước mơ, hoặc một mục tiêu. Tuy nhiên, nó luôn đi trước bạn cả triệu bước. Lúc bạn tưởng bạn đạt được mục tiêu rồi thì cũng đã quá muộn rồi, vì mục tiêu đó giờ cần có tiêu chuẩn mới."
-    },
-    {
-      id: 15, name: "The Bear", img: "🐻",
-      upright_en: "In Bee Swarm Simulator (Roblox), Tunnel Bear can take you out instantly, no matter how well-defended you are. Similarly, you’ll encounter someone so much better than you that you can’t even defend yourself against them. You might have to use an external tool to deal with this?",
-      upright_vi: "Trong Bee Swarm Simulator (Roblox), Tunnel Bear có thể cho bạn \"đi ngay\", dù có phòng vệ đến mức nào. Tương tự như vậy, bạn sẽ gặp một người giỏi hơn bạn đến mức bạn không thể tự phản bác lại nó được. Có khi bạn phải dùng một công cụ bên ngoài để giải quyết điều đó?"
-    },
-    {
-      id: 16, name: "The Stars", img: "⭐",
-      upright_en: "You won’t be noticed by anyone, unless they run out of things to do.",
-      upright_vi: "Bạn sẽ không được ai để ý, trừ khi mọi người hết việc để làm."
-    },
-    {
-      id: 17, name: "The Stork", img: "🦩",
-      upright_en: "You’ll migrate to a new place, and someone will miss you.",
-      upright_vi: "Bạn sẽ di cư đến một nơi khác, và sẽ có một người nhớ đến bạn."
-    },
-    {
-      id: 18, name: "The Dog", img: "🐕",
-      upright_en: "Dogs are the domesticated version of wolves. This means you are currently just a weaker version of yourself.",
-      upright_vi: "Chó là phiên bản thuần chủng hoá của sói. Điều đó có nghĩa là bạn hiện tại cũng chỉ đang là phiên bản yếu hơn của chính bạn thôi."
-    },
-    {
-      id: 19, name: "The Tower", img: "🗼",
-      upright_en: "You will live in a tower. Whether you own it or not... is anyone's guess. I've heard this building won't stand for long, but that's just a hypothesis.",
-      upright_vi: "Bạn sẽ sống trong một toà nhà. Bạn có sở hữu nó hay không thì… bó tay chấm com nhá. Nghe nói toà nhà này sẽ không sống lâu, nhưng đó chỉ là giả thuyết."
-    },
-    {
-      id: 20, name: "The Garden", img: "⛲",
-      upright_en: "Your house is about to be invaded by zombies. Consider planting a Peashooter if you don't want to spend money on a new house.",
-      upright_vi: "Nhà bạn sắp bị thây ma xâm lược. Hãy cân nhắc trồng một cây Peashooter nếu không muốn phải tiêu tiền xây nhà mới."
-    },
-    {
-      id: 21, name: "The Mountain", img: "⛰️",
-      upright_en: "\"High mountains after high mountains\". You will never escape the hustle of the busy world, given there is a mountain of work right there. What that work is, is unknown.",
-      upright_vi: "“Núi cao rồi lại núi cao trập trùng”. Bạn sẽ không bao giờ thoát khỏi guồng quay của thế giới vội vã, khi một núi công việc đang ở đó. Việc đó là gì thì cũng chưa biết được."
-    },
-    {
-      id: 22, name: "The Crossroads", img: "🛣️",
-      upright_en: "You will have to choose one of many roads to take. Which one is right depends on each person's perspective. Alternatively, you could be a bird and scout the roads ahead.",
-      upright_vi: "Bạn sẽ phải chọn một trong nhiều đường để đi. Đường nào đúng phụ thuộc vào cách nhìn của mỗi người. Hoặc là bạn có thể là một con chim và xem trước các đoạn đường cho xong."
-    },
-    {
-      id: 23, name: "The Mice", img: "🐁",
-      upright_en: "Where you live will smell really bad, or your body isn't clean, so there will be a lot of mice OR you will acquire (another) computer mouse.",
-      upright_vi: "Nơi bạn ở sẽ rất là hôi hoặc là chính cơ thể của bạn không được sạch, nên sẽ có rất nhiều chuột HOẶC bạn sẽ sở hữu (thêm) một con chuột máy tính."
-    },
-    {
-      id: 24, name: "The Heart", img: "❤️",
-      upright_en: "One of two things will happen (or possibly both):\n1. You will have a cardiovascular issue in your life.\n2. You will find love before you pass away.",
-      upright_vi: "Một trong hai điều sau sẽ xảy ra (hoặc là cả hai có thể xảy ra):\n1. Sẽ có một vấn đề liên quan đến tim mạch xảy ra trong cuộc đời bạn.\n2. Bạn sẽ tìm được tình yêu trước khi ra đi."
-    },
-    {
-      id: 25, name: "The Ring", img: "💍",
-      upright_en: "You will have absolute magical power, but you have no control over it. Instead, your lover chooses when to use magic.",
-      upright_vi: "Bạn sẽ có sức mạnh kì ảo tuyệt đối, nhưng bạn không có quyền kiểm soát nó. Thay vào đó, người yêu của bạn chọn khi nào dùng ma thuật."
-    },
-    {
-      id: 26, name: "The Book", img: "📖",
-      upright_en: "You will turn into a worm. (If you get this pun, you can beat Bloodbath (Geometry Dash))",
-      upright_vi: "Bạn sẽ biến thành một con sâu. (nếu bạn hiểu được phần chơi chữ này, bạn có thể phá đảo Bloodbath (Geometry Dash))"
-    },
-    {
-      id: 27, name: "The Letter", img: "✉️",
-      upright_en: "You will receive a handwritten letter, or an email in the future. It might just be an ad. It might also supposedly dictate your life.",
-      upright_vi: "Bạn sẽ nhận được một lá thư tay, hoặc một email trong tương lai. Có thể nó chỉ là quảng cáo. Cũng có thể nó sẽ quyết định cuộc đời của bạn."
-    },
-    {
-      id: 28, name: "The Man", img: "👨",
-      upright_en: "You will be as strong as a man. That's it.",
-      upright_vi: "Bạn sẽ mạnh như một người đàn ông. Thế thôi."
-    },
-    {
-      id: 29, name: "The Woman", img: "👩",
-      upright_en: "You will meet a woman. Nothing more.",
-      upright_vi: "Bạn sẽ gặp một người phụ nữ. Không có gì thêm."
-    },
-    {
-      id: 30, name: "The Lily", img: "⚜️",
-      upright_en: "You will participate in a game show similar to \"Thank God You're Here!\", and experience a life full of flowers.",
-      upright_vi: "Bạn sẽ tham gia một gameshow có format giống \"Ơn giời, cậu đây rồi!\", và trải nghiệm cuộc đời nở hoa."
-    },
-    {
-      id: 31, name: "The Sun", img: "☀️",
-      upright_en: "You will get a sunburn, and if you try to delete the Sun to avoid getting a sunburn, congratulations, you've just deleted Earth's day-night cycle.",
-      upright_vi: "Bạn sẽ bị cháy nắng, và nếu bạn định xoá Mặt Trời để khỏi cháy nắng, chúc mừng bạn đã xoá chu kì ngày-đêm của Trái Đất."
-    },
-    {
-      id: 32, name: "The Moon", img: "🌙",
-      upright_en: "You will be the start of something powerful, just like how Moon of the Closed Heaven is the start of the Fiendsmith combo.",
-      upright_vi: "Bạn sẽ là khởi đầu của một thứ gì đó mạnh mẽ, giống cách Moon of the Closed Heaven là cách khởi đầu combo Fiendsmith."
-    },
-    {
-      id: 33, name: "The Key", img: "🔑",
-      upright_en: "To achieve your next big goal, you will need a very important item. What it is, I don't know.",
-      upright_vi: "Để thực hiện mục tiêu lớn tiếp theo, bạn sẽ cần một vật rất quan trọng. Nó là gì thì tôi không biết."
-    },
-    {
-      id: 34, name: "The Fish", img: "🐟",
-      upright_en: "You will die if you try to go against the world.",
-      upright_vi: "Bạn sẽ ra đi nếu cố đi ngược với thế giới."
-    },
-    {
-      id: 35, name: "The Anchor", img: "⚓",
-      upright_en: "You will be forced to stand in one place, and there is no way to escape it.",
-      upright_vi: "Bạn sẽ bị bắt đứng ở một vị trí cố định, và không có cách nào để thoát nó cả."
-    },
-    {
-      id: 36, name: "The Cross", img: "✝️",
-      upright_en: "Ryzeal Cross has the ability to negate a monster effect right as it is \"about\" to resolve. This means that whatever you do might just go down the drain without you knowing.",
-      upright_vi: "Ryzeal Cross có khả năng vô hiệu hoá một hiệu ứng quái thú ngay khi hiệu ứng đó “sắp” thực thi. Điều đó có nghĩa là những gì bạn sẽ làm có thể đổ sông đổ biển mà bạn không hề biết."
-    }
-  ];
+  const encodedCards = [
+  {
+    "id": 1,
+    "name": "VGhlJTIwUmlkZXI=",
+    "img": "🏇",
+    "upright_en": "WW91JTIwd2lsbCUyMHBsYXklMjBVbWFtdXN1bWUlM0ElMjBQcmV0dHklMjBEZXJieSUyME9SJTIweW91JTIwd2lsbCUyMGdvJTIwdG8lMjBhJTIwcGxhY2UlMjBzbyUyMGJvcmluZyUyMHRoYXQlMjBwZW9wbGUlMjB3b3VsZCUyMHJhdGhlciUyMHN0YXklMjBhdCUyMGhvbWUu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwY2glQzYlQTFpJTIwVW1hbXVzdW1lJTNBJTIwUHJldHR5JTIwRGVyYnklMjBITyVFMSVCQSVCNkMlMjBiJUUxJUJBJUExbiUyMHMlRTElQkElQkQlMjAlQzQlOTFpJTIwJUM0JTkxJUUxJUJBJUJGbiUyMG0lRTElQkIlOTl0JTIwbiVDNiVBMWklMjBuJUMzJUEwbyUyMCVDNCU5MSVDMyVCMyUyMG5oJUMzJUEwbSUyMGNoJUMzJUExbiUyMCVDNCU5MSVFMSVCQSVCRm4lMjBtJUUxJUJCJUE5YyUyMG0lRTElQkIlOERpJTIwbmclQzYlQjAlRTElQkIlOURpJTIwdGglQzMlQTAlMjAlRTElQkIlOUYlMjBuaCVDMyVBMCUyMGMlQzMlQjJuJTIwaCVDNiVBMW4u"
+  },
+  {
+    "id": 2,
+    "name": "VGhlJTIwQ2xvdmVy",
+    "img": "🍀",
+    "upright_en": "WW91J3JlJTIwc28lMjBib3JlZCUyMHlvdSUyMGdvJTIwb3V0c2lkZSUyMGFuZCUyMHRvdWNoJTIwZ3Jhc3MlMkMlMjBhbmQlMjBmaW5kJTIwdGhpcy4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjByJUUxJUJBJUEzbmglMjBoJUMzJUExbmclMjAlQzQlOTElRTElQkElQkZuJTIwbSVFMSVCQiVBOWMlMjBiJUUxJUJBJUExbiUyMGtoJUMzJUI0bmclMjBjJUMzJUIzJTIwZyVDMyVBQyUyMCVDNCU5MSVFMSVCQiU4MyUyMGwlQzMlQTBtJTJDJTIwbiVDMyVBQW4lMjBiJUUxJUJBJUExbiUyMCVDNCU5MWklMjBraCVDMyVBMW0lMjBwaCVDMyVBMSUyMHRoaSVDMyVBQW4lMjBuaGklQzMlQUFuJTJDJTIwJUM0JTkxJUUxJUJCJTgzJTIwciVFMSVCQiU5M2klMjBuaCVFMSVCQSVBRG4lMjAlQzQlOTElQzYlQjAlRTElQkIlQTNjJTIwYyVDMyVBMWklMjBuJUMzJUEweS4="
+  },
+  {
+    "id": 3,
+    "name": "VGhlJTIwU2hpcA==",
+    "img": "⛵",
+    "upright_en": "SWYlMjB5b3UlMjBwbGF5JTIwR2VvbWV0cnklMjBEYXNoJTJDJTIweW91JTIwd2lsbCUyMGJlY29tZSUyMGElMjBzaGlwLWNhcnJpZWQlMjBwbGF5ZXIlMjBpbiUyMHRoZSUyMGZ1dHVyZS4lMjBJZiUyMHlvdSUyMGRvbid0JTIwcGxheSUyMEdEJTJDJTIwaXQlMjBtZWFucyUyMHlvdSUyMHdpbGwlMjBldmVudHVhbGx5JTIwaGF2ZSUyMHRvJTIwdHJhdmVsJTIwc28lMjBmYXIlMjB0aGF0JTIweW91JTIwbXVzdCUyMHVzZSUyMGElMjBib2F0JTIwdG8lMjByZWFjaCUyMHlvdXIlMjBkZXN0aW5hdGlvbi4lMjBIb3clMjBmYXIlMjB0aGF0JTIwaXMlMjByZW1haW5zJTIwYSUyMG15c3Rlcnku",
+    "upright_vi": "TiVFMSVCQSVCRnUlMjBiJUUxJUJBJUExbiUyMGNoJUM2JUExaSUyMEdlb21ldHJ5JTIwRGFzaCUyQyUyMGIlRTElQkElQTFuJTIwcyVFMSVCQSVCRCUyMHRyJUUxJUJCJTlGJTIwdGglQzMlQTBuaCUyMG0lRTElQkIlOTl0JTIwbmclQzYlQjAlRTElQkIlOURpJTIwY2glQzYlQTFpJTIwc2hpcC1jYXJyaWVkJTIwdHJvbmclMjB0JUM2JUIwJUM2JUExbmclMjBsYWkuJTIwTiVFMSVCQSVCRnUlMjBraCVDMyVCNG5nJTIwY2glQzYlQTFpJTIwR0QlMjB0aCVDMyVBQyUyMG4lQzMlQjMlMjBjJUMzJUIzJTIwbmdoJUM0JUE5YSUyMGwlQzMlQTAlMjBiJUUxJUJBJUExbiUyMHMlRTElQkElQkQlMjBjJUMzJUIzJTIwbCVFMSVCQSVBN24lMjBwaCVFMSVCQSVBM2klMjAlQzQlOTFpJTIweGElMjAlQzQlOTElRTElQkElQkZuJTIwbSVFMSVCQiVBOWMlMjBwaCVFMSVCQSVBM2klMjBkJUMzJUI5bmclMjB0aHV5JUUxJUJCJTgxbiUyMG0lRTElQkIlOUJpJTIwJUM0JTkxJUUxJUJBJUJGbiUyMCVDNCU5MSVDMyVBRGNoLiUyMFhhJTIwYyVFMSVCQiVBMSUyMG4lQzMlQTBvJTIwdGglQzMlQUMlMjAlQzQlOTElQzMlQjMlMjBsJUMzJUEwJTIwbSVFMSVCQiU5OXQlMjAlRTElQkElQTluJTIwcyVFMSVCQiU5MS4="
+  },
+  {
+    "id": 4,
+    "name": "VGhlJTIwSG91c2U=",
+    "img": "🏠",
+    "upright_en": "WW91JTIwd2lsbCUyMGhhdmUlMjBhJTIwaG91c2UuJTIwV2hhdCUyMGtpbmQlMjBvZiUyMGhvdXNlJTIwaXQlMjBpcyUyQyUyMHlvdSdsbCUyMGhhdmUlMjB0byUyMHdhaXQlMjB0byUyMGZpbmQlMjBvdXQuJTIwSnVzdCUyMHJlc3QlMjBhc3N1cmVkJTIwa25vd2luZyUyMHRoYXQlMjBtdWNoLg==",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYyVDMyVCMyUyMG0lRTElQkIlOTl0JTIwbmclQzMlQjRpJTIwbmglQzMlQTAuJTIwTmclQzMlQjRpJTIwbmglQzMlQTAlMjAlQzQlOTElQzMlQjMlMjBuaCVDNiVCMCUyMHRoJUUxJUJBJUJGJTIwbiVDMyVBMG8lMjB0aCVDMyVBQyUyMGIlRTElQkElQTFuJTIwcGglRTElQkElQTNpJTIwY2glRTElQkIlOUQlMjAlQzQlOTElRTElQkIlQTNpJTIwdGglQzMlQUMlMjBtJUUxJUJCJTlCaSUyMGJpJUUxJUJBJUJGdCUyMCVDNCU5MSVDNiVCMCVFMSVCQiVBM2MuJTIwQyVFMSVCQiVBOSUyMGJpJUUxJUJBJUJGdCUyMGNoJUUxJUJBJUFGYyUyMGwlQzMlQTAlMjB2JUUxJUJBJUFEeSUyMCVDNCU5MSVDMyVBMy4="
+  },
+  {
+    "id": 5,
+    "name": "VGhlJTIwVHJlZQ==",
+    "img": "🌳",
+    "upright_en": "WW91JTIwd2lsbCUyMGJlY29tZSUyMGElMjBjaGFyYWN0ZXIlMjBpbiUyMGElMjBsaXRlcmF0dXJlJTIwbGVzc29uJTIwYWJvdXQlMjB3cml0aW5nJTIwZXNzYXlzJTIwaW4lMjBoaWdoJTIwc2Nob29sLg==",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwdHIlRTElQkIlOUYlMjB0aCVDMyVBMG5oJTIwbSVFMSVCQiU5OXQlMjBoJUMzJUFDbmglMjB0JUM2JUIwJUUxJUJCJUEzbmclMjB0cm9uZyUyMG0lRTElQkIlOTl0JTIwYiVDMyVBMGklMjBUJUUxJUJBJUFEcCUyMGwlQzMlQTBtJTIwdiVDNCU4M24lMjB0cm9uZyUyMFNHSy4="
+  },
+  {
+    "id": 6,
+    "name": "VGhlJTIwQ2xvdWRz",
+    "img": "☁️",
+    "upright_en": "SW4lMjBSb2xsaW5nJTIwU2t5JTJDJTIwQ2xvdWQlMjBpcyUyMHRoZSUyMGVhc2llc3QlMjBsZXZlbCUyMGluJTIwdGhlJTIwZ2FtZSUyQyUyMGFuZCUyMGl0JUUyJTgwJTk5cyUyMG9mdGVuJTIwb3Zlcmxvb2tlZCUyMG9uY2UlMjB5b3UlRTIlODAlOTl2ZSUyMGdvdHRlbiUyMGdvb2QlMjBhdCUyMGl0LiUyMFNpbWlsYXJseSUyQyUyMGluJTIwdGhlJTIwZnV0dXJlJTJDJTIweW91JUUyJTgwJTk5bGwlMjBjb21lJTIwdG8lMjBzZWUlMjB0aGUlMjBDbG91ZCUyMGFzJTIwanVzdCUyMGElMjBmb3JtYWxpdHklMkMlMjBhbmQlMjB5b3UlMjBjZXJ0YWlubHklMjB3b24lRTIlODAlOTl0JTIwc3BlbmQlMjBtb3JlJTIwdGhhbiUyMGZpdmUlMjBtaW51dGVzJTIwb2YlMjB5b3VyJTIwbGlmZSUyMHRoaW5raW5nJTIwYWJvdXQlMjBpdC4lMjBBcyUyMGZvciUyMHRoZSUyMCUyMmVhc3klMjIlMjBwYXJ0Li4uJTIwaXQncyUyMGp1c3QlMjB0aGVyZS4=",
+    "upright_vi": "VHJvbmclMjBSb2xsaW5nJTIwU2t5JTJDJTIwQ2xvdWQlMjBsJUMzJUEwJTIwYyVFMSVCQSVBNXAlMjAlQzQlOTElRTElQkIlOTklMjBkJUUxJUJCJTg1JTIwbmglRTElQkElQTV0JTIwdHIlQzMlQjIlMjBjaCVDNiVBMWklMkMlMjB2JUMzJUEwJTIwaGF5JTIwYiVFMSVCQiU4QiUyMGIlRTElQkIlOEYlMjBxdSVDMyVBQW4lMjBraGklMjBiJUUxJUJBJUExbiUyMCVDNCU5MSVDMyVBMyUyMGdpJUUxJUJCJThGaSUyMHIlRTElQkIlOTNpLiUyMFQlQzYlQjAlQzYlQTFuZyUyMHQlRTElQkIlQjElMjBuaCVDNiVCMCUyMHYlRTElQkElQUR5JTJDJTIwdHJvbmclMjB0JUM2JUIwJUM2JUExbmclMjBsYWklMkMlMjBiJUUxJUJBJUExbiUyMHMlRTElQkElQkQlMjBjb2klMjBuaCVDNiVCMCUyMCVDNCU5MSVDMyVBMW0lMjBtJUMzJUEyeSUyMGwlQzMlQTAlMjB0aCVFMSVCQiVBOSUyMCVDNCU5MSVFMSVCQiU4MyUyMGNobyUyMGMlQzMlQjMlMkMlMjB2JUMzJUEwJTIwYiVFMSVCQSVBMW4lMjBjaCVFMSVCQSVBRmMlMjBjaCVFMSVCQSVBRm4lMjBzJUUxJUJBJUJEJTIwa2glQzMlQjRuZyUyMGQlQzMlQTBuaCUyMHJhJTIwaCVDNiVBMW4lMjA1JTIwcGglQzMlQkF0JTIwY3UlRTElQkIlOTljJTIwJUM0JTkxJUUxJUJCJTlEaSUyMCVDNCU5MSVFMSVCQiU4MyUyMG5naCVDNCVBOSUyMHYlRTElQkIlODElMjBuJUMzJUIzLiUyMEMlQzMlQTFpJTIwJUM0JTkxbyVFMSVCQSVBMW4lMjAlMjJkJUUxJUJCJTg1JTIyJTIwa2lhJTIwdGglQzMlQUMuLi4lMjB0JUMzJUI0aSUyMHZpJUUxJUJBJUJGdCUyMGNobyUyMGMlQzMlQjMlMjB0aCVDMyVCNGku"
+  },
+  {
+    "id": 7,
+    "name": "VGhlJTIwU25ha2U=",
+    "img": "🐍",
+    "upright_en": "WW91JTIwd2lsbCUyMHBvc3Nlc3MlMjBhbiUyMGFtb3VudCUyMG9mJTIwa25vd2xlZGdlJTIwZmFyJTIwZXhjZWVkaW5nJTIwdGhlJTIwc3VtJTIwb2YlMjBhbGwlMjBodW1hbiUyMGtub3dsZWRnZS4lMjBFdmVyeW9uZSUyMHdpbGwlMjBhZG1pcmUlMjB5b3UlMkMlMjBhbmQlMjBldmVuJTIwVGVyZW5jZSUyMFRhbyUyMGNvdWxkbid0JTIwcmVmdXRlJTIweW91ciUyMHdvcmRzLg==",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwcyVFMSVCQiU5RiUyMGglRTElQkIlQUZ1JTIwbSVFMSVCQiU5OXQlMjBsJUM2JUIwJUUxJUJCJUEzbmclMjB0cmklMjB0aCVFMSVCQiVBOWMlMjB2JUM2JUIwJUUxJUJCJUEzdCUyMHhhJTIwdCVFMSVCQiU5NW5nJTIwdHJpJTIwdGglRTElQkIlQTljJTIwbmglQzMlQTJuJTIwbG8lRTElQkElQTFpLiUyME0lRTElQkIlOERpJTIwbmclQzYlQjAlRTElQkIlOURpJTIwYWklMjBjJUM1JUE5bmclMjBzJUUxJUJBJUJEJTIwYiVDMyVBMWklMjBwaCVFMSVCQiVBNWMlMjBiJUUxJUJBJUExbiUyQyUyMHYlQzMlQTAlMjBrJUUxJUJCJTgzJTIwYyVFMSVCQSVBMyUyMFRlcmVuY2UlMjBUYW8lMjBjJUM1JUE5bmclMjBraCVDMyVCNG5nJTIwdGglRTElQkIlODMlMjBwaCVFMSVCQSVBM24lMjBiaSVFMSVCQiU4N24lMjBsJUUxJUJCJTlEaSUyMGMlRTElQkIlQTdhJTIwYiVFMSVCQSVBMW4u"
+  },
+  {
+    "id": 8,
+    "name": "VGhlJTIwQ29mZmlu",
+    "img": "⚰️",
+    "upright_en": "V2hlbiUyMHlvdSUyMHBhc3MlMjBhd2F5JTJDJTIweW91JTIwd2lsbCUyMGRlZmluaXRlbHklMjBiZSUyMGluc2lkZSUyMHRoaXMuJTIwSnVzdCUyMGluJTIwY2FzZSUyMHlvdSUyMGJyaW5nJTIwYSUyMDItYmlsbGlvbi15ZWFyLW9sZCUyMHZpcnVzJTIwb3V0JTIwdG8lMjB0aGUlMjB3b3JsZC4uLg==",
+    "upright_vi": "S2hpJTIwYiVFMSVCQSVBMW4lMjByYSUyMCVDNCU5MWklMkMlMjBiJUUxJUJBJUExbiUyMGNoJUUxJUJBJUFGYyUyMGNoJUUxJUJBJUFGbiUyMHMlRTElQkElQkQlMjAlRTElQkIlOUYlMjB0cm9uZyUyMG4lQzMlQTB5LiUyMFBoJUMzJUIybmclMjB0ciVDNiVCMCVFMSVCQiU5RG5nJTIwaCVFMSVCQiVBM3AlMjBiJUUxJUJBJUExbiUyMCVDNCU5MWVtJTIwdmlydXMlMjAyJTIwdCVFMSVCQiVCNyUyMG4lQzQlODNtJTIwdHUlRTElQkIlOTVpJTIwcmElMjB0aCVFMSVCQSVCRiUyMGdpJUUxJUJCJTlCaSVFMiU4MCVBNg=="
+  },
+  {
+    "id": 9,
+    "name": "VGhlJTIwQm91cXVldA==",
+    "img": "💐",
+    "upright_en": "UGVvcGxlJTIwd2lsbCUyMGNvbXBsaW1lbnQlMjB5b3UlMjBvbiUyMHNvbWV0aGluZy4lMjBJdCVFMiU4MCU5OXMlMjBqdXN0JTIwYSUyMGNvbXBsaW1lbnQlMkMlMjB0aG91Z2guJTIwVGhleSUyMG1pZ2h0JTIwZm9yZ2V0JTIwYWJvdXQlMjBpdCUyMHdpdGhpbiUyMDE1JTIwbWludXRlcy4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwJUM0JTkxJUM2JUIwJUUxJUJCJUEzYyUyMG0lRTElQkIlOERpJTIwbmclQzYlQjAlRTElQkIlOURpJTIwa2hlbiUyMHYlQzMlQUMlMjBtJUUxJUJCJTk5dCUyMHRoJUUxJUJCJUE5JTIwZyVDMyVBQyUyMCVDNCU5MSVDMyVCMy4lMjBLaGVuJTIwdGglRTElQkElQkYlMjB0aCVDMyVCNGklMjBuaCVDNiVCMG5nJTIwaCVFMSVCQiU4RCUyMGMlQzMlQjMlMjB0aCVFMSVCQiU4MyUyMHF1JUMzJUFBbiUyMHRyb25nJTIwdiVDMyVCMm5nJTIwMTUlMjBwaCVDMyVCQXQlMjBzYXUu"
+  },
+  {
+    "id": 10,
+    "name": "VGhlJTIwU2N5dGhl",
+    "img": "🌾",
+    "upright_en": "WW91JTIwd2lsbCUyMGRlbGV0ZSUyMDUwJTI1JTIwb2YlMjBtYW55JTIwcGVvcGxlJ3MlMjBwb3dlci4lMjBXaGV0aGVyJTIwdGhpcyUyMDUwJTI1JTIwaXMlMjB2ZXJ5JTIwc3Ryb25nJTIwb3IlMjBqdXN0JTIwc29tZSUyMGxhbWUlMjBza2lsbHMlMjBpcyUyMHVwJTIwdG8lMjBjaGFuY2Uu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIweG8lQzMlQTElMjA1MCUyNSUyMHMlRTElQkIlQTljJTIwbSVFMSVCQSVBMW5oJTIwYyVFMSVCQiVBN2ElMjByJUUxJUJBJUE1dCUyMG5oaSVFMSVCQiU4MXUlMjBuZyVDNiVCMCVFMSVCQiU5RGkuJTIwNTAlMjUlMjBuJUMzJUEweSUyMGMlQzMlQjMlMjB0aCVFMSVCQiU4MyUyMHIlRTElQkElQTV0JTIwbSVFMSVCQSVBMW5oJTJDJTIwaG8lRTElQkElQjdjJTIwY2glRTElQkIlODklMjB0ciVDMyVCQW5nJTIwbSVFMSVCQSVBNXklMjBrJUM0JUE5JTIwbiVDNCU4M25nJTIwcGglRTElQkElQkYlMjB2JUUxJUJBJUFEdC4="
+  },
+  {
+    "id": 11,
+    "name": "VGhlJTIwV2hpcA==",
+    "img": "🪢",
+    "upright_en": "WW91JTIwd2lsbCUyMGJlJTIwd2hpcHBlZCUyMGJ5JTIwc29tZW9uZSUyMHdob3NlJTIwbmFtZSUyMHN0YXJ0cyUyMHdpdGglMjBhbiUyME4lMkMlMjBPUiUyMHlvdSUyMHdpbGwlMjB0cnklMkZ3b3JrJTIwaW4lMjBhJTIwY3JhZnQlMjBwcm9mZXNzaW9uLiUyMChBJTIwd2hpcCUyMGNhbiUyMGJlJTIwdGllZCUyMHRvJTIwY3JhZnRzJTNGJTIwSSUyMGRvbid0JTIwa25vdyUyMHRoZSUyMGNvbm5lY3Rpb24lMkMlMjBidXQlMjB0aGUlMjB3b3JsZCUyMGlzJTIwYWJzdXJkJTIwZW5vdWdoJTIwdGhhdCUyMHRoaXMlMjBpcyUyMGFjY2VwdGFibGUpLg==",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYiVFMSVCQiU4QiUyMG0lRTElQkIlOTl0JTIwbmclQzYlQjAlRTElQkIlOURpJTIwYyVDMyVCMyUyMHQlQzMlQUFuJTIwYiVFMSVCQSVBRnQlMjAlQzQlOTElRTElQkElQTd1JTIwYiVFMSVCQSVCMW5nJTIwY2glRTElQkIlQUYlMkYlQzMlQTJtJTIwTiUyMHYlRTElQkIlQTV0JTIwbSVFMSVCQiU5OXQlMjBwaCVDMyVBMXQlMjB2JUMzJUEwbyUyMGclRTElQkElQUR5JTIwSE8lRTElQkElQjZDJTIwYiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwJUM0JTkxaSUyMGwlQzMlQTBtJTJGdGglRTElQkIlQUQlMjBjJUMzJUExYyUyMG5naCVFMSVCQiU4MSUyMHRoJUUxJUJCJUE3JTIwYyVDMyVCNG5nJTIwKEMlQzMlQTJ5JTIwZyVFMSVCQSVBRHklMjBjJUMzJUIzJTIwdGglRTElQkIlODMlMjBnJUUxJUJBJUFGbiUyMGxpJUUxJUJCJTgxbiUyMHYlRTElQkIlOUJpJTIwbmdoJUUxJUJCJTgxJTIwdGglRTElQkIlQTclMjBjJUMzJUI0bmclM0YlMjBUJUMzJUI0aSUyMGtoJUMzJUI0bmclMjBiaSVFMSVCQSVCRnQlMjBzJUUxJUJCJUIxJTIwbGklQzMlQUFuJTIwayVFMSVCQSVCRnQlMjBuJUMzJUEweSUyMG5oJUM2JUIwJTIwdGglRTElQkElQkYlMjBuJUMzJUEwbyUyQyUyMG5oJUM2JUIwbmclMjB0aCVFMSVCQSVCRiUyMGdpJUUxJUJCJTlCaSUyMHF1JUMzJUExJTIwbCVDNiVCMCVDNiVBMW4lMjBsJUUxJUJBJUI5byUyMCVDNCU5MSVFMSVCQSVCRm4lMjBtJUUxJUJCJUE5YyUyMGMlQzMlQTFpJTIwbiVDMyVBMHklMjBjaCVFMSVCQSVBNXAlMjBuaCVFMSVCQSVBRG4lMjAlQzQlOTElQzYlQjAlRTElQkIlQTNjKS4="
+  },
+  {
+    "id": 12,
+    "name": "VGhlJTIwQmlyZHM=",
+    "img": "🐦",
+    "upright_en": "WW91JTIwd2lsbCUyMG5vdCUyMHJlY2VpdmUlMjBhbnklMjBhdHRlbnRpb24lMjBhdCUyMGFsbCUyQyUyMGV4Y2VwdCUyMGZyb20lMjB0aGUlMjBzY2llbnRpZmljJTIwY29tbXVuaXR5Lg==",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwa2glQzMlQjRuZyUyMHRoJUUxJUJCJTgzJTIwbmglRTElQkElQURuJTIwJUM0JTkxJUM2JUIwJUUxJUJCJUEzYyUyMG0lRTElQkIlOTl0JTIwY2glQzMlQkF0JTIwcyVFMSVCQiVCMSUyMGNoJUMzJUJBJTIwJUMzJUJEJTIwbiVDMyVBMG8lMjBoJUUxJUJBJUJGdCUyQyUyMG5nbyVFMSVCQSVBMWklMjB0ciVFMSVCQiVBQiUyMHQlRTElQkIlQUIlMjBnaSVFMSVCQiU5QmklMjBraG9hJTIwaCVFMSVCQiU4RGMlMjByYS4="
+  },
+  {
+    "id": 13,
+    "name": "VGhlJTIwQ2hpbGQ=",
+    "img": "🧒",
+    "upright_en": "WW91JUUyJTgwJTk5bGwlMjBoYXZlJTIwdGhlJTIwaGVhcnQlMjBvZiUyMGElMjBjaGlsZCUyMG5vJTIwbWF0dGVyJTIwaG93JTIwb2xkJTIweW91JTIwZ2V0JTJDJTIwZXZlbiUyMGlmJTIweW91JTIwbGl2ZSUyMHRvJTIwYmUlMjA5OS4lMjBFaXRoZXIlMjB5b3UlRTIlODAlOTlsbCUyMGVuY291bnRlciUyMGElMjB0cm91Ymxlc29tZSUyMGNoaWxkJTJDJTIwb3IlMjB5b3UlRTIlODAlOTlsbCUyMGJlJTIwanVzdCUyMGFzJTIwdHJvdWJsZXNvbWUlMjBhcyUyMHRoZXklMjBhcmUu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYyVDMyVCMyUyMG0lRTElQkIlOTl0JTIwdCVDMyVBMm0lMjBoJUUxJUJCJTkzbiUyMHRyJUUxJUJBJUJCJTIwdGglQzYlQTElMjBkJUMzJUI5JTIwYiVFMSVCQSVBMW4lMjBjJUMzJUIzJTIwZ2klQzMlQTAlMjAlQzQlOTElRTElQkElQkZuJTIwOTklMjB0dSVFMSVCQiU5NWkuJTIwSG8lRTElQkElQjdjJTIwbCVDMyVBMCUyMGIlRTElQkElQTFuJTIwcyVFMSVCQSVCRCUyMGclRTElQkElQjdwJTIwbSVFMSVCQiU5OXQlMjAlQzQlOTElRTElQkIlQTlhJTIwdHIlRTElQkElQkIlMjBwaGklRTElQkIlODFuJTIwdG8lQzMlQTFpJTJDJTIwaG8lRTElQkElQjdjJTIwbCVDMyVBMCUyMGIlRTElQkElQTFuJTIwcGhpJUUxJUJCJTgxbiUyMHklMjBuaCVDNiVCMCUyMGNoJUMzJUJBbmcu"
+  },
+  {
+    "id": 14,
+    "name": "VGhlJTIwRm94",
+    "img": "🦊",
+    "upright_en": "WW91JUUyJTgwJTk5bGwlMjBoYXZlJTIwYSUyMGRyZWFtJTIwb3IlMjBhJTIwZ29hbC4lMjBIb3dldmVyJTJDJTIwaXQlRTIlODAlOTlzJTIwYWx3YXlzJTIwYSUyMG1pbGxpb24lMjBzdGVwcyUyMGFoZWFkJTIwb2YlMjB5b3UuJTIwQnklMjB0aGUlMjB0aW1lJTIweW91JTIwdGhpbmslMjB5b3UlRTIlODAlOTl2ZSUyMGFjaGlldmVkJTIwaXQlMkMlMjBpdCVFMiU4MCU5OXMlMjBhbHJlYWR5JTIwdG9vJTIwbGF0ZSUyQyUyMGJlY2F1c2UlMjBieSUyMHRoZW4lMkMlMjB0aGUlMjBnb2FsJTIwaGFzJTIwbmV3JTIwc3RhbmRhcmRzLg==",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYyVDMyVCMyUyMG0lRTElQkIlOTl0JTIwJUM2JUIwJUUxJUJCJTlCYyUyMG0lQzYlQTElMkMlMjBobyVFMSVCQSVCN2MlMjBtJUUxJUJCJTk5dCUyMG0lRTElQkIlQTVjJTIwdGklQzMlQUF1LiUyMFR1eSUyMG5oaSVDMyVBQW4lMkMlMjBuJUMzJUIzJTIwbHUlQzMlQjRuJTIwJUM0JTkxaSUyMHRyJUM2JUIwJUUxJUJCJTlCYyUyMGIlRTElQkElQTFuJTIwYyVFMSVCQSVBMyUyMHRyaSVFMSVCQiU4N3UlMjBiJUM2JUIwJUUxJUJCJTlCYy4lMjBMJUMzJUJBYyUyMGIlRTElQkElQTFuJTIwdCVDNiVCMCVFMSVCQiU5Rm5nJTIwYiVFMSVCQSVBMW4lMjAlQzQlOTElRTElQkElQTF0JTIwJUM0JTkxJUM2JUIwJUUxJUJCJUEzYyUyMG0lRTElQkIlQTVjJTIwdGklQzMlQUF1JTIwciVFMSVCQiU5M2klMjB0aCVDMyVBQyUyMGMlQzUlQTluZyUyMCVDNCU5MSVDMyVBMyUyMHF1JUMzJUExJTIwbXUlRTElQkIlOTluJTIwciVFMSVCQiU5M2klMkMlMjB2JUMzJUFDJTIwbSVFMSVCQiVBNWMlMjB0aSVDMyVBQXUlMjAlQzQlOTElQzMlQjMlMjBnaSVFMSVCQiU5RCUyMGMlRTElQkElQTduJTIwYyVDMyVCMyUyMHRpJUMzJUFBdSUyMGNodSVFMSVCQSVBOW4lMjBtJUUxJUJCJTlCaS4="
+  },
+  {
+    "id": 15,
+    "name": "VGhlJTIwQmVhcg==",
+    "img": "🐻",
+    "upright_en": "SW4lMjBCZWUlMjBTd2FybSUyMFNpbXVsYXRvciUyMChSb2Jsb3gpJTJDJTIwVHVubmVsJTIwQmVhciUyMGNhbiUyMHRha2UlMjB5b3UlMjBvdXQlMjBpbnN0YW50bHklMkMlMjBubyUyMG1hdHRlciUyMGhvdyUyMHdlbGwtZGVmZW5kZWQlMjB5b3UlMjBhcmUuJTIwU2ltaWxhcmx5JTJDJTIweW91JUUyJTgwJTk5bGwlMjBlbmNvdW50ZXIlMjBzb21lb25lJTIwc28lMjBtdWNoJTIwYmV0dGVyJTIwdGhhbiUyMHlvdSUyMHRoYXQlMjB5b3UlMjBjYW4lRTIlODAlOTl0JTIwZXZlbiUyMGRlZmVuZCUyMHlvdXJzZWxmJTIwYWdhaW5zdCUyMHRoZW0uJTIwWW91JTIwbWlnaHQlMjBoYXZlJTIwdG8lMjB1c2UlMjBhbiUyMGV4dGVybmFsJTIwdG9vbCUyMHRvJTIwZGVhbCUyMHdpdGglMjB0aGlzJTNG",
+    "upright_vi": "VHJvbmclMjBCZWUlMjBTd2FybSUyMFNpbXVsYXRvciUyMChSb2Jsb3gpJTJDJTIwVHVubmVsJTIwQmVhciUyMGMlQzMlQjMlMjB0aCVFMSVCQiU4MyUyMGNobyUyMGIlRTElQkElQTFuJTIwJTIyJUM0JTkxaSUyMG5nYXklMjIlMkMlMjBkJUMzJUI5JTIwYyVDMyVCMyUyMHBoJUMzJUIybmclMjB2JUUxJUJCJTg3JTIwJUM0JTkxJUUxJUJBJUJGbiUyMG0lRTElQkIlQTljJTIwbiVDMyVBMG8uJTIwVCVDNiVCMCVDNiVBMW5nJTIwdCVFMSVCQiVCMSUyMG5oJUM2JUIwJTIwdiVFMSVCQSVBRHklMkMlMjBiJUUxJUJBJUExbiUyMHMlRTElQkElQkQlMjBnJUUxJUJBJUI3cCUyMG0lRTElQkIlOTl0JTIwbmclQzYlQjAlRTElQkIlOURpJTIwZ2klRTElQkIlOEZpJTIwaCVDNiVBMW4lMjBiJUUxJUJBJUExbiUyMCVDNCU5MSVFMSVCQSVCRm4lMjBtJUUxJUJCJUE5YyUyMGIlRTElQkElQTFuJTIwa2glQzMlQjRuZyUyMHRoJUUxJUJCJTgzJTIwdCVFMSVCQiVCMSUyMHBoJUUxJUJBJUEzbiUyMGIlQzMlQTFjJTIwbCVFMSVCQSVBMWklMjBuJUMzJUIzJTIwJUM0JTkxJUM2JUIwJUUxJUJCJUEzYy4lMjBDJUMzJUIzJTIwa2hpJTIwYiVFMSVCQSVBMW4lMjBwaCVFMSVCQSVBM2klMjBkJUMzJUI5bmclMjBtJUUxJUJCJTk5dCUyMGMlQzMlQjRuZyUyMGMlRTElQkIlQTUlMjBiJUMzJUFBbiUyMG5nbyVDMyVBMGklMjAlQzQlOTElRTElQkIlODMlMjBnaSVFMSVCQSVBM2klMjBxdXklRTElQkElQkZ0JTIwJUM0JTkxaSVFMSVCQiU4MXUlMjAlQzQlOTElQzMlQjMlM0Y="
+  },
+  {
+    "id": 16,
+    "name": "VGhlJTIwU3RhcnM=",
+    "img": "⭐",
+    "upright_en": "WW91JTIwd29uJUUyJTgwJTk5dCUyMGJlJTIwbm90aWNlZCUyMGJ5JTIwYW55b25lJTJDJTIwdW5sZXNzJTIwdGhleSUyMHJ1biUyMG91dCUyMG9mJTIwdGhpbmdzJTIwdG8lMjBkby4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwa2glQzMlQjRuZyUyMCVDNCU5MSVDNiVCMCVFMSVCQiVBM2MlMjBhaSUyMCVDNCU5MSVFMSVCQiU4MyUyMCVDMyVCRCUyQyUyMHRyJUUxJUJCJUFCJTIwa2hpJTIwbSVFMSVCQiU4RGklMjBuZyVDNiVCMCVFMSVCQiU5RGklMjBoJUUxJUJBJUJGdCUyMHZpJUUxJUJCJTg3YyUyMCVDNCU5MSVFMSVCQiU4MyUyMGwlQzMlQTBtLg=="
+  },
+  {
+    "id": 17,
+    "name": "VGhlJTIwU3Rvcms=",
+    "img": "🦩",
+    "upright_en": "WW91JUUyJTgwJTk5bGwlMjBtaWdyYXRlJTIwdG8lMjBhJTIwbmV3JTIwcGxhY2UlMkMlMjBhbmQlMjBzb21lb25lJTIwd2lsbCUyMG1pc3MlMjB5b3Uu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwZGklMjBjJUM2JUIwJTIwJUM0JTkxJUUxJUJBJUJGbiUyMG0lRTElQkIlOTl0JTIwbiVDNiVBMWklMjBraCVDMyVBMWMlMkMlMjB2JUMzJUEwJTIwcyVFMSVCQSVCRCUyMGMlQzMlQjMlMjBtJUUxJUJCJTk5dCUyMG5nJUM2JUIwJUUxJUJCJTlEaSUyMG5oJUUxJUJCJTlCJTIwJUM0JTkxJUUxJUJBJUJGbiUyMGIlRTElQkElQTFuLg=="
+  },
+  {
+    "id": 18,
+    "name": "VGhlJTIwRG9n",
+    "img": "🐕",
+    "upright_en": "RG9ncyUyMGFyZSUyMHRoZSUyMGRvbWVzdGljYXRlZCUyMHZlcnNpb24lMjBvZiUyMHdvbHZlcy4lMjBUaGlzJTIwbWVhbnMlMjB5b3UlMjBhcmUlMjBjdXJyZW50bHklMjBqdXN0JTIwYSUyMHdlYWtlciUyMHZlcnNpb24lMjBvZiUyMHlvdXJzZWxmLg==",
+    "upright_vi": "Q2glQzMlQjMlMjBsJUMzJUEwJTIwcGhpJUMzJUFBbiUyMGIlRTElQkElQTNuJTIwdGh1JUUxJUJBJUE3biUyMGNoJUUxJUJCJUE3bmclMjBobyVDMyVBMSUyMGMlRTElQkIlQTdhJTIwcyVDMyVCM2kuJTIwJUM0JTkwaSVFMSVCQiU4MXUlMjAlQzQlOTElQzMlQjMlMjBjJUMzJUIzJTIwbmdoJUM0JUE5YSUyMGwlQzMlQTAlMjBiJUUxJUJBJUExbiUyMGhpJUUxJUJCJTg3biUyMHQlRTElQkElQTFpJTIwYyVDNSVBOW5nJTIwY2glRTElQkIlODklMjAlQzQlOTFhbmclMjBsJUMzJUEwJTIwcGhpJUMzJUFBbiUyMGIlRTElQkElQTNuJTIweSVFMSVCQSVCRnUlMjBoJUM2JUExbiUyMGMlRTElQkIlQTdhJTIwY2glQzMlQURuaCUyMGIlRTElQkElQTFuJTIwdGglQzMlQjRpLg=="
+  },
+  {
+    "id": 19,
+    "name": "VGhlJTIwVG93ZXI=",
+    "img": "🗼",
+    "upright_en": "WW91JTIwd2lsbCUyMGxpdmUlMjBpbiUyMGElMjB0b3dlci4lMjBXaGV0aGVyJTIweW91JTIwb3duJTIwaXQlMjBvciUyMG5vdC4uLiUyMGlzJTIwYW55b25lJ3MlMjBndWVzcy4lMjBJJ3ZlJTIwaGVhcmQlMjB0aGlzJTIwYnVpbGRpbmclMjB3b24ndCUyMHN0YW5kJTIwZm9yJTIwbG9uZyUyQyUyMGJ1dCUyMHRoYXQncyUyMGp1c3QlMjBhJTIwaHlwb3RoZXNpcy4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwcyVFMSVCQiU5MW5nJTIwdHJvbmclMjBtJUUxJUJCJTk5dCUyMHRvJUMzJUEwJTIwbmglQzMlQTAuJTIwQiVFMSVCQSVBMW4lMjBjJUMzJUIzJTIwcyVFMSVCQiU5RiUyMGglRTElQkIlQUZ1JTIwbiVDMyVCMyUyMGhheSUyMGtoJUMzJUI0bmclMjB0aCVDMyVBQyVFMiU4MCVBNiUyMGIlQzMlQjMlMjB0YXklMjBjaCVFMSVCQSVBNW0lMjBjb20lMjBuaCVDMyVBMS4lMjBOZ2hlJTIwbiVDMyVCM2klMjB0byVDMyVBMCUyMG5oJUMzJUEwJTIwbiVDMyVBMHklMjBzJUUxJUJBJUJEJTIwa2glQzMlQjRuZyUyMHMlRTElQkIlOTFuZyUyMGwlQzMlQTJ1JTJDJTIwbmglQzYlQjBuZyUyMCVDNCU5MSVDMyVCMyUyMGNoJUUxJUJCJTg5JTIwbCVDMyVBMCUyMGdpJUUxJUJBJUEzJTIwdGh1eSVFMSVCQSVCRnQu"
+  },
+  {
+    "id": 20,
+    "name": "VGhlJTIwR2FyZGVu",
+    "img": "⛲",
+    "upright_en": "WW91ciUyMGhvdXNlJTIwaXMlMjBhYm91dCUyMHRvJTIwYmUlMjBpbnZhZGVkJTIwYnklMjB6b21iaWVzLiUyMENvbnNpZGVyJTIwcGxhbnRpbmclMjBhJTIwUGVhc2hvb3RlciUyMGlmJTIweW91JTIwZG9uJ3QlMjB3YW50JTIwdG8lMjBzcGVuZCUyMG1vbmV5JTIwb24lMjBhJTIwbmV3JTIwaG91c2Uu",
+    "upright_vi": "TmglQzMlQTAlMjBiJUUxJUJBJUExbiUyMHMlRTElQkElQUZwJTIwYiVFMSVCQiU4QiUyMHRoJUMzJUEyeSUyMG1hJTIweCVDMyVBMm0lMjBsJUM2JUIwJUUxJUJCJUEzYy4lMjBIJUMzJUEzeSUyMGMlQzMlQTJuJTIwbmglRTElQkElQUZjJTIwdHIlRTElQkIlOTNuZyUyMG0lRTElQkIlOTl0JTIwYyVDMyVBMnklMjBQZWFzaG9vdGVyJTIwbiVFMSVCQSVCRnUlMjBraCVDMyVCNG5nJTIwbXUlRTElQkIlOTFuJTIwcGglRTElQkElQTNpJTIwdGklQzMlQUF1JTIwdGklRTElQkIlODFuJTIweCVDMyVBMnklMjBuaCVDMyVBMCUyMG0lRTElQkIlOUJpLg=="
+  },
+  {
+    "id": 21,
+    "name": "VGhlJTIwTW91bnRhaW4=",
+    "img": "⛰️",
+    "upright_en": "JTIySGlnaCUyMG1vdW50YWlucyUyMGFmdGVyJTIwaGlnaCUyMG1vdW50YWlucyUyMi4lMjBZb3UlMjB3aWxsJTIwbmV2ZXIlMjBlc2NhcGUlMjB0aGUlMjBodXN0bGUlMjBvZiUyMHRoZSUyMGJ1c3klMjB3b3JsZCUyQyUyMGdpdmVuJTIwdGhlcmUlMjBpcyUyMGElMjBtb3VudGFpbiUyMG9mJTIwd29yayUyMHJpZ2h0JTIwdGhlcmUuJTIwV2hhdCUyMHRoYXQlMjB3b3JrJTIwaXMlMkMlMjBpcyUyMHVua25vd24u",
+    "upright_vi": "JUUyJTgwJTlDTiVDMyVCQWklMjBjYW8lMjByJUUxJUJCJTkzaSUyMGwlRTElQkElQTFpJTIwbiVDMyVCQWklMjBjYW8lMjB0ciVFMSVCQSVBRHAlMjB0ciVDMyVCOW5nJUUyJTgwJTlELiUyMEIlRTElQkElQTFuJTIwcyVFMSVCQSVCRCUyMGtoJUMzJUI0bmclMjBiYW8lMjBnaSVFMSVCQiU5RCUyMHRobyVDMyVBMXQlMjBraCVFMSVCQiU4RmklMjBndSVFMSVCQiU5M25nJTIwcXVheSUyMGMlRTElQkIlQTdhJTIwdGglRTElQkElQkYlMjBnaSVFMSVCQiU5QmklMjB2JUUxJUJCJTk5aSUyMHYlQzMlQTMlMkMlMjBraGklMjBtJUUxJUJCJTk5dCUyMG4lQzMlQkFpJTIwYyVDMyVCNG5nJTIwdmklRTElQkIlODdjJTIwJUM0JTkxYW5nJTIwJUUxJUJCJTlGJTIwJUM0JTkxJUMzJUIzLiUyMFZpJUUxJUJCJTg3YyUyMCVDNCU5MSVDMyVCMyUyMGwlQzMlQTAlMjBnJUMzJUFDJTIwdGglQzMlQUMlMjBjJUM1JUE5bmclMjBjaCVDNiVCMGElMjBiaSVFMSVCQSVCRnQlMjAlQzQlOTElQzYlQjAlRTElQkIlQTNjLg=="
+  },
+  {
+    "id": 22,
+    "name": "VGhlJTIwQ3Jvc3Nyb2Fkcw==",
+    "img": "🛣️",
+    "upright_en": "WW91JTIwd2lsbCUyMGhhdmUlMjB0byUyMGNob29zZSUyMG9uZSUyMG9mJTIwbWFueSUyMHJvYWRzJTIwdG8lMjB0YWtlLiUyMFdoaWNoJTIwb25lJTIwaXMlMjByaWdodCUyMGRlcGVuZHMlMjBvbiUyMGVhY2glMjBwZXJzb24ncyUyMHBlcnNwZWN0aXZlLiUyMEFsdGVybmF0aXZlbHklMkMlMjB5b3UlMjBjb3VsZCUyMGJlJTIwYSUyMGJpcmQlMjBhbmQlMjBzY291dCUyMHRoZSUyMHJvYWRzJTIwYWhlYWQu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwcGglRTElQkElQTNpJTIwY2glRTElQkIlOERuJTIwbSVFMSVCQiU5OXQlMjB0cm9uZyUyMG5oaSVFMSVCQiU4MXUlMjAlQzQlOTElQzYlQjAlRTElQkIlOURuZyUyMCVDNCU5MSVFMSVCQiU4MyUyMCVDNCU5MWkuJTIwJUM0JTkwJUM2JUIwJUUxJUJCJTlEbmclMjBuJUMzJUEwbyUyMCVDNCU5MSVDMyVCQW5nJTIwcGglRTElQkIlQTUlMjB0aHUlRTElQkIlOTljJTIwdiVDMyVBMG8lMjBjJUMzJUExY2glMjBuaCVDMyVBQ24lMjBjJUUxJUJCJUE3YSUyMG0lRTElQkIlOTdpJTIwbmclQzYlQjAlRTElQkIlOURpLiUyMEhvJUUxJUJBJUI3YyUyMGwlQzMlQTAlMjBiJUUxJUJBJUExbiUyMGMlQzMlQjMlMjB0aCVFMSVCQiU4MyUyMGwlQzMlQTAlMjBtJUUxJUJCJTk5dCUyMGNvbiUyMGNoaW0lMjB2JUMzJUEwJTIweGVtJTIwdHIlQzYlQjAlRTElQkIlOUJjJTIwYyVDMyVBMWMlMjAlQzQlOTFvJUUxJUJBJUExbiUyMCVDNCU5MSVDNiVCMCVFMSVCQiU5RG5nJTIwY2hvJTIweG9uZy4="
+  },
+  {
+    "id": 23,
+    "name": "VGhlJTIwTWljZQ==",
+    "img": "🐁",
+    "upright_en": "V2hlcmUlMjB5b3UlMjBsaXZlJTIwd2lsbCUyMHNtZWxsJTIwcmVhbGx5JTIwYmFkJTJDJTIwb3IlMjB5b3VyJTIwYm9keSUyMGlzbid0JTIwY2xlYW4lMkMlMjBzbyUyMHRoZXJlJTIwd2lsbCUyMGJlJTIwYSUyMGxvdCUyMG9mJTIwbWljZSUyME9SJTIweW91JTIwd2lsbCUyMGFjcXVpcmUlMjAoYW5vdGhlciklMjBjb21wdXRlciUyMG1vdXNlLg==",
+    "upright_vi": "TiVDNiVBMWklMjBiJUUxJUJBJUExbiUyMCVFMSVCQiU5RiUyMHMlRTElQkElQkQlMjByJUUxJUJBJUE1dCUyMGwlQzMlQTAlMjBoJUMzJUI0aSUyMGhvJUUxJUJBJUI3YyUyMGwlQzMlQTAlMjBjaCVDMyVBRG5oJTIwYyVDNiVBMSUyMHRoJUUxJUJCJTgzJTIwYyVFMSVCQiVBN2ElMjBiJUUxJUJBJUExbiUyMGtoJUMzJUI0bmclMjAlQzQlOTElQzYlQjAlRTElQkIlQTNjJTIwcyVFMSVCQSVBMWNoJTJDJTIwbiVDMyVBQW4lMjBzJUUxJUJBJUJEJTIwYyVDMyVCMyUyMHIlRTElQkElQTV0JTIwbmhpJUUxJUJCJTgxdSUyMGNodSVFMSVCQiU5OXQlMjBITyVFMSVCQSVCNkMlMjBiJUUxJUJBJUExbiUyMHMlRTElQkElQkQlMjBzJUUxJUJCJTlGJTIwaCVFMSVCQiVBRnUlMjAodGglQzMlQUFtKSUyMG0lRTElQkIlOTl0JTIwY29uJTIwY2h1JUUxJUJCJTk5dCUyMG0lQzMlQTF5JTIwdCVDMyVBRG5oLg=="
+  },
+  {
+    "id": 24,
+    "name": "VGhlJTIwSGVhcnQ=",
+    "img": "❤️",
+    "upright_en": "T25lJTIwb2YlMjB0d28lMjB0aGluZ3MlMjB3aWxsJTIwaGFwcGVuJTIwKG9yJTIwcG9zc2libHklMjBib3RoKSUzQSUwQTEuJTIwWW91JTIwd2lsbCUyMGhhdmUlMjBhJTIwY2FyZGlvdmFzY3VsYXIlMjBpc3N1ZSUyMGluJTIweW91ciUyMGxpZmUuJTBBMi4lMjBZb3UlMjB3aWxsJTIwZmluZCUyMGxvdmUlMjBiZWZvcmUlMjB5b3UlMjBwYXNzJTIwYXdheS4=",
+    "upright_vi": "TSVFMSVCQiU5OXQlMjB0cm9uZyUyMGhhaSUyMCVDNCU5MWklRTElQkIlODF1JTIwc2F1JTIwcyVFMSVCQSVCRCUyMHglRTElQkElQTN5JTIwcmElMjAoaG8lRTElQkElQjdjJTIwbCVDMyVBMCUyMGMlRTElQkElQTMlMjBoYWklMjBjJUMzJUIzJTIwdGglRTElQkIlODMlMjB4JUUxJUJBJUEzeSUyMHJhKSUzQSUwQTEuJTIwUyVFMSVCQSVCRCUyMGMlQzMlQjMlMjBtJUUxJUJCJTk5dCUyMHYlRTElQkElQTVuJTIwJUM0JTkxJUUxJUJCJTgxJTIwbGklQzMlQUFuJTIwcXVhbiUyMCVDNCU5MSVFMSVCQSVCRm4lMjB0aW0lMjBtJUUxJUJBJUExY2glMjB4JUUxJUJBJUEzeSUyMHJhJTIwdHJvbmclMjBjdSVFMSVCQiU5OWMlMjAlQzQlOTElRTElQkIlOURpJTIwYiVFMSVCQSVBMW4uJTBBMi4lMjBCJUUxJUJBJUExbiUyMHMlRTElQkElQkQlMjB0JUMzJUFDbSUyMCVDNCU5MSVDNiVCMCVFMSVCQiVBM2MlMjB0JUMzJUFDbmglMjB5JUMzJUFBdSUyMHRyJUM2JUIwJUUxJUJCJTlCYyUyMGtoaSUyMHJhJTIwJUM0JTkxaS4="
+  },
+  {
+    "id": 25,
+    "name": "VGhlJTIwUmluZw==",
+    "img": "💍",
+    "upright_en": "WW91JTIwd2lsbCUyMGhhdmUlMjBhYnNvbHV0ZSUyMG1hZ2ljYWwlMjBwb3dlciUyQyUyMGJ1dCUyMHlvdSUyMGhhdmUlMjBubyUyMGNvbnRyb2wlMjBvdmVyJTIwaXQuJTIwSW5zdGVhZCUyQyUyMHlvdXIlMjBsb3ZlciUyMGNob29zZXMlMjB3aGVuJTIwdG8lMjB1c2UlMjBtYWdpYy4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYyVDMyVCMyUyMHMlRTElQkIlQTljJTIwbSVFMSVCQSVBMW5oJTIwayVDMyVBQyUyMCVFMSVCQSVBM28lMjB0dXklRTElQkIlODd0JTIwJUM0JTkxJUUxJUJCJTkxaSUyQyUyMG5oJUM2JUIwbmclMjBiJUUxJUJBJUExbiUyMGtoJUMzJUI0bmclMjBjJUMzJUIzJTIwcXV5JUUxJUJCJTgxbiUyMGtpJUUxJUJCJTgzbSUyMHNvJUMzJUExdCUyMG4lQzMlQjMuJTIwVGhheSUyMHYlQzMlQTBvJTIwJUM0JTkxJUMzJUIzJTJDJTIwbmclQzYlQjAlRTElQkIlOURpJTIweSVDMyVBQXUlMjBjJUUxJUJCJUE3YSUyMGIlRTElQkElQTFuJTIwY2glRTElQkIlOERuJTIwa2hpJTIwbiVDMyVBMG8lMjBkJUMzJUI5bmclMjBtYSUyMHRodSVFMSVCQSVBRHQu"
+  },
+  {
+    "id": 26,
+    "name": "VGhlJTIwQm9vaw==",
+    "img": "📖",
+    "upright_en": "WW91JTIwd2lsbCUyMHR1cm4lMjBpbnRvJTIwYSUyMHdvcm0uJTIwKElmJTIweW91JTIwZ2V0JTIwdGhpcyUyMHB1biUyQyUyMHlvdSUyMGNhbiUyMGJlYXQlMjBCbG9vZGJhdGglMjAoR2VvbWV0cnklMjBEYXNoKSk=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYmklRTElQkElQkZuJTIwdGglQzMlQTBuaCUyMG0lRTElQkIlOTl0JTIwY29uJTIwcyVDMyVBMnUuJTIwKG4lRTElQkElQkZ1JTIwYiVFMSVCQSVBMW4lMjBoaSVFMSVCQiU4M3UlMjAlQzQlOTElQzYlQjAlRTElQkIlQTNjJTIwcGglRTElQkElQTduJTIwY2glQzYlQTFpJTIwY2glRTElQkIlQUYlMjBuJUMzJUEweSUyQyUyMGIlRTElQkElQTFuJTIwYyVDMyVCMyUyMHRoJUUxJUJCJTgzJTIwcGglQzMlQTElMjAlQzQlOTElRTElQkElQTNvJTIwQmxvb2RiYXRoJTIwKEdlb21ldHJ5JTIwRGFzaCkp"
+  },
+  {
+    "id": 27,
+    "name": "VGhlJTIwTGV0dGVy",
+    "img": "✉️",
+    "upright_en": "WW91JTIwd2lsbCUyMHJlY2VpdmUlMjBhJTIwaGFuZHdyaXR0ZW4lMjBsZXR0ZXIlMkMlMjBvciUyMGFuJTIwZW1haWwlMjBpbiUyMHRoZSUyMGZ1dHVyZS4lMjBJdCUyMG1pZ2h0JTIwanVzdCUyMGJlJTIwYW4lMjBhZC4lMjBJdCUyMG1pZ2h0JTIwYWxzbyUyMHN1cHBvc2VkbHklMjBkaWN0YXRlJTIweW91ciUyMGxpZmUu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwbmglRTElQkElQURuJTIwJUM0JTkxJUM2JUIwJUUxJUJCJUEzYyUyMG0lRTElQkIlOTl0JTIwbCVDMyVBMSUyMHRoJUM2JUIwJTIwdGF5JTJDJTIwaG8lRTElQkElQjdjJTIwbSVFMSVCQiU5OXQlMjBlbWFpbCUyMHRyb25nJTIwdCVDNiVCMCVDNiVBMW5nJTIwbGFpLiUyMEMlQzMlQjMlMjB0aCVFMSVCQiU4MyUyMG4lQzMlQjMlMjBjaCVFMSVCQiU4OSUyMGwlQzMlQTAlMjBxdSVFMSVCQSVBM25nJTIwYyVDMyVBMW8uJTIwQyVDNSVBOW5nJTIwYyVDMyVCMyUyMHRoJUUxJUJCJTgzJTIwbiVDMyVCMyUyMHMlRTElQkElQkQlMjBxdXklRTElQkElQkZ0JTIwJUM0JTkxJUUxJUJCJThCbmglMjBjdSVFMSVCQiU5OWMlMjAlQzQlOTElRTElQkIlOURpJTIwYyVFMSVCQiVBN2ElMjBiJUUxJUJBJUExbi4="
+  },
+  {
+    "id": 28,
+    "name": "VGhlJTIwTWFu",
+    "img": "👨",
+    "upright_en": "WW91JTIwd2lsbCUyMGJlJTIwYXMlMjBzdHJvbmclMjBhcyUyMGElMjBtYW4uJTIwVGhhdCdzJTIwaXQu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwbSVFMSVCQSVBMW5oJTIwbmglQzYlQjAlMjBtJUUxJUJCJTk5dCUyMG5nJUM2JUIwJUUxJUJCJTlEaSUyMCVDNCU5MSVDMyVBMG4lMjAlQzMlQjRuZy4lMjBUaCVFMSVCQSVCRiUyMHRoJUMzJUI0aS4="
+  },
+  {
+    "id": 29,
+    "name": "VGhlJTIwV29tYW4=",
+    "img": "👩",
+    "upright_en": "WW91JTIwd2lsbCUyMG1lZXQlMjBhJTIwd29tYW4uJTIwTm90aGluZyUyMG1vcmUu",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwZyVFMSVCQSVCN3AlMjBtJUUxJUJCJTk5dCUyMG5nJUM2JUIwJUUxJUJCJTlEaSUyMHBoJUUxJUJCJUE1JTIwbiVFMSVCQiVBRi4lMjBLaCVDMyVCNG5nJTIwYyVDMyVCMyUyMGclQzMlQUMlMjB0aCVDMyVBQW0u"
+  },
+  {
+    "id": 30,
+    "name": "VGhlJTIwTGlseQ==",
+    "img": "⚜️",
+    "upright_en": "WW91JTIwd2lsbCUyMHBhcnRpY2lwYXRlJTIwaW4lMjBhJTIwZ2FtZSUyMHNob3clMjBzaW1pbGFyJTIwdG8lMjAlMjJUaGFuayUyMEdvZCUyMFlvdSdyZSUyMEhlcmUhJTIyJTJDJTIwYW5kJTIwZXhwZXJpZW5jZSUyMGElMjBsaWZlJTIwZnVsbCUyMG9mJTIwZmxvd2Vycy4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwdGhhbSUyMGdpYSUyMG0lRTElQkIlOTl0JTIwZ2FtZXNob3clMjBjJUMzJUIzJTIwZm9ybWF0JTIwZ2klRTElQkIlOTFuZyUyMCUyMiVDNiVBMG4lMjBnaSVFMSVCQiU5RGklMkMlMjBjJUUxJUJBJUFEdSUyMCVDNCU5MSVDMyVBMnklMjByJUUxJUJCJTkzaSElMjIlMkMlMjB2JUMzJUEwJTIwdHIlRTElQkElQTNpJTIwbmdoaSVFMSVCQiU4N20lMjBjdSVFMSVCQiU5OWMlMjAlQzQlOTElRTElQkIlOURpJTIwbiVFMSVCQiU5RiUyMGhvYS4="
+  },
+  {
+    "id": 31,
+    "name": "VGhlJTIwU3Vu",
+    "img": "☀️",
+    "upright_en": "WW91JTIwd2lsbCUyMGdldCUyMGElMjBzdW5idXJuJTJDJTIwYW5kJTIwaWYlMjB5b3UlMjB0cnklMjB0byUyMGRlbGV0ZSUyMHRoZSUyMFN1biUyMHRvJTIwYXZvaWQlMjBnZXR0aW5nJTIwYSUyMHN1bmJ1cm4lMkMlMjBjb25ncmF0dWxhdGlvbnMlMkMlMjB5b3UndmUlMjBqdXN0JTIwZGVsZXRlZCUyMEVhcnRoJ3MlMjBkYXktbmlnaHQlMjBjeWNsZS4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYiVFMSVCQiU4QiUyMGNoJUMzJUExeSUyMG4lRTElQkElQUZuZyUyQyUyMHYlQzMlQTAlMjBuJUUxJUJBJUJGdSUyMGIlRTElQkElQTFuJTIwJUM0JTkxJUUxJUJCJThCbmglMjB4byVDMyVBMSUyME0lRTElQkElQjd0JTIwVHIlRTElQkIlOURpJTIwJUM0JTkxJUUxJUJCJTgzJTIwa2glRTElQkIlOEZpJTIwY2glQzMlQTF5JTIwbiVFMSVCQSVBRm5nJTJDJTIwY2glQzMlQkFjJTIwbSVFMSVCQiVBQm5nJTIwYiVFMSVCQSVBMW4lMjAlQzQlOTElQzMlQTMlMjB4byVDMyVBMSUyMGNodSUyMGslQzMlQUMlMjBuZyVDMyVBMHktJUM0JTkxJUMzJUFBbSUyMGMlRTElQkIlQTdhJTIwVHIlQzMlQTFpJTIwJUM0JTkwJUUxJUJBJUE1dC4="
+  },
+  {
+    "id": 32,
+    "name": "VGhlJTIwTW9vbg==",
+    "img": "🌙",
+    "upright_en": "WW91JTIwd2lsbCUyMGJlJTIwdGhlJTIwc3RhcnQlMjBvZiUyMHNvbWV0aGluZyUyMHBvd2VyZnVsJTJDJTIwanVzdCUyMGxpa2UlMjBob3clMjBNb29uJTIwb2YlMjB0aGUlMjBDbG9zZWQlMjBIZWF2ZW4lMjBpcyUyMHRoZSUyMHN0YXJ0JTIwb2YlMjB0aGUlMjBGaWVuZHNtaXRoJTIwY29tYm8u",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwbCVDMyVBMCUyMGtoJUUxJUJCJTlGaSUyMCVDNCU5MSVFMSVCQSVBN3UlMjBjJUUxJUJCJUE3YSUyMG0lRTElQkIlOTl0JTIwdGglRTElQkIlQTklMjBnJUMzJUFDJTIwJUM0JTkxJUMzJUIzJTIwbSVFMSVCQSVBMW5oJTIwbSVFMSVCQSVCRCUyQyUyMGdpJUUxJUJCJTkxbmclMjBjJUMzJUExY2glMjBNb29uJTIwb2YlMjB0aGUlMjBDbG9zZWQlMjBIZWF2ZW4lMjBsJUMzJUEwJTIwYyVDMyVBMWNoJTIwa2glRTElQkIlOUZpJTIwJUM0JTkxJUUxJUJBJUE3dSUyMGNvbWJvJTIwRmllbmRzbWl0aC4="
+  },
+  {
+    "id": 33,
+    "name": "VGhlJTIwS2V5",
+    "img": "🔑",
+    "upright_en": "VG8lMjBhY2hpZXZlJTIweW91ciUyMG5leHQlMjBiaWclMjBnb2FsJTJDJTIweW91JTIwd2lsbCUyMG5lZWQlMjBhJTIwdmVyeSUyMGltcG9ydGFudCUyMGl0ZW0uJTIwV2hhdCUyMGl0JTIwaXMlMkMlMjBJJTIwZG9uJ3QlMjBrbm93Lg==",
+    "upright_vi": "JUM0JTkwJUUxJUJCJTgzJTIwdGglRTElQkIlQjFjJTIwaGklRTElQkIlODduJTIwbSVFMSVCQiVBNWMlMjB0aSVDMyVBQXUlMjBsJUUxJUJCJTlCbiUyMHRpJUUxJUJBJUJGcCUyMHRoZW8lMkMlMjBiJUUxJUJBJUExbiUyMHMlRTElQkElQkQlMjBjJUUxJUJBJUE3biUyMG0lRTElQkIlOTl0JTIwdiVFMSVCQSVBRHQlMjByJUUxJUJBJUE1dCUyMHF1YW4lMjB0ciVFMSVCQiU4RG5nLiUyME4lQzMlQjMlMjBsJUMzJUEwJTIwZyVDMyVBQyUyMHRoJUMzJUFDJTIwdCVDMyVCNGklMjBraCVDMyVCNG5nJTIwYmklRTElQkElQkZ0Lg=="
+  },
+  {
+    "id": 34,
+    "name": "VGhlJTIwRmlzaA==",
+    "img": "🐟",
+    "upright_en": "WW91JTIwd2lsbCUyMGRpZSUyMGlmJTIweW91JTIwdHJ5JTIwdG8lMjBnbyUyMGFnYWluc3QlMjB0aGUlMjB3b3JsZC4=",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwcmElMjAlQzQlOTFpJTIwbiVFMSVCQSVCRnUlMjBjJUUxJUJCJTkxJTIwJUM0JTkxaSUyMG5nJUM2JUIwJUUxJUJCJUEzYyUyMHYlRTElQkIlOUJpJTIwdGglRTElQkElQkYlMjBnaSVFMSVCQiU5Qmku"
+  },
+  {
+    "id": 35,
+    "name": "VGhlJTIwQW5jaG9y",
+    "img": "⚓",
+    "upright_en": "WW91JTIwd2lsbCUyMGJlJTIwZm9yY2VkJTIwdG8lMjBzdGFuZCUyMGluJTIwb25lJTIwcGxhY2UlMkMlMjBhbmQlMjB0aGVyZSUyMGlzJTIwbm8lMjB3YXklMjB0byUyMGVzY2FwZSUyMGl0Lg==",
+    "upright_vi": "QiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwYiVFMSVCQiU4QiUyMGIlRTElQkElQUZ0JTIwJUM0JTkxJUUxJUJCJUE5bmclMjAlRTElQkIlOUYlMjBtJUUxJUJCJTk5dCUyMHYlRTElQkIlOEIlMjB0ciVDMyVBRCUyMGMlRTElQkIlOTElMjAlQzQlOTElRTElQkIlOEJuaCUyQyUyMHYlQzMlQTAlMjBraCVDMyVCNG5nJTIwYyVDMyVCMyUyMGMlQzMlQTFjaCUyMG4lQzMlQTBvJTIwJUM0JTkxJUUxJUJCJTgzJTIwdGhvJUMzJUExdCUyMG4lQzMlQjMlMjBjJUUxJUJBJUEzLg=="
+  },
+  {
+    "id": 36,
+    "name": "VGhlJTIwQ3Jvc3M=",
+    "img": "✝️",
+    "upright_en": "Unl6ZWFsJTIwQ3Jvc3MlMjBoYXMlMjB0aGUlMjBhYmlsaXR5JTIwdG8lMjBuZWdhdGUlMjBhJTIwbW9uc3RlciUyMGVmZmVjdCUyMHJpZ2h0JTIwYXMlMjBpdCUyMGlzJTIwJTIyYWJvdXQlMjIlMjB0byUyMHJlc29sdmUuJTIwVGhpcyUyMG1lYW5zJTIwdGhhdCUyMHdoYXRldmVyJTIweW91JTIwZG8lMjBtaWdodCUyMGp1c3QlMjBnbyUyMGRvd24lMjB0aGUlMjBkcmFpbiUyMHdpdGhvdXQlMjB5b3UlMjBrbm93aW5nLg==",
+    "upright_vi": "Unl6ZWFsJTIwQ3Jvc3MlMjBjJUMzJUIzJTIwa2glRTElQkElQTMlMjBuJUM0JTgzbmclMjB2JUMzJUI0JTIwaGklRTElQkIlODd1JTIwaG8lQzMlQTElMjBtJUUxJUJCJTk5dCUyMGhpJUUxJUJCJTg3dSUyMCVFMSVCQiVBOW5nJTIwcXUlQzMlQTFpJTIwdGglQzMlQkElMjBuZ2F5JTIwa2hpJTIwaGklRTElQkIlODd1JTIwJUUxJUJCJUE5bmclMjAlQzQlOTElQzMlQjMlMjAlRTIlODAlOUNzJUUxJUJBJUFGcCVFMiU4MCU5RCUyMHRoJUUxJUJCJUIxYyUyMHRoaS4lMjAlQzQlOTBpJUUxJUJCJTgxdSUyMCVDNCU5MSVDMyVCMyUyMGMlQzMlQjMlMjBuZ2glQzQlQTlhJTIwbCVDMyVBMCUyMG5oJUUxJUJCJUFGbmclMjBnJUMzJUFDJTIwYiVFMSVCQSVBMW4lMjBzJUUxJUJBJUJEJTIwbCVDMyVBMG0lMjBjJUMzJUIzJTIwdGglRTElQkIlODMlMjAlQzQlOTElRTElQkIlOTUlMjBzJUMzJUI0bmclMjAlQzQlOTElRTElQkIlOTUlMjBiaSVFMSVCQiU4M24lMjBtJUMzJUEwJTIwYiVFMSVCQSVBMW4lMjBraCVDMyVCNG5nJTIwaCVFMSVCQiU4MSUyMGJpJUUxJUJBJUJGdC4="
+  }
+];
 
-  window.__tarotDb = rawCards.map(card => ({
-    id: card.id,
-    name: e(card.name),
-    img: card.img,
-    upright_en: e(card.upright_en),
-    upright_vi: e(card.upright_vi)
-  })).map(card => ({
-    id: card.id,
-    name: d(card.name),
-    img: card.img,
-    upright_en: d(card.upright_en),
-    upright_vi: d(card.upright_vi)
-  }));
+  window.__tarotDb = encodedCards.map(card => ({
+  id: card.id,
+  name: d(card.name),
+  img: card.img,
+  upright_en: d(card.upright_en),
+  upright_vi: d(card.upright_vi)
+}));
 })();
