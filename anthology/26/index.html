@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cỗ máy thời gian — Anthology</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+    .story-body { animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22,1,0.36,1) both; }
+    .story-body p { font-size: 1rem; line-height: 1.85; color: var(--text); margin-bottom: 24px; }
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 12px 0 12px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      background: rgba(0,0,0,0.02);
+      border-radius: 4px;
+    }
+
+    /* ── LETTER BLOCK ── */
+    .letter-block {
+      margin: 32px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .letter-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      background: rgba(111, 66, 193, 0.08);
+      color: #6f42c1;
+      border-bottom: 1px solid var(--border);
+    }
+    .letter-body {
+      padding: 20px 24px;
+      font-size: 0.97rem;
+      line-height: 1.85;
+      color: var(--text);
+      background: var(--surface);
+      white-space: pre-wrap;
+    }
+    .letter-body p { margin-bottom: 16px; font-size: 0.97rem; }
+    .letter-body p:last-child { margin-bottom: 0; }
+
+    /* ── FOOTNOTE ── */
+    .footnote {
+      margin: 8px 0 28px;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.7;
+      border-left: 3px solid var(--border);
+    }
+    .footnote strong { color: var(--text); }
+
+    /* ── INSTRUCTION BLOCK ── */
+    .instruction-block {
+      margin: 32px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .instruction-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      background: rgba(26, 127, 55, 0.08);
+      color: #1a7f37;
+      border-bottom: 1px solid var(--border);
+    }
+    .instruction-body {
+      padding: 18px 22px;
+      font-size: 0.95rem;
+      line-height: 1.85;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .instruction-body p { margin-bottom: 14px; }
+    .instruction-body p:last-child { margin-bottom: 0; }
+
+    /* ── DIALOGUE ── */
+    .dialogue-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .dialogue-line {
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+    .dialogue-line:last-child { margin-bottom: 0; }
+    .speaker {
+      font-weight: 700;
+      font-style: normal;
+      color: var(--text);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      margin-right: 4px;
+    }
+
+    .story-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 60px; }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .nav-btn.active { cursor: pointer; opacity: 1; color: var(--text); }
+    .nav-btn.active:hover { background: var(--surface2); border-color: var(--accent); }
+    .nav-btn .nav-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+    .nav-btn .nav-title { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .nav-btn-inner { display: flex; flex-direction: column; }
+
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="theme-toggle-wrap">
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+<div class="container">
+  <a href="/anthology" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    anthology
+  </a>
+  <div class="story-header">
+    <div class="story-meta">
+      <span class="story-part-badge">Part 2</span>
+      <span class="story-number">Story 9</span>
+    </div>
+    <h1 class="story-title">Cỗ máy thời gian</h1>
+    <p class="story-subtitle">Scratch nhận được một cỗ máy thời gian từ The Mechanic — và dùng nó để xem trước tương lai, chỉ để phát hiện ra một thứ anh không muốn biết.</p>
+  </div>
+  <div class="divider"></div>
+  <div class="story-body">
+
+    <p>Lợi nhuận của Scratch mấy tháng vừa qua phẳng lì. Lúc nào cũng khoảng 6000 đến 7000 USD. Như vậy đáng ra là quá tốt, nhưng Scratch thì nghĩ rằng cứ thế này thì cửa hàng nhạt toẹt chết. Anh thấy rằng chỉ bán icon mãi cũng chán. Với mong muốn tăng lợi nhuận, anh nghĩ ra một ý tưởng điên rồ: Cỗ máy thời gian.</p>
+
+    <p>Nghe có vẻ rất phi lý, vì theo định luật thứ hai của nhiệt động lực học, muốn làm được như vậy, thì ít nhất phải "tua ngược" được quá trình rán trứng.</p>
+
+    <p>Scratch biết vậy, thử đi rán trứng xong rồi tìm cách "làm nóng" quá trứng về trạng thái "lỏng" ban đầu. Nhưng kết quả anh nhận là… một hỗn hợp chất lỏng màu trắng và màu vàng. Trông chẳng giống quả trứng ban đầu tí nào. Thế là anh vừa phí đi một quả trứng, vừa thất bại trong việc chứng minh du hành thời gian là có thể.</p>
+
+    <p>Anh định quay lại phát triển một sản phẩm khác cũng mới lạ: Nút 5x. Khi nhấn vào nút này, cơ thể bạn sẽ làm việc nhanh gấp 5 lần. Phản xạ cũng nhanh gấp 5 lần. Chạy, viết, hiểu nhanh gấp 5 lần. Tốc độ nói là thứ duy nhất không thay đổi. Nghe như một nút tự huỷ bản thân, nhưng anh phải thử xem nó có tiềm năng gì không đã.</p>
+
+    <p>Ngay khi anh chuẩn bị bắt tay vào làm việc, anh nhận được một bưu kiện của người đồng nghiệp cũng bán icon: <strong>The Mechanic</strong>. Nếu so với Scratch, thì ông này thắng ở mọi mặt, ngoại trừ doanh thu và vị trí cửa hàng. Cửa hàng ở trên đỉnh núi, và lại là cái vùng hẻo lánh nhất Saji, nên chẳng ai ghé đến được, và doanh thu rất thấp.</p>
+
+    <p>Bưu kiện có vẻ rất cao (cỡ hai lần chiều cao của Scratch) và dài, nhưng chiều rộng thì chắc chỉ bằng 3 cái điện thoại.</p>
+
+    <p>Khi mở ra, anh thấy một cánh cổng với cái cần gạt và vài ba dụng cụ đồ nghề phát, trong đó có một tờ giấy ghi chú của The Mechanic:</p>
+
+    <div class="letter-block">
+      <div class="letter-label">✉️ Thư của The Mechanic</div>
+      <div class="letter-body">
+        <p>Này, tôi vừa phát minh ra cái cỗ máy thời gian này hay phết. Tôi muốn ông thử xem nó có hoạt động không. Tôi thử rồi và nó có tiềm năng rất lớn! Nhưng mà cần phải thử trên nhiều người khác để thu thập phản hồi.</p>
+        <p>Trái với các cỗ máy thời gian khác, cái này của tôi sẽ tạo ra một dòng thời gian hoàn toàn mới, khác với các lần du hành thời gian khác (nếu có). Các sự kiện quá khứ trong dòng thời gian mới vẫn giữ nguyên như kiểu nó đã từng xảy ra vậy. Vậy nên nghịch lí ông nội ông ngoại gì đó sẽ không có ở đây. À đấy, ông vừa có thể quay về quá khứ hoặc tương lai. Vì việc du hành thời gian này diễn ra trên một dòng thời gian mới, dòng thời gian hiện tại không bị ảnh hưởng và bị tạm thời đóng băng.</p>
+        <p>Tôi có cho ông một bình dung dịch thời gian Timetearium đấy. Trước khi ông bước vào cánh cổng (qua việc đẩy cần gạt), ông nhớ cầm theo một chút dung dịch thời gian ấy, và bảng điều khiển thời gian để xác định thời điểm để du hành tới. Còn cách dùng cụ thể thì tôi để hướng dẫn trong vòng lặp thời gian* ấy.</p>
+        <p>Thế nhé, bye!</p>
+      </div>
+    </div>
+
+    <div class="footnote">
+      <strong>* Vòng lặp thời gian</strong> là một nơi mà người du hành thời gian sẽ luôn đi qua trong quá trình du hành thời gian. Trước khi tới đích đến là thời gian cụ thể, họ sẽ qua một không gian tên là "vòng lặp thời gian" để xác định địa điểm và thời gian để du hành tới.
+    </div>
+
+    <p>Scratch cảm thấy rằng đây là một cơ hội "ké" phát minh của The Mechanic và kiếm bộn tiền từ nó. Anh không ngần ngại cắm nguồn điện vào ổ cắm và đẩy cái cần gạt. Đúng như anh dự đoán. Một thứ ánh sáng màu tím nhạt liền chiếu thẳng lên mặt anh. Đó là một cánh cổng dẫn tới vòng lặp thời gian.</p>
+
+    <p>Bước lên cánh cổng đó với một chút Timetearium và bảng điều khiển thời gian, trước mặt mình là một cái bàn với một tờ giấy và một cái nút.</p>
+
+    <div class="instruction-block">
+      <div class="instruction-label">📋 Hướng dẫn sử dụng</div>
+      <div class="instruction-body">
+        <p>Đổ một lượng Timetarium vào bình sao cho phải chạm đến vạch đỏ của bình (có thể cho nhiều hơn thế, nhưng nếu cho ít quá thì bạn sẽ không quay về dòng thời gian chính được). Sau đó, gắn cái bình vào bảng điều khiển thời gian. Màn hình của bảng điều khiển thời gian giờ sẽ bật lên. Thông qua màn hình, chọn thời gian và địa điểm cụ thể để du hành. Và nhấn nút <strong>BẮT ĐẦU</strong> màu đỏ kia.</p>
+        <p>Khi đến nơi, một cỗ máy sẽ được đặt tại đích đến để bạn có thể trở về dòng thời gian gốc. Lưu ý là mọi người có thể bê nó đi, nên hãy trông coi nó! Khi du hành thời gian xong, hãy nhấn nút <strong>QUAY VỀ</strong> màu vàng bên cạnh nút đỏ để quay về dòng thời gian gốc. Quá trình quay về không tốn Timetearium, vì nó đã được tính sẵn trong quá trình du hành lúc đầu.</p>
+        <p>Quá trình du hành sẽ mất 5–10 phút với mỗi 2 năm du hành. Lưu ý là thời điểm du hành và địa điểm du hành không có tác động lên lượng Timetarium được tiêu thụ. Đồng thời, hãy nhớ rằng bạn đang tạo ra một dòng thời gian mới, dựa theo các sự kiện trong dòng thời gian gốc. Nếu bạn mang điện thoại du hành cùng, thì điện thoại cũng sẽ chỉnh thời gian cho đúng với dòng thời gian hiện tại mà bạn đang du hành.</p>
+      </div>
+    </div>
+
+    <p>Scratch làm theo hướng dẫn, và chọn du hành đến năm 2079, tại chính cửa hàng của mình. Anh nghĩ rằng như vậy sẽ đủ lâu để chứng kiến lợi nhuận của mình tăng cao vút!</p>
+
+    <p>Hơn ba tiếng sau, anh đã đến nơi. Nhà nào cũng nhìn khác hẳn. Anh quay sang bên phải. Anh nhận thấy rằng, cửa hàng mình không còn đó nữa. Thay vào đó là một bức chân dung treo trước nhà, cùng với cái bàn thờ. Đi thêm 12 toà nhà nữa, anh thấy mọi người đang tụ lại ở một đám tang.</p>
+
+    <p>Anh kiểm tra xem đó là đám tang của ai. Hoá ra đó là đám tang của chính anh! Ai ai cũng tỏ ra niềm xót thương vô hạn. Thấy sợ hãi quá, và để tránh gây sự chú ý, anh liền chạy nhanh về cỗ máy thời gian. Nhưng mọi người đã để ý đến anh. Trong đầu họ có nhiều câu hỏi: Scratch chưa chết ư? Đây là bản sao mới của anh? Hay đây lại là chiêu trò thoát nợ?</p>
+
+    <p>Họ tạm bỏ dở những câu hỏi như vậy lại, và liền đuổi theo Scratch để hỏi tình hình. Nhưng quá xui cho họ, Scratch đã kịp vào trong vòng lặp thời gian kia và quay về dòng thời gian ban đầu.</p>
+
+    <p>Vậy là anh đã biết mình sẽ chết năm 2079. Tức là còn khoảng 52 năm nữa để anh sống. Anh định viết thư phản hồi The Mechanic thì bỗng thấy The Mechanic đứng ngoài quầy hàng rồi.</p>
+
+    <div class="dialogue-box">
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tôi tưởng anh đang ở trên núi?</div>
+      <div class="dialogue-line"><span class="speaker">MECHANIC:</span> Hôm nay tôi được nghỉ bán, nên tôi nghĩ đến việc xuống đây chơi. Nghe nói ở đây sôi động lắm. Ở trên núi mãi cũng chỉ thấy cây cối mọc lên. Chán ngắt.</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ừ… rồi.</div>
+      <div class="dialogue-line"><span class="speaker">MECHANIC:</span> Vậy ông hẳn đã thử nghiệm cỗ máy thời gian của tôi rồi chứ?</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Đúng. Tôi vừa thấy đám tang của tôi ở năm 2079.</div>
+      <div class="dialogue-line"><span class="speaker">MECHANIC:</span> Tính ra ông cũng sống lâu đấy chứ… 75 tuổi cũng là khá lâu với một con robot như ông rồi. Tôi không biết có sống đến 55 tuổi không đây. Đầu óc giờ cứ nhớ nhớ, quên quên. Không khéo lại rơi từ đỉnh núi…</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Thế ông có cách nào để tôi không chết vào năm 2079 không?</div>
+      <div class="dialogue-line"><span class="speaker">MECHANIC:</span> Tôi nghĩ là không. Dòng thời gian mới này cũng có liên quan đến dòng thời gian hiện tại đấy. Nó chứa tất cả sự kiện của dòng thời gian hiện tại, nhưng ông được phép bỏ qua vài đoạn hoặc tua lại tới đoạn trước. Và để tránh nghịch lí ông nội gì kia, thì dòng thời gian đấy được tách ra.</div>
+    </div>
+
+    <p>Scratch nghe thấy vậy cũng thấy buồn. Anh thấy ngày mình chết được định sẵn ở đó. Anh không thể quên nó đi được. Nó làm anh lo lắng mỗi ngày.</p>
+
+    <div class="dialogue-box">
+      <div class="dialogue-line"><span class="speaker">MECHANIC:</span> Nhưng ông không lo đâu. Nếu những gì tôi quan sát là đúng, vào năm 2078, ông sẽ ít nhất được nhân bản cơ thể của mình. Các tế bào cũng sẽ được thay đổi để bản sao của ông sống lâu hơn 5 lần hiện tại. Tôi không biết ông thế nào, nhưng tôi thì chắc không tham gia đâu. Nó quá đắt đi mà.</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Nếu được nhân bản não và "linh hồn", thì tôi chắc chắn sẽ tham gia rồi.</div>
+      <div class="dialogue-line"><span class="speaker">MECHANIC:</span> Thế là ông an tâm rồi nhá. Ông có thể chết vào năm 2079, nhưng ông ít ra có cơ hội nhân bản chính mình trước khi đó. Còn giờ thì tôi phải đi khám phá nốt nội thành Saji đã. Ngày mai là tôi lại phải mở cửa hàng lại rồi.</div>
+      <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ừ. Bye bye ông!</div>
+    </div>
+
+  </div>
+  <div class="divider"></div>
+  <div class="story-nav">
+    <a href="/anthology/23" class="nav-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <div class="nav-btn-inner">
+        <span class="nav-label">Previous</span>
+        <span class="nav-title">Làm giàu sớm, nhưng bằng một cách khác</span>
+      </div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

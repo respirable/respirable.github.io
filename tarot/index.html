@@ -585,6 +585,7 @@
       // ── Draw ──
       window.drawCard = function () {
         if (!db.length) return;
+        if (drawCount >= 7) return;
 
         const drawnIds = history.map(item => item.card.id);
         const availableCards = db.filter(c => !drawnIds.includes(c.id));
