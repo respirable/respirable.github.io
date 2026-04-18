@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeatGuess</title>
+    <meta name="description"
+        content="Guess the song from visual rhythm alone. Create puzzles and share them with friends.">
+    <meta property="og:title" content="BeatGuess">
+    <meta property="og:description" content="Guess the song from visual rhythm alone.">
+    <link rel="stylesheet" href="/theme.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="/theme.js" defer></script>
+</head>
+
+<body>
+
+    <!-- Theme toggle (shared across site) -->
+    <div class="theme-toggle-wrap">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="container">
+
+        <!-- BACK LINK -->
+        <a href="/" class="back-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+            respirable
+        </a>
+
+        <!-- ── PLAY VIEW ── -->
+        <section id="view-play" class="view">
+            <h1 class="page-title">what song is that beat?</h1>
+            <p class="page-desc">a square flashes white to the rhythm of a song. guess which song it is. yeah, that's
+                the whole thing. try it out with these two questions</p>
+
+            <div class="beat-area">
+                <div class="beat-square" id="beat-square"></div>
+                <div class="beat-progress-track">
+                    <div class="beat-progress-bar" id="beat-progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="play-toolbar">
+                <div class="difficulty-indicator" title="Calculated Difficulty">
+                    <img id="diff-icon" src="/images/normal.png" alt="Difficulty"
+                        style="height: 36px; width: auto; vertical-align: middle;">
+                </div>
+                <button class="action-btn" id="btn-replay">↻ replay</button>
+                <button class="action-btn hidden" id="btn-show-hint">💡 hint</button>
+                <span class="play-hint" id="play-hint"></span>
+            </div>
+
+            <div id="hint-display" class="hidden hint-display"></div>
+
+            <div class="answers" id="answers-container">
+                <button class="answer-btn" data-index="0"></button>
+                <button class="answer-btn" data-index="1"></button>
+                <button class="answer-btn" data-index="2"></button>
+                <button class="answer-btn" data-index="3"></button>
+            </div>
+
+            <!-- Reveal area (hidden until answered) -->
+            <div class="reveal-area hidden" id="reveal-area">
+                <div class="reveal-result" id="reveal-result"></div>
+                <div class="reveal-answer" id="reveal-answer"></div>
+
+                <!-- YouTube embed (only shown if video exists) -->
+                <div class="reveal-video hidden" id="reveal-video-wrap">
+                    <div class="yt-note">Note: The song might be a few seconds off the beat. Definitely not my fault
+                        there.</div>
+                    <div id="yt-player-container"></div>
+                </div>
+                <div class="reveal-sync-row hidden" id="reveal-sync-row">
+                    <div class="beat-square beat-square-sm" id="reveal-beat-square"></div>
+                    <button class="action-btn" id="btn-play-with-music">▶ play with music</button>
+                </div>
+
+                <div class="reveal-actions">
+                    <button class="action-btn action-btn-primary" id="btn-next-level">next →</button>
+                    <button class="action-btn" id="btn-go-create">✦ create your own</button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+            <p class="footer-link">
+                <a href="#create" id="link-to-create">or, create your own puzzle and share it →</a>
+            </p>
+        </section>
+
+        <!-- ── CREATE VIEW ── -->
+        <section id="view-create" class="view hidden">
+            <p class="footer-link" style="margin-bottom: 24px;">
+                <a href="#" id="link-to-play">← back to playing</a>
+            </p>
+            <h1 class="page-title">Create a Puzzle</h1>
+
+            <p class="page-desc">record a rhythm, add some answers, and send the link to your friends so they can fail
+                miserably at guessing.</p>
+                
+            <div class="q-tabs" id="q-tabs-container">
+                <button class="q-tab active" data-idx="0">Q1</button>
+                <button class="q-tab add" id="btn-add-q-tab" title="Add Question">+</button>
+            </div>
+
+            <!-- Step 1: YouTube (optional) -->
+            <div class="create-card">
+                <div class="card-badge">1</div>
+                <h3>YouTube link <span class="optional-tag">optional</span></h3>
+                <p class="card-desc">If you add a video, the answer screen will play the actual song synced to the
+                    rhythm. If you don't, it still works — just without the dramatic reveal.</p>
+                <input type="text" class="input" id="input-yt-url"
+                    placeholder="https://www.youtube.com/watch?v=... or leave blank" autocomplete="off">
+                <div class="inline-row">
+                    <label class="input-label" for="input-start-time">start at (seconds):</label>
+                    <input type="number" class="input input-sm" id="input-start-time" value="0" min="0" step="0.5"
+                        autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Step 2: Record beat -->
+            <div class="create-card">
+                <div class="card-badge">2</div>
+                <h3>Record the rhythm</h3>
+                <p class="card-desc">Press/hold the square (or press your keybind) to record beats. Max 30 seconds. Try
+                    not to make it impossible.</p>
+                <div class="recorder-area">
+                    <div class="beat-square beat-square-md" id="record-beat-square"></div>
+                    <div class="recorder-info">
+                        <div class="recorder-timer" id="recorder-timer">0.0s / 30.0s</div>
+                        <div class="recorder-btns">
+                            <button class="action-btn action-btn-primary" id="btn-start-record">⏺ start
+                                recording</button>
+                            <button class="action-btn" id="btn-preview-record" disabled>▶ preview</button>
+                            <button class="action-btn action-btn-danger" id="btn-reset-record" disabled>✕ redo</button>
+                        </div>
+                        <div class="keybind-row">
+                            <label class="input-label">keybind:</label>
+                            <button class="keybind-btn" id="btn-keybind">Enter</button>
+                            <span class="keybind-hint">(click to change)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Answers, Hint & Difficulty -->
+            <div class="create-card">
+                <div class="card-badge">3</div>
+                <h3>Answers, Hint & Difficulty</h3>
+                <p class="card-desc">Four options. Click the radio to mark the correct one. Make the wrong answers
+                    believable — or don't.</p>
+                <div class="create-answers">
+                    <div class="answer-row">
+                        <input type="radio" name="correct-answer" value="0" class="radio" id="radio-0" checked>
+                        <input type="text" class="input" id="input-answer-0" placeholder="Option A (correct by default)"
+                            autocomplete="off">
+                    </div>
+                    <div class="answer-row">
+                        <input type="radio" name="correct-answer" value="1" class="radio" id="radio-1">
+                        <input type="text" class="input" id="input-answer-1" placeholder="Option B" autocomplete="off">
+                    </div>
+                    <div class="answer-row">
+                        <input type="radio" name="correct-answer" value="2" class="radio" id="radio-2">
+                        <input type="text" class="input" id="input-answer-2" placeholder="Option C" autocomplete="off">
+                    </div>
+                    <div class="answer-row">
+                        <input type="radio" name="correct-answer" value="3" class="radio" id="radio-3">
+                        <input type="text" class="input" id="input-answer-3" placeholder="Option D" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="divider" style="margin: 20px 0;"></div>
+
+                <h3>Hint <span class="optional-tag">optional</span></h3>
+                <p class="card-desc">Add a vague hint to help guessers along.</p>
+                <input type="text" class="input" id="input-hint" placeholder="e.g. 'It's a geometry dash level song'"
+                    autocomplete="off">
+
+                <div class="divider" style="margin: 20px 0;"></div>
+
+                <h3>Difficulty</h3>
+                <p class="card-desc">Choose a face to indicate how brutal the rhythm is.</p>
+                <div class="diff-selector" id="diff-selector-create">
+                    <div class="diff-option selected" data-diff="easy"><img src="/images/easy.png" alt="Easy"
+                            title="Easy"></div>
+                    <div class="diff-option" data-diff="normal"><img src="/images/normal.png" alt="Normal"
+                            title="Normal"></div>
+                    <div class="diff-option" data-diff="hard"><img src="/images/hard.png" alt="Hard" title="Hard"></div>
+                    <div class="diff-option" data-diff="harder"><img src="/images/harder.png" alt="Harder"
+                            title="Harder"></div>
+                    <div class="diff-option" data-diff="insane"><img src="/images/insane.png" alt="Insane"
+                            title="Insane"></div>
+                    <div class="diff-option" data-diff="easydemon"><img src="/images/easydemon.png" alt="Easy Demon"
+                            title="Easy Demon"></div>
+                    <div class="diff-option" data-diff="supermegaextremedemon"><img
+                            src="/images/supermegaextremedemon.png" alt="Extreme Demon"
+                            title="Super Mega Extreme Demon"></div>
+                </div>
+            </div>
+
+            <!-- Step 4: Share -->
+            <div class="create-card">
+                <div class="card-badge">4</div>
+                <h3>Finalize & Share</h3>
+                <div class="share-actions-row" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="action-btn action-btn-primary" id="btn-generate-link">✦ generate shareable link</button>
+                </div>
+                <div class="share-output hidden" id="share-output">
+                    <input type="text" class="input input-mono" id="input-share-link" readonly autocomplete="off">
+                    <div class="share-row">
+                        <button class="action-btn" id="btn-copy-link">📋 copy</button>
+                        <span class="copy-toast hidden" id="copy-toast">copied!</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- YouTube IFrame API (loaded only when needed) -->
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script src="engine.js"></script>
+    <script src="youtube.js"></script>
+    <script src="share.js"></script>
+    <script src="sample.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -414,7 +414,8 @@
 
 <body>
   <div class="theme-toggle-wrap" style="display:flex; gap:8px;">
-    <button class="share-btn" id="shareTopBtn" onclick="sharePage()" style="margin: 0; align-self: stretch; display: flex; align-items: center; border-radius: 12px; gap: 6px;">
+    <button class="share-btn" id="shareTopBtn" onclick="sharePage()"
+      style="margin: 0; align-self: stretch; display: flex; align-items: center; border-radius: 12px; gap: 6px;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
         <circle cx="18" cy="5" r="3"></circle>
@@ -463,12 +464,14 @@
         Lenormand! Or... Lemonade, as I keep reading it.)</p>
 
       <div class="disclaimer-box" style="margin-top: 24px;">
-        <strong>Note from Primera</strong> <span style="opacity: 0.85;">(If you don't know who Primera is, read respirable's anthology)</span>: This tool reads Lenormand cards the way any honest person would (and by any,
+        <strong>Note from Primera</strong> <span style="opacity: 0.85;">(If you don't know who Primera is, read
+          respirable's anthology)</span>: This tool reads Lenormand cards the way any honest person would (and by any,
         I mean myself only) by taking
         the imagery and text at face value. No metaphysical assumptions are made. If a card shows a dog, it means dog.
         If a card shows a ring, it means a ring. Whether that's useful to you is your problem, not mine.
         <div style="margin-top: 16px; font-weight: 600; color: var(--text);">A few things to note:</div>
-        <ol style="margin-left: 20px; margin-top: 8px; color: var(--text); display: flex; flex-direction: column; gap: 8px;">
+        <ol
+          style="margin-left: 20px; margin-top: 8px; color: var(--text); display: flex; flex-direction: column; gap: 8px;">
           <li>If a card's reading contradicts that of a previous card, that's not my fault. It's the computer's fault
             (or maybe yours, I don't know).</li>
           <li>Each card has exactly ONE meaning. No more, no less. So... you'll likely only need to use this utility
@@ -664,7 +667,6 @@
         });
 
         // Scroll to result (only if it's a new draw, usually handled by scrollIntoView)
-        // Keeping it here for simplicity, though when re-toggling language we might want to prevent jumping
         area.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 

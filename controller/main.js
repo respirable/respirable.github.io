@@ -77,7 +77,11 @@ function getFileIcon(path) {
     jpg: { color: '#4caf50', svg: '<path d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z"/>' },
     jpeg: { color: '#4caf50', svg: '<path d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z"/>' },
     mp3: { color: '#f85149', svg: '<path d="M12,3V13.55C11.41,13.21 10.73,13 10,13C7.79,13 6,14.79 6,17C6,19.21 7.79,21 10,21C12.21,21 14,19.21 14,17V7H18V3H12Z"/>' },
-    wav: { color: '#f85149', svg: '<path d="M12,3V13.55C11.41,13.21 10.73,13 10,13C7.79,13 6,14.79 6,17C6,19.21 7.79,21 10,21C12.21,21 14,19.21 14,17V7H18V3H12Z"/>' }
+    wav: { color: '#f85149', svg: '<path d="M12,3V13.55C11.41,13.21 10.73,13 10,13C7.79,13 6,14.79 6,17C6,19.21 7.79,21 10,21C12.21,21 14,19.21 14,17V7H18V3H12Z"/>' },
+    ttf: { color: '#9e9e9e', svg: '<path d="M9,4V7H11V19H14V7H16V4H9Z"/>' },
+    otf: { color: '#9e9e9e', svg: '<path d="M9,4V7H11V19H14V7H16V4H9Z"/>' },
+    woff: { color: '#9e9e9e', svg: '<path d="M9,4V7H11V19H14V7H16V4H9Z"/>' },
+    woff2: { color: '#9e9e9e', svg: '<path d="M9,4V7H11V19H14V7H16V4H9Z"/>' }
   };
 
   const config = icons[ext] || { color: '#848d97', svg: '<path d="M13,9V3.5L18.5,9M6,2C4.89,2 4,2.89 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6Z"/>' };
@@ -504,6 +508,7 @@ function getFileIcon(p) {
     case 'ts': case 'cpp': case 'cs': return '⚙️';
     case 'png': case 'jpg': case 'jpeg': case 'webp': case 'gif': return '🖼️';
     case 'mp3': case 'wav': return '🎵';
+    case 'ttf': case 'otf': case 'woff': case 'woff2': return '🔤';
     default: return '📄';
   }
 }
@@ -523,7 +528,7 @@ async function saveEditorContent() {
 }
 
 // ─── UPLOAD ───
-const WHITELIST = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'html', 'css', 'js', 'ts', 'cpp', 'cs', 'mp3', 'wav', 'xml'];
+const WHITELIST = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'html', 'css', 'js', 'ts', 'cpp', 'cs', 'mp3', 'wav', 'xml', 'ttf', 'otf', 'woff', 'woff2'];
 async function handleFileUpload(files) {
   if (!files.length) return;
   const fileArray = Array.from(files);
