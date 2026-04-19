@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta property="og:title" content="now | respirable" />
+  <meta property="og:description" content="What am I doing right now, exactly?" />
+  <meta property="og:image" content="/respirable.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <title>now | respirable</title>
+
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    h1.site-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2rem, 10vw, 3.5rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 24px;
+      color: #1F2328;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 32px;
+      transition: color 0.2s;
+      animation: fadeSlideDown 0.8s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+    }
+
+    .nav-link svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s;
+    }
+
+    .nav-link:hover svg {
+      transform: translateX(-4px);
+    }
+
+    .content-area {
+      animation: fadeSlideUp 0.8s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .content-area p {
+      margin-bottom: 18px;
+    }
+
+    .content-area h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-top: 36px;
+      margin-bottom: 14px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .content-area h2:first-child {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 36px;
+      margin-top: -16px;
+      font-size: 0.95rem;
+    }
+
+    .timetable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .timetable th,
+    .timetable td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .timetable th {
+      background: var(--surface2);
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .timetable tr:last-child td {
+      border-bottom: none;
+    }
+
+    .timetable td {
+      color: var(--text);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="theme-toggle-wrap">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+  </div>
+  <div class="container">
+    <a href="/" class="nav-link">
+      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        viewBox="0 0 24 24">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      respirable
+    </a>
+
+    <h1 class="site-title">now</h1>
+    <p class="subtitle">(this is a now page, and that’s about it)</p>
+
+    <div class="content-area">
+      <h2>What am I doing right now, exactly?</h2>
+      <p>Well, I can’t sit in front of my computer and update this website to say… whatever I’m doing now.</p>
+      <p>But if you really want to know what I’m probably doing right now:</p>
+      <ol style="margin-left: 20px; margin-bottom: 24px; padding-left: 10px;">
+        <li style="margin-bottom: 8px;">Check the current date and look up “current Indochina Time” on Google.</li>
+        <li style="margin-bottom: 8px;">Look at the following table:</li>
+      </ol>
+
+      <table class="timetable">
+        <thead>
+          <tr>
+            <th>Monday to Saturday</th>
+            <th>Sunday</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>12:00 AM – 6:00 AM: Sleeping</td>
+            <td>12:00 AM – 8:00 AM: Sleeping</td>
+          </tr>
+          <tr>
+            <td>~7:00 AM – 12:00 PM: At school</td>
+            <td>8:00 AM – 12:00 PM: Doomscrolling/eating</td>
+          </tr>
+          <tr>
+            <td>1:00 PM – 6:00 PM: Probably at school, or at home, or doing some weird stuff</td>
+            <td>1:00 PM – 5:00 PM: Sleeping. My body wants more sleep, even though 290 hours of sleeping is bad for you.
+            </td>
+          </tr>
+          <tr>
+            <td>7:00 PM – 11:00 PM: Doing weird stuff</td>
+            <td>6:00 PM – 11:00 PM: Also doing weird stuff</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>Keep is mind this is what I’m probably doing, and cannot be accurate 100% of the time. Whenever I’m not
+        sleeping or at school, I might be doing something goofy.</p>
+
+      <h2>Wait… didn’t Derek Sivers told you that you should use a “now” page as if you were telling a friend that you
+        haven’t met 1 year ago what you’re currently up to?</h2>
+      <p>Well… he never said that it has to be related to that.</p>
+
+      <p>What happens when this page doesn’t satisfy Derek’s requirements? Visitors will be dissatisfied? That’s up to
+        them.<br>
+        People are so good at obeying the rules of a “now” page that nobody even bothered trying to violate them. I’ll
+        be the first to do so, then.</p>
+
+      <p>By the way, Derek, if you’re seeing this website, please don’t make a rule that is something around the line of
+        “Failure to include such content in your now page will result in 25 years of imprisonment”. That’s just mean.
+      </p>
+
+      <h2>So… if you have a friend that you haven’t seen in a year, what would you say to them? That is the purpose of a
+        “now” page!</h2>
+      <p>I have no friends, and will never find one. Thank you for asking.</p>
+
+      <p style="font-size: 0.9em; color: var(--muted); margin-top: 32px;">
+        (Before any of my so-called friends come here and write a 500-word essay derogating me, I view such friends as
+        acquaintances. Acquaintances are not friends.)
+      </p>
+    </div>
+  </div>
+</body>
+
+</html>

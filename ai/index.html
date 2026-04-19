@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta property="og:title" content="ai | respirable" />
+  <meta property="og:description" content="INSUFFICIENT INFORMATION." />
+  <meta property="og:image" content="/respirable.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <title>ai - respirable</title>
+
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    h1.site-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2rem, 10vw, 3.5rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 36px;
+      color: #1F2328;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 32px;
+      transition: color 0.2s;
+      animation: fadeSlideDown 0.8s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+    }
+
+    .nav-link svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s;
+    }
+
+    .nav-link:hover svg {
+      transform: translateX(-4px);
+    }
+
+    .content-area {
+      animation: fadeSlideUp 0.8s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .content-area p {
+      margin-bottom: 18px;
+    }
+
+    .content-area blockquote {
+      border-left: 4px solid var(--border);
+      padding-left: 16px;
+      margin-top: 12px;
+      margin-bottom: 24px;
+      color: var(--text);
+      font-style: italic;
+      background: var(--surface2);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .content-area blockquote p:last-of-type {
+      margin-bottom: 12px;
+    }
+
+    .content-area h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-top: 36px;
+      margin-bottom: 14px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .content-area h2:first-child {
+      margin-top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="theme-toggle-wrap">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+  </div>
+  <div class="container">
+    <a href="/" class="nav-link">
+      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        viewBox="0 0 24 24">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      respirable
+    </a>
+
+    <h1 class="site-title">AI</h1>
+
+    <div class="content-area">
+      <blockquote>
+        <p>“Large language models have become good at crafting texts, audio, still, and moving images. We are getting to
+          a point where to retain the trust others have in you and your work, tell us how you made use of AI in your
+          craft.</p>
+        <p>Create a page on your website that reflects how you use generative AI. Let’s call it the /ai page. That is,
+          yourwebsite/ai.</p>
+        <p>The content can range from declaring that “None of the posts on this site was made using generative AI” or
+          “The following posts were partly generated using [Name of AI model].” If you’ve been open about how you use AI
+          elsewhere, it can be the page that points to those links.</p>
+        <p>Using AI for your work can be a good thing, so far you have made the attributions right. As long as it
+          doesn't decrease the quality of life of whoever engages with your output.<sup>1</sup></p>
+        <p>As an example, I created the /ai page for my site. I am inviting some friends and organisations to do the
+          same. […]”</p>
+        <footer style="text-align: right; margin-top: 8px; color: var(--muted); font-style: normal;">– “The Great”
+          Damola Morenikeji</footer>
+      </blockquote>
+
+      <p>So, in short… it’s asking about “your transparency about using AI” on this page.</p>
+
+      <h2>And here’s my answer to that: INSUFFICIENT INFORMATION.</h2>
+
+      <p>What do I mean by insufficient information? Basically, nobody asked me about how I use AI. As a result, I don’t
+        know how I would say whenever someone asked me that. I can’t create hypothetical scenarios because… it highly
+        depends on who I’m talking to. Sometimes, I might give two different answers to a similar question to two
+        strangers, and the answers itself are luck-based.</p>
+
+      <p>As for the transparency of AI itself: 100%. Robots are not invisible.</p>
+
+      <h2 style="margin-top: 48px;">Two more things, before I go</h2>
+
+      <ol style="margin-left: 20px; margin-bottom: 24px; padding-left: 10px;">
+        <li style="margin-bottom: 12px;">If the great Damola Morenikeji sees this page, please do not go “Failure to
+          include your actual AI usage in your “ai” page will result in a $250,000 fine” or something like that. That’s
+          very mean.</li>
+        <li style="margin-bottom: 12px;">“The main essence of the /ai page on your website is to promote trust and
+          transparency.” – Damola Morenikeji</li>
+      </ol>
+
+      <p style="margin-left: 30px;">If you want to promote trust, modify every single individual’s brain so that they
+        can only say the truth, and that they are obligated to say whatever’s accurate. Additionally, make all
+        statements generated by us verifiable as well. That way trust can easily be confirmed, and that liars don’t
+        spread out.</p>
+
+      <p style="margin-left: 30px;">As for promoting transparency, you can set the opacity of objects to 0. That way,
+        you can see through whatever you want.</p>
+    </div>
+  </div>
+</body>
+
+</html>
