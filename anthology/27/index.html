@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cỗ máy thời gian (tiếp) — Anthology</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 36px 0;
+    }
+
+    .story-body {
+      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .story-body p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 12px 0 12px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 4px;
+    }
+
+    /* ── FOOTNOTE ── */
+    .footnote {
+      margin: 8px 0 28px;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.7;
+      border-left: 3px solid var(--border);
+    }
+
+    .footnote strong {
+      color: var(--text);
+    }
+
+    /* ── DIALOGUE ── */
+    .dialogue-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .dialogue-line {
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+
+    .dialogue-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .speaker {
+      font-weight: 700;
+      font-style: normal;
+      color: var(--text);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      margin-right: 4px;
+    }
+
+    .story-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 60px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .nav-btn.active {
+      cursor: pointer;
+      opacity: 1;
+      color: var(--text);
+    }
+
+    .nav-btn.active:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+    }
+
+    .nav-btn .nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn .nav-title {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav-btn-inner {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="theme-toggle-wrap">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5" />
+        <path
+          d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+      </svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+  </div>
+  <div class="container">
+    <a href="/anthology" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+      anthology
+    </a>
+    <div class="story-header">
+      <div class="story-meta">
+        <span class="story-part-badge">Part 2</span>
+        <span class="story-number">Story 10</span>
+      </div>
+      <h1 class="story-title">Cỗ máy thời gian (tiếp)</h1>
+      <p class="story-subtitle">Primera quyết định thử dùng cỗ máy thời gian để đi đến tương lai 10 năm sau.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="story-body">
+
+      <p>Tầm 15 phút sau khi The Mechanic rời khỏi cửa hàng của Scratch, Primera đến cửa hàng Scratch để nói với anh một
+        tin rất sốc.</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Primera à? Có gì đưa ông đến đây vậy? (What
+          brings you here?)</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi vừa nhận được một tin sốc từ thầy Cóc… mà
+          khoan… cánh cổng gì kia?</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> À! Đó là Cỗ máy thời gian!</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Cỗ máy thời gian? Tôi tưởng cái đó bị cấm rồi?
+        </div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ở Trung Quốc thì có mấy cái phim kiểu đó bị cấm
+          thôi! Còn việc du hành thì chẳng sao cả.</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Nếu không bị cấm thì ông làm ra cái đấy kiểu gì
+          được? Các nhà vật lý còn không dám tìm cách phá định luật thứ hai của nhiệt động lực học mà!</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tôi không làm ra nó, đấy là của đồng nghiệp của
+          tôi đấy! Ông biết The Mechanic chứ?</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Ừ, tôi biết! Ông làm ra những phát minh điên
+          loạn phết.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Đó! Phát minh này là của ông đó.</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Hmm… Thú vị. Tôi nghĩ phát minh như vậy sẽ được
+          báo chí thăm hỏi đấy.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Nếu như họ sẵn sàng leo núi. Nhà Mechanic tít
+          trên đỉnh núi thế kia.</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Báo chí sẽ làm tất cả mọi thứ để soi mói thông
+          tin mà.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> (quay đầu sang trái) Ey! Hình như The Mechanic
+          quên một đống Timetearium ở đây rồi!</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Ông có định trả nó không?</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông biết mà. Mechanic không dùng điện thoại.
+          Chỉ có viết thư tay đến nhà ông ấy thôi. Hoặc là đi bộ 1500km và leo núi thêm… 3000m nữa. Tìm ông ấy lâu phết
+          đấy. Chắc mình nên giữ lại nó thôi.</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Hmmm… Ông nói cũng đúng. Nhắc đến du hành thời
+          gian, tôi cũng muốn xem bản thân mình vào 10 năm sau sẽ ra sao.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Nghe hay đấy! Cho tôi đi cùng với!</div>
+      </div>
+
+      <p>Primera cắm nguồn điện vào, đẩy cần gạt, và vội vàng bước qua cánh cổng màu tím đó như kiểu nó sẽ biến mất
+        trong vòng 3 giây. Scratch thì đi một cách chậm rãi.</p>
+      <p>Scratch cầm bảng điều khiển thời gian và một lọ Timetearium. Anh hướng dẫn Primera một cách rất kĩ càng.</p>
+      <p>Primera quyết định chọn du hành tới năm 2037, tại chỗ cửa hàng của Scratch.</p>
+      <p>Trong lúc chờ đợi, Primera hỏi về cơ chế hoạt động của cỗ máy thời gian. Nghe xong, anh nảy ra thắc mắc: Sau
+        khi du hành xong, dòng thời gian mới kia sẽ thế nào? Scratch cho rằng: "Tôi không biết, nhưng tôi nghĩ nó sẽ
+        tiếp tục diễn ra."</p>
+      <p>Ba mươi phút sau, họ đã đến nơi. Có vẻ như không gian không có quá nhiều khác biệt. Căn nhà của Primera giờ có
+        vẻ rộng hơn. Cửa hàng của Scratch thì chỉ cải tiến phần nội thất, và có thêm một tầng nữa. Ai đi vào nhà của
+        người nấy, hỏi thăm tình hình làm ăn của mình.</p>
+      <p>Scratch thì doanh thu đã tăng đáng kể. 99% doanh thu của anh là nhờ có cỗ máy thời gian (tuy rằng vẫn phải chia
+        phần lớn cho The Mechanic). Anh còn cân nhắc đến việc nghỉ bán icon (và nhờ Potbor giúp bán nốt icon hộ mình),
+        chỉ tập trung vào dịch vụ du hành thời gian kia. Anh cũng đã được đi du lịch tới 38 quốc gia trên thế giới (với
+        sự cho phép của công ty bán icon) để nghiên cứu thị trường nước ngoài, và đã mở thêm 2 chi nhánh cửa hàng ở một
+        nước khác. Có vẻ như công việc làm ăn khá là thuận lợi.</p>
+      <p>Primera thì… sống bình thường. Ngày nào cũng giống ngày nào: làm việc, ăn trưa, làm việc, tám chuyện với
+        Scratch, nghỉ ngơi, ngủ, dậy ăn sáng. Được một cái là anh cũng đang làm thêm nghề tay trái: viết sách. Cụ thể
+        hơn là "Tôi khịa tác phẩm văn học" và "Tuyển tập truyện ngắn Primera & Scratch". Tuy rằng không quá bán chạy,
+        nhưng Primera của tương lai cho rằng đó là một cứu cánh đề phòng trường hợp công việc AI kia của mình bị người
+        anh (làm việc trong cùng công ty) cho sa thải.</p>
+      <p>Hai người cho rằng: Vậy là tương lai gần của chúng ta không tệ đến thế. Biết vậy là quá an tâm rồi. Đi về thời
+        hiện tại thôi!</p>
+      <p>Trong lúc quay về thời hiện tại, vòng lặp thời gian gặp một số trục trặc gì đó, khiến cho một "cổng thời gian"
+        xuất hiện ngay giữa đường Honest (cách nhà Primera 500m). Murakumo đang đi trên đường đó, không kịp dừng xe lại,
+        đã đi vào vòng lặp thời gian thông qua cánh cổng đó.</p>
+      <p>Cô suýt nữa đâm vào Primera & Scratch. May thay, cả hai người đều ổn. Murakumo thấy họ, liền thắc mắc họ đang
+        làm gì ở đây, và sao cánh cổng này lại nảy ra ở giữa đường.</p>
+      <p>Primera cho rằng đây là một cỗ máy thời gian, và hai người đang du hành từ tương lai tới quá khứ. Murakumo nghe
+        xong, cũng chẳng bận tâm cái du hành thời gian đó lắm. Cô chỉ mong về đến hiện tại nhanh nhất có thể để quay về
+        công việc của mình.</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> (thì thầm) Đúng là Murakumo. Con rắn độc hại
+          nhất thế giới*. Học giỏi nhất dải ngân hà mà im ắng thế này…</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông nói gì vậy?</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Shhh…</div>
+      </div>
+
+      <div class="footnote">
+        * Ý muốn nói rằng Primera đang ghen tị vì Murakumo học giỏi hơn mình, khéo léo hơn mình, mà anh chẳng làm gì lại
+        được.
+      </div>
+
+    </div>
+    <div class="divider"></div>
+    <div class="story-nav">
+      <a href="/anthology/26" class="nav-btn active">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <div class="nav-btn-inner">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">Cỗ máy thời gian</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+
+</html>
