@@ -1,0 +1,224 @@
+{
+  "parts": [
+    {
+      "partNumber": 2,
+      "questionRange": "14-26",
+      "passage": {
+        "title": "The Physics of Traffic Behavior",
+        "sections": [
+          {
+            "heading": null,
+            "paragraphs": [
+              "Some years ago, when several theoretical physicists, principally Dirk Helbing and Boris Kerner of Stuttgart, Germany, began publishing papers on traffic flow in publications normally read by traffic engineers, they were clearly working outside their usual sphere of investigation. They had noticed that if they simulated the movement of vehicles on a highway, using the equations that describe how the molecules of a gas move, some very strange results emerged. Of course, vehicles do not behave exactly like gas molecules: for example, drivers try to avoid collisions by slowing down when they get too near another vehicle, whereas gas molecules have no such concern. However, the physicists modified the equations to take the differences into account and the overall description of traffic as a flowing gas has proved to be a very good one; the moving-gas model of traffic reproduces many phenomena seen in real-world traffic."
+            ],
+            "questionMarker": 14
+          },
+          {
+            "heading": null,
+            "paragraphs": [
+              "The strangest thing that came out of these equations, however, was the implication that congestion can arise completely spontaneously; no external causes are necessary. Vehicles can be flowing freely along, at a density still well below what the road can handle, and then suddenly gel into a slow moving ooze. Under the right conditions a brief and local fluctuation in the speed or the distance between vehicles is all it takes to trigger a system-wide breakdown that persists for hours. In fact, the physicists' analysis suggested such spontaneous breakdowns in traffic flow probably occur quite frequently on highways."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": "Dramatic effects can result from small changes in traffic just as in nature",
+            "paragraphs": [
+              "Though a decidedly unsettling discovery, this showed striking similarities to the phenomena popularized as 'chaos theory'. This theory has arisen from the understanding that in any complex interacting system which is made of many parts, each part affects the others. Consequently, tiny variations in one part of a complex system can grow in huge but unpredictable ways. This type of dramatic change from one state to another is similar to what happens when a chemical substance changes from a vapor to a liquid. It often happens that water in a cloud remains as a gas even after its temperature and density have reached the point where it could condense into water droplets. However if the vapor encounters a solid surface, even something as small as a speck of dust, condensation can take place and the transition from vapor to liquid begins."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": "An unexpected effect of minor fluctuations",
+            "paragraphs": [
+              "Helbing and Kerner's finding that traffic flow could shift suddenly from free flow to congestion, without any apparent external trigger, was surprising and troubling in equal measure. It meant that the traditional approach to traffic management — identifying and removing bottlenecks — could only go so far. Even on a perfectly designed highway with no obstacles, breakdowns could still occur."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": "Taking ideas from another field",
+            "paragraphs": [
+              "What made the physicists' contribution so interesting was not just the results themselves, but the fact that they had applied methods from a completely different scientific discipline. Traffic engineers had been studying traffic for decades, but it was physicists, using the mathematical tools of their own field — the kinetic theory of gases — who made the breakthrough. The cross-fertilization of ideas between physics and traffic engineering proved remarkably fruitful."
+            ],
+            "questionMarker": null
+          }
+        ]
+      },
+      "questionGroups": [
+        {
+          "type": "heading_match",
+          "questionRange": "14-17",
+          "instructions": "The text has four sections. Choose the correct heading for each section and move it into the gap.",
+          "headingOptions": [
+            "How a maths experiment actually reduced traffic congestion",
+            "How a concept from one field of study was applied in another",
+            "A lack of investment in driver training",
+            "Areas of doubt and disagreement between experts",
+            "How different countries have dealt with traffic congestion",
+            "The impact of driver behavior on traffic speed",
+            "A proposal to take control away from the driver"
+          ],
+          "questions": [
+            { "number": 14, "answer": null },
+            { "number": 15, "answer": null },
+            { "number": 16, "answer": null },
+            { "number": 17, "answer": null }
+          ]
+        },
+        {
+          "type": "multiple_choice",
+          "questionRange": "18-23",
+          "instructions": "Choose TWO correct answers.",
+          "selectCount": 2,
+          "questions": [
+            {
+              "numbers": "18-19",
+              "stem": "Which TWO options describe what the writer is doing in section two?",
+              "options": [
+                "explaining Helbing and Kerner's attitude to chaos theory",
+                "clarifying Helbing and Kerner's conclusions about traffic behaviour",
+                "showing how weather and temperature can change traffic flow",
+                "drawing parallels between the behaviour of clouds and traffic"
+              ]
+            },
+            {
+              "numbers": "20-21",
+              "stem": "Which TWO options describe what happens when traffic congestion occurs spontaneously?",
+              "options": [
+                "Traffic engineers are unable to explain the congestion.",
+                "The conditions briefly ideal for free-flowing traffic.",
+                "A minor disturbance can escalate into major congestion.",
+                "Drivers respond to the congestion by changing lanes."
+              ]
+            },
+            {
+              "numbers": "22-23",
+              "stem": "Which TWO facts are mentioned about the physicists' approach?",
+              "options": [
+                "They used mathematical models normally applied to gas molecules.",
+                "They collaborated closely with traffic engineers from the start.",
+                "They adapted their equations to account for driver behaviour.",
+                "They collected data from highways in several different countries."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "true_false_notgiven",
+          "questionRange": "24-26",
+          "instructions": "Do the following statements agree with the information given in the reading passage?",
+          "questions": [
+            { "number": 24, "statement": "Helbing and Kerner were working in a field related to traffic engineering." },
+            { "number": 25, "statement": "Gas molecules try to avoid collisions with each other." },
+            { "number": 26, "statement": "The moving-gas model can reproduce real traffic phenomena." }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 3,
+      "questionRange": "27-40",
+      "passage": {
+        "title": "Plain English",
+        "sections": [
+          {
+            "heading": null,
+            "paragraphs": [
+              "There is no theoretical limit to the number of special purposes to which language can be put. As society develops new facets, so language is devised to express them. However, the result is often that language becomes very specialised and complex, and complications arise as ordinary people struggle to make sense of it."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": null,
+            "paragraphs": [
+              "Popular anxiety about special uses of language is most markedly seen in the campaigns to promote 'plain' speaking and writing – notably, the Plain English movements of Britain and the USA. The main aim of these campaigns is to attack the use of unnecessarily complicated language ('gobbledegook') by governments, businesses and other authorities whose role puts them in linguistic contact with the general public. The campaigners argue that such language, whether spoken or written, should be replaced by clearer forms of expression."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": null,
+            "paragraphs": [
+              "The movements took shape only in the 1970s, so it is too soon to ascertain their long-term influence on the characteristics of language varieties. But they have certainly played a major part in promoting public awareness of the existence of communication problems, and have influenced many organisations to do something about it. In Britain, the campaign was launched in 1979, by a ritual shredding of government forms in Parliament Square, London. By 1982, the government had published a report telling departments to improve the design of forms, and to abolish those that were unnecessary. By 1985, around 15,700 forms had disappeared and 21,300 had been revised. In the USA, President Carter's Executive Order of March 1978 required regulations to be written in plain English, and although this was revoked by President Reagan in 1981, it promoted a great deal of legislation throughout the country, and an increase in plain English usage amongst corporations and consumers."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": null,
+            "paragraphs": [
+              "Today the Plain English campaigns continue to grow, focusing especially on such everyday consumer literature as forms, official letters, licences, leases, contracts, insurance policies and guarantees. In Britain, annual publicity is given to the Plain English Awards competition, which gives trophies to organisations that have produced the clearest documents, and booby prizes (the Golden Bull Awards) to those whose materials are least intelligible. In the USA, a similar interest is shown in the annual Doublespeak Awards, awarded by the National Council of Teachers to American public figures who have perpetuated language that is grossly unfactual, deceptive, evasive, euphemistic, confusing or self-contradictory."
+            ],
+            "questionMarker": null
+          }
+        ]
+      },
+      "questionGroups": [
+        {
+          "type": "true_false_notgiven",
+          "questionRange": "27-33",
+          "instructions": "Do the following statements agree with the information given in the reading passage?",
+          "questions": [
+            { "number": 27, "statement": "There is a limit to the number of special purposes to which language can be put." },
+            { "number": 28, "statement": "Language used by governments and businesses is always easy for ordinary people to understand." },
+            { "number": 29, "statement": "The Plain English campaigns started in the 1970s." },
+            { "number": 30, "statement": "President Carter signed an executive order about plain English in 1978." },
+            { "number": 31, "statement": "President Reagan continued Carter's policy on plain English." },
+            { "number": 32, "statement": "The Golden Bull Awards are given to organisations with the best documents." },
+            { "number": 33, "statement": "Regular checks are made on language used in the courts." }
+          ]
+        },
+        {
+          "type": "summary_completion",
+          "questionRange": "34-40",
+          "instructions": "Complete the summary. Write NO MORE THAN TWO WORDS from the text for each answer.",
+          "summaryText": "For businesses, the use of complex language can have financial implications. The benefits of plain language can be seen in the case of companies who remove ___34___ from their forms and achieve ___35___ as a result.",
+          "additionalSummaries": [
+            {
+              "text": "Consumers often complain they experience a feeling of ___36___ when trying to put together do it yourself products which have not been tested by companies on a ___37___. In situations where not keeping to the correct procedures could affect safety issues, it is especially important that ___38___ information is not left and no assumptions are made about a stage being self-evident or the consumer having a certain amount of ___39___."
+            },
+            {
+              "text": "Lawyers, however, have raised objections to the use of plain English. They feel that it would result in ambiguity in documents and cause people to lose faith in ___40___, as it would mean departing from language that has been used in the courts for a very long time."
+            }
+          ],
+          "questions": [
+            { "number": 34, "answer": null },
+            { "number": 35, "answer": null },
+            { "number": 36, "answer": null },
+            { "number": 37, "answer": null },
+            { "number": 38, "answer": null },
+            { "number": 39, "answer": null },
+            { "number": 40, "answer": null }
+          ]
+        }
+      ]
+    }
+  ],
+  "answerKey": {
+    "14": "How a concept from one field of study was applied in another",
+    "15": "The impact of driver behavior on traffic speed",
+    "16": "How different countries have dealt with traffic congestion",
+    "17": "A proposal to take control away from the driver",
+    "18": "B",
+    "19": "D",
+    "20": "A",
+    "21": "C",
+    "22": "A",
+    "23": "C",
+    "24": "TRUE",
+    "25": "FALSE",
+    "26": "TRUE",
+    "27": "FALSE",
+    "28": "FALSE",
+    "29": "TRUE",
+    "30": "TRUE",
+    "31": "FALSE",
+    "32": "FALSE",
+    "33": "NOT GIVEN",
+    "34": "complications",
+    "35": "clarity",
+    "36": "anxiety",
+    "37": "sample",
+    "38": "critical",
+    "39": "knowledge",
+    "40": "lawyers"
+  },
+  "answerKeySource": "detected"
+}

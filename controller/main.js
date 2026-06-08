@@ -14,8 +14,9 @@ let currentPath = '';
 let currentFile = null;
 let currentEditorFile = null;
 let uploadToast = null;
-let selectedVariant = sessionStorage.getItem('wwtbam-variant') || null;
-let selectedFormat = sessionStorage.getItem('wwtbam-format') || null;
+let selectedVariant = sessionStorage.getItem('wwtbam-variant') || localStorage.getItem('wwtbam-variant') || null;
+let selectedFormat = sessionStorage.getItem('wwtbam-format') || localStorage.getItem('wwtbam-format') || null;
+const CONTROLLER_SW_VERSION = '1.3';
 
 const VARIANTS = {
   'olga': {
@@ -159,6 +160,8 @@ async function startWithSelection(skipDom = false) {
   }
   sessionStorage.setItem('wwtbam-variant', selectedVariant);
   sessionStorage.setItem('wwtbam-format', selectedFormat);
+  localStorage.setItem('wwtbam-variant', selectedVariant);
+  localStorage.setItem('wwtbam-format', selectedFormat);
   
   document.getElementById('formatOverlay').classList.remove('active');
   document.getElementById('selectionOverlay').classList.remove('active');
@@ -170,6 +173,7 @@ async function startWithSelection(skipDom = false) {
   document.getElementById('loadingScreen').style.display = 'flex';
   
   try {
+    await clearAll();
     const l = await loadBundle(zipUrl, (loaded, total) => {
       const pb = document.getElementById('progressBar');
       if (pb) pb.style.width = Math.round((loaded / total) * 100) + '%';
@@ -602,6 +606,7 @@ async function handleFileUpload(files) {
     }
     
     toast.setComplete('Upload successful!', true);
+    hardRefresh();
   } catch (err) {
     toast.setComplete('Upload failed: ' + err.message, false);
   }
@@ -615,7 +620,7 @@ function initSettingsUI() {
     pc.onchange = (e) => { settings.promptConflict = e.target.checked; localStorage.setItem('sandbox-settings', JSON.stringify(settings)); };
   }
 }
-function hardRefresh() { const f = document.getElementById('controllerFrame'); if (f) { f.src = 'about:blank'; setTimeout(() => f.src = '/controller/sandbox/', 100); } }
+function hardRefresh() { const f = document.getElementById('controllerFrame'); if (f) { f.src = 'about:blank'; setTimeout(() => f.src = `/controller/sandbox/?t=${Date.now()}`, 100); } }
 async function restoreDefaultQuestions() {
   if (confirm('Restore defaults?')) {
     const [qRes, sqRes] = await Promise.all([fetch('https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/questions.xml'), fetch('https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/switchQuestions.xml')]);
@@ -628,6 +633,8 @@ async function resetSandbox() {
   if (confirm('Wipe Sandbox? This will also reset your graphic selection.')) { 
     sessionStorage.removeItem('wwtbam-variant');
     sessionStorage.removeItem('wwtbam-format');
+    localStorage.removeItem('wwtbam-variant');
+    localStorage.removeItem('wwtbam-format');
     await clearAll(); 
     location.reload(); 
   } 
@@ -728,18 +735,20 @@ if (localStorage.getItem('topbar-hidden') === 'true') {
   document.body.classList.add('topbar-hidden');
 }
 
+async function registerControllerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  const registration = await navigator.serviceWorker.register(`/controller/sw.js?v=${CONTROLLER_SW_VERSION}`, {
+    scope: '/controller/',
+    updateViaCache: 'none'
+  });
+  await registration.update().catch(() => {});
+  await navigator.serviceWorker.ready;
+}
+
 async function init() {
-  if ('serviceWorker' in navigator) await navigator.serviceWorker.register('/controller/sw.js', { scope: '/controller/' });
+  await registerControllerServiceWorker();
   
   // ─── SESSION MANAGEMENT ───
-  // Unconditionally wipe data on EVERY load (fully stateless on revisit/refresh)
-  console.log("Clearing sandbox data for new visit...");
-  await clearAll();
-  sessionStorage.removeItem('wwtbam-variant');
-  sessionStorage.removeItem('wwtbam-format');
-  selectedVariant = null;
-  selectedFormat = null;
-
   const hasData = await hasBundle();
   
   if (hasData && selectedVariant) {

@@ -107,9 +107,11 @@ async function loadBundle(zipUrl, onProgress) {
             // Fix 1: Stop synchronous AJAX deadlocks (required for Service Workers)
             content = content.replace(/async:\s*false/g, 'async: true');
             
-            // Fix 2: Force Cloud R2 URLs for questions (per user request)
-            content = content.replace(/Questions\/questions\.xml/gi, 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/questions.xml');
-            content = content.replace(/Questions\/switchQuestions\.xml/gi, 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/switchQuestions.xml');
+            // Fix 2: Keep question XML inside the sandbox so edited IndexedDB files are used.
+            content = content.replace(/https:\/\/pub-2d06308cf53245df865e113b0745c6d9\.r2\.dev\/questions\.xml/gi, '/controller/sandbox/questions/questions.xml');
+            content = content.replace(/https:\/\/pub-2d06308cf53245df865e113b0745c6d9\.r2\.dev\/switchQuestions\.xml/gi, '/controller/sandbox/questions/switchQuestions.xml');
+            content = content.replace(/Questions\/questions\.xml/gi, '/controller/sandbox/questions/questions.xml');
+            content = content.replace(/Questions\/switchQuestions\.xml/gi, '/controller/sandbox/questions/switchQuestions.xml');
 
             // Fix 3: Inject Backspace Relay for Immersive Mode (In ALL HTML files)
             if (normalizedName.endsWith('.html') || normalizedName.endsWith('.htm')) {

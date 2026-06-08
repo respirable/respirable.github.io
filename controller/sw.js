@@ -8,6 +8,7 @@ const DB_NAME = 'wwtbam-controller';
 const DB_VERSION = 10; // Bump to ensure clean start
 const STORE_NAME = 'files';
 const CONTROLLER_SCOPE = '/controller/sandbox/';
+const R2_HOST = 'pub-2d06308cf53245df865e113b0745c6d9.r2.dev';
 
 // ─── SERVICE WORKER LIFECYCLE ───
 
@@ -83,18 +84,49 @@ async function getFileFromDB(path) {
     });
 }
 
+async function getFileByCandidates(candidates) {
+    for (const key of candidates) {
+        const record = await getFileFromDB(key);
+        if (record && record.blob) return { key, record };
+    }
+    return null;
+}
+
+function getStorageKeyCandidates(path) {
+    const cleanPath = String(path || '').replace(/^\/+/, '').toLowerCase();
+    const candidates = [cleanPath];
+    const fileName = cleanPath.split('/').pop();
+
+    if (fileName === 'questions.xml') {
+        candidates.push('questions/questions.xml', 'questions.xml');
+    } else if (fileName === 'switchquestions.xml') {
+        candidates.push('questions/switchquestions.xml', 'switchquestions.xml');
+    }
+
+    return [...new Set(candidates)];
+}
+
 // ─── FETCH INTERCEPTOR ───
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // Only intercept requests within the sandbox scope
-    if (!url.pathname.startsWith(CONTROLLER_SCOPE)) {
+    // Intercept sandbox files and old bundles that still point question XML at R2.
+    if (url.pathname.startsWith(CONTROLLER_SCOPE)) {
+        event.respondWith(handleSandboxRequest(event, url));
         return;
     }
 
-    event.respondWith(handleSandboxRequest(event, url));
+    if (isCloudQuestionXmlRequest(url)) {
+        event.respondWith(handleQuestionXmlRequest(event, url));
+    }
 });
+
+function isCloudQuestionXmlRequest(url) {
+    if (url.hostname !== R2_HOST) return false;
+    const path = url.pathname.toLowerCase();
+    return path.endsWith('/questions.xml') || path.endsWith('/switchquestions.xml');
+}
 
 async function handleSandboxRequest(event, url) {
     // 1. Normalize the storage key
@@ -111,30 +143,16 @@ async function handleSandboxRequest(event, url) {
         storageKey = 'default.html';
     }
 
-    // Force Cloud XML requests before doing any local DB lookups
-    if (storageKey.toLowerCase().endsWith('questions.xml')) {
-        const cloudUrl = storageKey.toLowerCase().includes('switch')
-            ? 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/switchQuestions.xml'
-            : 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/questions.xml';
-        
-        console.log('[SW] Forcing Cloud Fetch for XML Question File:', cloudUrl);
-        try {
-            const cloudRes = await fetch(cloudUrl);
-            if (cloudRes.ok) return cloudRes;
-        } catch (e) {
-            console.error('[SW] Cloud Fetch failed, falling back to local DB if available.');
-        }
-    }
-
     // 2. Diagnostic logging for debugging
     console.log('[SW] Looking up key:', storageKey.toLowerCase());
 
     try {
         // 3. Try IndexedDB first
-        const record = await getFileFromDB(storageKey);
+        const resolved = await getFileByCandidates(getStorageKeyCandidates(storageKey));
+        const record = resolved?.record || null;
 
         if (record && record.blob) {
-            const mimeType = record.mimeType || getMimeType(storageKey);
+            const mimeType = record.mimeType || getMimeType(resolved.key || storageKey);
             const rangeHeader = event.request.headers.get('Range');
             
             // Handle Media Range Requests (206 Partial Content)
@@ -160,7 +178,7 @@ async function handleSandboxRequest(event, url) {
                         'Accept-Ranges': 'bytes',
                         'Content-Length': chunk.size,
                         'Content-Type': mimeType,
-                        'Cache-Control': 'no-cache',
+                        'Cache-Control': 'no-store, max-age=0',
                     }
                 });
             }
@@ -170,7 +188,7 @@ async function handleSandboxRequest(event, url) {
                 status: 200,
                 headers: {
                     'Content-Type': mimeType,
-                    'Cache-Control': 'no-cache',
+                    'Cache-Control': 'no-store, max-age=0',
                 },
             });
         }
@@ -204,4 +222,43 @@ async function handleSandboxRequest(event, url) {
             headers: { 'Content-Type': 'text/plain' },
         });
     }
+}
+
+async function handleQuestionXmlRequest(event, url) {
+    const storageKey = url.pathname.toLowerCase().endsWith('/switchquestions.xml')
+        ? 'questions/switchquestions.xml'
+        : 'questions/questions.xml';
+
+    try {
+        const resolved = await getFileByCandidates(getStorageKeyCandidates(storageKey));
+        if (resolved?.record?.blob) {
+            return new Response(resolved.record.blob, {
+                status: 200,
+                headers: {
+                    'Content-Type': resolved.record.mimeType || 'application/xml',
+                    'Cache-Control': 'no-store',
+                    'Access-Control-Allow-Origin': '*',
+                },
+            });
+        }
+
+        const cloudRes = await fetch(event.request);
+        if (cloudRes.ok) return cloudRes;
+    } catch (err) {
+        return new Response('Service Worker XML error: ' + err.message, {
+            status: 500,
+            headers: {
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
+    }
+
+    return new Response(`Question XML not found: "${storageKey}"`, {
+        status: 404,
+        headers: {
+            'Content-Type': 'text/plain',
+            'Access-Control-Allow-Origin': '*',
+        },
+    });
 }

@@ -43,10 +43,25 @@
       font-family: var(--font-main);
     }
 
-    /* Force font-code for editor related components */
+    /* Keep Monaco text on the code font without clobbering its icon font. */
     .edit-menu-overlay .monaco-editor,
-    .edit-menu-overlay .monaco-editor * {
+    .edit-menu-overlay .monaco-editor .view-lines,
+    .edit-menu-overlay .monaco-editor .view-line,
+    .edit-menu-overlay .monaco-editor .mtk,
+    .edit-menu-overlay .monaco-editor textarea,
+    .edit-menu-overlay .monaco-editor input {
       font-family: var(--font-code) !important;
+    }
+
+    .edit-menu-overlay .monaco-editor .codicon,
+    .edit-menu-overlay .monaco-editor .codicon::before,
+    .edit-menu-overlay .monaco-editor .suggest-icon,
+    .edit-menu-overlay .monaco-editor .suggest-icon::before,
+    .edit-menu-overlay .monaco-editor .symbol-icon,
+    .edit-menu-overlay .monaco-editor .symbol-icon::before,
+    .edit-menu-overlay .monaco-editor .monaco-icon-label::before,
+    .edit-menu-overlay .monaco-editor [class*="codicon-"]::before {
+      font-family: codicon !important;
     }
 
     .edit-menu-overlay {
@@ -2133,9 +2148,9 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- ═══════════════════ SCRIPTS ═══════════════════ -->
-  <script src="/controller/db.js?v=1.1"></script>
-  <script src="/controller/loader.js?v=1.1"></script>
-  <script src="/controller/main.js?v=1.1"></script>
+  <script src="/controller/db.js?v=1.3"></script>
+  <script src="/controller/loader.js?v=1.3"></script>
+  <script src="/controller/main.js?v=1.3"></script>
   <!-- ═══════════════════ RESTRICTION MODAL ═══════════════════ -->
   <div class="restriction-overlay" id="restrictionOverlay">
     <div class="restriction-card">
