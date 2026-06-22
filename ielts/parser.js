@@ -28,6 +28,8 @@ RULES:
    - For matching_information, preserve visible passage paragraph labels such as A, B, C, D, E as passage.sections[].heading values. Do NOT remove or suppress those labels.
    - Only heading_match may replace a visible paragraph label with a heading drop box or example heading. Matching_information must keep the paragraph labels visible in the passage.
    - For heading_match, use "headingOptions" and only use it when the choices are actual heading texts, not paragraph letters.
+   - For heading_match, roman numerals such as i, ii, iii, iv, v are display labels only. Store clean heading text in "headingOptions"; never include "i.", "ii.", "iii.", etc. inside the option strings.
+   - Example: if the raw list says "i. Historical reasons why interrupted sleep became uncommon", store "Historical reasons why interrupted sleep became uncommon", not "i. Historical reasons why interrupted sleep became uncommon".
    - For heading_match, "instructions" must contain only the task prompt, such as "Choose the correct heading for each section from the list of headings below" and "Write the correct number i-ix in boxes 14-19".
    - For heading_match, NEVER paste the heading list itself into "instructions". The actual heading choices belong only in "headingOptions".
    - For heading_match, if the raw text includes an example such as "Example Answer Paragraph B iii", treat it as an already-filled example heading in the passage. Do not create a numbered question for that paragraph.
@@ -668,6 +670,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     normalizePassageSectionLabelsV2(data);
     restoreHeadingMatchPassageSectionsV2(data, rawText);
     safelyRestoreMatchingInformationPassageLabelsV2(data, rawText);
+    normalizeHeadingMatchGroupsV2(data);
     normalizeSummaryWordBankGroupsV2(data);
     normalizeMatchingFeaturesGroupsV2(data);
     normalizeMatchingEndingsGroupsV2(data);
@@ -732,6 +735,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     normalizePassageSectionLabelsV2(data);
     restoreHeadingMatchPassageSectionsV2(data, rawText);
     safelyRestoreMatchingInformationPassageLabelsV2(data, rawText);
+    normalizeHeadingMatchGroupsV2(data);
     normalizeSummaryWordBankGroupsV2(data);
     normalizeMatchingFeaturesGroupsV2(data);
     normalizeMatchingEndingsGroupsV2(data);
@@ -1077,7 +1081,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
   function extractHeadingMatchExamplesV2(block, headingOptions) {
     const text = normalizeParserTextV2(block);
     const examples = [];
-    const pattern = /\bParagraph\s+([A-Z])\s+([ivxlcdm]+)\b/gi;
+    const pattern = /\b(?:Paragraph|Section)\s+([A-Z])\s+([ivxlcdm]+)\b/gi;
     let match;
 
     while ((match = pattern.exec(text))) {
@@ -1261,6 +1265,40 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
           const section = part.passage.sections.find(item => String(item.heading || '').trim().toUpperCase() === sectionLabel.toUpperCase());
           if (section) section.questionMarker = question.number;
         }
+
+        const assignedCount = part.passage.sections.filter(section => Number.isFinite(Number(section.questionMarker))).length;
+        if (assignedCount > 0) continue;
+
+        const sectionRangeMatch = String(group.instructions || '').match(/\b(?:sections?|paragraphs?)\s+([A-Z])\s*[-–]\s*([A-Z])\b/i);
+        const exampleSectionLabel = (part.passage.sections || [])
+          .find(section => section?.headingExample && /^[A-Z]$/i.test(String(section.heading || '').trim()))
+          ?.heading;
+
+        let targetLabels = [];
+        if (sectionRangeMatch) {
+          const startCode = sectionRangeMatch[1].toUpperCase().charCodeAt(0);
+          const endCode = sectionRangeMatch[2].toUpperCase().charCodeAt(0);
+          for (let code = startCode; code <= endCode; code++) {
+            targetLabels.push(String.fromCharCode(code));
+          }
+        } else {
+          targetLabels = (part.passage.sections || [])
+            .map(section => String(section.heading || '').trim().toUpperCase())
+            .filter(label => /^[A-Z]$/.test(label));
+          if (exampleSectionLabel) {
+            targetLabels = targetLabels.filter(label => label !== String(exampleSectionLabel).trim().toUpperCase());
+          }
+        }
+
+        const filteredSections = (part.passage.sections || []).filter(section =>
+          targetLabels.includes(String(section.heading || '').trim().toUpperCase())
+        );
+
+        if (filteredSections.length !== (group.questions || []).length) continue;
+
+        for (let i = 0; i < filteredSections.length; i++) {
+          filteredSections[i].questionMarker = group.questions[i]?.number ?? null;
+        }
       }
     }
   }
@@ -1297,6 +1335,17 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
         if (group.type !== 'summary_completion' || !Array.isArray(group.options)) continue;
         group.options = group.options
           .map(option => stripWordBankLabelV2(option))
+          .filter(Boolean);
+      }
+    }
+  }
+
+  function normalizeHeadingMatchGroupsV2(data) {
+    for (const part of (data.parts || [])) {
+      for (const group of (part.questionGroups || [])) {
+        if (group.type !== 'heading_match' || !Array.isArray(group.headingOptions)) continue;
+        group.headingOptions = group.headingOptions
+          .map(option => stripHeadingLabelV2(option))
           .filter(Boolean);
       }
     }
@@ -1396,11 +1445,19 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
   }
 
   function stripWordBankLabelV2(option) {
-    return String(option || '').trim().replace(/^[A-Z][\.)]?\s+/, '');
+    return stripChoiceLabelV2(option);
   }
 
   function stripChoiceLabelV2(option) {
-    return String(option || '').trim().replace(/^[A-Z][\.)]?\s+/, '');
+    return String(option || '').trim().replace(/^[A-Z][\.)]?\s+/, '').trim();
+  }
+
+  function stripHeadingLabelV2(option) {
+    return String(option || '')
+      .trim()
+      .replace(/^[ivxlcdm]+[\.)]\s+/i, '')
+      .replace(/^[ivxlcdm]+\s+(?=[A-Z])/, '')
+      .trim();
   }
 
   function extractRepairQuestionGroupsV2(rawText) {

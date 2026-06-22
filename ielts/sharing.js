@@ -66,7 +66,9 @@ const Sharing = (() => {
       throw new Error('Supabase is not available. Check that the Supabase CDN script loaded.');
     }
 
-    const title = data.parts?.[0]?.passage?.title || 'Untitled IELTS Reading Test';
+    const title = data?.mode === 'writing'
+      ? 'Untitled IELTS Writing Test'
+      : data.parts?.[0]?.passage?.title || 'Untitled IELTS Reading Test';
     const payload = { title, test_data: data };
 
     try {

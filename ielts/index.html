@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IELTS Reading Practice Generator</title>
+  <title>IELTS Practice Generator</title>
   <meta name="description"
-    content="Paste raw IELTS reading passages and questions, let AI parse them, and practice in a realistic test interface." />
-  <meta property="og:title" content="IELTS Reading Practice Generator | respirable" />
+    content="Generate realistic IELTS Reading and Writing practice tests from your own prompts and passages." />
+  <meta property="og:title" content="IELTS Practice Generator | respirable" />
   <meta property="og:description"
-    content="Paste raw IELTS text, let AI parse it, and instantly generate a real exam interface." />
+    content="Build Reading and Writing practice tests in a realistic IELTS-style interface." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/ielts-bg.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -31,61 +31,169 @@
         respirable
       </a>
 
-      <h1 class="input-title">IELTS Reading Practice Generator</h1>
-      <p class="input-subtitle">
+      <h1 id="input-title" class="input-title">IELTS Reading Practice Generator</h1>
+      <p id="input-subtitle" class="input-subtitle">
         Paste your raw passage and question set, add a diagram if the task needs one, and generate a shareable practice
         interface. <b>[SUPER EARLY BETA. MANY FUNCTIONS WILL NOT WORK PROPERLY, AS THE PARSER PROMPT ISN'T OPTIMIZED
           ENOUGH.]</b>
       </p>
 
+      <div class="mode-selector">
+        <button id="mode-reading-btn" type="button" class="mode-btn active"
+          onclick="switchPracticeMode('reading')">Reading</button>
+        <button id="mode-writing-btn" type="button" class="mode-btn"
+          onclick="switchPracticeMode('writing')">Writing</button>
+      </div>
+
       <div id="validation-feedback" class="validation-feedback validation-error" style="display:none;">
         <div class="validation-message"></div>
       </div>
 
-      <div class="input-field-group">
-        <label for="raw-input" class="input-label">Raw IELTS Text</label>
-        <textarea id="raw-input" class="raw-textarea" rows="16"
-          placeholder="Paste your IELTS reading passage and questions here..."></textarea>
-      </div>
-
-      <div class="input-field-group">
-        <label for="diagram-upload" class="input-label">Diagram Uploads</label>
-        <input id="diagram-upload" class="config-input" type="file" accept="image/*" multiple
-          onchange="handleDiagramUpload(event)" />
-        <div id="diagram-upload-status" class="share-feedback" style="display:none;"></div>
-      </div>
-
-      <div class="config-row">
-        <div class="config-field">
-          <label for="ai-provider" class="input-label">AI Provider</label>
-          <select id="ai-provider" class="config-select">
-            <option value="groq" selected>Groq</option>
-            <option value="openai">OpenAI</option>
-            <option value="gemini">Gemini</option>
-          </select>
+      <div id="reading-menu-panel" class="practice-menu-panel active">
+        <div class="input-field-group">
+          <label for="raw-input" class="input-label">Raw IELTS Text</label>
+          <textarea id="raw-input" class="raw-textarea" rows="16"
+            placeholder="Paste your IELTS reading passage and questions here..."></textarea>
         </div>
-        <div class="config-field config-field--grow">
-          <label for="api-key" class="input-label">API Key</label>
-          <input id="api-key" class="config-input" type="password" autocomplete="off"
-            placeholder="Paste the API key for the selected provider" />
+
+        <div class="input-field-group">
+          <label for="diagram-upload" class="input-label">Diagram Uploads</label>
+          <input id="diagram-upload" class="config-input" type="file" accept="image/*" multiple
+            onchange="handleDiagramUpload(event)" />
+          <div id="diagram-upload-status" class="share-feedback" style="display:none;"></div>
+        </div>
+
+        <div class="config-row">
+          <div class="config-field">
+            <label for="ai-provider" class="input-label">AI Provider</label>
+            <select id="ai-provider" class="config-select">
+              <option value="groq" selected>Groq</option>
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </div>
+          <div class="config-field config-field--grow">
+            <label for="api-key" class="input-label">API Key</label>
+            <input id="api-key" class="config-input" type="password" autocomplete="off"
+              placeholder="Paste the API key for the selected provider" />
+          </div>
+        </div>
+
+        <label class="config-checkbox">
+          <input type="checkbox" id="auto-answer-key" checked />
+          <span>Generate answer keys automatically if none are detected</span>
+        </label>
+
+        <label class="config-checkbox">
+          <input type="checkbox" id="emergency-score-enabled" onchange="toggleEmergencyScorePinInput()" />
+          <span>Enable Emergency Score Viewer (Allows you/users to see your score immediately via a 6-8 digit PIN that
+            you generated)</span>
+        </label>
+
+        <div id="emergency-score-pin-row" class="emergency-pin-row" style="display:none;">
+          <label for="emergency-score-pin" class="input-label">Emergency score PIN</label>
+          <input id="emergency-score-pin" class="config-input" type="password" inputmode="numeric" autocomplete="off"
+            maxlength="8" pattern="[0-9]{6,8}" placeholder="Enter a 6-8 digit PIN" />
+        </div>
+
+        <div class="action-row">
+          <button id="btn-parse" class="btn-primary" type="button" onclick="handleParse()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+            Parse and Generate Test
+          </button>
+          <button id="btn-reading-demo" class="btn-secondary" type="button" onclick="handleDemo()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Test Demo
+          </button>
         </div>
       </div>
 
-      <label class="config-checkbox">
-        <input type="checkbox" id="auto-answer-key" checked />
-        <span>Generate answer keys automatically if none are detected</span>
-      </label>
+      <div id="writing-menu-panel" class="practice-menu-panel">
+        <div class="task-input-section">
+          <label for="writing-task1-input" class="input-label">Task 1 Question</label>
+          <textarea id="writing-task1-input" class="raw-textarea" rows="6"
+            placeholder="Paste your Writing Task 1 question here..."></textarea>
 
-      <div class="action-row">
-        <button id="btn-parse" class="btn-primary" type="button" onclick="handleParse()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-            <path d="M2 17l10 5 10-5"></path>
-            <path d="M2 12l10 5 10-5"></path>
-          </svg>
-          Parse and Generate Test
-        </button>
+          <label for="writing-task1-diagram" class="input-label writing-diagram-label">Task 1 Diagram</label>
+          <div id="writing-task1-drop-zone" class="diagram-drop-zone">
+            <input id="writing-task1-diagram" class="config-input" type="file" accept="image/*"
+              onchange="handleWritingTask1ImageUpload(event)" />
+            <div id="writing-task1-drop-hint" class="drop-hint">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <span>Drop the Task 1 diagram here, or choose an image.</span>
+            </div>
+            <img id="writing-task1-preview" class="diagram-preview" style="display:none;"
+              alt="Task 1 diagram preview" />
+          </div>
+        </div>
+
+        <div class="task-input-section">
+          <label for="writing-task2-input" class="input-label">Task 2 Question</label>
+          <textarea id="writing-task2-input" class="raw-textarea" rows="6"
+            placeholder="Paste your Writing Task 2 question here..."></textarea>
+        </div>
+
+        <details class="ai-config-details">
+          <summary class="ai-config-summary">AI formatting <span class="label-hint">(optional - cleans up question
+              text)</span></summary>
+          <div class="config-row writing-ai-row">
+            <div class="config-field">
+              <label for="writing-ai-provider" class="input-label">AI Provider</label>
+              <select id="writing-ai-provider" class="config-select">
+                <option value="groq" selected>Groq</option>
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Gemini</option>
+              </select>
+            </div>
+            <div class="config-field config-field--grow">
+              <label for="writing-api-key" class="input-label">API Key</label>
+              <input id="writing-api-key" class="config-input" type="password" autocomplete="off"
+                placeholder="Paste the API key for optional question cleanup" />
+            </div>
+          </div>
+        </details>
+
+        <label class="config-checkbox emergency-score-toggle">
+          <input id="writing-speed-timer-enabled" type="checkbox" onchange="toggleWritingSpeedTimerPinInput()" />
+          <span>Enable Writing Timer Speed-up (Allows you/users to speed up the timer via a 6-8 digit PIN that you
+            generated)</span>
+        </label>
+        <div id="writing-speed-timer-pin-row" class="emergency-pin-row" style="display:none;">
+          <label for="writing-speed-timer-pin" class="input-label">Writing speed-up PIN</label>
+          <input id="writing-speed-timer-pin" class="config-input" type="password" inputmode="numeric"
+            autocomplete="off" maxlength="8" placeholder="6-8 digit PIN" />
+        </div>
+
+        <div class="action-row">
+          <button id="btn-writing-generate" class="btn-primary" type="button" onclick="handleWritingGenerate()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            Generate Writing Test
+          </button>
+          <button id="btn-writing-demo" class="btn-secondary" type="button" onclick="handleWritingDemo()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Test Demo
+          </button>
+        </div>
       </div>
 
       <div id="loading-overlay" class="loading-overlay" style="display:none;">
@@ -98,11 +206,24 @@
 
   <div id="test-view" class="test-view" style="display:none;">
     <header class="ielts-header">
-      <div id="timer-display" class="timer-display">0 minutes, 00 seconds remaining</div>
+      <div class="ielts-header-center">
+        <span id="timer-display" class="timer-display">60 minutes remaining</span>
+      </div>
+
       <div class="ielts-header-right">
-        <button class="header-icon-btn" type="button" onclick="handleShare()" aria-label="Share test">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <button class="header-icon-btn" type="button" aria-label="Signal status" title="Connected">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h.01"></path>
+            <path d="M8.5 16.5a5 5 0 0 1 7 0"></path>
+            <path d="M5 13a10 10 0 0 1 14 0"></path>
+            <path d="M1.5 9.5a15 15 0 0 1 21 0"></path>
+          </svg>
+        </button>
+        <button id="share-test-button" class="header-icon-btn" type="button" onclick="handleShare()"
+          aria-label="Share test" title="Share Test">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
             <circle cx="18" cy="5" r="3"></circle>
             <circle cx="6" cy="12" r="3"></circle>
             <circle cx="18" cy="19" r="3"></circle>
@@ -110,9 +231,10 @@
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
           </svg>
         </button>
-        <button class="header-icon-btn" type="button" onclick="openOptionsMenu()" aria-label="Open options">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <button class="header-icon-btn" type="button" onclick="openOptionsMenu()" aria-label="Open options"
+          title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <line x1="3" y1="12" x2="21" y2="12"></line>
             <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -121,12 +243,12 @@
       </div>
     </header>
 
-    <div class="part-header">
+    <div id="reading-part-header" class="part-header reading-test-section">
       <span id="part-label" class="part-label">Part 1</span>
       <span id="part-instruction" class="part-instruction"></span>
     </div>
 
-    <div class="split-pane">
+    <div id="reading-split-pane" class="split-pane reading-test-section">
       <section id="passage-panel" class="passage-panel">
         <div class="passage-toolbar">
           <button class="help-btn" type="button" onclick="Renderer.clearAnnotations()">Clear</button>
@@ -142,7 +264,7 @@
       </section>
     </div>
 
-    <div class="bottom-nav">
+    <div id="reading-bottom-nav" class="bottom-nav reading-test-section">
       <div id="nav-parts" class="nav-parts"></div>
       <div id="nav-questions" class="nav-questions"></div>
       <div class="nav-arrows">
@@ -156,10 +278,45 @@
             <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"></path>
           </svg>
         </button>
-        <button class="nav-submit-btn" type="button" onclick="Renderer.checkAnswers()" aria-label="Check answers">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="20 6 9 17 4 12"></polyline>
+      </div>
+    </div>
+
+    <div id="writing-part-header" class="part-header writing-test-section" style="display:none;">
+      <span id="writing-part-label" class="part-label">Writing Task 1</span>
+      <span id="writing-part-instruction" class="part-instruction">You should spend about 20 minutes on this
+        task.</span>
+    </div>
+
+    <div id="writing-split-pane" class="split-pane writing-test-section writing-split-pane" style="display:none;">
+      <section id="writing-prompt-panel" class="passage-panel writing-prompt-panel">
+        <div id="writing-prompt-content" class="passage-content writing-prompt-content"></div>
+      </section>
+
+      <div id="writing-pane-resizer" class="pane-resizer" aria-hidden="true"></div>
+
+      <section id="writing-response-panel" class="questions-panel writing-response-panel">
+        <div class="questions-content writing-response-content">
+          <textarea id="writing-area" class="writing-area" placeholder="Type your response here..." spellcheck="false"
+            autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          <div class="writing-inline-word-count">
+            Word count: <span id="writing-word-count" class="word-count-num">0</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="writing-bottom-nav" class="bottom-nav writing-test-section writing-bottom-nav" style="display:none;">
+      <div id="writing-task-nav" class="nav-parts"></div>
+      <div class="nav-questions writing-word-count"></div>
+      <div class="nav-arrows">
+        <button class="nav-arrow-btn" type="button" onclick="navigateWritingPrev()" aria-label="Previous writing task">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+          </svg>
+        </button>
+        <button class="nav-arrow-btn" type="button" onclick="navigateWritingNext()" aria-label="Next writing task">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"></path>
           </svg>
         </button>
       </div>
@@ -240,6 +397,39 @@
             </svg>
           </span>
         </button>
+
+        <button id="emergency-score-option" class="options-row" type="button" onclick="openEmergencyScoreModal()"
+          style="display:none;">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 12l2 2 4-4"></path>
+              <path d="M12 3l7 4v5c0 4.5-2.8 7.7-7 9-4.2-1.3-7-4.5-7-9V7l7-4z"></path>
+            </svg>
+          </span>
+          <span>Check score immediately</span>
+          <span class="options-value">PIN required</span>
+          <span class="options-arrow">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </button>
+
+        <button id="writing-speed-timer-option" class="options-row" type="button" onclick="openWritingSpeedTimerModal()"
+          style="display:none;">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M13 2L4 14h7l-1 8 10-13h-7l1-7z"></path>
+            </svg>
+          </span>
+          <span>Speed up timer</span>
+          <span class="options-value">PIN required</span>
+          <span class="options-arrow">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </button>
       </div>
     </div>
 
@@ -247,19 +437,19 @@
       <h2>Contrast</h2>
       <div class="options-choice-list">
         <button class="options-choice" type="button" data-contrast-choice="normal" onclick="setContrastMode('normal')">
-          <span class="options-check">✓</span>
+          <span class="choice-check">✓</span>
           <span>Black on white</span>
           <span class="options-preview options-preview-normal"></span>
         </button>
         <button class="options-choice" type="button" data-contrast-choice="white-black"
           onclick="setContrastMode('white-black')">
-          <span class="options-check">✓</span>
+          <span class="choice-check">✓</span>
           <span>White on black</span>
           <span class="options-preview options-preview-dark"></span>
         </button>
         <button class="options-choice" type="button" data-contrast-choice="yellow-black"
           onclick="setContrastMode('yellow-black')">
-          <span class="options-check">✓</span>
+          <span class="choice-check">✓</span>
           <span>Yellow on black</span>
           <span class="options-preview options-preview-yellow"></span>
         </button>
@@ -270,17 +460,17 @@
       <h2>Text size</h2>
       <div class="options-choice-list">
         <button class="options-choice" type="button" data-text-size-choice="normal" onclick="setTextSizeMode('normal')">
-          <span class="options-check">✓</span>
+          <span class="choice-check">✓</span>
           <span>Regular</span>
           <span></span>
         </button>
         <button class="options-choice" type="button" data-text-size-choice="large" onclick="setTextSizeMode('large')">
-          <span class="options-check">✓</span>
+          <span class="choice-check">✓</span>
           <span>Large</span>
           <span></span>
         </button>
         <button class="options-choice" type="button" data-text-size-choice="xlarge" onclick="setTextSizeMode('xlarge')">
-          <span class="options-check">✓</span>
+          <span class="choice-check">✓</span>
           <span>Extra large</span>
           <span></span>
         </button>
@@ -289,18 +479,55 @@
   </div>
 
   <div id="share-modal" class="modal-overlay" style="display:none;" onclick="closeShareModal(event)">
-    <div class="modal-content">
+    <div class="modal-content share-modal-content">
       <div class="modal-header">
-        <h3>Share Test</h3>
-        <button class="modal-close" type="button" onclick="closeShareModal(event)"
-          aria-label="Close share modal">x</button>
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          Share Test
+        </h3>
+        <button class="modal-close" type="button" onclick="closeShareModal(event)" aria-label="Close share modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
       <div class="modal-body">
         <div class="share-option">
-          <h4>Share via link</h4>
-          <p class="share-desc">Save the parsed test to Supabase and copy a short share link to your clipboard.</p>
-          <button class="btn-share" type="button" onclick="shareViaSupabase()">Create Share Link</button>
-          <div id="share-supabase-feedback" class="share-feedback" style="display:none;">Link copied to clipboard.</div>
+          <div class="share-option-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+          </div>
+          <div class="share-option-body">
+            <h4>Share via link</h4>
+            <p class="share-desc">Save the parsed test to Supabase and copy a short share link to your clipboard.</p>
+            <button class="btn-share" type="button" onclick="shareViaSupabase()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+              Create Share Link
+            </button>
+            <div id="share-supabase-feedback" class="share-feedback" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Link copied to clipboard!
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -314,6 +541,59 @@
           aria-label="Close answer key">x</button>
       </div>
       <div id="answer-key-content" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="emergency-score-modal" class="modal-overlay" style="display:none;" onclick="closeEmergencyScoreModal(event)">
+    <div class="modal-content emergency-score-content">
+      <div class="modal-header">
+        <h3>Emergency Score Viewer</h3>
+        <button class="modal-close" type="button" onclick="closeEmergencyScoreModal(event)"
+          aria-label="Close emergency score viewer">x</button>
+      </div>
+      <div class="modal-body">
+        <p class="emergency-score-desc">Enter the 6-8 digit PIN created for this test.</p>
+        <input id="emergency-score-pin-check" class="config-input" type="password" inputmode="numeric"
+          autocomplete="off" maxlength="8" placeholder="PIN" />
+        <div id="emergency-score-error" class="emergency-score-error" style="display:none;"></div>
+        <div class="emergency-score-actions">
+          <button class="btn-tertiary" type="button" onclick="closeEmergencyScoreModal()">Cancel</button>
+          <button class="btn-primary" type="button" onclick="submitEmergencyScorePin()">View Score</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="writing-speed-timer-modal" class="modal-overlay" style="display:none;"
+    onclick="closeWritingSpeedTimerModal(event)">
+    <div class="modal-content emergency-score-content">
+      <div class="modal-header">
+        <h3>Speed Up Timer</h3>
+        <button class="modal-close" type="button" onclick="closeWritingSpeedTimerModal(event)"
+          aria-label="Close timer speed-up">x</button>
+      </div>
+      <div class="modal-body">
+        <div id="writing-speed-pin-panel">
+          <p class="emergency-score-desc">Enter the 6-8 digit PIN created for this writing test.</p>
+          <input id="writing-speed-pin-check" class="config-input" type="password" inputmode="numeric"
+            autocomplete="off" maxlength="8" placeholder="PIN" />
+          <div id="writing-speed-error" class="emergency-score-error" style="display:none;"></div>
+          <div class="emergency-score-actions">
+            <button class="btn-tertiary" type="button" onclick="closeWritingSpeedTimerModal()">Cancel</button>
+            <button class="btn-primary" type="button" onclick="submitWritingSpeedTimerPin()">Continue</button>
+          </div>
+        </div>
+        <div id="writing-speed-choice-panel" style="display:none;">
+          <p class="emergency-score-desc">Choose how much faster the writing timer should run.</p>
+          <div class="speed-choice-grid">
+            <button class="speed-choice-btn" type="button" onclick="applyWritingTimerSpeed(3)">3x</button>
+            <button class="speed-choice-btn" type="button" onclick="applyWritingTimerSpeed(5)">5x</button>
+            <button class="speed-choice-btn" type="button" onclick="applyWritingTimerSpeed(10)">10x</button>
+            <button class="speed-choice-btn" type="button" onclick="applyWritingTimerSpeed(20)">20x</button>
+            <button class="speed-choice-btn" type="button" onclick="applyWritingTimerSpeed(30)">30x</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -337,6 +617,7 @@
   <script src="./parser.js"></script>
   <script src="./renderer.js"></script>
   <script src="./sharing.js"></script>
+  <div id="toast-container" class="toast-container"></div>
   <script src="./app.js"></script>
 </body>
 

@@ -10,6 +10,7 @@ const Renderer = (() => {
   let timerInterval = null;
   let timerSeconds = 0;
   let timerPaused = false;
+  let lastTimerTickAt = 0;
   let passageSnapshots = {};
   let passageNotes = {};
   let noteCounter = 0;
@@ -29,6 +30,7 @@ const Renderer = (() => {
     stopTimer();
     timerSeconds = numParts * 20 * 60; // 20 minutes per passage
     timerPaused = false;
+    lastTimerTickAt = Date.now();
     updateTimerDisplay();
     startTimerInterval();
   }
@@ -36,8 +38,15 @@ const Renderer = (() => {
   function startTimerInterval() {
     stopTimer();
     timerInterval = setInterval(() => {
-      if (timerPaused) return;
-      timerSeconds--;
+      if (timerPaused) {
+        lastTimerTickAt = Date.now();
+        return;
+      }
+      const now = Date.now();
+      const elapsedSeconds = Math.floor((now - lastTimerTickAt) / 1000);
+      if (elapsedSeconds <= 0) return;
+      lastTimerTickAt += elapsedSeconds * 1000;
+      timerSeconds = Math.max(0, timerSeconds - elapsedSeconds);
       if (timerSeconds <= 0) {
         timerSeconds = 0;
         stopTimer();
@@ -71,15 +80,18 @@ const Renderer = (() => {
 
   function resumeTimer() {
     timerPaused = false;
+    lastTimerTickAt = Date.now();
     updateTimerDisplay();
   }
+
+  let activeQuestionLabel = null;
 
   function updateTimerDisplay() {
     const el = document.getElementById('timer-display');
     if (!el) return;
     const mins = Math.floor(timerSeconds / 60);
     const secs = timerSeconds % 60;
-    el.textContent = `${mins} minutes, ${secs < 10 ? '0' : ''}${secs} seconds remaining`;
+    el.textContent = `${mins} minutes, ${secs.toString().padStart(2, '0')} seconds remaining`;
     el.classList.remove('warning', 'danger', 'paused');
     if (timerSeconds <= 120) {
       el.classList.add('danger');
@@ -114,6 +126,16 @@ const Renderer = (() => {
     const part = testData.parts[index];
     if (!part) return;
 
+    let firstNum = null;
+    if (part.questionGroups && part.questionGroups.length > 0) {
+      const firstGroup = part.questionGroups[0];
+      if (firstGroup.questions && firstGroup.questions.length > 0) {
+        const firstQ = firstGroup.questions[0];
+        firstNum = getQuestionLabel(firstQ);
+      }
+    }
+    activeQuestionLabel = firstNum;
+
     document.getElementById('part-label').textContent = `Part ${part.partNumber}`;
     document.getElementById('part-instruction').textContent =
       `Read the text and answer questions ${part.questionRange}.`;
@@ -121,8 +143,6 @@ const Renderer = (() => {
     renderPassage(part);
 
     renderQuestions(part.questionGroups);
-
-    updateNavHighlights();
 
     restoreAnswers();
 
@@ -158,11 +178,10 @@ const Renderer = (() => {
             ${savedAnswer ? `<button class="slot-clear" onclick="Renderer.clearSlot(${qNum}, event)">&times;</button>` : ''}
           </div>`;
       } else if (hasHeadingMatch && section.headingExample) {
-        const label = section.headingExample.label ? `${section.headingExample.label} ` : '';
         html += `
           <div class="heading-drop-zone heading-example-zone" aria-label="Example heading">
             <span class="slot-num">Example</span>
-            <span class="slot-heading">${esc(label)}${esc(section.headingExample.text || '')}</span>
+            <span class="slot-heading">${esc(section.headingExample.text || '')}</span>
           </div>`;
       } else if (section.heading) {
         html += `<h3>${esc(section.heading)}</h3>`;
@@ -599,24 +618,22 @@ const Renderer = (() => {
   }
 
   function renderHeadingMatch(group) {
-    let html = '<div class="heading-list">';
-    html += '<div class="heading-label">List of Headings</div>';
+    let html = '<div class="heading-list heading-match-list">';
 
-    const options = group.headingOptions || [];
+    const options = (group.headingOptions || []).map(normalizeHeadingOption).filter(Boolean);
+    group.headingOptions = options;
     const assigned = new Set(Object.values(answers));
 
-    for (const opt of options) {
+    for (let i = 0; i < options.length; i++) {
+      const opt = options[i];
       const isAssigned = assigned.has(opt);
       const displayStyle = isAssigned ? 'display: none;' : '';
       html += `
         <div class="heading-pill" draggable="true" ondragstart="Renderer.dragHeading(event)" data-text="${esc(opt)}" style="${displayStyle}">
-          <div class="pill-indicator">|||</div>
           <span>${esc(opt)}</span>
         </div>`;
     }
     html += '</div>';
-
-    html += '<p style="font-size:0.85rem; color:var(--muted); font-style:italic;">Drag headings to the passage drop boxes on the left panel.</p>';
     return html;
   }
 
@@ -869,12 +886,11 @@ const Renderer = (() => {
       const savedText = optionIndex >= 0 ? options[optionIndex] : '';
 
       html += `<div class="matching-ending-question" data-q-item="${q.number}">
-        <div class="matching-ending-stem">${esc(q.stem || q.statement || '')}
-          <span class="matching-ending-slot ${savedLetter ? 'filled' : ''}" data-q="${q.number}"
-            ondragover="Renderer.allowDrop(event)" ondragleave="Renderer.dragLeave(event)" ondrop="Renderer.dropMatchingEnding(event)">
-            <span class="matching-ending-slot-text">${savedLetter ? `${esc(savedLetter)}. ${esc(savedText)}` : esc(String(q.number))}</span>
-            ${savedLetter ? `<button class="slot-clear" onclick="Renderer.clearMatchingEnding(${q.number}, event)">&times;</button>` : ''}
-          </span>
+        <div class="matching-ending-stem">${esc(q.stem || q.statement || '')}</div>
+        <div class="matching-ending-slot ${savedLetter ? 'filled' : ''}" data-q="${q.number}"
+          ondragover="Renderer.allowDrop(event)" ondragleave="Renderer.dragLeave(event)" ondrop="Renderer.dropMatchingEnding(event)">
+          <span class="matching-ending-slot-text">${savedLetter ? esc(savedText) : esc(String(q.number))}</span>
+          ${savedLetter ? `<button class="slot-clear" onclick="Renderer.clearMatchingEnding(${q.number}, event)">&times;</button>` : ''}
         </div>
       </div>`;
     }
@@ -885,7 +901,6 @@ const Renderer = (() => {
       const displayStyle = assignedLetters.has(letter) ? 'display:none;' : '';
       html += `<div class="matching-ending-pill" draggable="true" ondragstart="Renderer.dragMatchingEnding(event)"
         data-letter="${letter}" data-text="${esc(options[i])}" style="${displayStyle}">
-        <span class="matching-ending-letter">${letter}</span>
         <span>${esc(options[i])}</span>
       </div>`;
     }
@@ -895,6 +910,13 @@ const Renderer = (() => {
 
   function normalizeChoiceLabel(value) {
     return String(value || '').trim().replace(/^[A-Z][\.)]?\s+/, '');
+  }
+
+  function normalizeHeadingOption(value) {
+    return String(value || '')
+      .trim()
+      .replace(/^[ivxlcdm]+[\.)]\s+/i, '')
+      .replace(/^[ivxlcdm]+\s+(?=[A-Z])/, '');
   }
 
   function renderDiagramCompletion(group) {
@@ -1136,13 +1158,31 @@ const Renderer = (() => {
 
     for (const group of (part.questionGroups || [])) {
       for (const q of (group.questions || [])) {
-        const label = q.numbers || q.number;
-        const activeClass = '';
+        const label = getQuestionLabel(q);
+        const activeClass = String(label) === String(activeQuestionLabel) ? ' active' : '';
         const answeredClass = answers[label] ? ' answered' : '';
         html += `<button class="nav-q-btn${answeredClass}" id="nav-q-${label}" onclick="Renderer.scrollToQuestion('${label}')">${label}</button>`;
       }
     }
     questionsEl.innerHTML = html;
+  }
+
+  function getQuestionLabel(question) {
+    return String(question?.numbers || question?.number || '').trim();
+  }
+
+  function getQuestionSequence() {
+    const sequence = [];
+    for (let partIndex = 0; partIndex < (testData?.parts || []).length; partIndex++) {
+      const part = testData.parts[partIndex];
+      for (const group of (part.questionGroups || [])) {
+        for (const question of (group.questions || [])) {
+          const label = getQuestionLabel(question);
+          if (label) sequence.push({ partIndex, label });
+        }
+      }
+    }
+    return sequence;
   }
 
   function countQuestions(part) {
@@ -1192,11 +1232,34 @@ const Renderer = (() => {
   }
 
   function navigatePrev() {
-    goToPart(currentPartIndex - 1);
+    navigateQuestionByOffset(-1);
   }
 
   function navigateNext() {
-    goToPart(currentPartIndex + 1);
+    navigateQuestionByOffset(1);
+  }
+
+  function navigateQuestionByOffset(offset) {
+    const sequence = getQuestionSequence();
+    if (sequence.length === 0) return;
+
+    let index = sequence.findIndex(item =>
+      item.partIndex === currentPartIndex && String(item.label) === String(activeQuestionLabel)
+    );
+
+    if (index === -1) {
+      index = sequence.findIndex(item => item.partIndex === currentPartIndex);
+    }
+
+    const nextIndex = Math.max(0, Math.min(sequence.length - 1, index + offset));
+    const target = sequence[nextIndex];
+    if (!target) return;
+
+    if (target.partIndex !== currentPartIndex) {
+      renderPart(target.partIndex);
+      renderBottomNav();
+    }
+    scrollToQuestion(target.label);
   }
 
   function updateNavHighlights() {
@@ -1290,7 +1353,7 @@ const Renderer = (() => {
 
     answers[qNum] = payload.letter;
     ev.currentTarget.classList.add('filled');
-    ev.currentTarget.querySelector('.matching-ending-slot-text').textContent = `${payload.letter}. ${payload.text}`;
+    ev.currentTarget.querySelector('.matching-ending-slot-text').textContent = payload.text;
 
     if (!ev.currentTarget.querySelector('.slot-clear')) {
       const btn = document.createElement('button');
@@ -1523,6 +1586,8 @@ const Renderer = (() => {
   }
 
   function scrollToQuestion(label) {
+    activeQuestionLabel = String(label || '').trim();
+    renderQuestionNav();
     const el = document.querySelector(`[data-q-item="${label}"]`);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1584,6 +1649,23 @@ const Renderer = (() => {
     if (window.IELTSApp?.showResultModal) {
       window.IELTSApp.showResultModal({ score, total, warningMessage });
     }
+  }
+
+  function getScoreSnapshot() {
+    if (!testData?.answerKey || Object.keys(testData.answerKey).length === 0) {
+      return { score: 0, total: 0, hasAnswerKey: false };
+    }
+
+    let score = 0;
+    let total = 0;
+    for (const entry of getAnswerKeyEntries()) {
+      total++;
+      if (isAnswerKeyEntryCorrect(entry)) {
+        score++;
+      }
+    }
+
+    return { score, total, hasAnswerKey: true };
   }
 
   function applyValidationStyling() {
@@ -1717,8 +1799,7 @@ const Renderer = (() => {
   function getHeadingCorrectDisplay(key, correctValue) {
     const option = getHeadingOptionForCorrectAnswer(key, correctValue);
     if (!option) return '';
-    const raw = String(correctValue || '').trim();
-    return raw ? `${raw}. ${option}` : option;
+    return option;
   }
 
   function getHeadingOptionForCorrectAnswer(key, correctValue) {
@@ -1768,6 +1849,24 @@ const Renderer = (() => {
       total += current < next ? -current : current;
     }
     return total;
+  }
+
+  function numberToRoman(value) {
+    const map = [
+      ['m', 1000], ['cm', 900], ['d', 500], ['cd', 400],
+      ['c', 100], ['xc', 90], ['l', 50], ['xl', 40],
+      ['x', 10], ['ix', 9], ['v', 5], ['iv', 4], ['i', 1]
+    ];
+    let num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) return String(value || '');
+    let result = '';
+    for (const [roman, amount] of map) {
+      while (num >= amount) {
+        result += roman;
+        num -= amount;
+      }
+    }
+    return result;
   }
 
   function getGroupedCorrectDisplays(entries) {
@@ -2029,6 +2128,7 @@ const Renderer = (() => {
     clearMatchingEnding,
     scrollToQuestion,
     checkAnswers,
+    getScoreSnapshot,
     showAnswerKeyModal,
     highlightSelection,
     addNoteToSelection,
@@ -2038,6 +2138,7 @@ const Renderer = (() => {
     clearAnnotations,
     navigatePrev,
     navigateNext,
+    stopTimer,
     pauseTimer,
     resumeTimer
   };

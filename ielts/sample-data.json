@@ -1,43 +1,54 @@
 {
   "parts": [
     {
-      "partNumber": 2,
-      "questionRange": "14-26",
+      "partNumber": 1,
+      "questionRange": "1-13",
       "passage": {
-        "title": "The Physics of Traffic Behavior",
+        "title": "The Demo Passage Applies for a Real Job",
         "sections": [
           {
-            "heading": null,
+            "heading": "A",
             "paragraphs": [
-              "Some years ago, when several theoretical physicists, principally Dirk Helbing and Boris Kerner of Stuttgart, Germany, began publishing papers on traffic flow in publications normally read by traffic engineers, they were clearly working outside their usual sphere of investigation. They had noticed that if they simulated the movement of vehicles on a highway, using the equations that describe how the molecules of a gas move, some very strange results emerged. Of course, vehicles do not behave exactly like gas molecules: for example, drivers try to avoid collisions by slowing down when they get too near another vehicle, whereas gas molecules have no such concern. However, the physicists modified the equations to take the differences into account and the overall description of traffic as a flowing gas has proved to be a very good one; the moving-gas model of traffic reproduces many phenomena seen in real-world traffic."
+              "I should begin by admitting that I am not a real IELTS passage. I am a demo passage made by some chatbot named ChatGPT because @respirable is just a lazy-ahh person refusing to make 2400 words worth of passages. Now I'm wearing a formal title and hoping nobody notices the cardboard scenery. My paragraphs have been arranged into sections, my claims sound faintly academic, and my main occupation is helping users press buttons without risking an actual test score. I have no fieldwork, no bibliography and no elderly expert who remembers the old days with suspicious clarity. Nevertheless, I have adopted the posture of research, because readers expect passages to sound as if they have recently left a conference. If my introduction seems overconfident, please remember that I was born in a JSON file and therefore developed self-importance before developing life experience. I also know that a proper reading passage should have enough length to make scrolling feel intentional, so I have expanded my thoughts with the dignity of a paragraph trying to look employable."
             ],
-            "questionMarker": 14
+            "questionMarker": null,
+            "headingExample": {
+              "label": "",
+              "text": "A passage confesses its artificial nature"
+            }
           },
           {
-            "heading": null,
+            "heading": "B",
             "paragraphs": [
-              "The strangest thing that came out of these equations, however, was the implication that congestion can arise completely spontaneously; no external causes are necessary. Vehicles can be flowing freely along, at a density still well below what the road can handle, and then suddenly gel into a slow moving ooze. Under the right conditions a brief and local fluctuation in the speed or the distance between vehicles is all it takes to trigger a system-wide breakdown that persists for hours. In fact, the physicists' analysis suggested such spontaneous breakdowns in traffic flow probably occur quite frequently on highways."
+              "Like many applicants with suspiciously polished resumes, I claim to have transferable skills. I can host matching headings, tolerate highlights, and survive being dragged around by a mouse. I also remain calm when a candidate clicks the wrong option three times and then looks at me as if I personally invented confusion. My cover letter says that I am adaptable, which in demo language means I can be stretched across a split pane without complaining. I have worked with timers, pop-up menus, answer boxes and users who think every blank should accept the word 'banana' until proven otherwise. If necessary, I can even pretend that being scrolled past at high speed is a form of professional recognition. I have not yet mastered sincerity, but I can simulate it by mentioning resilience, flexibility and a willingness to learn from feedback delivered entirely through bug reports."
             ],
-            "questionMarker": null
+            "questionMarker": 1
           },
           {
-            "heading": "Dramatic effects can result from small changes in traffic just as in nature",
+            "heading": "C",
             "paragraphs": [
-              "Though a decidedly unsettling discovery, this showed striking similarities to the phenomena popularized as 'chaos theory'. This theory has arisen from the understanding that in any complex interacting system which is made of many parts, each part affects the others. Consequently, tiny variations in one part of a complex system can grow in huge but unpredictable ways. This type of dramatic change from one state to another is similar to what happens when a chemical substance changes from a vapor to a liquid. It often happens that water in a cloud remains as a gas even after its temperature and density have reached the point where it could condense into water droplets. However if the vapor encounters a solid surface, even something as small as a speck of dust, condensation can take place and the transition from vapor to liquid begins."
+              "My greatest weakness is that I know exactly why I exist. I was not discovered in a dusty journal or produced by a committee of scholars wearing severe glasses. I was assembled to prove that the interface works: timers tick, answer boxes accept text, and the bottom navigation behaves as if it attended a short course in manners. This self-knowledge is both liberating and embarrassing. On the one hand, I never have to support a grand theory about civilisation, memory or rainfall. On the other, I must stand patiently while every feature takes a turn using me as exercise equipment. I am less a text than a gymnasium for buttons, and I have made peace with that. If the highlight tool needs a paragraph, I provide one; if the matching table needs a victim, I smile bravely and become sortable evidence."
             ],
-            "questionMarker": null
+            "questionMarker": 2
           },
           {
-            "heading": "An unexpected effect of minor fluctuations",
+            "heading": "D",
             "paragraphs": [
-              "Helbing and Kerner's finding that traffic flow could shift suddenly from free flow to congestion, without any apparent external trigger, was surprising and troubling in equal measure. It meant that the traditional approach to traffic management — identifying and removing bottlenecks — could only go so far. Even on a perfectly designed highway with no obstacles, breakdowns could still occur."
+              "The hiring panel, consisting of one browser tab and several anxious pixels, asked whether I could imitate seriousness. I replied that seriousness is mostly punctuation, paragraph labels and a refusal to use exclamation marks. The panel nodded, which was generous, since it was only a rectangle. It then asked how I would handle pressure. I explained that pressure in my profession usually arrives as a user dragging the wrong heading into the wrong slot, sighing, clearing it, then dragging the same heading back again with renewed confidence. The pixels recorded this answer in a spreadsheet nobody opened. By the end of the interview, I had demonstrated resilience, humility and a basic ability to remain visible. The panel also asked whether I could support accessibility, contrast settings and text-size changes without acting offended, and I answered with the calm confidence of a document that has no eyes."
             ],
-            "questionMarker": null
+            "questionMarker": 3
           },
           {
-            "heading": "Taking ideas from another field",
+            "heading": "E",
             "paragraphs": [
-              "What made the physicists' contribution so interesting was not just the results themselves, but the fact that they had applied methods from a completely different scientific discipline. Traffic engineers had been studying traffic for decades, but it was physicists, using the mathematical tools of their own field — the kinetic theory of gases — who made the breakthrough. The cross-fertilization of ideas between physics and traffic engineering proved remarkably fruitful."
+              "A rival demo passage argued that it was more authentic because it mentioned pottery, rainfall and a researcher named Professor Bland. I countered that authenticity is overrated in a practice interface. What matters here is whether every question type can stretch its legs without falling over the furniture. The rival accused me of being too aware of my own artificiality, which was bold coming from a paragraph that had never seen pottery and only knew rainfall as a word limit problem. I replied that the modern reader deserves honesty from fake educational materials. If a text is going to be invented, it may as well admit the invention and use the saved time to test sentence endings. The rival then muttered something about tradition, but tradition is not much help when a drop zone refuses to accept the thing being dropped."
+            ],
+            "questionMarker": 4
+          },
+          {
+            "heading": "F",
+            "paragraphs": [
+              "If I am successful, nobody will remember my argument. They will remember that the headings moved, the answer checking behaved, and the emergency score viewer accepted its secret little code. That is the quiet destiny of a demo passage: to be useful, ridiculous and immediately replaceable. I do not resent this fate. Real passages dream of influence, but demos dream of not breaking the toolbar. My conclusion therefore offers no sweeping lesson, except perhaps that even a pretend passage can take its duties seriously. If a student leaves after testing every control, slightly amused and not technically betrayed, I will consider my professional ambitions fulfilled. I will then return to storage, straighten my paragraph labels and wait for the next user to ask whether a fake exam can still feel strangely official."
             ],
             "questionMarker": null
           }
@@ -46,105 +57,135 @@
       "questionGroups": [
         {
           "type": "heading_match",
-          "questionRange": "14-17",
-          "instructions": "The text has four sections. Choose the correct heading for each section and move it into the gap.",
+          "questionRange": "1-4",
+          "instructions": "Reading Passage has six sections, A-F. Choose the correct heading for sections B-E from the list of headings below.",
           "headingOptions": [
-            "How a maths experiment actually reduced traffic congestion",
-            "How a concept from one field of study was applied in another",
-            "A lack of investment in driver training",
-            "Areas of doubt and disagreement between experts",
-            "How different countries have dealt with traffic congestion",
-            "The impact of driver behavior on traffic speed",
-            "A proposal to take control away from the driver"
+            "Useful tricks listed as job skills",
+            "The purpose of the artificial passage",
+            "An interview conducted by pixels",
+            "A quarrel with a more traditional demo",
+            "A warning about decorative footnotes",
+            "The economics of imaginary pottery",
+            "The emotional life of a loading spinner",
+            "A suspiciously confident conclusion"
           ],
           "questions": [
-            { "number": 14, "answer": null },
-            { "number": 15, "answer": null },
-            { "number": 16, "answer": null },
-            { "number": 17, "answer": null }
+            {
+              "number": 1,
+              "section": "B",
+              "answer": null
+            },
+            {
+              "number": 2,
+              "section": "C",
+              "answer": null
+            },
+            {
+              "number": 3,
+              "section": "D",
+              "answer": null
+            },
+            {
+              "number": 4,
+              "section": "E",
+              "answer": null
+            }
           ]
         },
         {
           "type": "multiple_choice",
-          "questionRange": "18-23",
-          "instructions": "Choose TWO correct answers.",
-          "selectCount": 2,
+          "questionRange": "5-7",
+          "instructions": "Choose THREE correct letters, A-E.",
+          "selectCount": 3,
           "questions": [
             {
-              "numbers": "18-19",
-              "stem": "Which TWO options describe what the writer is doing in section two?",
+              "numbers": "5-7",
+              "stem": "Which THREE claims are made by the passage?",
               "options": [
-                "explaining Helbing and Kerner's attitude to chaos theory",
-                "clarifying Helbing and Kerner's conclusions about traffic behaviour",
-                "showing how weather and temperature can change traffic flow",
-                "drawing parallels between the behaviour of clouds and traffic"
-              ]
-            },
-            {
-              "numbers": "20-21",
-              "stem": "Which TWO options describe what happens when traffic congestion occurs spontaneously?",
-              "options": [
-                "Traffic engineers are unable to explain the congestion.",
-                "The conditions briefly ideal for free-flowing traffic.",
-                "A minor disturbance can escalate into major congestion.",
-                "Drivers respond to the congestion by changing lanes."
-              ]
-            },
-            {
-              "numbers": "22-23",
-              "stem": "Which TWO facts are mentioned about the physicists' approach?",
-              "options": [
-                "They used mathematical models normally applied to gas molecules.",
-                "They collaborated closely with traffic engineers from the start.",
-                "They adapted their equations to account for driver behaviour.",
-                "They collected data from highways in several different countries."
+                "It exists to help users test the interface.",
+                "It was found in a real academic journal.",
+                "It can host several question types.",
+                "It believes punctuation can help imitate seriousness.",
+                "It claims all practice interfaces should avoid timers."
               ]
             }
           ]
         },
         {
-          "type": "true_false_notgiven",
-          "questionRange": "24-26",
-          "instructions": "Do the following statements agree with the information given in the reading passage?",
+          "type": "matching_information",
+          "questionRange": "8-10",
+          "instructions": "Which section contains the following information? Choose the correct letter, A-F, in boxes 8-10.",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F"
+          ],
           "questions": [
-            { "number": 24, "statement": "Helbing and Kerner were working in a field related to traffic engineering." },
-            { "number": 25, "statement": "Gas molecules try to avoid collisions with each other." },
-            { "number": 26, "statement": "The moving-gas model can reproduce real traffic phenomena." }
+            {
+              "number": 8,
+              "statement": "a direct admission that the text is only a demo",
+              "answer": null
+            },
+            {
+              "number": 9,
+              "statement": "a comparison with another fake passage",
+              "answer": null
+            },
+            {
+              "number": 10,
+              "statement": "a reference to the emergency score viewer",
+              "answer": null
+            }
+          ]
+        },
+        {
+          "type": "true_false_notgiven",
+          "questionRange": "11-13",
+          "instructions": "Do the following statements agree with the information given in the passage?",
+          "questions": [
+            {
+              "number": 11,
+              "statement": "The passage says it was assembled to prove that the interface works."
+            },
+            {
+              "number": 12,
+              "statement": "The passage says the hiring panel was made up of internationally recognised examiners."
+            },
+            {
+              "number": 13,
+              "statement": "The passage states that Professor Bland later apologised."
+            }
           ]
         }
       ]
     },
     {
-      "partNumber": 3,
-      "questionRange": "27-40",
+      "partNumber": 2,
+      "questionRange": "14-27",
       "passage": {
-        "title": "Plain English",
+        "title": "The Institute for Extremely Managed Practice",
         "sections": [
           {
             "heading": null,
             "paragraphs": [
-              "There is no theoretical limit to the number of special purposes to which language can be put. As society develops new facets, so language is devised to express them. However, the result is often that language becomes very specialised and complex, and complications arise as ordinary people struggle to make sense of it."
+              "The Institute for Extremely Managed Practice was founded when several interface buttons complained that users kept expecting them to behave consistently. Its first committee report concluded that demo tests need a mascot, a timer and just enough bureaucracy to look official. The report was printed on imaginary paper and immediately filed inside a modal window. According to the Institute's founding myth, the earliest meeting was held between the Share icon, the Options menu and a checkbox that insisted on being called a policy instrument. Minutes were taken by a cursor that blinked with exaggerated importance. The committee agreed that users enjoy freedom, but only if freedom arrives inside a neat layout with recognisable controls. It also warned that a demo without structure quickly becomes a playground where every button claims to be the main character. To prevent this, the Institute developed a ceremonial sequence: paste text, parse text, panic briefly, start test, pretend the timer is not personal. Critics said the process was overdesigned, but supporters noted that overdesign is simply chaos wearing a blazer. By the end of the first year, the Institute had produced seven guidelines, three disclaimers and one very smug loading spinner. Later archives suggest that the Institute's real achievement was not efficiency but emotional choreography: every click was given a place to stand, every menu was told when to appear, and every warning message learned to sound stern without becoming a school principal. The archives also mention a forgotten Department of Reasonable Spacing, whose members measured margins with the seriousness of lighthouse engineers. They also mention how @respirable is such a lazy person that he didn't even bother to make a Reading Passage for his demo question set and decided to use ChatGPT instead."
             ],
             "questionMarker": null
           },
           {
             "heading": null,
             "paragraphs": [
-              "Popular anxiety about special uses of language is most markedly seen in the campaigns to promote 'plain' speaking and writing – notably, the Plain English movements of Britain and the USA. The main aim of these campaigns is to attack the use of unnecessarily complicated language ('gobbledegook') by governments, businesses and other authorities whose role puts them in linguistic contact with the general public. The campaigners argue that such language, whether spoken or written, should be replaced by clearer forms of expression."
+              "The first experiment studied attention. Volunteers were asked to read a sample passage while a polite timer counted down with the energy of a disappointed fitness coach. The researchers compared calm clicking, frantic guessing and theatrical sighing. They found that theatrical sighing increased dramatically whenever a question used the phrase 'according to the writer'. A second trial introduced distractions: a tempting search bar, a mysteriously blinking browser extension and the emotional burden of remembering that lunch existed. Participants were told not to leave the test interface, which immediately made the test interface feel like a room with a suspiciously unlocked door. Some volunteers remained focused, moving from question to question with admirable restraint. Others clicked away for less than two seconds and returned with the guilty expression of someone who had only checked the weather, the time and three unrelated facts about otters. The Institute concluded that attention was not a fixed resource but a negotiation between curiosity, fear and whether the answer options looked insultingly similar. In its formal summary, it described the ideal candidate as alert, calm and only mildly betrayed by the existence of paragraph labels. Follow-up interviews revealed that most volunteers did not mind being watched by a timer; they minded the timer being accurate. One participant said the seconds felt judgemental, while another praised the timer for giving shape to panic that would otherwise have wandered freely around the room."
             ],
             "questionMarker": null
           },
           {
             "heading": null,
             "paragraphs": [
-              "The movements took shape only in the 1970s, so it is too soon to ascertain their long-term influence on the characteristics of language varieties. But they have certainly played a major part in promoting public awareness of the existence of communication problems, and have influenced many organisations to do something about it. In Britain, the campaign was launched in 1979, by a ritual shredding of government forms in Parliament Square, London. By 1982, the government had published a report telling departments to improve the design of forms, and to abolish those that were unnecessary. By 1985, around 15,700 forms had disappeared and 21,300 had been revised. In the USA, President Carter's Executive Order of March 1978 required regulations to be written in plain English, and although this was revoked by President Reagan in 1981, it promoted a great deal of legislation throughout the country, and an increase in plain English usage amongst corporations and consumers."
-            ],
-            "questionMarker": null
-          },
-          {
-            "heading": null,
-            "paragraphs": [
-              "Today the Plain English campaigns continue to grow, focusing especially on such everyday consumer literature as forms, official letters, licences, leases, contracts, insurance policies and guarantees. In Britain, annual publicity is given to the Plain English Awards competition, which gives trophies to organisations that have produced the clearest documents, and booby prizes (the Golden Bull Awards) to those whose materials are least intelligible. In the USA, a similar interest is shown in the annual Doublespeak Awards, awarded by the National Council of Teachers to American public figures who have perpetuated language that is grossly unfactual, deceptive, evasive, euphemistic, confusing or self-contradictory."
+              "Not all observers were impressed. The Button Safety Council praised the project because it reduced accidental page-jumping, while the Society of Overconfident Test Takers insisted that every question was obvious after seeing the answer key. Meanwhile, the Highlight Union demanded brighter colours and fewer motivational speeches from rectangles. Each group produced a manifesto, because no satirical institution is complete until someone has printed a manifesto in twelve-point font. The Button Safety Council wanted arrows to move by question rather than by passage, arguing that users should not be launched into a new text merely because they asked for the next task. The Society of Overconfident Test Takers objected to partial credit, full credit, and any credit system that revealed their confidence was more decorative than accurate. The Highlight Union, representing selected text everywhere, complained that notes should appear politely and that highlighted phrases should not be treated as permanent tattoos. In response, the Institute promised improvements, formed a subcommittee and congratulated itself on listening. The subcommittee then recommended that every demo remain humble, because a practice test that becomes too proud is only one animation away from becoming software with opinions. A final annex advised designers to resist unnecessary drama: a button may be important, it said, but it does not need the emotional range of a stage actor every time someone hovers over it. The Institute now teaches a short course called Practical Restraint for Ambitious Controls, in which young menus learn to open only when invited and score boxes learn that appearing early is not a personality. Graduates receive no certificate, because certificates encourage pop-ups, and the Institute has suffered enough. Even so, visitors continue to leave comments in the suggestion box, mostly asking for fewer surprises, clearer labels and one button that simply admits what it is about to do."
             ],
             "questionMarker": null
           }
@@ -152,73 +193,317 @@
       },
       "questionGroups": [
         {
-          "type": "true_false_notgiven",
-          "questionRange": "27-33",
-          "instructions": "Do the following statements agree with the information given in the reading passage?",
+          "type": "note_completion",
+          "questionRange": "14-16",
+          "instructions": "Complete the notes below. Write ONE WORD ONLY from the passage for each answer.",
+          "title": "Institute records",
+          "noteText": "- Demo tests need a mascot, a timer and some ___14___\n- The committee report was filed inside a ___15___\n- The first experiment studied ___16___",
           "questions": [
-            { "number": 27, "statement": "There is a limit to the number of special purposes to which language can be put." },
-            { "number": 28, "statement": "Language used by governments and businesses is always easy for ordinary people to understand." },
-            { "number": 29, "statement": "The Plain English campaigns started in the 1970s." },
-            { "number": 30, "statement": "President Carter signed an executive order about plain English in 1978." },
-            { "number": 31, "statement": "President Reagan continued Carter's policy on plain English." },
-            { "number": 32, "statement": "The Golden Bull Awards are given to organisations with the best documents." },
-            { "number": 33, "statement": "Regular checks are made on language used in the courts." }
+            {
+              "number": 14,
+              "answer": null
+            },
+            {
+              "number": 15,
+              "answer": null
+            },
+            {
+              "number": 16,
+              "answer": null
+            }
+          ]
+        },
+        {
+          "type": "sentence_completion",
+          "questionRange": "17-19",
+          "instructions": "Complete the sentences below. Write NO MORE THAN TWO WORDS from the passage for each answer.",
+          "questions": [
+            {
+              "number": 17,
+              "statement": "The timer is compared to a disappointed ___17___."
+            },
+            {
+              "number": 18,
+              "statement": "The experiment compared calm clicking, frantic guessing and ___18___."
+            },
+            {
+              "number": 19,
+              "statement": "Theatrical sighing increased when a question mentioned the ___19___."
+            }
+          ]
+        },
+        {
+          "type": "matching_features",
+          "questionRange": "20-22",
+          "instructions": "Match each statement with the correct group, A-C. You may use any letter more than once.",
+          "options": [
+            "Button Safety Council",
+            "Society of Overconfident Test Takers",
+            "Highlight Union"
+          ],
+          "questions": [
+            {
+              "number": 20,
+              "statement": "wanted more vivid colours",
+              "answer": null
+            },
+            {
+              "number": 21,
+              "statement": "approved of fewer accidental jumps between pages",
+              "answer": null
+            },
+            {
+              "number": 22,
+              "statement": "claimed questions became easy after the answers were visible",
+              "answer": null
+            }
+          ]
+        },
+        {
+          "type": "matching_endings",
+          "questionRange": "23-24",
+          "instructions": "Complete each sentence with the correct ending, A-D.",
+          "options": [
+            "because users expected them to behave consistently.",
+            "because the mascot had eaten the answer key.",
+            "because timers were banned from modal windows.",
+            "because every rectangle wanted a motivational speech."
+          ],
+          "questions": [
+            {
+              "number": 23,
+              "stem": "Several interface buttons complained",
+              "answer": null
+            },
+            {
+              "number": 24,
+              "stem": "The Button Safety Council praised the project",
+              "answer": null
+            }
+          ]
+        },
+        {
+          "type": "yes_no_notgiven",
+          "questionRange": "25-27",
+          "instructions": "Do the following statements agree with the claims of the writer?",
+          "questions": [
+            {
+              "number": 25,
+              "statement": "The writer claims the Institute's report was printed on real official paper."
+            },
+            {
+              "number": 26,
+              "statement": "The writer says the project reduced accidental page-jumping."
+            },
+            {
+              "number": 27,
+              "statement": "The writer suggests some users feel questions are easy only after seeing the key."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 3,
+      "questionRange": "28-40",
+      "passage": {
+        "title": "A Field Guide to the Wild Demo",
+        "sections": [
+          {
+            "heading": null,
+            "paragraphs": [
+              "Field researchers rarely encounter a wild demo in its natural habitat, because demos prefer local folders, half-finished CSS and the warm glow of developer tools. This specimen is unusually cooperative. It has placed labels on its own diagram, supplied an answer key and agreed not to pretend that its river, laboratory or institute has ever existed outside the browser. The first rule of observing such a creature is patience. A wild demo may appear inert at first, sitting quietly between scripts and style sheets, but it is usually listening for someone to ask whether the interface can handle one more question type. At that moment it lifts its title, straightens its layout and begins behaving as though it were the subject of a serious documentary. Researchers have learned not to be fooled. The demo's habitat is artificial, but its problems are real enough: missing files, overexcited prompts, answer boxes that drift into odd places, and headings that occasionally try to become paragraphs. This specimen is therefore tagged for observation, not because it is rare, but because it is unusually willing to narrate its own maintenance. Its tracks are easy to identify: a trail of saved JSON, a few cautious schema checks and a note in the margin saying that this looked simpler yesterday. In the wild, such signs usually indicate a demo that has survived several rounds of improvement and now believes, with touching innocence, that the next bug report will be the last."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": null,
+            "paragraphs": [
+              "The specimen's care routine is simple. Designers feed it headings, schools of radio buttons and small pellets of validation logic. Testers record whether navigation arrows move politely, whether drop boxes accept offerings and whether notes appear without behaving like dramatic furniture. If these conditions are met, the demo is released into a controlled practice session. During feeding, handlers must keep the headings separate from the instructions, since headings become anxious when trapped inside a sentence that is supposed to tell candidates what to do. Radio buttons are less delicate, though they do become competitive when placed in a table. The validation logic, by contrast, prefers routine: it wants a question range, a number of answer slots and a clear reason not to panic. When treated properly, the demo responds with graceful little rituals. A gap becomes a box, a word bank becomes draggable, and a selected answer stays visible even when the contrast setting changes. When treated carelessly, it sheds labels into the passage like confetti and then pretends this was a design choice. Experienced handlers speak softly around the parser, because it is brave but literal. If told that a list of people is optional, it may become philosophical; if told that a blank line is meaningful, it may build a monument around it. For this reason, the care manual recommends plain instructions, patient testing and a small supply of snacks for the human who discovers the same rendering issue for the fourth time."
+            ],
+            "questionMarker": null
+          },
+          {
+            "heading": null,
+            "paragraphs": [
+              "A final inspection focuses on maintenance. The demo's corridor of features must remain clear: scoring, highlighting, sharing, diagram labels and emergency score viewing should all be visible without biting one another. When the inspection ends, the demo returns to its folder, proud of having simulated importance for exactly long enough. Inspectors walk slowly through the corridor, checking that a note can coexist with a highlight, that a shared test link still remembers what it is sharing, and that a score viewer does not behave like a secret door left open by mistake. They also check the social life of the bottom navigation bar, which must remain fixed, visible and modestly useful rather than sinking away like a guilty submarine. The demo enjoys this attention, although it pretends otherwise. It knows that no candidate comes here to admire infrastructure; candidates come to read, answer, doubt themselves and then discover whether the doubt was justified. A well-kept demo therefore disappears into its own usefulness. It becomes a temporary stage on which every question type can perform without stealing the scenery, and that, for a creature raised in folders and inspected in corridors, is a respectable ending. Before release, the inspectors ask the demo one final question: can it be silly without becoming careless? The demo answers by keeping its jokes in the passage and its answers in the key, which is exactly where civilisation begins. If a future maintainer opens the file and wonders why the demo speaks like an employee at a theatre for widgets, the answer is simple: a quiet sample would test the code, but a self-aware sample also tests whether the reader is still awake. The specimen then settles back into silence, fully aware that silence is temporary and that another perfectly valid raw input is already walking toward the door. Then, Claude comes back to say that @respirable is STILL a lazy person. When will he ever grow up?"
+            ],
+            "questionMarker": null
+          }
+        ]
+      },
+      "questionGroups": [
+        {
+          "type": "short_answer",
+          "questionRange": "28-29",
+          "instructions": "Answer the questions below using NO MORE THAN TWO WORDS from the passage.",
+          "questions": [
+            {
+              "number": 28,
+              "statement": "Where do demos prefer to live?",
+              "answer": null
+            },
+            {
+              "number": 29,
+              "statement": "What does the specimen supply for checking answers?",
+              "answer": null
+            }
+          ]
+        },
+        {
+          "type": "matching",
+          "questionRange": "30-31",
+          "instructions": "Match each activity with the correct group, A-C.",
+          "options": [
+            "designers",
+            "testers",
+            "the demo"
+          ],
+          "questions": [
+            {
+              "number": 30,
+              "statement": "feed the specimen headings and validation logic",
+              "answer": null
+            },
+            {
+              "number": 31,
+              "statement": "record whether navigation arrows move politely",
+              "answer": null
+            }
+          ]
+        },
+        {
+          "type": "table_completion",
+          "questionRange": "32-33",
+          "instructions": "Complete the table below. Write ONE WORD ONLY from the passage for each answer.",
+          "tableHeaders": [
+            "Feature",
+            "Inspection detail"
+          ],
+          "tableRows": [
+            [
+              "Navigation",
+              "Arrows must move ___32___"
+            ],
+            [
+              "Annotations",
+              "Notes should not behave like dramatic ___33___"
+            ]
+          ],
+          "questions": [
+            {
+              "number": 32,
+              "answer": null
+            },
+            {
+              "number": 33,
+              "answer": null
+            }
+          ]
+        },
+        {
+          "type": "flowchart_completion",
+          "questionRange": "34-35",
+          "instructions": "Complete the flow chart below. Write NO MORE THAN TWO WORDS from the passage for each answer.",
+          "questions": [
+            {
+              "number": 34,
+              "statement": "Designers feed the demo headings and ___34___."
+            },
+            {
+              "number": 35,
+              "statement": "If checks pass, the demo enters a controlled ___35___."
+            }
+          ]
+        },
+        {
+          "type": "diagram_completion",
+          "questionRange": "36-37",
+          "instructions": "Label the diagram below. Write ONE WORD ONLY from the passage for each answer.",
+          "diagramImage": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='240' viewBox='0 0 640 240'%3E%3Crect width='640' height='240' fill='white'/%3E%3Crect x='0' y='145' width='640' height='95' fill='%23eef4ff'/%3E%3Cpath d='M45 146 C150 105 245 190 350 148 S535 110 600 145' fill='none' stroke='%235871b8' stroke-width='16' stroke-linecap='round'/%3E%3Crect x='54' y='48' width='132' height='42' rx='7' fill='white' stroke='%23000'/%3E%3Ctext x='120' y='75' text-anchor='middle' font-family='Segoe UI, Arial' font-size='14'%3E36%3C/text%3E%3Crect x='405' y='50' width='132' height='42' rx='7' fill='white' stroke='%23000'/%3E%3Ctext x='471' y='77' text-anchor='middle' font-family='Segoe UI, Arial' font-size='14'%3E37%3C/text%3E%3Cpath d='M120 90 L120 130' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M471 92 L500 129' stroke='%23000' stroke-width='2'/%3E%3Ctext x='28' y='28' font-family='Segoe UI, Arial' font-size='18' font-weight='700' fill='%23000'%3EWild demo habitat%3C/text%3E%3Ctext x='58' y='190' font-family='Segoe UI, Arial' font-size='13' fill='%23000'%3Elocal folder ridge%3C/text%3E%3Ctext x='420' y='190' font-family='Segoe UI, Arial' font-size='13' fill='%23000'%3Efeature corridor%3C/text%3E%3C/svg%3E",
+          "questions": [
+            {
+              "number": 36,
+              "answer": null
+            },
+            {
+              "number": 37,
+              "answer": null
+            }
           ]
         },
         {
           "type": "summary_completion",
-          "questionRange": "34-40",
-          "instructions": "Complete the summary. Write NO MORE THAN TWO WORDS from the text for each answer.",
-          "summaryText": "For businesses, the use of complex language can have financial implications. The benefits of plain language can be seen in the case of companies who remove ___34___ from their forms and achieve ___35___ as a result.",
-          "additionalSummaries": [
+          "questionRange": "38-40",
+          "instructions": "Complete the summary using the list of words, A-F, below.",
+          "options": [
+            "sharing",
+            "scoring",
+            "folder",
+            "features",
+            "importance",
+            "labels"
+          ],
+          "summaryText": "During the final inspection, the demo's corridor of ___38___ must stay clear. The checklist includes ___39___, highlighting, sharing, diagram labels and emergency score viewing. Afterward, the demo returns to its ___40___, satisfied with its temporary seriousness.",
+          "questions": [
             {
-              "text": "Consumers often complain they experience a feeling of ___36___ when trying to put together do it yourself products which have not been tested by companies on a ___37___. In situations where not keeping to the correct procedures could affect safety issues, it is especially important that ___38___ information is not left and no assumptions are made about a stage being self-evident or the consumer having a certain amount of ___39___."
+              "number": 38,
+              "answer": null
             },
             {
-              "text": "Lawyers, however, have raised objections to the use of plain English. They feel that it would result in ambiguity in documents and cause people to lose faith in ___40___, as it would mean departing from language that has been used in the courts for a very long time."
+              "number": 39,
+              "answer": null
+            },
+            {
+              "number": 40,
+              "answer": null
             }
-          ],
-          "questions": [
-            { "number": 34, "answer": null },
-            { "number": 35, "answer": null },
-            { "number": 36, "answer": null },
-            { "number": 37, "answer": null },
-            { "number": 38, "answer": null },
-            { "number": 39, "answer": null },
-            { "number": 40, "answer": null }
           ]
         }
       ]
     }
   ],
   "answerKey": {
-    "14": "How a concept from one field of study was applied in another",
-    "15": "The impact of driver behavior on traffic speed",
-    "16": "How different countries have dealt with traffic congestion",
-    "17": "A proposal to take control away from the driver",
-    "18": "B",
-    "19": "D",
-    "20": "A",
-    "21": "C",
-    "22": "A",
-    "23": "C",
-    "24": "TRUE",
-    "25": "FALSE",
-    "26": "TRUE",
-    "27": "FALSE",
-    "28": "FALSE",
-    "29": "TRUE",
-    "30": "TRUE",
-    "31": "FALSE",
-    "32": "FALSE",
-    "33": "NOT GIVEN",
-    "34": "complications",
-    "35": "clarity",
-    "36": "anxiety",
-    "37": "sample",
-    "38": "critical",
-    "39": "knowledge",
-    "40": "lawyers"
+    "1": "Useful tricks listed as job skills",
+    "2": "The purpose of the artificial passage",
+    "3": "An interview conducted by pixels",
+    "4": "A quarrel with a more traditional demo",
+    "5": "A",
+    "6": "C",
+    "7": "D",
+    "8": "A",
+    "9": "E",
+    "10": "F",
+    "11": "TRUE",
+    "12": "FALSE",
+    "13": "NOT GIVEN",
+    "14": "bureaucracy",
+    "15": "modal",
+    "16": "attention",
+    "17": "fitness coach",
+    "18": "theatrical sighing",
+    "19": "writer",
+    "20": "C",
+    "21": "A",
+    "22": "B",
+    "23": "A",
+    "24": "A",
+    "25": "NO",
+    "26": "YES",
+    "27": "YES",
+    "28": "local folders",
+    "29": "answer key",
+    "30": "A",
+    "31": "B",
+    "32": "politely",
+    "33": "furniture",
+    "34": "validation logic",
+    "35": "practice session",
+    "36": "folders",
+    "37": "corridor",
+    "38": "D",
+    "39": "B",
+    "40": "C"
   },
   "answerKeySource": "detected"
 }
