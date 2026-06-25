@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ngày cuối cùng — Anthology</title>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js" defer></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    .story-header {
+      margin-bottom: 40px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .story-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .story-part-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+
+    .story-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h1.story-title {
+      font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .story-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 36px 0;
+    }
+
+    .story-body {
+      animation: fadeSlideUp 0.8s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .story-body p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .story-body blockquote {
+      border-left: 3px solid var(--border);
+      margin: 28px 0;
+      padding: 12px 0 12px 20px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 4px;
+    }
+
+    /* ── FOOTNOTE ── */
+    .footnote {
+      margin: 8px 0 28px;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.7;
+      border-left: 3px solid var(--border);
+    }
+
+    .footnote strong {
+      color: var(--text);
+    }
+
+    /* ── DIALOGUE ── */
+    .dialogue-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .dialogue-line {
+      margin-bottom: 14px;
+      line-height: 1.7;
+    }
+
+    .dialogue-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .speaker {
+      font-weight: 700;
+      font-style: normal;
+      color: var(--text);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      margin-right: 4px;
+    }
+
+    .story-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 60px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .nav-btn.active {
+      cursor: pointer;
+      opacity: 1;
+      color: var(--text);
+    }
+
+    .nav-btn.active:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+    }
+
+    .nav-btn .nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn .nav-title {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .nav-btn-inner {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="theme-toggle-wrap">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5" />
+        <path
+          d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+      </svg>
+      <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+  </div>
+  <div class="container">
+    <a href="/anthology" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+      anthology
+    </a>
+    <div class="story-header">
+      <div class="story-meta">
+        <span class="story-part-badge">Part 2</span>
+        <span class="story-number">Story 11</span>
+      </div>
+      <h1 class="story-title">Ngày cuối cùng</h1>
+      <p class="story-subtitle">Trước khi Primera rời Saji để bắt đầu đại học, anh và Scratch có một ngày bình thường cuối cùng bên nhau.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="story-body">
+
+      <p>Chỉ một ngày nữa thôi, Primera sẽ xuống đại học Berzulius để bắt đầu học về trí tuệ nhân tạo (mà thực ra đúng hơn là tìm phòng trọ và chuẩn bị sự kiện chào đón tân sinh viên). Anh sắp xếp hết đồ đạc của mình vào trong va li. Quần áo, tiền, máy tính bảng,… Mọi thứ đã sẵn sàng… nhưng trời thì vẫn còn sáng.</p>
+
+      <p>Anh liền sang nhà Scratch để báo rằng mình sắp xuống thành phố Berzulius để học đại học.</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Hmm… Nhanh nhỉ. Mới thế thôi mà đã là giữa tháng 8 rồi. Tầm này là mấy đứa sinh viên như ông phải đang bàn bạc chuyện sống một mình rồi đấy.</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Đúng. Nhưng tôi thì đã làm vậy từ năm 15 tuổi rồi, nên cũng chẳng phải lo lắm.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tự lập là một chuyện. Thế ông định có thằng bạn ở cùng phòng không?</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi xem video của Gohar Khan rồi. Chắc tôi ở một mình còn hơn.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tôi nghĩ ông không thể ở một mình được đâu. Phòng của ông nhìn như kiểu… làm sao để nói cho lịch sự nhể? Kiểu… nó có chỗ để cải thiện. Rất nhiều chỗ (There's room for improvement. A lot.)</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Nah. Tôi "cốt vương" thế này (gầy còm), không cần phải trở nên sạch sẽ và gọn gàng để đi nghĩa vụ quân sự đâu. Phòng tôi thế nào là có chủ đích hết.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tuỳ ông thôi. Đừng để mấy người như Project Nightfall hay mấy ông TikToker biết về căn phòng ngổn ngang của ông.</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi sống im ắng lắm. Có ai biết gì đâu.</div>
+      </div>
+
+      <p>(Primera im lặng khoảng vài giây.)</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Thế là tôi sắp rời xa Saji rồi. Nhưng mà tôi vẫn muốn nói chuyện với ông. Làm sao để làm được điều đó nhỉ?</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Tôi có Facebook mà. Ông muốn kết bạn chứ?</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Đương nhiên!</div>
+      </div>
+
+      <p>Ngay sau khi Scratch gửi lời mời kết bạn, Primera chấp nhận. Và thế là tình bạn của họ tiếp tục được duy trì… bằng một cách "không thể nào hiện đại hơn".</p>
+
+      <p>Sau đó… họ không biết làm gì. Nên là họ làm điều hiển nhiên: Primera tiếp tục xem anime "Frieren: Pháp sư tiễn táng". Scratch thì ngồi chờ khách hàng để mua icon, hoặc thử nghiệm dịch vụ du hành thời gian kia.</p>
+
+      <p>Các độc giả và nhà văn chắc hẳn đang rất bức xúc vì ngày cuối cùng quý giá thế này lại bị coi như một ngày bình thường vậy.</p>
+
+      <p>Tối đến, Primera sang nhà Scratch ăn cơm. Đáng ra là "ai muốn ăn thì người đó đi mà nấu". Nhưng Primera nghĩ rằng còn lâu nữa mới được gặp lại Scratch, nên anh muốn dành nhiều thời gian với Scratch nhất có thể (vậy mà lại đi xem anime thay vì đi tám chuyện?). Scratch chưa tính đến việc này, thành ra là anh nấu gì thì Primera phải ăn nấy.</p>
+
+      <p>Và xui cho Primera, Scratch lại nấu món ăn thuộc bộ ba món dở: bồ câu. Mới bê mâm lên được 1 giây, Primera tỏ ra vẻ mặt không hài lòng.</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông không nói sớm. Thành ra tôi nấu xong bồ câu rồi. Thôi, cố mà ăn đi!</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Không! Tôi nhất quyết không ăn cái này bằng mọi giá!</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Thế thì chịu. Ông tự đi mà nấu ăn.</div>
+      </div>
+
+      <p>Nếu là một đứa con vâng lời, Primera sẽ chấp nhận ăn bồ câu và trải nghiệm vị kinh tởm mà nó đem lại cho anh. Nhưng anh coi lời nói vừa rồi là một câu hiển nhiên. Thành ra, anh tự rán 3 cái xúc xích và nấu canh rau muống. Thế là hai người có bữa ăn ngon miệng. Không ai chê món này món nọ dở.</p>
+
+      <p>Ăn cơm xong, Primera tiếp tục cày "Frieren: Pháp sư tiễn táng". Scratch thì bật tivi và ngồi xem thời sự. Những việc mà ai cũng hay làm sau khi ăn cơm xong.</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> (đến gần Scratch, người đang ngồi trên ghế sofa) Ông muốn biết một sự thật mà tôi khá chắc là ông không biết không?</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Gì vậy?</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> (giơ cuốn sách trước mặt) Tôi đã ghi lại 3 năm cấp ba của tôi vào một cuốn sách, dưới dạng tuyển tập truyện ngắn! Trong đó có cả ông!</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> (vẫn còn lú lẫn) …Và? Tôi tưởng chúng ta luôn giấu những cái như vậy?</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Có thể ông không biết, nhưng mà tôi đã xuất bản cuốn sách này! Giờ ông lên trên mấy cái sàn thương mại điện tử hay thư viện tỉnh Saji thì kiểu gì cũng sẽ tìm được sách của tôi.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Cái này tôi không ngờ thật! Tôi đọc thử với.</div>
+      </div>
+
+      <p>(5 phút sau…)</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Hmm… Cũng khá là hay. Tôi nghĩ nó xứng đáng được mọi người đọc.</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi biết mà! Giờ tôi nhờ ông một việc. Hãy quảng cáo cuốn sách này giúp tôi. Tôi hay nói là "ít được biết đến" là một việc tốt cho tôi, nhưng những câu chuyện trong này là một việc khác. Nếu tôi không được biết đến bằng ít nhất một cách nào đó, tôi sẽ cảm thấy như mình ở đáy xã hội mất. Tôi cứ hay gọi là đào thải đấy nhưng mà nghe nó nặng quá. Ít nhất tôi cần phải ngồi chung mâm với những người như Phạm Ngọc Phương Thảo, Murakumo, với cả Habakiri.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> …Là cái tượng ở tỉnh Aramasa à?</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Đấy là hai người khác nhau mà ông! Tôi đang nói đứa bạn cùng lớp cơ.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Được rồi. Tôi sẽ cố. Nhưng mà ông nhớ phải trả ơn tôi đấy!</div>
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Tôi nghĩ việc tôi cho ông vào tuyển tập là đủ để trả ơn rồi. Nếu câu chuyện của tôi đủ lan toả đến đại học Berzulius kia, thì tôi sẽ nghĩ đến việc đưa cho ông căn nhà kia của tôi luôn.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông hào phóng quá đấy!</div>
+      </div>
+
+      <p>Nói chuyện xong, hai người ngay lập tức lăn vào giường ngủ như kiểu họ chưa được ngủ vậy. Có lẽ là vì họ thức lâu hơn nữa cũng chẳng để làm gì.</p>
+
+      <p>8 giờ sáng hôm sau, xe khách tới Berzulius đã đỗ trước cửa nhà Scratch. Primera nói lời cuối cùng với Scratch ở Saji:</p>
+
+      <div class="dialogue-box">
+        <div class="dialogue-line"><span class="speaker">PRIMERA:</span> Nhớ chăm lo tốt đấy.</div>
+        <div class="dialogue-line"><span class="speaker">SCRATCH:</span> Ông cũng vậy.</div>
+      </div>
+
+      <p>Một lời nói cuối cùng mà không có sự buồn bã hay bi kịch. Chỉ có hi vọng rằng người kia sẽ sống tốt hơn. Primera lên xe khách và ngồi ở hàng ghế sau cùng. Kể từ lúc này, Primera chính thức bước sang một chương mới của cuộc đời mình.</p>
+
+    </div>
+    <div class="divider"></div>
+    <div class="story-nav">
+      <a href="/anthology/27" class="nav-btn active">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <div class="nav-btn-inner">
+          <span class="nav-label">Previous</span>
+          <span class="nav-title">Cỗ máy thời gian (tiếp)</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+
+</html>

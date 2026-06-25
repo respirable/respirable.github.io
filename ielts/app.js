@@ -330,7 +330,8 @@ function openEmergencyScoreModal() {
   if (input) input.value = '';
   if (error) {
     error.style.display = 'none';
-    error.textContent = '';
+    const span = error.querySelector('span') || error;
+    span.textContent = '';
   }
   if (modal) modal.style.display = 'flex';
   window.setTimeout(() => input?.focus(), 0);
@@ -358,18 +359,21 @@ function submitEmergencyScorePin() {
       notify('warning', 'Emergency Score Viewer was disabled after 3 incorrect PIN attempts.');
       return;
     }
-    if (error) {
-      error.textContent = `Incorrect PIN. ${3 - emergencyScoreFailedAttempts} attempt${3 - emergencyScoreFailedAttempts === 1 ? '' : 's'} remaining.`;
-      error.style.display = 'block';
+  if (error) {
+      const msg = `Incorrect PIN. ${3 - emergencyScoreFailedAttempts} attempt${3 - emergencyScoreFailedAttempts === 1 ? '' : 's'} remaining.`;
+      const span = error.querySelector('span') || error;
+      span.textContent = msg;
+      error.style.display = 'flex';
     }
     return;
   }
 
   const snapshot = Renderer.getScoreSnapshot?.();
   if (!snapshot?.hasAnswerKey) {
-    if (error) {
-      error.textContent = 'No answer key is available for this test.';
-      error.style.display = 'block';
+  if (error) {
+      const span = error.querySelector('span') || error;
+      span.textContent = 'No answer key is available for this test.';
+      error.style.display = 'flex';
     }
     return;
   }
@@ -398,7 +402,8 @@ function openWritingSpeedTimerModal() {
   if (input) input.value = '';
   if (error) {
     error.style.display = 'none';
-    error.textContent = '';
+    const span = error.querySelector('span') || error;
+    span.textContent = '';
   }
   if (pinPanel) pinPanel.style.display = 'block';
   if (choicePanel) choicePanel.style.display = 'none';
@@ -429,8 +434,10 @@ function submitWritingSpeedTimerPin() {
       return;
     }
     if (error) {
-      error.textContent = `Incorrect PIN. ${3 - writingSpeedTimerFailedAttempts} attempt${3 - writingSpeedTimerFailedAttempts === 1 ? '' : 's'} remaining.`;
-      error.style.display = 'block';
+      const msg = `Incorrect PIN. ${3 - writingSpeedTimerFailedAttempts} attempt${3 - writingSpeedTimerFailedAttempts === 1 ? '' : 's'} remaining.`;
+      const span = error.querySelector('span') || error;
+      span.textContent = msg;
+      error.style.display = 'flex';
     }
     return;
   }
@@ -1126,8 +1133,18 @@ function showResultModal({ score, total, warningMessage = '' }) {
 
   summaryEl.textContent = `${score} / ${total}`;
   metaEl.textContent = `${score} correct, ${total - score} incorrect or unanswered.`;
+  const incorrect = total - score;
+  const skipped = 0;
   if (breakdownEl) {
     breakdownEl.innerHTML = `
+      <div class="result-stat stat-correct">
+        <span class="result-stat-label">Correct</span>
+        <strong>${score}</strong>
+      </div>
+      <div class="result-stat stat-incorrect">
+        <span class="result-stat-label">Incorrect / Unanswered</span>
+        <strong>${incorrect}</strong>
+      </div>
       <div class="result-stat">
         <span class="result-stat-label">Percent</span>
         <strong>${percentage}%</strong>

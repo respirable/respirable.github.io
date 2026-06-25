@@ -50,7 +50,8 @@ RULES:
    - For multiple_choice option text, store only the option content. Do NOT include the visible option label inside the string.
    - Example: if the raw text says "A. To allow professors...", store "To allow professors..." in q.options[0], not "A. To allow professors..." and not "A A. To allow professors...".
    - If MCQ choices are written as "A   related to..." or multiple choices are packed on one line, the option text is the phrase after the label, not the letter itself. Never output options as ["A","B","C","D"] unless the raw choices literally have no text.
-   - For grouped multiple_choice prompts such as "Questions 7-8 Choose TWO letters, A-E" or "Questions 9-10 Choose TWO letters, A-E", create ONE question object with "number" and "numbers" set to "7-8" or "9-10", "selectCount": 2, the shared "Which TWO..." prompt in "stem", and the A-E options in "options".
+   - For grouped multiple_choice prompts such as "Questions 7-8 Choose TWO letters, A-E" or "Questions 9-10 Choose TWO letters, A-E", create ONE question object with "number" and "numbers" set to "7-8" or "9-10", "selectCount": 2, the shared "Which TWO..." prompt in "stem", and the A-E options in the question-level "options" array.
+   - For grouped multiple_choice, NEVER put the option choices in the group-level "options" array. They must reside in questions[0].options.
    - Wording such as "Which TWO...", "What are the THREE...", "Choose TWO letters", or "Choose THREE correct letters" is grouped multiple_choice. Set selectCount to 2 for TWO and 3 for THREE.
    - Do NOT split a grouped "Choose TWO letters" question into separate blank questions 7 and 8. The range itself is one grouped multi-select answer.
    - For grouped multiple_choice, "instructions" must contain only command text such as "Choose TWO letters, A-E" and "Write your answers in boxes 7-8". Do NOT repeat the question stem in "instructions". If the raw text has the stem both before the options and as "7-8. <stem>", keep it only once in questions[0].stem.
@@ -1117,6 +1118,16 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     for (const part of (data.parts || [])) {
       for (const group of (part.questionGroups || [])) {
         if (group.type !== 'multiple_choice') continue;
+        
+        // Propagate group-level options to question-level if they are empty
+        if (Array.isArray(group.options) && group.options.length > 0) {
+          for (const question of (group.questions || [])) {
+            if (!Array.isArray(question.options) || question.options.length === 0) {
+              question.options = [...group.options];
+            }
+          }
+        }
+
         for (const question of (group.questions || [])) {
           question.stem = stripGroupedRangePrefixV2(question.stem, group.questionRange);
           question.options = (question.options || []).map(stripChoiceLabelV2);
@@ -2015,11 +2026,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
   function extractMultipleChoiceGroupsV2(rawText) {
     const groups = [];
     for (const { start, end, block } of getQuestionBlocksV2(rawText)) {
-      const selectMatch = block.match(/choose?s?\s+(two|three|four|\d+)\s+correct\s+answers?/i);
-      const selectLettersMatch = block.match(/choose\s+(two|three|four|\d+)\s+correct\s+letters?/i);
-      const selectAmongMatch = block.match(/choose\s+(two|three|four|\d+)\s+correct\s+letters?\s+among\s+[A-Z]\s*-\s*[A-Z]/i);
-      const selectPlainLettersMatch = block.match(/choose\s+(two|three|four|\d+)\s+letters?\s*,?\s+[A-Z]\s*-\s*[A-Z]/i);
-      const selectSource = selectMatch || selectLettersMatch || selectAmongMatch || selectPlainLettersMatch;
+      const selectSource = block.match(/choose\s+(two|three|four|five|\d+)\s+(?:correct\s+)?(?:letters?|answers?)/i);
       if (!selectSource) continue;
 
       const lines = block.split('\n').map(line => line.trim()).filter(Boolean);
@@ -2062,7 +2069,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
       .slice(0, stemIndex)
       .filter(line => {
         if (/^questions?\s+\d{1,2}\s*-\s*\d{1,2}/i.test(line)) return false;
-        if (/^choose\s+(two|three|four|\d+)\s+(?:correct\s+)?(?:answers?|letters?)/i.test(line)) return true;
+        if (/^choose\s+(two|three|four|five|\d+)\s+(?:correct\s+)?(?:answers?|letters?)/i.test(line)) return true;
         if (/^write\s+your\s+answers?\b/i.test(line)) return true;
         if (/^write\s+the\s+correct\s+letters?\b/i.test(line)) return true;
         return false;
@@ -2072,19 +2079,23 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
   }
 
   function findGroupedMultipleChoiceStemIndexV2(lines, firstOptionIndex) {
+    let fallbackIndex = -1;
     for (let i = firstOptionIndex - 1; i >= 0; i--) {
       const line = lines[i];
       if (!line) continue;
       if (/^write\s+your\s+answers?\b/i.test(line)) continue;
-      if (/^choose\s+(two|three|four|\d+)\s+(?:correct\s+)?(answers?|letters?)/i.test(line)) continue;
+      if (/^choose\s+(two|three|four|five|\d+)\s+(?:correct\s+)?(?:answers?|letters?)/i.test(line)) {
+        fallbackIndex = i;
+        continue;
+      }
       if (/^questions?\s+\d{1,2}\s*-\s*\d{1,2}/i.test(line)) continue;
       return i;
     }
-    return -1;
+    return fallbackIndex;
   }
 
   function isGroupedMultipleChoiceBlockV2(block) {
-    return /choose\s+(two|three|four|\d+)\s+(?:correct\s+)?(?:answers?|letters?)(?:\s+among\s+[A-Z]\s*-\s*[A-Z]|\s*,?\s+[A-Z]\s*-\s*[A-Z])?/i.test(String(block || ''));
+    return /choose\s+(two|three|four|five|\d+)\s+(?:correct\s+)?(?:answers?|letters?)/i.test(String(block || ''));
   }
 
   function getQuestionBlocksV2(rawText) {
