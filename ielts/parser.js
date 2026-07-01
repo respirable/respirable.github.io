@@ -8,6 +8,8 @@ RULES:
 3. Identify question types automatically: heading_match, multiple_choice, true_false_notgiven, yes_no_notgiven, summary_completion, matching_features, matching_endings, diagram_completion, short_answer, matching, matching_information, sentence_completion, note_completion, table_completion, flowchart_completion.
 4. Split the passage into logical sections with headings where present.
    - Paragraph labels may appear alone on a line, such as "A" followed by the paragraph text on the next line. Treat that standalone label as the section heading.
+   - Passage titles may be split across two or more short title lines before the first real paragraph, such as "Lepidoptera" followed by "Myths and Misnomers". Combine those lines into one passage.title when they form one title.
+   - Do NOT also copy those title/subtitle lines into passage.sections[].paragraphs. The first passage paragraph should begin with real body text, not with a duplicate of the passage title.
 5. If you see heading match question numbers, match them to paragraph sections and include questionMarker fields (e.g. 14, 15) in those sections.
    - questionMarker is ONLY for heading_match. For every other question type, including matching_information, all passage sections must have "questionMarker": null.
 6. CRITICAL QUESTION-TYPE DISTINCTION:
@@ -15,6 +17,7 @@ RULES:
    - matching_information is for "Which paragraph/section contains the following information?" tasks where the answers are paragraph labels such as A, B, C, D, E, F, G, H.
    - matching_features is for tasks like "Look at the following issues/statements and the list of people/researchers/organisations/countries below" where answers are named people, organisations, countries, groups, theories, or features labelled A-F.
    - matching_features also covers "Classify the following..." tasks where the labelled options are categories such as "early adolescence", "middle adolescence", and "late adolescence".
+   - matching_features also covers "Classify the things/statements/items that relate to:" followed by labelled categories A, B, C such as "butterflies only", "moths only", and "both butterflies and moths".
    - matching_features also covers "match the category/listed A-F with opinions or deeds below" tasks where A-F are named people, researchers, organisations, or categories.
    - matching_features also covers "match the people (listed A-C) with opinions or deeds below" and similar "people/researchers/scientists/authors listed A-C" tasks.
    - matching_features also covers "Match each event with the correct date, A-H" and similar tasks where the answer options are dates, years, places, categories, people, or named features.
@@ -36,17 +39,21 @@ RULES:
    - For heading_match examples, map the roman numeral to the actual heading text from "headingOptions" and store it as passage.sections[].headingExample = {"label":"iii","text":"<heading text>"} on the matching paragraph section.
    - For heading_match, preserve every labelled passage paragraph/section (A, B, C, etc.) as a separate passage.sections[] entry. Do not merge labelled paragraphs together.
    - For heading_match, every numbered target such as "27 Paragraph A", "28 Paragraph C", etc. must remain in questions[] and must produce a questionMarker on that passage section. Only example paragraphs are excluded from numbered questions.
+   - For heading_match, targets may be written without visible question numbers, such as "Paragraph A: _____", "Paragraph B: _____", under "Questions 1-5". In that case assign numbers sequentially: question 1 = Paragraph A, question 2 = Paragraph B, etc.
    - For matching_features, store the labelled people/organisations/countries/features in "options" in A-F order and put each numbered issue/statement in questions[].statement.
    - For matching_features date/event tasks, store the date or year values in "options" in A-H order. If the raw list is written on separate lines as "A" then "1851", store "1851" as option A, not "A".
    - For matching_features with people/researchers/scientists/authors, ALWAYS put the people list in "options" so the UI can render a separate List of Options table. Never put people names only as grid column headings and never omit the options table data.
    - For matching_features, "options" must contain the actual option names or category phrases, not the option letters. If the raw text says "List of People" followed by "A Ian Redmond", "B Valerie Kapos", store "options": ["Ian Redmond", "Valerie Kapos"], not ["A Ian Redmond", "B Valerie Kapos"] and not ["A", "B"].
    - If the raw text says "List of countries" followed by "A Andorra", "B China", "C Germany", "D US", store "options": ["Andorra", "China", "Germany", "US"], not ["A Andorra", "B China", "C Germany", "D US"].
    - If a matching_features block says "correct person, A-D", "country, A-D", "list of people below", or "list of countries below", the A-D letters are only answer labels. They are never the option text.
+   - For classify-style matching_features, store the category descriptions in "options" in label order. Example: raw text "A butterflies only. B moths only. C both butterflies and moths." becomes "options": ["butterflies only", "moths only", "both butterflies and moths"].
+   - For classify-style matching_features, every numbered item after "Write the correct letter..." is a question. Example: Questions 18-21 with items 18, 19, 20, 21 must produce four question objects, not zero.
    - For matching_features, NEVER include labelled options in "instructions". Example: "A early adolescence B middle adolescence C late adolescence" belongs only in "options", never in the instruction/title text.
    - For matching_endings, store the labelled sentence endings in "options" in A-E order and put each numbered sentence starter in questions[].stem or questions[].statement.
    - For matching_endings, option labels are display labels only. If the raw line says "A was one result of relocation.", store "was one result of relocation.", not "A was one result of relocation.".
    - For matching_endings, NEVER include labelled endings in "instructions". A-E endings belong only in "options".
    - For standard single-answer multiple_choice questions, each question must have its own "stem" and its own "options" array.
+   - For standard multiple_choice ranges, the individual question numbers may be omitted. If "Questions 11-14" is followed by four stems and each stem has A-D choices, assign numbers 11, 12, 13, and 14 sequentially.
    - For multiple_choice option text, store only the option content. Do NOT include the visible option label inside the string.
    - Example: if the raw text says "A. To allow professors...", store "To allow professors..." in q.options[0], not "A. To allow professors..." and not "A A. To allow professors...".
    - If MCQ choices are written as "A   related to..." or multiple choices are packed on one line, the option text is the phrase after the label, not the letter itself. Never output options as ["A","B","C","D"] unless the raw choices literally have no text.
@@ -83,6 +90,10 @@ RULES:
    - For note_completion specifically, preserve note headings/subheadings such as "Physical features", "Movement", "Diet and eating habits", and "Comparisons with modern-day humans" as part of the note text structure rather than treating them as separate passage content.
    - For note_completion blocks introduced by "Complete the notes below", preserve continuous note paragraphs and subheadings in a "noteText" field with inline placeholders. Do not split one continuous note paragraph into separate question lines with boxes appended after each fragment.
    - In note_completion, if a numbered blank appears mid-sentence, such as "trained in 7........ during Nobel's study...", keep it inline as "trained in ___7___ during Nobel's study...". Never render it as a separate question line with the answer box below.
+   - Some "Complete the notes below" tasks are visually tables. If note headings/subheadings are arranged in rows and columns, parse the group as "type": "table_completion" so the UI can render a table.
+   - For table-shaped notes, use "tableHeaders" and "tableRows". Preserve category/header rows such as "Russian Applied Arts" and "Russian Fine Arts" as full-width-looking rows by putting the title in the first cell and empty strings in the remaining cells.
+   - For table-shaped notes, keep row labels such as "Household goods:", "Garments:", "Painting:", "Icon", "Portrait", "Abstract", "Surrealist", and "Social ___11___" in the left columns, and keep the bullet/detail text in the right cell.
+   - For table-shaped notes, convert every dotted blank in a table cell to an inline placeholder, e.g. "embroidered 7........" becomes "embroidered ___7___" and "1915 Head of a 10........ = head all red" becomes "1915 Head of a ___10___ = head all red".
    - If a note-completion section has a title like "LUCY", store that in the group "title" field when appropriate.
    - EXTREMELY IMPORTANT FOR note_completion: only create a numbered blank when a line actually contains a missing-answer gap.
    - A bullet or note line with no dots/underscores/gap marker is just static note text. Keep it as plain text and do NOT assign it a question number.
@@ -103,6 +114,8 @@ RULES:
    - Do not output chain-of-thought, analysis, comments, XML tags, <think> blocks, or prose before/after the JSON.
    - Every property name and every string value MUST use double quotes.
    - Escape all internal double quotes, backslashes, tabs, and line breaks inside string values. Do not place raw multi-line text inside a JSON string.
+   - If a value contains multiple note/table bullet lines, store them as one JSON string with escaped "\\n" sequences or as separate table cells/array entries. Never emit literal unescaped line breaks inside string values.
+   - Prefer plain ASCII punctuation in JSON strings when the raw text contains damaged encoded characters, ligatures, or unusual bullets. For example, use "'", "-", "...", and "fl" if needed to keep JSON valid.
    - Do not use trailing commas, JavaScript comments, undefined, NaN, Infinity, single-quoted strings, or unquoted keys.
    - If the raw input contains damaged characters such as â€™, â€œ, â€, keep them inside normal JSON strings or replace them with safe ASCII apostrophes/quotes if needed to keep JSON valid.
 10. COMPLETENESS SELF-CHECK BEFORE RETURNING:
@@ -112,11 +125,13 @@ RULES:
    - Question numbers may appear alone on a line, with the question text on the following line. Treat a standalone line like "1" followed by "The cost implications..." as question 1 with that following text as the statement.
    - Question numbers may also appear alone on a line before heading-match targets such as "14" followed by "Section A"; parse that as question 14, not as missing question text.
    - Do not decide that no questions exist just because the number and the question text are on separate lines.
+   - TRUE/FALSE/NOT GIVEN and YES/NO/NOT GIVEN statements may be unnumbered under a numbered range. If "Questions 6-10" is followed by five statement lines, assign numbers 6 through 10 sequentially.
    - For every questionGroup, compare questionRange with the questions array.
    - A range like "1-4" means there are four answer slots: 1, 2, 3, and 4.
    - A range like "6-13" means there are eight answer slots: 6, 7, 8, 9, 10, 11, 12, and 13.
    - If the questions array covers fewer answer slots than questionRange, the JSON is incomplete. Fix it before returning.
    - Never return a group with only the first question parsed when the input shows a larger question range.
+   - Never skip a question block that appears between two successfully parsed blocks. Example: if the raw text has Questions 14-17, then Questions 18-21, then Questions 22-27, the returned part must include all three groups unless the middle block is truly absent.
    - If a short_answer block gives a range and then unnumbered question lines, assign the range numbers sequentially by reading order.
    - If a sentence_completion block says "Complete the sentences below" and then gives unnumbered question/sentence lines with no printed dotted gaps, assign the range numbers sequentially and create one answer slot for each line.
 
@@ -145,6 +160,9 @@ JSON SCHEMA:
           "headingOptions": ["<option>", ...],
           "summaryText": "<text with inline ___N___ blanks>",
           "additionalSummaries": [{"text": "..."}],
+          "noteText": "<note text with inline ___N___ blanks>",
+          "tableHeaders": ["<header>", ...],
+          "tableRows": [["<cell>", "<cell>", ...], ...],
           "options": ["<option>", ...],
           "questions": [
             {
@@ -188,6 +206,7 @@ EXAMPLES OF QUESTION TYPE DETECTION:
 - Dotted blanks like "............." inside a gap-fill sentence -> convert to inline ___N___ placeholder at that exact position
 - Bullet-point notes with a question range and dotted gaps -> note_completion with sequentially numbered inline blanks
 - Bullet-point notes with NO gap marker -> keep as plain note text, not a numbered question
+- Table-shaped note blocks with row labels/categories and dotted gaps -> table_completion with tableHeaders and tableRows
 - "Label the diagram" or "diagram below" -> diagram_completion
 - "Look at the following statements and the list of researchers below" -> matching_features`;
 
@@ -220,42 +239,59 @@ EXAMPLES OF QUESTION TYPE DETECTION:
 
     return `Parse this IELTS Reading test into JSON. /no_think
 ${answerKeyInstruction}
-Return one valid JSON object only. Do not include reasoning, comments, markdown, or text outside the JSON object.
+Return one valid JSON object only. The first character must be "{" and the last character must be "}".
+Do not include reasoning, comments, markdown, code fences, XML tags, <think> blocks, or text outside the JSON object.
+Before returning, internally verify that JSON.parse would succeed. Escape every newline inside string values as "\\n"; do not put raw multi-line text inside a JSON string.
 
 ${rawText}`;
   }
 
   async function parseWithGroq(rawText, apiKey, options = {}) {
     const url = 'https://api.groq.com/openai/v1/chat/completions';
-    const body = {
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildParseUserPrompt(rawText, options) }
-      ],
-      temperature: 0.1,
-      response_format: { type: 'json_object' }
+    const requestGroq = async (forceJsonMode) => {
+      const body = {
+        model: 'openai/gpt-oss-20b',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: buildParseUserPrompt(rawText, options) }
+        ],
+        temperature: 0.1
+      };
+      if (forceJsonMode) body.response_format = { type: 'json_object' };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const message = err.error?.message || res.statusText;
+        const error = new Error(`Groq API error: ${message}`);
+        error.groqMessage = message;
+        throw error;
+      }
+
+      return res.json();
     };
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(`Groq API error: ${err.error?.message || res.statusText}`);
+    let data;
+    try {
+      data = await requestGroq(true);
+    } catch (error) {
+      if (!/validate\s+JSON|failed_generation|json/i.test(error.groqMessage || error.message || '')) {
+        throw error;
+      }
+      data = await requestGroq(false);
     }
-
-    const data = await res.json();
     const text = data.choices?.[0]?.message?.content;
     if (!text) throw new Error('Groq returned empty response.');
 
-    return repairParsedDataV2(JSON.parse(cleanJsonText(text)), rawText, options);
+    return parseModelJsonOrFallbackV2(text, rawText, options);
   }
 
   async function parseWithGemini(rawText, apiKey, options = {}) {
@@ -288,7 +324,7 @@ ${rawText}`;
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error('Gemini returned empty response.');
 
-    return repairParsedDataV2(JSON.parse(cleanJsonText(text)), rawText, options);
+    return parseModelJsonOrFallbackV2(text, rawText, options);
   }
 
   async function parseWithOpenAI(rawText, apiKey, options = {}) {
@@ -321,7 +357,7 @@ ${rawText}`;
     const text = data.choices?.[0]?.message?.content;
     if (!text) throw new Error('OpenAI returned empty response.');
 
-    return repairParsedDataV2(JSON.parse(cleanJsonText(text)), rawText, options);
+    return parseModelJsonOrFallbackV2(text, rawText, options);
   }
 
   async function ensureAnswerKeyIfNeeded(data, rawText, provider, apiKey, options = {}) {
@@ -412,28 +448,47 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
 
     const isGroq = provider === 'groq';
     const url = isGroq ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
-    const model = isGroq ? 'llama-3.3-70b-versatile' : 'gpt-4o - mini';
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
+    const model = isGroq ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini';
+    const requestJsonModel = async (forceJsonMode) => {
+      const body = {
         model,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `${isGroq ? '/no_think\n' : ''}${userPrompt}` }
         ],
-        temperature: 0.1,
-        response_format: { type: 'json_object' }
-      })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(`${isGroq ? 'Groq' : 'OpenAI'} API error: ${err.error?.message || res.statusText}`);
+        temperature: 0.1
+      };
+      if (forceJsonMode) body.response_format = { type: 'json_object' };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const message = err.error?.message || res.statusText;
+        const error = new Error(`${isGroq ? 'Groq' : 'OpenAI'} API error: ${message}`);
+        error.providerMessage = message;
+        throw error;
+      }
+
+      return res.json();
+    };
+
+    let data;
+    try {
+      data = await requestJsonModel(true);
+    } catch (error) {
+      if (!isGroq || !/validate\s+JSON|failed_generation|json/i.test(error.providerMessage || error.message || '')) {
+        throw error;
+      }
+      data = await requestJsonModel(false);
     }
-    const data = await res.json();
     const text = data.choices?.[0]?.message?.content;
     if (!text) throw new Error(`${isGroq ? 'Groq' : 'OpenAI'} returned empty response.`);
     return JSON.parse(cleanJsonText(text));
@@ -457,7 +512,37 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     if (cleaned.startsWith('```')) {
       cleaned = cleaned.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/, '');
     }
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+    }
     return cleaned.trim();
+  }
+
+  function parseModelJsonOrFallbackV2(text, rawText, options = {}) {
+    try {
+      return repairParsedDataV2(JSON.parse(cleanJsonText(text)), rawText, options);
+    } catch (error) {
+      const fallback = createDeterministicParsedDataV2(rawText, options);
+      if (fallback) return fallback;
+      throw error;
+    }
+  }
+
+  function createDeterministicParsedDataV2(rawText, options = {}) {
+    const repairGroups = extractRepairQuestionGroupsV2(rawText);
+    if (repairGroups.length === 0) return null;
+    return repairParsedDataV2({
+      parts: [{
+        partNumber: 1,
+        questionRange: combineQuestionRangeV2(repairGroups),
+        passage: extractPassageFallbackV2(rawText),
+        questionGroups: []
+      }],
+      answerKey: {},
+      answerKeySource: options.autoGenerateAnswerKey === false ? 'none' : 'missing'
+    }, rawText, options);
   }
 
   function repairParsedData(data, rawText) {
@@ -1118,7 +1203,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     for (const part of (data.parts || [])) {
       for (const group of (part.questionGroups || [])) {
         if (group.type !== 'multiple_choice') continue;
-        
+
         // Propagate group-level options to question-level if they are empty
         if (Array.isArray(group.options) && group.options.length > 0) {
           for (const question of (group.questions || [])) {
@@ -1550,6 +1635,19 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
         questions.push({ number, section });
       }
     }
+    if (questions.length === 0) {
+      const targetLines = lines
+        .map(line => line.match(/^(?:Section|Paragraph)\s+([A-Z])\s*:\s*(?:_{2,}|\.{3,})?\s*$/i))
+        .filter(Boolean)
+        .map(match => match[1].toUpperCase());
+      const expected = end - start + 1;
+      if (targetLines.length >= expected) {
+        return targetLines.slice(0, expected).map((section, index) => ({
+          number: start + index,
+          section
+        }));
+      }
+    }
     return questions;
   }
 
@@ -1651,8 +1749,26 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
   function extractTFNGGroupsV2(rawText) {
     const groups = [];
     for (const { start, end, block } of getQuestionBlocksV2(rawText)) {
-      if (!/\btrue\b[\s\S]*\bfalse\b[\s\S]*\bnot\s+given\b/i.test(block)) continue;
+      const hasTfngLabels = /\btrue\b[\s\S]*\bfalse\b[\s\S]*\bnot\s+given\b/i.test(block);
+      const hasTfngInstruction =
+        /do\s+the\s+following\s+statements\s+agree/i.test(block) ||
+        /choose\s+true\s+if/i.test(block) ||
+        /write\s+(?:t|true)\b/i.test(block) ||
+        /if\s+the\s+statement\s+agrees/i.test(block) ||
+        /^[:\s]*true\s*\/\s*false\s*\/\s*not\s+given\b/im.test(block);
+      if (!hasTfngLabels || !hasTfngInstruction) continue;
       const questions = extractNumberedStatementsV2(block, start, end);
+      if (questions.length === 0) {
+        questions.push(...extractSequentialStatementsV2(block, start, end, {
+          skipPatterns: [
+            /^[:\s]*true\s*\/?\s*false\s*\/?\s*not\s+given/i,
+            /^write\s+(?:t|true)\b/i,
+            /^true\b/i,
+            /^false\b/i,
+            /^not\s+given\b/i
+          ]
+        }));
+      }
       if (questions.length !== end - start + 1) continue;
 
       groups.push({
@@ -1834,6 +1950,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     const groups = [];
     for (const { start, end, block } of getQuestionBlocksV2(rawText)) {
       if (/complete\s+the\s+notes?\s+below/i.test(block)) continue;
+      if (/list\s+of\s+headings|matching\s+headings|choose\s+the\s+correct\s+heading/i.test(block)) continue;
       if (!/complete\s+the\s+sentences?\s+below/i.test(block) && !/_{2,}|\.{3,}/.test(block)) continue;
       const lines = block.split('\n').map(line => line.trim()).filter(Boolean);
       const statements = lines.filter(line => /\.{3,}|_{2,}/.test(line));
@@ -1888,6 +2005,7 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     const groups = [];
     for (const { start, end, block } of getQuestionBlocksV2(rawText)) {
       if (/complete\s+the\s+notes?\s+below/i.test(block)) continue;
+      if (/list\s+of\s+headings|matching\s+headings|choose\s+the\s+correct\s+heading/i.test(block)) continue;
       if (!/complete\s+the\s+sentences?\s+below/i.test(block) || /correct\s+ending/i.test(block)) continue;
       const lines = block.split('\n').map(line => line.trim()).filter(Boolean);
       const questions = [];
@@ -1971,6 +2089,10 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
         }
         if (stem && options.length >= 2) questions.push({ number, stem, options, answer: null });
       }
+      if (questions.length !== end - start + 1) {
+        questions.length = 0;
+        questions.push(...extractSequentialStandardMultipleChoiceQuestionsV2(block, start, end));
+      }
       if (questions.length !== end - start + 1) continue;
       groups.push({
         type: 'multiple_choice',
@@ -1983,10 +2105,59 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     return groups;
   }
 
+  function extractSequentialStandardMultipleChoiceQuestionsV2(block, start, end) {
+    const expected = end - start + 1;
+    const lines = block.split('\n').map(line => line.trim()).filter(Boolean);
+    const questions = [];
+    let pendingStem = '';
+    let options = [];
+
+    const flush = () => {
+      if (!pendingStem || options.length < 2 || questions.length >= expected) return;
+      questions.push({
+        number: start + questions.length,
+        stem: normalizeQuestionTextV2(pendingStem),
+        options: [...options],
+        answer: null
+      });
+      pendingStem = '';
+      options = [];
+    };
+
+    for (const line of lines) {
+      if (/^questions?\s+\d{1,2}\s*-\s*\d{1,2}/i.test(line)) continue;
+      if (/^choose\s+the\s+correct\s+answer/i.test(line) || /^choose\s+the\s+correct\s+letter/i.test(line)) continue;
+
+      const packed = extractPackedLetteredOptionsV2(line);
+      if (packed.length > 1) {
+        options.push(...packed);
+        flush();
+        continue;
+      }
+
+      const optionMatch = line.match(/^([A-D])[\.)]\s+(.+)$/);
+      if (optionMatch) {
+        options.push(optionMatch[2].trim());
+        if (options.length >= 4) flush();
+        continue;
+      }
+
+      if (pendingStem && options.length > 0) {
+        flush();
+      }
+      if (!/^[A-D][\.)]?$/.test(line)) {
+        pendingStem = line;
+      }
+    }
+
+    flush();
+    return questions.length === expected ? questions : [];
+  }
+
   function extractSingleMultipleChoiceGroupsV2(rawText) {
     const groups = [];
     const text = normalizeParserTextV2(rawText);
-    const pattern = /\bQuestion\s+(\d{1,2})\b([\s\S]*?)(?=\n\s*Question\s+\d{1,2}\b|\n\s*Answers?\s*:|$)/gi;
+    const pattern = /^\s*Question\s+(\d{1,2})\b([\s\S]*?)(?=\n\s*Question\s+\d{1,2}\b|\n\s*Answers?\s*:|$)/gim;
     let match;
 
     while ((match = pattern.exec(text)) !== null) {

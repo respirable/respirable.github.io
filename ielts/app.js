@@ -327,12 +327,18 @@ function openEmergencyScoreModal() {
   const modal = document.getElementById('emergency-score-modal');
   const input = document.getElementById('emergency-score-pin-check');
   const error = document.getElementById('emergency-score-error');
+  const pinPanel = document.getElementById('emergency-score-pin-panel');
+  const choicePanel = document.getElementById('emergency-score-choice-panel');
+  const title = document.getElementById('emergency-modal-title');
   if (input) input.value = '';
   if (error) {
     error.style.display = 'none';
     const span = error.querySelector('span') || error;
     span.textContent = '';
   }
+  if (pinPanel) pinPanel.style.display = 'block';
+  if (choicePanel) choicePanel.style.display = 'none';
+  if (title) title.textContent = 'Check Score';
   if (modal) modal.style.display = 'flex';
   window.setTimeout(() => input?.focus(), 0);
 }
@@ -359,7 +365,7 @@ function submitEmergencyScorePin() {
       notify('warning', 'Emergency Score Viewer was disabled after 3 incorrect PIN attempts.');
       return;
     }
-  if (error) {
+    if (error) {
       const msg = `Incorrect PIN. ${3 - emergencyScoreFailedAttempts} attempt${3 - emergencyScoreFailedAttempts === 1 ? '' : 's'} remaining.`;
       const span = error.querySelector('span') || error;
       span.textContent = msg;
@@ -370,7 +376,7 @@ function submitEmergencyScorePin() {
 
   const snapshot = Renderer.getScoreSnapshot?.();
   if (!snapshot?.hasAnswerKey) {
-  if (error) {
+    if (error) {
       const span = error.querySelector('span') || error;
       span.textContent = 'No answer key is available for this test.';
       error.style.display = 'flex';
@@ -378,9 +384,27 @@ function submitEmergencyScorePin() {
     return;
   }
 
-  closeEmergencyScoreModal();
-  Renderer.checkAnswers?.();
+  const pinPanel = document.getElementById('emergency-score-pin-panel');
+  const choicePanel = document.getElementById('emergency-score-choice-panel');
+  const title = document.getElementById('emergency-modal-title');
+  if (pinPanel) pinPanel.style.display = 'none';
+  if (choicePanel) choicePanel.style.display = 'block';
+  if (title) title.textContent = 'Emergency Options';
 }
+
+function applyEmergencyAction(action) {
+  if (action === 'stop_timer') {
+    Renderer.pauseTimer?.();
+    Renderer.lockAnswers?.();
+    stopSessionIntegrity();
+    closeEmergencyScoreModal();
+    notify('success', 'Timer has been stopped. Your answers are now locked.');
+  } else if (action === 'stop_timer_and_check') {
+    closeEmergencyScoreModal();
+    Renderer.checkAnswers?.();
+  }
+}
+
 
 function openWritingSpeedTimerModal() {
   if (writingSpeedTimerLocked || writingSpeedTimerUsed) {
@@ -1445,4 +1469,3 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   loadSharedTestFromURL();
 });
-

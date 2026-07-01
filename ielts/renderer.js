@@ -2138,6 +2138,7 @@ const Renderer = (() => {
     clearAnnotations,
     navigatePrev,
     navigateNext,
+    lockAnswers,
     stopTimer,
     pauseTimer,
     resumeTimer

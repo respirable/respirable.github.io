@@ -3157,3 +3157,72 @@ body {
     max-width: none;
   }
 }
+
+/* Emergency Choice Modal */
+.emergency-choice-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.emergency-choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all .2s ease;
+  font-family: inherit;
+}
+
+.emergency-choice-btn:hover {
+  border-color: var(--accent);
+  background: #f0f5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(9, 105, 218, .12);
+}
+
+.emergency-choice-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.emergency-choice-btn .choice-btn-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  stroke: var(--muted);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke .2s ease;
+}
+
+.emergency-choice-btn:hover .choice-btn-icon {
+  stroke: var(--accent);
+}
+
+.emergency-choice-btn .choice-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.emergency-choice-btn .choice-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.emergency-choice-btn .choice-subtitle {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
