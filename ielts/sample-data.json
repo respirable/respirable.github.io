@@ -424,10 +424,12 @@
           "questions": [
             {
               "number": 36,
+              "statement": "___36___",
               "answer": null
             },
             {
               "number": 37,
+              "statement": "___37___",
               "answer": null
             }
           ]

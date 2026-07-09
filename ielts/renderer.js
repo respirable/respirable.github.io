@@ -164,6 +164,9 @@ const Renderer = (() => {
     }
 
     let html = `<h2>${esc(passage.title)}</h2>`;
+    if (passage.subtitle) {
+      html += `<p class="passage-subtitle" style="font-style:italic;color:var(--muted);margin-top:-8px;margin-bottom:20px;font-size:1.1rem;line-height:1.4;">${esc(passage.subtitle)}</p>`;
+    }
 
     for (const section of passage.sections) {
       // Check if this section has a heading match slot
@@ -968,10 +971,27 @@ const Renderer = (() => {
       }
     }
 
+    // Check if any answer is used more than once
+    const answerCounts = {};
+    let hasMultipleAnswers = false;
+    for (const q of (group.questions || [])) {
+      const qNum = String(q.number);
+      const ans = answers[qNum];
+      if (ans) {
+        answerCounts[ans] = (answerCounts[ans] || 0) + 1;
+        if (answerCounts[ans] > 1) {
+          hasMultipleAnswers = true;
+        }
+      }
+    }
+
     const gridColumns = `minmax(260px, 1.8fr) repeat(${options.length}, minmax(56px, 72px))`;
     const mobileGridColumns = `minmax(220px, 1.6fr) repeat(${options.length}, minmax(48px, 56px))`;
     let html = '<div class="heading-list matching-grid-wrap">';
     html += '<div class="heading-label">Choose the correct paragraph for each statement.</div>';
+    if (hasMultipleAnswers) {
+      html += '<div class="heading-label" style="color: var(--muted); font-size: 0.85rem; margin-top: 6px; margin-bottom: 8px;">You may use any letter more than once.</div>';
+    }
     html += `<div class="matching-grid" style="--grid-columns:${gridColumns}; --grid-columns-mobile:${mobileGridColumns};">`;
     html += '<div class="matching-grid-header matching-grid-stem"></div>';
     for (const opt of options) {
@@ -1104,12 +1124,15 @@ const Renderer = (() => {
   }
 
   function renderFlowchartCompletion(group) {
-    let html = '<div style="display:flex; flex-direction:column; gap:14px; margin: 16px 0;">';
+    let html = '<div style="display:flex; flex-direction:column; gap:14px; margin: 16px 0; align-items:center;">';
     const steps = group.questions || [];
     for (let i = 0; i < steps.length; i++) {
       const q = steps[i];
+      const color = q.color || 'var(--accent)';
+      const width = Number(q.width || 320);
+      const height = Number(q.height || 72);
       html += `
-        <div class="diagram-container" data-q-item="${q.number}" style="margin: 0; padding:16px; text-align:left; background:#fafafa; border:1px solid var(--border);">
+        <div class="diagram-container" data-q-item="${q.number}" style="margin: 0; padding:16px; text-align:left; background:#fafafa; border:2px solid ${esc(color)}; min-width:${Math.max(160, width)}px; min-height:${Math.max(48, height)}px; max-width:100%;">
           <div style="font-weight:700; margin-bottom:8px; color:var(--accent);">Step ${i + 1}</div>
           <div>`;
       const text = q.statement || q.stem || '';
@@ -1124,6 +1147,11 @@ const Renderer = (() => {
       }
       html += `</div></div>`;
       if (i < steps.length - 1) {
+        const arrow = q.arrow || 'down';
+        const arrowText = arrow === 'up' ? '↑' : arrow === 'right' ? '→' : arrow === 'left' ? '←' : arrow === 'both' ? '↕' : arrow === 'branch' ? `↘ branch to ${esc(String(q.branchTo || i + 2))}` : arrow === 'none' ? '' : '↓';
+        if (arrowText) html += `<div style="text-align:center; color:var(--muted); font-size:1.2rem;">${arrowText}</div>`;
+      }
+      if (false && i < steps.length - 1) {
         html += '<div style="text-align:center; color:var(--muted); font-size:1.2rem;">↓</div>';
       }
     }

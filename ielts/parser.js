@@ -217,6 +217,8 @@ EXAMPLES OF QUESTION TYPE DETECTION:
       parsed = await parseWithGemini(rawText, apiKey, parseOptions);
     } else if (provider === 'openai') {
       parsed = await parseWithOpenAI(rawText, apiKey, parseOptions);
+    } else if (provider === 'openrouter') {
+      parsed = await parseWithOpenRouter(rawText, apiKey, parseOptions);
     } else if (provider === 'groq') {
       parsed = await parseWithGroq(rawText, apiKey, parseOptions);
     } else {
@@ -228,7 +230,8 @@ EXAMPLES OF QUESTION TYPE DETECTION:
 
   function normalizeParseOptions(options = {}) {
     return {
-      autoGenerateAnswerKey: options.autoGenerateAnswerKey !== false
+      autoGenerateAnswerKey: options.autoGenerateAnswerKey !== false,
+      openrouterModel: options.openrouterModel || 'deepseek/deepseek-chat-v3-0324:free'
     };
   }
 
@@ -360,6 +363,37 @@ ${rawText}`;
     return parseModelJsonOrFallbackV2(text, rawText, options);
   }
 
+  async function parseWithOpenRouter(rawText, apiKey, options = {}) {
+    const url = 'https://openrouter.ai/api/v1/chat/completions';
+    const model = options.openrouterModel || 'deepseek/deepseek-chat-v3-0324:free';
+    const body = {
+      model: model,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: buildParseUserPrompt(rawText, options) }
+      ],
+      temperature: 0.1,
+      response_format: { type: 'json_object' }
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: buildOpenRouterHeaders(apiKey),
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`OpenRouter API error: ${err.error?.message || res.statusText}`);
+    }
+
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error('OpenRouter returned empty response.');
+
+    return parseModelJsonOrFallbackV2(text, rawText, options);
+  }
+
   async function ensureAnswerKeyIfNeeded(data, rawText, provider, apiKey, options = {}) {
     normalizeAnswerKeyStateV2(data, options);
     if (!options.autoGenerateAnswerKey || hasCompleteAnswerKeyV2(data)) return data;
@@ -447,8 +481,9 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
     }
 
     const isGroq = provider === 'groq';
-    const url = isGroq ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
-    const model = isGroq ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini';
+    const isOpenRouter = provider === 'openrouter';
+    const url = isOpenRouter ? 'https://openrouter.ai/api/v1/chat/completions' : (isGroq ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions');
+    const model = isOpenRouter ? (options?.openrouterModel || 'deepseek/deepseek-chat-v3-0324:free') : (isGroq ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini');
     const requestJsonModel = async (forceJsonMode) => {
       const body = {
         model,
@@ -462,17 +497,19 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
 
       const res = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
+        headers: isOpenRouter
+          ? buildOpenRouterHeaders(apiKey)
+          : {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${String(apiKey || '').trim()}`
+          },
         body: JSON.stringify(body)
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         const message = err.error?.message || res.statusText;
-        const error = new Error(`${isGroq ? 'Groq' : 'OpenAI'} API error: ${message}`);
+        const error = new Error(`${isOpenRouter ? 'OpenRouter' : (isGroq ? 'Groq' : 'OpenAI')} API error: ${message}`);
         error.providerMessage = message;
         throw error;
       }
@@ -490,8 +527,34 @@ Use CORRECTED_JSON as the source of truth if it is provided and valid. If PARSED
       data = await requestJsonModel(false);
     }
     const text = data.choices?.[0]?.message?.content;
-    if (!text) throw new Error(`${isGroq ? 'Groq' : 'OpenAI'} returned empty response.`);
+    if (!text) throw new Error(`${isOpenRouter ? 'OpenRouter' : (isGroq ? 'Groq' : 'OpenAI')} returned empty response.`);
     return JSON.parse(cleanJsonText(text));
+  }
+
+  function normalizeBearerToken(apiKey) {
+    return String(apiKey || '')
+      .trim()
+      .replace(/^Bearer\s+/i, '')
+      .trim()
+      .replace(/^['"]|['"]$/g, '')
+      .replace(/\s+/g, '');
+  }
+
+  function buildOpenRouterHeaders(apiKey) {
+    const token = normalizeBearerToken(apiKey);
+    if (!token) {
+      throw new Error('OpenRouter API key is missing. Paste your OpenRouter key in the API Key field.');
+    }
+    const referer = typeof window !== 'undefined' && window.location?.href
+      ? window.location.href
+      : 'https://localhost';
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'HTTP-Referer': referer,
+      'X-Title': 'IELTS Practice Generator',
+      'X-OpenRouter-Title': 'IELTS Practice Generator'
+    };
   }
 
   function normalizeReviewResult(result, parsedJson) {
