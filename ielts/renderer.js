@@ -2038,7 +2038,31 @@ const Renderer = (() => {
     if (!raw) return [''];
 
     const variants = new Set([raw]);
-    if (/\([^)]*\)/.test(raw)) {
+    
+    // Handle parentheses with slashes for "either/or" options
+    // Example: "(Claude/GG)" or "Claude (Haiku/Sonnet)"
+    if (/\([^)]*\/[^)]*\)/.test(raw)) {
+      const parts = raw.split(/(\([^)]*\/[^)]*\))/g).filter(part => part !== '');
+      let combinations = [''];
+      for (const part of parts) {
+        const eitherOr = part.match(/^\(([^)]*)\)$/);
+        if (eitherOr) {
+          const options = eitherOr[1].split('/').map(o => o.trim());
+          const newCombinations = [];
+          for (const combo of combinations) {
+            for (const option of options) {
+              newCombinations.push(`${combo} ${option}`.replace(/^\s+/, ''));
+            }
+          }
+          combinations = newCombinations;
+        } else {
+          combinations = combinations.map(value => `${value} ${part}`.replace(/\s+/g, ' ').trim());
+        }
+      }
+      combinations.forEach(value => variants.add(value.replace(/\s+/g, ' ').trim()));
+    }
+    // Handle regular parentheses for optional text
+    else if (/\([^)]*\)/.test(raw)) {
       const parts = raw.split(/(\([^)]*\))/g).filter(part => part !== '');
       let combinations = [''];
       for (const part of parts) {
