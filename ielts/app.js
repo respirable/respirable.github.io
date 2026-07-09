@@ -569,6 +569,10 @@ async function handleDemo() {
   }
 }
 
+function openReadingCreator() {
+  showValidation('info', 'The manual passage creator interface is currently under development. For now, please use "Create With Legacy AI Parser" to generate tests from your passage and questions.');
+}
+
 function setTestShellMode(mode) {
   const isWriting = mode === 'writing';
   const testView = document.getElementById('test-view');
