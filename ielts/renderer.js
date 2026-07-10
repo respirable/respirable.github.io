@@ -186,7 +186,7 @@ const Renderer = (() => {
             <span class="slot-num">Example</span>
             <span class="slot-heading">${esc(section.headingExample.text || '')}</span>
           </div>`;
-      } else if (section.heading) {
+      } else if (section.heading && passage.sectionsMode !== false) {
         html += `<h3>${esc(section.heading)}</h3>`;
       }
       for (const para of (section.paragraphs || [])) {
@@ -731,10 +731,31 @@ const Renderer = (() => {
       .replace(/(?:_\s*)+(___\d+___)(?:\s*_)+/g, '$1')
       .replace(/(?:_\s*)+(__(?:\d+)__)(?:\s*_)+/g, '$1');
 
-    return esc(normalizedText).replace(/_{2,}(\d+)_{2,}|_{3,}(\d+)_{3,}/g, (match, shortNum, longNum) => {
+    // Process line by line to handle ### headings, bullet points, and newlines
+    const lines = normalizedText.split(/\n/);
+    const htmlLines = lines.map(line => {
+      // ### Subheading
+      if (/^###\s+/.test(line)) {
+        const headingText = esc(line.replace(/^###\s+/, ''));
+        return '<strong style=\"display:block;font-size:1.05em;margin-top:8px;margin-bottom:2px;\">' + headingText + '</strong>';
+      }
+      // Bullet: starts with - or bullet
+      if (/^[-•]\s+/.test(line)) {
+        const bulletText = esc(line.replace(/^[-•]\s+/, ''));
+        return '<span style=\"display:block;padding-left:1.2em;text-indent:-1.2em;\">• ' + bulletText + '</span>';
+      }
+      // Empty line => break
+      if (!line.trim()) return '<br>';
+      // Normal text
+      return esc(line);
+    });
+
+    const joined = htmlLines.join('');
+
+    return joined.replace(/_{2,}(\d+)_{2,}|_{3,}(\d+)_{3,}/g, (match, shortNum, longNum) => {
       const num = shortNum || longNum;
       const attrs = useWordBank
-        ? `data-summary-group="${groupKey}" readonly ondragover="Renderer.allowDrop(event)" ondragleave="Renderer.dragLeave(event)" ondrop="Renderer.dropSummaryOption(event)"`
+        ? 'data-summary-group=\"' + groupKey + '\" readonly ondragover=\"Renderer.allowDrop(event)\" ondragleave=\"Renderer.dragLeave(event)\" ondrop=\"Renderer.dropSummaryOption(event)\"'
         : '';
       const extraClass = useWordBank ? ' summary-choice-blank' : '';
       return renderGapInput(num, extraClass, num, '', attrs);
@@ -1096,17 +1117,61 @@ const Renderer = (() => {
     if (!group.tableHeaders || !group.tableRows) {
       return renderNoteCompletion(group);
     }
-    let html = '<div style="overflow-x:auto; margin: 16px 0;">';
-    html += '<table style="width:100%; border-collapse: collapse; border: 1px solid var(--border); font-size:0.88rem;">';
-    html += '<thead><tr style="background:#f5f6f8; border-bottom: 2px solid var(--border);">';
-    for (const h of group.tableHeaders) {
-      html += `<th style="padding:10px; border:1px solid var(--border); text-align:left;">${esc(h)}</th>`;
+
+    function isCellCovered(ri, ci) {
+      if (!group.tableCellMerge) return false;
+      for (const [key, merge] of Object.entries(group.tableCellMerge)) {
+        const [mri, mci] = key.split('-').map(Number);
+        if (mri === ri && mci === ci) continue;
+        if (ri >= mri && ri < mri + merge.rowspan && ci >= mci && ci < mci + merge.colspan) {
+          return true;
+        }
+      }
+      return false;
     }
+
+    let html = '<div style="overflow-x:auto; margin: 16px 0;">';
+    html += '<table style="width:100%; border-collapse: collapse; border: 1px solid #475569; font-size:0.88rem; table-layout: fixed; font-family: Arial, sans-serif;">';
+    
+    if (group.tableColumnWidths) {
+      html += '<colgroup>';
+      group.tableColumnWidths.forEach(w => {
+        html += `<col style="width:${w ? w + 'px' : 'auto'};">`;
+      });
+      html += '</colgroup>';
+    }
+
+    html += '<thead><tr style="background:#ffffff; border-bottom: 2px solid #475569;">';
+    group.tableHeaders.forEach((h, hi) => {
+      html += `<th style="padding:12px; border:1px solid #475569; text-align:left; font-family: Arial, sans-serif; font-weight:700; color:#1e293b;">${esc(h)}</th>`;
+    });
     html += '</tr></thead><tbody>';
-    for (const row of group.tableRows) {
-      html += '<tr>';
-      for (const cell of row) {
-        html += `<td style="padding:10px; border:1px solid var(--border); line-height:1.5;">`;
+
+    group.tableRows.forEach((row, ri) => {
+      const rowHeight = group.tableRowHeights?.[ri] ? `${group.tableRowHeights[ri]}px` : 'auto';
+      html += `<tr style="height:${rowHeight};">`;
+      row.forEach((cell, ci) => {
+        if (isCellCovered(ri, ci)) return;
+
+        const style = group.tableCellStyles?.[`${ri}-${ci}`] || {};
+        const cellStyle = [
+          `text-align:${style.align || 'left'}`,
+          style.bold ? 'font-weight:700' : '',
+          style.italic ? 'font-style:italic' : '',
+          style.bg ? `background:${style.bg}` : '',
+          'padding:12px',
+          'border:1px solid #475569',
+          'line-height:1.5',
+          'vertical-align:middle',
+          'font-family: Arial, sans-serif',
+          'background:#ffffff'
+        ].filter(Boolean).join(';');
+
+        const merge = group.tableCellMerge?.[`${ri}-${ci}`];
+        const colspanAttr = merge ? ` colspan="${merge.colspan}"` : '';
+        const rowspanAttr = merge ? ` rowspan="${merge.rowspan}"` : '';
+
+        html += `<td style="${cellStyle}"${colspanAttr}${rowspanAttr}>`;
         if (/_{2,}(\d+)_{2,}/.test(cell)) {
           const replaced = esc(cell).replace(/_{2,}(\d+)_{2,}/g, (match, num) => {
             return renderGapInput(num, '', num, 'width: 100px; padding: 4px; font-size: 0.8rem;');
@@ -1116,9 +1181,9 @@ const Renderer = (() => {
           html += esc(cell);
         }
         html += `</td>`;
-      }
+      });
       html += '</tr>';
-    }
+    });
     html += '</tbody></table></div>';
     return html;
   }
@@ -1909,9 +1974,16 @@ const Renderer = (() => {
     }
 
     for (const [label, groupEntries] of grouped.entries()) {
-      const ordered = [...groupEntries].sort((a, b) => Number(a.key) - Number(b.key));
-      const values = ordered.map(entry => String(entry.correct || '').trim()).filter(Boolean);
-      displays.set(label, values.join(', '));
+      const letters = new Set();
+      groupEntries.forEach(entry => {
+        const parts = splitAnswerList(entry.correct);
+        parts.forEach(p => {
+          const l = String(p).trim().toUpperCase();
+          if (l && l !== '[ANSWER]') letters.add(l);
+        });
+      });
+      const sortedLetters = [...letters].sort();
+      displays.set(label, sortedLetters.length ? sortedLetters.join(', ') : '[Answer]');
     }
 
     return displays;
@@ -2037,49 +2109,53 @@ const Renderer = (() => {
     const raw = String(correctValue || '').trim();
     if (!raw) return [''];
 
-    const variants = new Set([raw]);
-    
-    // Handle parentheses with slashes for "either/or" options
-    // Example: "(Claude/GG)" or "Claude (Haiku/Sonnet)"
-    if (/\([^)]*\/[^)]*\)/.test(raw)) {
-      const parts = raw.split(/(\([^)]*\/[^)]*\))/g).filter(part => part !== '');
-      let combinations = [''];
-      for (const part of parts) {
-        const eitherOr = part.match(/^\(([^)]*)\)$/);
-        if (eitherOr) {
-          const options = eitherOr[1].split('/').map(o => o.trim());
-          const newCombinations = [];
-          for (const combo of combinations) {
-            for (const option of options) {
-              newCombinations.push(`${combo} ${option}`.replace(/^\s+/, ''));
-            }
-          }
-          combinations = newCombinations;
-        } else {
-          combinations = combinations.map(value => `${value} ${part}`.replace(/\s+/g, ' ').trim());
-        }
-      }
-      combinations.forEach(value => variants.add(value.replace(/\s+/g, ' ').trim()));
-    }
-    // Handle regular parentheses for optional text
-    else if (/\([^)]*\)/.test(raw)) {
-      const parts = raw.split(/(\([^)]*\))/g).filter(part => part !== '');
-      let combinations = [''];
-      for (const part of parts) {
-        const optional = part.match(/^\(([^)]*)\)$/);
-        if (optional) {
-          combinations = [
-            ...combinations,
-            ...combinations.map(value => `${value} ${optional[1]}`)
-          ];
-        } else {
-          combinations = combinations.map(value => `${value} ${part}`);
-        }
-      }
-      combinations.forEach(value => variants.add(value.replace(/\s+/g, ' ').trim()));
+    // If there are no parentheses, just return the raw value
+    if (!/\([^)]*\)/.test(raw)) {
+      return [raw];
     }
 
-    return [...variants].filter(Boolean);
+    // Split the answer into parts: literal text and parenthesized blocks
+    // regex: /(\([^)]*\))/ matches (anything)
+    const parts = raw.split(/(\([^)]*\))/g).filter(p => p !== '');
+    
+    let combinations = [''];
+
+    for (const part of parts) {
+      const match = part.match(/^\(([^)]*)\)$/);
+      if (match) {
+        const inner = match[1];
+        let options = [];
+
+        if (inner.includes('/')) {
+          // Choice logic: (A/B) means EITHER A or B is correct
+          options = inner.split('/').map(s => s.trim()).filter(Boolean);
+        } else {
+          // Optional logic: (the) means "the" or "" is correct
+          options = [inner.trim(), ''];
+        }
+
+        // Multiply current combinations by the new options
+        const nextCombinations = [];
+        for (const current of combinations) {
+          for (const opt of options) {
+            nextCombinations.push(`${current} ${opt}`);
+          }
+        }
+        combinations = nextCombinations;
+      } else {
+        // Literal part: just append to all current combinations
+        combinations = combinations.map(c => `${c} ${part}`);
+      }
+    }
+
+    // Clean up spaces and return unique variants
+    const finalVariants = new Set();
+    combinations.forEach(c => {
+      const cleaned = c.replace(/\s+/g, ' ').trim();
+      if (cleaned) finalVariants.add(cleaned);
+    });
+
+    return [...finalVariants];
   }
 
   function setGapCorrectAnswerHover(input, correctVal) {

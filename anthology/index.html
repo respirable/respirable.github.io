@@ -48,13 +48,42 @@
     /* ── HEADING ── */
     h1.site-title {
       font-family: "Segoe UI", "Segoe UI Variable Display", sans-serif;
-      font-size: clamp(2rem, 10vw, 3.5rem);
+      font-size: clamp(2.2rem, 8vw, 4rem);
       font-weight: 600;
       letter-spacing: -0.03em;
-      line-height: 1;
-      margin-bottom: 36px;
-      color: #1F2328;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      color: var(--text);
       animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    /* ── ANTHOLOGY META BADGE ── */
+    .anthology-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      animation: fadeSlideDown 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .anthology-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(9, 105, 218, 0.08);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(9, 105, 218, 0.2);
+    }
+
+    .anthology-byline {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
     /* ── INTRO ── */
@@ -230,6 +259,7 @@
     </a>
 
     <!-- HEADING -->
+
     <h1 class="site-title">anthology</h1>
 
     <!-- INTRO -->
@@ -411,11 +441,11 @@
     </div>
 
     <!-- UTILITIES -->
-  <div class="story-section" style="margin-top: 8px; display: none;">
-    <div class="part-label" style="color: var(--muted); opacity: 0.6;">Utilities</div>
-    <div class="story-grid">
+    <div class="story-section" style="margin-top: 8px; display: none;">
+      <div class="part-label" style="color: var(--muted); opacity: 0.6;">Utilities</div>
+      <div class="story-grid">
+      </div>
     </div>
-  </div>
 
   </div>
 </body>

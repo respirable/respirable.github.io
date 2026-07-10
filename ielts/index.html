@@ -43,6 +43,8 @@
           onclick="switchPracticeMode('reading')">Reading</button>
         <button id="mode-writing-btn" type="button" class="mode-btn"
           onclick="switchPracticeMode('writing')">Writing</button>
+        <button id="mode-listening-btn" type="button" class="mode-btn"
+          onclick="switchPracticeMode('listening')">Listening</button>
       </div>
 
       <div id="validation-feedback" class="validation-feedback validation-error" style="display:none;">
@@ -50,92 +52,125 @@
       </div>
 
       <div id="reading-menu-panel" class="practice-menu-panel active">
-        <div class="input-field-group">
-          <label for="raw-input" class="input-label">Raw IELTS Text</label>
-          <textarea id="raw-input" class="raw-textarea" rows="16"
-            placeholder="Paste your IELTS reading passage and questions here..."></textarea>
-        </div>
 
-        <div class="input-field-group">
-          <label for="diagram-upload" class="input-label">Diagram Uploads</label>
-          <input id="diagram-upload" class="config-input" type="file" accept="image/*" multiple
-            onchange="handleDiagramUpload(event)" />
-          <div id="diagram-upload-status" class="share-feedback" style="display:none;"></div>
-        </div>
+        <div class="action-cards">
 
-        <div class="config-row">
-          <div class="config-field">
-            <label for="ai-provider" class="input-label">AI Provider</label>
-            <select id="ai-provider" class="config-select" onchange="toggleOpenRouterModelRow('openrouter-model-row', this.value)">
-              <option value="openrouter" selected>OpenRouter (Free Models)</option>
-              <option value="groq">Groq</option>
-              <option value="openai">OpenAI</option>
-              <option value="gemini">Gemini</option>
-            </select>
-          </div>
-          <div class="config-field config-field--grow">
-            <label for="api-key" class="input-label">API Key</label>
-            <input id="api-key" class="config-input" type="password" autocomplete="off"
-              placeholder="Paste the API key for the selected provider" />
-          </div>
-        </div>
-        <div id="openrouter-model-row" class="config-row">
-          <div class="config-field config-field--grow">
-            <label for="openrouter-model" class="input-label">OpenRouter Model <span class="label-hint">(free tier &mdash; <a href="https://openrouter.ai/models?q=free" target="_blank" rel="noopener">browse all free models</a>)</span></label>
-            <select id="openrouter-model" class="config-select">
-              <option value="deepseek/deepseek-chat-v3-0324:free" selected>DeepSeek V3 (Best for long texts)</option>
-              <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B Instruct</option>
-              <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Reasoning)</option>
-              <option value="google/gemini-2.0-flash:free">Gemini 2.0 Flash</option>
-              <option value="google/gemma-3-27b-it:free">Gemma 3 27B</option>
-            </select>
-          </div>
-        </div>
-
-        <label class="config-checkbox">
-          <input type="checkbox" id="auto-answer-key" checked />
-          <span>Generate answer keys automatically if none are detected</span>
-        </label>
-
-        <label class="config-checkbox">
-          <input type="checkbox" id="emergency-score-enabled" onchange="toggleEmergencyScorePinInput()" />
-          <span>Enable Emergency Score Viewer (Allows you/users to see your score immediately via a 6-8 digit PIN that
-            you generated)</span>
-        </label>
-
-        <div id="emergency-score-pin-row" class="emergency-pin-row" style="display:none;">
-          <label for="emergency-score-pin" class="input-label">Emergency score PIN</label>
-          <input id="emergency-score-pin" class="config-input" type="password" inputmode="numeric" autocomplete="off"
-            maxlength="8" pattern="[0-9]{6,8}" placeholder="Enter a 6-8 digit PIN" />
-        </div>
-
-        <div class="action-row action-row-three">
-          <button id="btn-create-manual" class="btn-action-large" type="button" onclick="openReadingCreator()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 5v14"></path>
-              <path d="M5 12h14"></path>
-            </svg>
-            <span class="btn-label">Create Practice Passage Manually</span>
+          <!-- Card 1: Manual Creator -->
+          <button class="action-card action-card--primary" type="button" onclick="openReadingCreator()">
+            <div class="action-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </div>
+            <div class="action-card-body">
+              <span class="action-card-title">Create Reading Test Manually</span>
+              <span class="action-card-desc">Manually build a practice test using the full-featured Creator Panel. Works 95% of the time.</span>
+            </div>
+            <svg class="action-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
           </button>
-          <button id="btn-reading-demo" class="btn-action-large" type="button" onclick="handleDemo()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            <span class="btn-label">Test Demo Passage</span>
+
+          <!-- Card 2: Demo -->
+          <button class="action-card" type="button" onclick="handleDemo()">
+            <div class="action-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+            <div class="action-card-body">
+              <span class="action-card-title">View Demo Questions</span>
+              <span class="action-card-desc">Explore all question types and learn how to interact with them.</span>
+            </div>
+            <svg class="action-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
           </button>
-          <button id="btn-parse" class="btn-action-large" type="button" onclick="handleParse()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5"></path>
-              <path d="M2 12l10 5 10-5"></path>
-            </svg>
-            <span class="btn-label">Create With Legacy AI Parser</span>
-          </button>
-        </div>
+
+          <!-- Card 3: AI Parser (deprecated) -->
+          <div class="action-card action-card--deprecated" id="ai-parser-card">
+            <button class="action-card-trigger" type="button" onclick="toggleAiParserPanel()" aria-expanded="false" aria-controls="ai-parser-panel">
+              <div class="action-card-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <div class="action-card-body">
+                <span class="action-card-title">Create via AI Parser <span class="action-card-badge">Deprecated</span></span>
+                <span class="action-card-desc">Auto-generate a reading test from pasted text using AI. No bugs will be fixed for this feature.</span>
+              </div>
+              <svg class="action-card-arrow" id="ai-parser-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+
+            <div id="ai-parser-panel" style="display:none; padding: 0 20px 20px;">
+              <div class="input-field-group" style="margin-top:12px;">
+                <label for="raw-input" class="input-label">Raw IELTS Text</label>
+                <textarea id="raw-input" class="raw-textarea" rows="10"
+                  placeholder="Paste your IELTS reading passage and questions here..."></textarea>
+              </div>
+
+              <div class="input-field-group">
+                <label for="diagram-upload" class="input-label">Diagram Uploads</label>
+                <input id="diagram-upload" class="config-input" type="file" accept="image/*" multiple
+                  onchange="handleDiagramUpload(event)" />
+                <div id="diagram-upload-status" class="share-feedback" style="display:none;"></div>
+              </div>
+
+              <div class="config-row">
+                <div class="config-field">
+                  <label for="ai-provider" class="input-label">AI Provider</label>
+                  <select id="ai-provider" class="config-select" onchange="toggleOpenRouterModelRow('openrouter-model-row', this.value)">
+                    <option value="openrouter" selected>OpenRouter (Free Models)</option>
+                    <option value="groq">Groq</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="gemini">Gemini</option>
+                  </select>
+                </div>
+                <div class="config-field config-field--grow">
+                  <label for="api-key" class="input-label">API Key</label>
+                  <input id="api-key" class="config-input" type="password" autocomplete="off"
+                    placeholder="Paste the API key for the selected provider" />
+                </div>
+              </div>
+              <div id="openrouter-model-row" class="config-row">
+                <div class="config-field config-field--grow">
+                  <label for="openrouter-model" class="input-label">OpenRouter Model <span class="label-hint">(free tier &mdash; <a href="https://openrouter.ai/models?q=free" target="_blank" rel="noopener">browse all free models</a>)</span></label>
+                  <select id="openrouter-model" class="config-select">
+                    <option value="deepseek/deepseek-chat-v3-0324:free" selected>DeepSeek V3 (Best for long texts)</option>
+                    <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B Instruct</option>
+                    <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Reasoning)</option>
+                    <option value="google/gemini-2.0-flash:free">Gemini 2.0 Flash</option>
+                    <option value="google/gemma-3-27b-it:free">Gemma 3 27B</option>
+                  </select>
+                </div>
+              </div>
+
+              <label class="config-checkbox">
+                <input type="checkbox" id="auto-answer-key" checked />
+                <span>Generate answer keys automatically if none are detected</span>
+              </label>
+
+              <label class="config-checkbox">
+                <input type="checkbox" id="emergency-score-enabled" onchange="toggleEmergencyScorePinInput()" />
+                <span>Enable Emergency Score Viewer (PIN-gated)</span>
+              </label>
+
+              <div id="emergency-score-pin-row" class="emergency-pin-row" style="display:none;">
+                <label for="emergency-score-pin" class="input-label">Emergency score PIN</label>
+                <input id="emergency-score-pin" class="config-input" type="password" inputmode="numeric" autocomplete="off"
+                  maxlength="8" pattern="[0-9]{6,8}" placeholder="Enter a 6-8 digit PIN" />
+              </div>
+
+              <div class="action-row" style="margin-top:16px;">
+                <button id="btn-parse" class="btn-primary" type="button" onclick="handleParse()">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                  </svg>
+                  Parse &amp; Generate Test
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.action-cards -->
       </div>
+
 
       <div id="writing-menu-panel" class="practice-menu-panel">
         <div class="task-input-section">
@@ -228,6 +263,12 @@
             Test Demo
           </button>
         </div>
+      </div>
+
+      <div id="listening-menu-panel" class="practice-menu-panel" style="text-align:center; padding: 48px 0;">
+        <div style="font-size: 3rem; margin-bottom: 16px;">🎧</div>
+        <p style="font-size: 1.05rem; font-weight: 600; color: var(--text, #1e293b); margin-bottom: 8px;">This feature is under development.</p>
+        <p style="font-size: 0.9rem; color: var(--muted, #64748b);">Come back later! Or never cuz I might never finish ts.</p>
       </div>
 
       <div id="loading-overlay" class="loading-overlay" style="display:none;">
