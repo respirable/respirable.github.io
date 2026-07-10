@@ -3985,20 +3985,85 @@ function creatorSplitSelectionIntoSection() {
     return;
   }
   const part = getCreatorPart();
-  if (!part || part.passage.sections.length >= CREATOR_LIMITS.maxSections) {
-    notify('warning', 'A part can have at most 10 sections, A-J.');
-    return;
-  }
+  if (!part) return;
+  
   const index = Number(active.getAttribute('data-section-index'));
-  const selected = active.value.slice(active.selectionStart, active.selectionEnd).trim();
-  if (!selected) {
-    notify('warning', 'Select the text that should become the new section.');
-    return;
+  const cursorStart = active.selectionStart;
+  const cursorEnd = active.selectionEnd;
+
+  let beforeText = '';
+  let selectedText = '';
+  let afterText = '';
+
+  if (cursorStart === cursorEnd) {
+    // Split at the cursor's location
+    if (part.passage.sections.length >= CREATOR_LIMITS.maxSections) {
+      notify('warning', 'A part can have at most 10 sections, A-J.');
+      return;
+    }
+    beforeText = active.value.slice(0, cursorStart).trim();
+    afterText = active.value.slice(cursorStart).trim();
+    if (!beforeText && !afterText) {
+      notify('warning', 'Move the cursor inside the text to split.');
+      return;
+    }
+
+    const beforeParas = beforeText.split(/\n{2,}/).map(t => t.trim()).filter(Boolean);
+    part.passage.sections[index].paragraphs = beforeParas.length ? beforeParas : [''];
+
+    const afterParas = afterText.split(/\n{2,}/).map(t => t.trim()).filter(Boolean);
+    part.passage.sections.splice(index + 1, 0, {
+      heading: String.fromCharCode(65 + index + 1),
+      paragraphs: afterParas.length ? afterParas : [''],
+      questionMarker: null
+    });
+  } else {
+    // Split: highlighted text becomes a section, and anything AFTER it becomes another section
+    selectedText = active.value.slice(cursorStart, cursorEnd).trim();
+    if (!selectedText) {
+      notify('warning', 'Select the text that should become the new section.');
+      return;
+    }
+    beforeText = active.value.slice(0, cursorStart).trim();
+    afterText = active.value.slice(cursorEnd).trim();
+
+    const newSections = [];
+
+    // If beforeText is non-empty, current section stays as beforeText.
+    // Otherwise, current section becomes selectedText.
+    if (beforeText) {
+      const beforeParas = beforeText.split(/\n{2,}/).map(t => t.trim()).filter(Boolean);
+      part.passage.sections[index].paragraphs = beforeParas.length ? beforeParas : [''];
+
+      // selectedText is pushed to the next section
+      newSections.push({
+        heading: '',
+        paragraphs: selectedText.split(/\n{2,}/).map(t => t.trim()).filter(Boolean),
+        questionMarker: null
+      });
+    } else {
+      const selectedParas = selectedText.split(/\n{2,}/).map(t => t.trim()).filter(Boolean);
+      part.passage.sections[index].paragraphs = selectedParas.length ? selectedParas : [''];
+    }
+
+    // If afterText is non-empty, it becomes the next section
+    if (afterText) {
+      newSections.push({
+        heading: '',
+        paragraphs: afterText.split(/\n{2,}/).map(t => t.trim()).filter(Boolean),
+        questionMarker: null
+      });
+    }
+
+    if (newSections.length > 0) {
+      if (part.passage.sections.length + newSections.length > CREATOR_LIMITS.maxSections) {
+        notify('warning', `Splitting would exceed the maximum limit of ${CREATOR_LIMITS.maxSections} sections.`);
+        return;
+      }
+      part.passage.sections.splice(index + 1, 0, ...newSections);
+    }
   }
-  const before = `${active.value.slice(0, active.selectionStart)} ${active.value.slice(active.selectionEnd)}`.trim();
-  part.passage.sections[index].paragraphs = before ? [before] : [''];
-  // New section always gets a label
-  part.passage.sections.splice(index + 1, 0, { heading: String.fromCharCode(65 + index + 1), paragraphs: [selected], questionMarker: null });
+
   relabelCreatorSections(part);
   creatorDirty = true;
   renderCreatorPanel();
@@ -5219,7 +5284,8 @@ function isTestVisible() {
 }
 
 function isIntegrityWatchActive() {
-  return isTestVisible()
+  return activePracticeMode !== 'creator'
+    && isTestVisible()
     && !sessionIntegrity.reviewModeStarted
     && document.getElementById('answer-modal').style.display !== 'flex'
     && document.getElementById('result-modal').style.display !== 'flex';
@@ -5300,13 +5366,14 @@ function setupWritingResizer() {
 
 function setupTestInterfaceGuards() {
   document.addEventListener('contextmenu', (event) => {
+    if (activePracticeMode === 'creator') return;
     if (isTestVisible() && event.target.closest?.('#test-view')) {
       event.preventDefault();
     }
   });
 
   document.addEventListener('keydown', (event) => {
-    if (!isTestVisible()) return;
+    if (activePracticeMode === 'creator' || !isTestVisible()) return;
     const key = String(event.key || '').toLowerCase();
     if ((event.ctrlKey || event.metaKey) && (key === 'c' || key === 'v' || key === 'f' || key === 'u')) {
       event.preventDefault();
