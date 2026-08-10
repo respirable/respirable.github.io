@@ -1,0 +1,538 @@
+/* ── IELTS Listening Simulator CSS Stylesheet ── */
+
+:root {
+  --ielts-red: #c8102e;
+  --ielts-blue: #0066cc;
+  --ielts-bg: #f9f9f9;
+  --ielts-surface: #ffffff;
+  --ielts-border: #e0e0e0;
+  --ielts-text: #333333;
+  --ielts-muted: #666666;
+  --ielts-header-height: 52px;
+  --ielts-footer-height: 54px;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ielts-bg);
+  color: var(--ielts-text);
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+/* ── 1. Brand Header ── */
+.ielts-listen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--ielts-header-height);
+  background: #ffffff;
+  border-bottom: 1.5px solid #d3d3d3;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-left-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ielts-logo {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--ielts-red);
+  letter-spacing: -0.5px;
+  display: inline-block;
+  line-height: 1;
+}
+
+.header-divider {
+  width: 1px;
+  height: 24px;
+  background: #d3d3d3;
+}
+
+.test-taker-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.test-taker-id {
+  font-weight: 700;
+  font-size: 13px;
+  color: #333333;
+}
+
+.audio-status-label {
+  font-size: 11px;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.audio-status-label.is-playing {
+  color: var(--ielts-blue);
+}
+
+.header-right-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-icon {
+  background: none;
+  border: none;
+  color: #555555;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.header-icon:hover {
+  color: #000000;
+}
+
+/* ── 2. Part Banner ── */
+.part-banner-box {
+  background: #f0f0f0;
+  border: 1px solid #d3d3d3;
+  border-radius: 4px;
+  padding: 14px 20px;
+  margin: 20px 24px;
+  line-height: 1.4;
+}
+
+.part-banner-title {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: #000000;
+}
+
+.part-banner-desc {
+  font-size: 14px;
+  color: #444444;
+}
+
+/* ── 3. Content Panel Layout ── */
+.listening-main-scroll {
+  height: calc(100vh - var(--ielts-header-height) - var(--ielts-footer-height) - 100px);
+  overflow-y: auto;
+  padding: 0 24px 80px;
+  background: #ffffff;
+  max-width: 1050px;
+  margin: 0 auto;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+/* Question sections */
+.group-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000000;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.group-instructions {
+  font-size: 13.5px;
+  color: #333333;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.help-float-right {
+  float: right;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #004b91;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: -24px;
+}
+
+.help-float-right:hover {
+  text-decoration: underline;
+}
+
+/* Draggable/Selectable Gaps Matching Layout */
+.matching-matching-container {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 40px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+
+.column-header {
+  font-weight: 700;
+  font-size: 14px;
+  color: #000000;
+  margin-bottom: 12px;
+}
+
+.matching-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.matching-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #333333;
+}
+
+.matching-dropzone {
+  width: 110px;
+  height: 32px;
+  border: 1.5px dashed #a0a0a0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbfbfb;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 700;
+}
+
+.matching-dropzone.active-drag-over {
+  border-color: var(--ielts-blue);
+  background: #eef5fc;
+}
+
+.matching-dropzone.filled {
+  border-style: solid;
+  border-color: #d3d3d3;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.matching-dropzone.active-target {
+  border-color: var(--ielts-blue);
+  box-shadow: 0 0 0 2.5px rgba(0, 102, 204, 0.2);
+}
+
+.matching-options-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.draggable-option-pill {
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 1px solid #c0c0c0;
+  border-radius: 4px;
+  font-size: 13.5px;
+  cursor: grab;
+  text-align: center;
+  display: inline-block;
+  user-select: none;
+  font-weight: 600;
+  color: #333333;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  transition: all 0.15s;
+}
+
+.draggable-option-pill:hover {
+  background: #f7f7f7;
+  border-color: #a0a0a0;
+}
+
+.draggable-option-pill:active {
+  cursor: grabbing;
+}
+
+.draggable-option-pill.selected-for-drop {
+  border-color: var(--ielts-blue);
+  background: #eef5fc;
+  color: var(--ielts-blue);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+}
+
+/* ── 4. Large Navigation Arrows ── */
+.nav-arrows-container {
+  position: absolute;
+  bottom: 74px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  z-index: 99;
+}
+
+.ielts-nav-arrow-btn {
+  width: 44px;
+  height: 34px;
+  background: #333333;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ielts-nav-arrow-btn:hover {
+  background: #111111;
+}
+
+.ielts-nav-arrow-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* ── 5. Bottom Navigation Bar ── */
+.ielts-footer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--ielts-footer-height);
+  background: #f0f0f0;
+  border-top: 1.5px solid #d3d3d3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+}
+
+.footer-left-parts {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.part-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #555555;
+  cursor: pointer;
+}
+
+.part-indicator.active {
+  color: #000000;
+  font-weight: 700;
+}
+
+.part-indicator-num-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.part-q-number {
+  font-size: 13.5px;
+  color: #444444;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+
+.part-q-number:hover {
+  background: #e0e0e0;
+}
+
+.part-q-number.answered {
+  font-weight: 700;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.part-q-number.active {
+  background: #ffffff;
+  border: 1px solid var(--ielts-blue);
+  color: var(--ielts-blue);
+  font-weight: 700;
+}
+
+.footer-submit-btn {
+  background: #e0e0e0;
+  color: #444444;
+  border: 1px solid #c0c0c0;
+  border-radius: 4px;
+  width: 38px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.footer-submit-btn:hover {
+  background: var(--ielts-blue);
+  color: #ffffff;
+  border-color: var(--ielts-blue);
+}
+
+/* ── 6. Audio Playback Floating Zone ── */
+.listening-audio-card {
+  background: #fbfbfb;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.listening-audio-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.listening-audio-title {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #000000;
+}
+
+.listening-audio-status {
+  font-size: 12.5px;
+  color: #666666;
+}
+
+.listening-play-btn {
+  background: var(--ielts-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.listening-play-btn:hover {
+  background: #004b91;
+}
+
+/* Waveform animation */
+.listening-waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.listening-waveform span {
+  width: 3px;
+  height: 6px;
+  background: var(--ielts-blue);
+  border-radius: 1px;
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.listening-waveform span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.listening-waveform span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.listening-waveform span:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+@keyframes wave {
+  0%, 100% {
+    height: 6px;
+  }
+  50% {
+    height: 18px;
+  }
+}
+
+/* ── 7. Input styles in text ── */
+.listening-text-gap-input {
+  border: 1px solid #c0c0c0;
+  border-radius: 3px;
+  outline: none;
+  padding: 2px 6px;
+  font-size: 13.5px;
+  font-family: inherit;
+  width: 130px;
+  margin: 0 4px;
+  transition: all 0.25s;
+  background: #ffffff;
+}
+
+.listening-text-gap-input:focus {
+  border-color: var(--ielts-blue);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+}
+
+.map-labelling-image-preview {
+  max-width: 100%;
+  height: auto;
+  border: 1.5px solid #d3d3d3;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ── 8. Listening Creator App Header ── */
+.listening-app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 20px;
+  background: #ffffff;
+  border-bottom: 1.5px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.listening-app-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #334155;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.listening-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+

@@ -18,7 +18,27 @@
   <script src="/theme.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Eagerly kick off Fira Code loading so it is ready when Monaco initializes -->
+  <script>
+    window._firaCodeReady = new Promise(function(resolve) {
+      var link = document.querySelector('link[href*="Fira+Code"]');
+      function tryLoad() {
+        Promise.all([
+          document.fonts.load('400 14px "Fira Code"'),
+          document.fonts.load('600 14px "Fira Code"')
+        ]).then(resolve).catch(resolve);
+      }
+      if (link) {
+        link.addEventListener('load', tryLoad);
+        link.addEventListener('error', resolve);
+      } else {
+        resolve();
+      }
+      // Fallback: try after a short delay regardless
+      setTimeout(tryLoad, 2000);
+    });
+  </script>
   <link rel="stylesheet" data-name="vs/editor/editor.main"
     href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/editor/editor.main.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -36,14 +56,12 @@
       --ide-text-bright: #ffffff;
       --ide-hover: rgba(255, 255, 255, 0.08);
       --font-main: "Segoe UI Variable Text", "Interop", "Inter", system-ui, sans-serif;
-      --font-code: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+      --font-code: "Fira Code", monospace;
     }
 
     .edit-menu-overlay * {
       font-family: var(--font-main);
     }
-
-    /* Keep Monaco text on the code font without clobbering its icon font. */
     .edit-menu-overlay .monaco-editor,
     .edit-menu-overlay .monaco-editor .view-lines,
     .edit-menu-overlay .monaco-editor .view-line,

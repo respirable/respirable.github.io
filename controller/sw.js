@@ -79,7 +79,14 @@ async function getFileFromDB(path) {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const store = tx.objectStore(STORE_NAME);
         const request = store.get(cleanPath);
-        request.onsuccess = () => resolve(request.result || null);
+        request.onsuccess = () => {
+            const record = request.result;
+            if (!record) return resolve(null);
+            // Reconstruct Blob from stored ArrayBuffer (or handle legacy Blob records)
+            const source = record.data || record.blob;
+            const blob = (source instanceof Blob) ? source : new Blob([source], { type: record.mimeType || 'application/octet-stream' });
+            resolve({ path: record.path, blob, mimeType: record.mimeType });
+        };
         request.onerror = (e) => reject(e.target.error);
     });
 }

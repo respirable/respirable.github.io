@@ -1,43 +1,51 @@
 {
-  "type": "listening",
-  "title": "IELTS Listening Practice Test – Demo",
+  "title": "IELTS Listening Practice Test — All Question Types Demo",
+  "audioUrl": "",
+  "audioDuration": 1800,
   "parts": [
     {
       "partNumber": 1,
-      "context": "A conversation between two people in an everyday social context.",
-      "audioUrl": "",
-      "audioScript": "Agent: Good morning, City Library. How can I help you?\nCaller: Hello, I'd like to join the library. My name is Sarah Thompson.\nAgent: Certainly! Could I take your address?\nCaller: Yes, it's 24 Maple Street.\nAgent: And your phone number?\nCaller: 07891 234567.\nAgent: What type of membership would you like — standard or premium?\nCaller: Standard, please.\nAgent: Your card will be ready in 3 days. The annual fee is 15 pounds.",
-      "questionRange": "1-8",
+      "context": "Part 1: You will hear a conversation between a student and a university accommodation officer. Listen carefully and answer Questions 1–10.",
+      "questionRange": "1-10",
       "questionGroups": [
         {
           "type": "form_completion",
           "questionRange": "1-6",
-          "instructions": "Complete the form below.\nWrite ONE WORD AND/OR A NUMBER for each answer.",
-          "formTitle": "City Library — Membership Application",
+          "instructions": "Complete the accommodation application form below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.",
+          "summaryHeading": "University Accommodation Application",
           "questions": [
-            { "number": 1, "label": "Name:", "statement": "Sarah ___1___" },
-            { "number": 2, "label": "Address:", "statement": "___2___ Maple Street" },
-            { "number": 3, "label": "Phone:", "statement": "___3___" },
-            { "number": 4, "label": "Membership type:", "statement": "___4___" },
-            { "number": 5, "label": "Card ready in:", "statement": "___5___ days" },
-            { "number": 6, "label": "Annual fee:", "statement": "£___6___" }
+            { "number": 1, "label": "Student Name:", "statement": "___1___" },
+            { "number": 2, "label": "Student ID:", "statement": "___2___" },
+            { "number": 3, "label": "Course:", "statement": "___3___" },
+            { "number": 4, "label": "Preferred Room Type:", "statement": "___4___" },
+            { "number": 5, "label": "Duration of Stay:", "statement": "___5___" },
+            { "number": 6, "label": "Monthly Budget:", "statement": "£___6___" }
           ]
         },
         {
           "type": "multiple_choice",
-          "questionRange": "7-8",
+          "questionRange": "7-10",
           "instructions": "Choose the correct letter, A, B or C.",
-          "selectCount": 1,
           "questions": [
             {
               "number": 7,
-              "stem": "Why did the caller contact the library?",
-              "options": ["To renew a book", "To join the library", "To ask about opening hours"]
+              "stem": "Which floor does the student prefer?",
+              "options": ["Ground floor", "Second floor", "Top floor"]
             },
             {
               "number": 8,
-              "stem": "What does the caller need to bring on collection day?",
-              "options": ["A passport", "Proof of address", "A photograph"]
+              "stem": "What additional facility does the student require?",
+              "options": ["Car parking", "Bicycle storage", "Laundry room"]
+            },
+            {
+              "number": 9,
+              "stem": "When does the student plan to move in?",
+              "options": ["The beginning of September", "The end of September", "The beginning of October"]
+            },
+            {
+              "number": 10,
+              "stem": "How will the student pay the deposit?",
+              "options": ["Bank transfer", "Credit card", "Cash in person"]
             }
           ]
         }
@@ -45,147 +53,157 @@
     },
     {
       "partNumber": 2,
-      "context": "A monologue by one person in an everyday social context.",
-      "audioUrl": "",
-      "audioScript": "Welcome to Greenfield Nature Reserve. Today we'll walk the 3km eastern trail. The café opens at 10am and closes at 4pm. The bird hide is located near the lake, about 500 metres from the main entrance. Photography is permitted except in the breeding zones marked in red on your map. Guided tours depart at 11am and 2pm from the visitor centre.",
-      "questionRange": "9-18",
+      "context": "Part 2: You will hear a tour guide giving information about Greenfield Nature Reserve. Listen and answer Questions 11–20.",
+      "questionRange": "11-20",
       "questionGroups": [
         {
           "type": "note_completion",
-          "questionRange": "9-12",
-          "instructions": "Complete the notes below.\nWrite ONE WORD AND/OR A NUMBER for each answer.",
+          "questionRange": "11-15",
+          "instructions": "Complete the notes below. Write NO MORE THAN THREE WORDS for each answer.",
           "summaryHeading": "Greenfield Nature Reserve — Visitor Notes",
-          "summaryText": "- Trail length: ___9___ km\n- Café hours: 10am – ___10___pm\n- Bird hide location: near the ___11___\n- Guided tours depart from the ___12___ centre"
+          "summaryText": "Opening hours:\n• Weekdays: 8 a.m. to ___11___\n• Weekends: 9 a.m. to 6 p.m.\n\nAdmission:\n• Adults: £___12___\n• Children under 12: Free\n• Concession (students/seniors): £6.50\n\nFacilities:\n• ___13___ available near the main entrance\n• Picnic area by ___14___\n• Gift shop closes ___15___ before the reserve"
         },
         {
           "type": "map_labelling",
-          "questionRange": "13-18",
-          "instructions": "Label the map below.\nChoose SIX answers from the box and write the correct letter next to questions 13–18.",
-          "mapImageUrl": "",
-          "options": ["A Café", "B Visitor Centre", "C Bird Hide", "D Car Park", "E Picnic Area", "F Breeding Zone", "G Pond", "H Gift Shop"],
+          "questionRange": "16-20",
+          "instructions": "Label the map below. Choose FIVE answers from the box and write the correct letter, A–H, next to Questions 16–20.",
+          "options": ["A. Bird Hide", "B. Car Park", "C. Café", "D. First Aid Post", "E. Information Centre", "F. Nature Trail Start", "G. Picnic Area", "H. Ranger Station"],
           "questions": [
-            { "number": 13, "label": "Building near entrance (left)" },
-            { "number": 14, "label": "Structure at lake edge" },
-            { "number": 15, "label": "Marked red area" },
-            { "number": 16, "label": "Building at top of map" },
-            { "number": 17, "label": "Open grassy area (centre)" },
-            { "number": 18, "label": "Facility near car park" }
+            { "number": 16, "label": "Northern entrance area" },
+            { "number": 17, "label": "Building near the lake" },
+            { "number": 18, "label": "South-east corner" },
+            { "number": 19, "label": "Top of the hill" },
+            { "number": 20, "label": "Central clearing" }
           ]
         }
       ]
     },
     {
       "partNumber": 3,
-      "context": "A conversation among up to four people in an educational or training context.",
-      "audioUrl": "",
-      "audioScript": "Tutor: So, have you both decided on your dissertation topics?\nStudent A: I'm focusing on urban heat islands in coastal cities.\nStudent B: I'm looking at renewable energy adoption in developing countries.\nTutor: Good choices. When do you plan to submit your literature reviews?\nStudent A: By the end of next month.\nStudent B: I need until mid-March because I'm collecting primary data.\nTutor: Make sure you include at least 20 peer-reviewed sources. Student A, have you spoken to Dr Chen?\nStudent A: Not yet — I'll email her this week.\nTutor: She's the best person for your methodology chapter.",
-      "questionRange": "19-28",
+      "context": "Part 3: You will hear two students, Maria and David, discussing their research project on renewable energy. Listen and answer Questions 21–30.",
+      "questionRange": "21-30",
       "questionGroups": [
         {
-          "type": "multiple_choice",
-          "questionRange": "19-21",
-          "instructions": "Choose the correct letter, A, B or C.",
-          "selectCount": 1,
-          "questions": [
-            {
-              "number": 19,
-              "stem": "What is Student A's dissertation topic?",
-              "options": ["Renewable energy", "Urban heat islands", "Coastal erosion"]
-            },
-            {
-              "number": 20,
-              "stem": "Why does Student B need more time?",
-              "options": ["He has exams", "He is collecting primary data", "His supervisor is unavailable"]
-            },
-            {
-              "number": 21,
-              "stem": "What does the tutor say about Dr Chen?",
-              "options": ["She is away on leave", "She is best for methodology help", "She is a data specialist"]
-            }
-          ]
-        },
-        {
           "type": "matching",
-          "questionRange": "22-25",
-          "instructions": "What does the tutor say about each requirement?\nMatch each requirement (22–25) with the correct description (A–F).\nWrite the correct letter next to questions 22–25.",
-          "options": ["A Compulsory", "B Recommended", "C Optional", "D Already completed", "E Deadline extended", "F Not applicable"],
+          "questionRange": "21-25",
+          "instructions": "What does each student say about the renewable energy sources listed below? Choose FIVE answers from the box and write the correct letter, A–G, next to Questions 21–25.",
+          "options": [
+            "A. Too expensive to install",
+            "B. Unreliable in their country",
+            "C. Already widely adopted",
+            "D. Requires more research",
+            "E. Has environmental drawbacks",
+            "F. Best option for urban areas",
+            "G. Most promising for the future"
+          ],
           "questions": [
-            { "number": 22, "statement": "20 peer-reviewed sources" },
-            { "number": 23, "statement": "Primary data collection" },
-            { "number": 24, "statement": "Meeting with Dr Chen" },
-            { "number": 25, "statement": "Ethics approval form" }
+            { "number": 21, "statement": "Solar power" },
+            { "number": 22, "statement": "Wind energy" },
+            { "number": 23, "statement": "Hydroelectric power" },
+            { "number": 24, "statement": "Geothermal energy" },
+            { "number": 25, "statement": "Tidal power" }
           ]
         },
         {
           "type": "sentence_completion",
           "questionRange": "26-28",
-          "instructions": "Complete the sentences below.\nWrite ONE WORD ONLY for each answer.",
+          "instructions": "Complete the sentences below. Write NO MORE THAN TWO WORDS for each answer.",
+          "summaryText": "26. Maria believes their report should focus on ___26___ as the primary recommendation.\n27. David wants to include a section comparing ___27___ across five countries.\n28. They agree to submit the first draft by ___28___."
+        },
+        {
+          "type": "multiple_choice",
+          "questionRange": "29-30",
+          "instructions": "Choose the correct letter, A, B or C.",
           "questions": [
-            { "number": 26, "statement": "Student A's literature review is due by the end of next ___26___." },
-            { "number": 27, "statement": "Student B's deadline is mid-___27___." },
-            { "number": 28, "statement": "Student A plans to ___28___ Dr Chen this week." }
+            {
+              "number": 29,
+              "stem": "What does Maria suggest about their bibliography?",
+              "options": ["It needs more academic journal articles", "It should include more government reports", "It has too many online sources"]
+            },
+            {
+              "number": 30,
+              "stem": "What is the main problem with their current introduction?",
+              "options": ["It is too short", "It does not include a thesis statement", "It contains irrelevant background information"]
+            }
           ]
         }
       ]
     },
     {
       "partNumber": 4,
-      "context": "A monologue on an academic subject — a university lecture.",
-      "audioUrl": "",
-      "audioScript": "Today I want to talk about bioluminescence — the production of light by living organisms. It's found in a wide variety of marine species, including certain fish, jellyfish and bacteria. The primary function in deep-sea creatures is predation — attracting prey with light. In some species it acts as a warning signal to predators, while in others it facilitates communication between members of the same species. The chemical reaction responsible involves a molecule called luciferin, which reacts with oxygen in the presence of an enzyme called luciferase. Research in the field has significant medical implications, particularly in cancer imaging and drug delivery tracking.",
-      "questionRange": "29-40",
+      "context": "Part 4: You will hear a lecture about the history and impact of the printing press. Listen and answer Questions 31–40.",
+      "questionRange": "31-40",
       "questionGroups": [
         {
           "type": "summary_completion",
-          "questionRange": "29-33",
-          "instructions": "Complete the summary below.\nChoose ONE WORD ONLY from the lecture for each answer.",
-          "summaryHeading": "Bioluminescence",
-          "summaryText": "Bioluminescence is found in many ___29___ species. In deep-sea creatures it is used for ___30___, attracting prey with light. In some animals it serves as a ___31___ signal. The chemical reaction involves a molecule called ___32___, which reacts with oxygen using an enzyme called ___33___."
+          "questionRange": "31-35",
+          "instructions": "Complete the summary below. Write ONE WORD ONLY for each answer.",
+          "summaryHeading": "The Printing Press: A Revolution in Communication",
+          "summaryText": "Johannes Gutenberg invented the movable-type printing press around ___31___ in the city of Mainz. Before this invention, books were copied by hand, making them extremely ___32___ and available only to the wealthy and the clergy. Gutenberg's press used a system of ___33___ letters that could be rearranged to produce different texts rapidly. The first major work printed was the Gutenberg ___34___, of which approximately 180 copies were produced. The invention spread rapidly through Europe and is considered a key driver of the ___35___, as it enabled the mass distribution of new ideas."
         },
         {
           "type": "table_completion",
-          "questionRange": "34-37",
-          "instructions": "Complete the table below.\nWrite ONE WORD AND/OR A NUMBER for each answer.",
-          "tableHeaders": ["Function", "Organism", "Notes"],
+          "questionRange": "36-38",
+          "instructions": "Complete the table below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.",
+          "tableHeaders": ["Period", "Key Development", "Impact"],
           "tableRows": [
-            ["Attract ___34___", "Deep-sea fish", "Primary predation function"],
-            ["Warning to ___35___", "Jellyfish", "Defence mechanism"],
-            ["___36___ between members", "Bacteria", "Social function"],
-            ["Medical ___37___", "(Various)", "Cancer imaging / drug tracking"]
-          ],
-          "tableColumnWidths": [200, 160, 220],
-          "tableRowHeights": [],
-          "tableCellStyles": {},
-          "questions": [
-            { "number": 34, "statement": "___34___" },
-            { "number": 35, "statement": "___35___" },
-            { "number": 36, "statement": "___36___" },
-            { "number": 37, "statement": "___37___" }
+            ["1450s", "Gutenberg's first press", "Limited to ___36___"],
+            ["Late 1400s", "Press spreads to ___37___", "Books become cheaper"],
+            ["1500s", "Rise of ___38___", "Standardisation of languages"]
           ]
         },
         {
           "type": "short_answer",
-          "questionRange": "38-40",
-          "instructions": "Answer the questions below.\nWrite NO MORE THAN TWO WORDS for each answer.",
+          "questionRange": "39-40",
+          "instructions": "Answer the questions below. Write NO MORE THAN THREE WORDS for each answer.",
           "questions": [
-            { "number": 38, "statement": "Which enzyme is involved in bioluminescent reactions?" },
-            { "number": 39, "statement": "What medical application is mentioned for cancer?" },
-            { "number": 40, "statement": "Which gas does luciferin react with?" }
+            { "number": 39, "statement": "What did the printing press allow ordinary people to access for the first time?" },
+            { "number": 40, "statement": "According to the lecturer, which modern invention is comparable to the printing press in terms of societal impact?" }
           ]
         }
       ]
     }
   ],
   "answerKey": {
-    "1": "Thompson", "2": "24", "3": "07891 234567", "4": "standard", "5": "3", "6": "15",
-    "7": "B", "8": "B",
-    "9": "3", "10": "4", "11": "lake", "12": "visitor",
-    "13": "B", "14": "C", "15": "F", "16": "A", "17": "E", "18": "D",
-    "19": "B", "20": "B", "21": "B",
-    "22": "A", "23": "C", "24": "B", "25": "C",
-    "26": "month", "27": "March", "28": "email",
-    "29": "marine", "30": "predation", "31": "warning", "32": "luciferin", "33": "luciferase",
-    "34": "prey", "35": "predators", "36": "communication", "37": "implications",
-    "38": "luciferase", "39": "imaging", "40": "oxygen"
+    "1": "James Whitmore",
+    "2": "ST204891",
+    "3": "Civil Engineering",
+    "4": "en suite",
+    "5": "one year",
+    "6": "450",
+    "7": "B",
+    "8": "A",
+    "9": "A",
+    "10": "B",
+    "11": "5 p.m.",
+    "12": "9.50",
+    "13": "Wheelchair access",
+    "14": "the river",
+    "15": "30 minutes",
+    "16": "E",
+    "17": "A",
+    "18": "B",
+    "19": "H",
+    "20": "C",
+    "21": "C",
+    "22": "B",
+    "23": "E",
+    "24": "D",
+    "25": "G",
+    "26": "solar power",
+    "27": "energy costs",
+    "28": "next Friday",
+    "29": "A",
+    "30": "B",
+    "31": "1450",
+    "32": "expensive",
+    "33": "movable",
+    "34": "Bible",
+    "35": "Renaissance",
+    "36": "religious texts",
+    "37": "England",
+    "38": "vernacular literature",
+    "39": "written knowledge",
+    "40": "the internet"
   }
 }

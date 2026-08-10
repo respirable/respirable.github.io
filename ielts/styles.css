@@ -855,6 +855,46 @@ body {
   letter-spacing: .03em;
 }
 
+.creator-type-btn.has-icon {
+  padding: 14px 10px 12px;
+  gap: 8px;
+}
+
+.creator-type-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #eff4ff;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: background .2s, color .2s;
+}
+
+.creator-type-btn.has-icon:hover .creator-type-btn-icon {
+  background: var(--accent);
+  color: #fff;
+}
+
+.creator-type-btn-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.creator-type-btn-label {
+  font-size: .72rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+}
+
 /* ── Question Set Cards ── */
 .creator-qs-list {
   display: flex;
@@ -2322,6 +2362,40 @@ body {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+/* ── Coming Soon Card (Listening menu) ── */
+.coming-soon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--surface, #f8fafc);
+  border: 1.5px dashed var(--border, #cbd5e1);
+  border-radius: 16px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.coming-soon-emoji {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.coming-soon-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text, #0f172a);
+  margin: 0 0 8px 0;
+}
+
+
+@keyframes pulseEmoji {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }
 
 /* ── Action Cards (Reading/Listening menu) ── */
@@ -5501,6 +5575,22 @@ body {
   transform: translateX(-50%) translateY(-4px);
 }
 
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(420px, calc(100vw - 24px));
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+}
+
 .creator-cell-tool-btn {
   width: 28px;
   height: 28px;
@@ -5630,4 +5720,69 @@ body {
 }
 .creator-table-row-handle:hover {
   background: rgba(9, 105, 218, 0.3) !important;
+}
+/* -- Listening Audio Bar Defaults -- */
+.listening-audio-bar {
+  background: #f0f9ff;
+  border-bottom: 1px solid #bae6fd;
+}
+.audio-status-label {
+  color: #0369a1;
+}
+.listening-timer-pill {
+  color: #0369a1;
+  background: #e0f2fe;
+}
+.listening-submit-btn {
+  background: #1e40af;
+  color: #fff;
+}
+.listening-submit-btn:hover {
+  background: #1e3a8a;
+}
+/* -- Contrast Overrides for Tables and Listening UIs -- */
+.test-view.contrast-white-black table,
+.test-view.contrast-white-black th,
+.test-view.contrast-white-black td,
+.test-view.contrast-white-black tr,
+.test-view.contrast-white-black .listening-audio-bar,
+.test-view.contrast-white-black .listening-timer-pill,
+.test-view.contrast-white-black .part-banner-box,
+.test-view.contrast-white-black .listening-text-gap-input {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+.test-view.contrast-white-black .listening-submit-btn {
+  background: #fff !important;
+  color: #000 !important;
+  border-color: #fff !important;
+}
+.test-view.contrast-white-black .audio-status-label,
+.test-view.contrast-white-black .part-banner-title,
+.test-view.contrast-white-black .part-banner-desc {
+  color: #fff !important;
+}
+
+.test-view.contrast-yellow-black table,
+.test-view.contrast-yellow-black th,
+.test-view.contrast-yellow-black td,
+.test-view.contrast-yellow-black tr,
+.test-view.contrast-yellow-black .listening-audio-bar,
+.test-view.contrast-yellow-black .listening-timer-pill,
+.test-view.contrast-yellow-black .part-banner-box,
+.test-view.contrast-yellow-black .listening-text-gap-input {
+  background: #000 !important;
+  color: #ffd400 !important;
+  border-color: #ffd400 !important;
+}
+.test-view.contrast-yellow-black .listening-submit-btn {
+  background: #ffd400 !important;
+  color: #000 !important;
+  border-color: #ffd400 !important;
+}
+.test-view.contrast-yellow-black .audio-status-label,
+.test-view.contrast-yellow-black .part-banner-title,
+.test-view.contrast-yellow-black .part-banner-desc {
+  color: #ffd400 !important;
 }

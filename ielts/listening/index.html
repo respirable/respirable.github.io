@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IELTS Listening Practice Test</title>
+  
+  <link rel="stylesheet" href="/theme.css" />
+  <script src="/theme.js" defer></script>
+  
+  <!-- Reuse parent styles + local listening styles -->
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ── 1. Creator Mode Header (Only shown during creator mode) ── -->
+  <header id="creator-app-header" class="listening-app-header" style="display:flex;">
+    <a href="../index.html" class="listening-app-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+      <span>respirable</span>
+    </a>
+    <div style="font-weight:700; color:#334155; font-size:1rem;">Listening Creator Panel</div>
+    <div class="listening-header-actions">
+      <button class="creator-btn" type="button" onclick="previewListeningTest()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Preview Test
+      </button>
+      <button class="creator-btn creator-btn-primary" type="button" onclick="triggerSaveListeningTest()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Share Test
+      </button>
+      <button class="header-icon-btn" type="button" onclick="openCreatorOptionsMenu()" aria-label="Options" title="Options" style="margin-left:4px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── 2. Creator Workspace Panel ── -->
+  <div id="listening-creator-workspace" class="creator-editor" style="display:block;">
+    <div class="creator-editor-inner creator-builder" style="max-width: 900px; margin-left: 0; padding-left: 24px; padding-right: 24px; min-height: 100vh;">
+      
+      <div class="creator-passage-header" style="margin-bottom: 24px;">
+        <input type="text" id="listening-test-title-input" class="creator-ghost-input creator-ghost-title" placeholder="Test Title" oninput="updateListeningTitle(this.value)">
+      </div>
+
+      <!-- Global Audio and Transcript -->
+      <div style="margin-bottom: 32px;">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label class="input-label" style="font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase;">Audio File (Plays once for the entire test)</label>
+            <div id="audio-file-uploader" class="diagram-drop-zone" onclick="document.getElementById('audio-file-input').click()" style="min-height: 100px; margin-bottom: 0;">
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px; color: var(--accent);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span id="audio-upload-prompt" style="font-size:0.85rem; font-weight:600; color:#475569;">Click to upload Mp3, Wav or M4a audio file</span>
+              </div>
+              <input type="file" id="audio-file-input" style="display:none;" accept="audio/*" onchange="handleAudioUpload(event)">
+            </div>
+            <div id="audio-file-details" style="display:none; align-items: center; justify-content: space-between; background: #f8fafc; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 4px;">
+              <span id="audio-file-name" style="font-weight:600; color: #334155; font-size: 13px;">file.mp3</span>
+              <button class="creator-qs-icon-btn is-danger" type="button" onclick="removeAudioFile(event)" title="Remove">
+                <svg viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase; margin-top:6px;">Or paste a public audio URL:</div>
+            <input type="text" id="creator-test-audio-url" class="creator-qs-input" placeholder="https://example.com/audio.mp3" oninput="updateTestField('audioUrl', this.value)" style="width: 100%; box-sizing: border-box;">
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label class="input-label" style="font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase;">Audio Script / Transcript (For reference & scoring validation)</label>
+            <textarea id="creator-test-transcript" class="creator-qs-textarea" rows="6" placeholder="Paste the script transcript here..." oninput="updateTestField('audioScript', this.value)" style="width: 100%; box-sizing: border-box;"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="listening-creator-tabs" style="display:flex; gap:8px; margin-bottom: 24px; border-bottom:1px solid #e2e8f0; padding-bottom:12px; align-items:center;">
+        <div id="creator-parts-list" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+        <button class="creator-mini-btn listening-creator-add-tab" type="button" onclick="addCreatorPart()" title="Add Part" style="padding: 6px 12px; font-weight: bold; color: #475569;">+ Add Part</button>
+        <div style="flex:1;"></div>
+        <button class="creator-btn creator-btn-danger" type="button" onclick="deleteActivePart()" style="padding:6px 12px; font-size:0.8rem; font-weight:bold;">Delete Part</button>
+      </div>
+
+      <!-- Active Part context -->
+      <div style="margin-bottom: 32px;">
+        <input type="text" id="creator-part-context" class="creator-ghost-input creator-ghost-subtitle" style="font-size: 1.15rem; color: #475569;" placeholder="Part Context / Voice Intro description..." oninput="updateActivePartField('context', this.value)">
+      </div>
+
+      <!-- Question Groups editor list -->
+      <div class="creator-builder-header">
+        <div class="creator-builder-header-left">
+          <h3>
+            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>
+            Question Builder
+          </h3>
+          <p>Create and manage question sets for this part. Each set is rendered with its own editable fields.</p>
+        </div>
+        <span id="creator-questions-count-badge" class="creator-questions-badge"></span>
+      </div>
+
+      <!-- Question Tracker Navigation Bar -->
+      <div id="creator-question-tracker" style="margin-bottom: 20px; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; display: none;">
+        <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px;">Question Tracker</div>
+        <div id="creator-question-tracker-pills" style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+      
+      <div id="creator-question-groups-list">
+        <!-- Rendered dynamically -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Creator Bottom Navigation Bar ── -->
+  <div id="listening-bottom-nav" class="bottom-nav" style="display:flex;">
+    <div id="listening-nav-parts" class="nav-parts">
+      <!-- Rendered dynamically by renderCreatorPartsTabs() -->
+    </div>
+    <div id="listening-nav-questions" class="nav-questions">
+      <!-- Empty in creator mode (question pills are player-only) -->
+    </div>
+    <div class="nav-arrows">
+      <button id="listening-nav-arrow-prev" class="nav-arrow-btn" type="button" onclick="listeningCreatorNavPrev()" aria-label="Previous part">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+        </svg>
+      </button>
+      <button id="listening-nav-arrow-next" class="nav-arrow-btn" type="button" onclick="listeningCreatorNavNext()" aria-label="Next part">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 3. Exam Simulator View (Test Player Panel) ── -->
+  <div id="test-view" class="test-view" style="display:none;">
+    
+    <!-- Audio Element tag -->
+    <audio id="listening-audio-element" style="display:none;"></audio>
+
+    <!-- Header (IELTS official branding header) -->
+    <header class="ielts-header">
+      <div style="display: flex; align-items: center; gap: 12px; padding-left: 16px;">
+        <span style="font-weight: bold; color: var(--ielts-red, #c8102e); font-size: 1.15rem; letter-spacing: -0.5px; font-family: Arial, sans-serif;">IELTS</span>
+        <div style="width: 1px; height: 18px; background: var(--border, #e2e8f0);"></div>
+        <div style="display: flex; flex-direction: column; gap: 1px;">
+          <span style="font-size: 11px; font-weight: 700; color: var(--text, #1e293b); font-family: Arial, sans-serif;">Test taker ID</span>
+          <span id="audio-status-label" style="font-size: 10px; font-weight: 600; color: var(--muted, #64748b); font-family: Arial, sans-serif;">🔇 Audio stopped</span>
+        </div>
+      </div>
+      
+      <div class="ielts-header-center">
+        <span id="listening-timer-pill" class="timer-display">30:00</span>
+      </div>
+
+      <div class="ielts-header-right">
+        <button class="header-icon-btn" type="button" aria-label="Signal status" title="Connected">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h.01"></path>
+            <path d="M8.5 16.5a5 5 0 0 1 7 0"></path>
+            <path d="M5 13a10 10 0 0 1 14 0"></path>
+            <path d="M1.5 9.5a15 15 0 0 1 21 0"></path>
+          </svg>
+        </button>
+        <button class="header-icon-btn" type="button" onclick="openSettingsMenu()" aria-label="Open options" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Part Banner Box -->
+    <div class="part-header">
+      <span id="player-part-title" class="part-label">Part 1</span>
+      <span id="player-part-desc" class="part-instruction">Listen and answer questions 1–10.</span>
+    </div>
+
+    <!-- Questions Pane -->
+    <div class="split-pane">
+      <section class="questions-panel" style="border-left: none; padding: 24px 0 80px;">
+        <div id="player-questions-container" class="questions-content" style="max-width: 960px; margin-left: 0; padding: 0 24px;">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Bottom Nav Bar -->
+    <div class="bottom-nav">
+      <div id="nav-parts" class="nav-parts">
+        <!-- Rendered dynamically -->
+      </div>
+      <div id="nav-questions" class="nav-questions">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="nav-arrows">
+        <button id="nav-arrow-prev" class="nav-arrow-btn" type="button" onclick="navigatePrevPart()" aria-label="Previous part">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+          </svg>
+        </button>
+        <button id="nav-arrow-next" class="nav-arrow-btn" type="button" onclick="navigateNextPart()" aria-label="Next part">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"></path>
+          </svg>
+        </button>
+        <button id="listening-submit-btn" class="nav-arrow-btn" type="button" onclick="submitListeningTest()" title="Submit Test" style="color: var(--success, #1a7f37); font-weight: bold; width: auto; padding: 0 12px; margin-left: 6px;">
+          Submit
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── 4. Settings Options Drawer (Modal Drawer) ── -->
+  <div id="options-menu" class="options-menu" style="display:none; z-index: 10001;">
+    <button class="options-close" type="button" onclick="closeOptionsMenu()" aria-label="Close options">
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.5; fill: none; width: 18px; height: 18px;">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <div id="options-main-panel" class="options-panel">
+      <h2>Options</h2>
+      <div class="options-stack">
+        <button class="options-primary" type="button" onclick="exitListeningTest(); closeOptionsMenu();">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.2; fill: none;">
+              <path d="M7 17L17 7"></path>
+              <path d="M9 7h8v8"></path>
+            </svg>
+          </span>
+          <span>Exit Test & Back to Editor</span>
+          <span class="options-value"></span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+
+        <button class="options-row" type="button" onclick="showOptionsPanel('contrast')">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.2; fill: none;">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M12 4a8 8 0 0 0 0 16"></path>
+            </svg>
+          </span>
+          <span>Contrast</span>
+          <span id="contrast-option-state" class="options-value">Normal</span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+
+        <button class="options-row" type="button" onclick="showOptionsPanel('text-size')">
+          <span class="options-icon options-icon-text">A+</span>
+          <span>Text size</span>
+          <span id="text-size-option-state" class="options-value">Normal</span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Creator-specific Options Panel -->
+    <div id="options-creator-panel" class="options-panel" style="display:none;">
+      <h2>Options</h2>
+      <div class="options-stack">
+        <button class="options-primary" type="button" onclick="closeOptionsMenu(); closeListeningCreator();">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.2; fill: none;">
+              <path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path>
+            </svg>
+          </span>
+          <span>Exit Creator</span>
+          <span class="options-value"></span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+
+        <button class="options-row" type="button" onclick="showOptionsPanel('contrast')">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.2; fill: none;">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M12 4a8 8 0 0 0 0 16"></path>
+            </svg>
+          </span>
+          <span>Contrast</span>
+          <span id="contrast-option-state-creator" class="options-value">Normal</span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+
+        <button class="options-row" type="button" onclick="showOptionsPanel('text-size')">
+          <span class="options-icon options-icon-text">A+</span>
+          <span>Text size</span>
+          <span id="text-size-option-state-creator" class="options-value">Normal</span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+
+        <button class="options-row" type="button" onclick="showOptionsPanel('settings')">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.2; fill: none;">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </span>
+          <span>Settings</span>
+          <span class="options-value">Audio & Timer</span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+
+        <button class="options-row" type="button" onclick="closeOptionsMenu(); triggerSaveListeningTest();">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.2; fill: none;">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <path d="M8.6 13.5l6.8 4"></path>
+              <path d="M15.4 6.5l-6.8 4"></path>
+            </svg>
+          </span>
+          <span>Share</span>
+          <span class="options-value">Supabase link</span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+
+        <button class="options-row" type="button" onclick="closeOptionsMenu(); previewListeningTest();">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke: currentColor; stroke-width: 2.2; fill: none;">
+              <path d="M5 3l14 9-14 9V3z"></path>
+            </svg>
+          </span>
+          <span>Preview Test</span>
+          <span class="options-value">Launch practice</span>
+          <span class="options-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Settings Sub-Panel -->
+    <div id="options-settings-panel" class="options-panel" style="display:none;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:18px;">
+        <button type="button" onclick="showOptionsPanel('creator')" style="background:none;border:none;cursor:pointer;padding:4px;color:#475569;display:flex;align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        </button>
+        <h2 style="margin:0;">Settings</h2>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:20px;">
+
+        <!-- Audio File Upload -->
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.06em;">Audio File</div>
+          <div id="settings-audio-uploader" class="diagram-drop-zone" onclick="document.getElementById('settings-audio-input').click()" style="min-height:80px; margin:0; cursor:pointer;">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#2563eb)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span id="settings-audio-upload-prompt" style="font-size:0.82rem;font-weight:600;color:#475569;">Click to upload Mp3, Wav or M4a</span>
+            </div>
+            <input type="file" id="settings-audio-input" style="display:none;" accept="audio/*" onchange="handleSettingsAudioUpload(event)">
+          </div>
+          <div id="settings-audio-details" style="display:none; align-items:center; justify-content:space-between; background:#f8fafc; padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0; margin-top:2px;">
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <span id="settings-audio-name" style="font-weight:600;color:#334155;font-size:13px;">file.mp3</span>
+              <span id="settings-audio-duration" style="font-size:11px;color:#64748b;"></span>
+            </div>
+            <button class="creator-qs-icon-btn is-danger" type="button" onclick="removeSettingsAudio(event)" title="Remove">
+              <svg viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;margin-top:4px;">Or paste a public audio URL:</div>
+          <input type="text" id="settings-audio-url" class="creator-qs-input" placeholder="https://example.com/audio.mp3" oninput="applySettingsAudioUrl(this.value)" style="width:100%;box-sizing:border-box;">
+        </div>
+
+        <!-- Time Limit -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.06em;">Time Limit</div>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;font-weight:500;color:#334155;">
+            <input type="radio" id="timelimit-default" name="timelimit-mode" value="default" checked onchange="onTimeLimitModeChange(this.value)" style="accent-color:#2563eb;">
+            Use default: <strong id="default-timelimit-label" style="color:#2563eb;">audio length + 2 min</strong>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;font-weight:500;color:#334155;">
+            <input type="radio" id="timelimit-custom" name="timelimit-mode" value="custom" onchange="onTimeLimitModeChange(this.value)" style="accent-color:#2563eb;">
+            Set custom time limit
+          </label>
+          <div id="custom-timelimit-row" style="display:none;margin-left:28px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="number" id="custom-timelimit-minutes" class="creator-qs-input" style="width:80px;" min="1" max="180" value="30" placeholder="Min" oninput="applyCustomTimeLimit()">
+              <span style="font-size:13px;color:#64748b;">minutes</span>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Enter a value between 1–180 minutes.</div>
+          </div>
+        </div>
+
+        <button class="creator-btn creator-btn-primary" type="button" onclick="saveSettings(); showOptionsPanel('creator');" style="margin-top:4px;">
+          Save Settings
+        </button>
+      </div>
+    </div>
+
+    <div id="options-contrast-panel" class="options-panel" style="display:none;">
+      <h2>Contrast</h2>
+      <div class="options-choice-list">
+        <button class="options-choice" type="button" data-contrast-choice="normal" onclick="setContrastMode('normal')">
+          <span class="choice-check">✓</span>
+          <span>Black on white</span>
+          <span class="options-preview options-preview-normal"></span>
+        </button>
+        <button class="options-choice" type="button" data-contrast-choice="white-black" onclick="setContrastMode('white-black')">
+          <span class="choice-check">✓</span>
+          <span>White on black</span>
+          <span class="options-preview options-preview-dark"></span>
+        </button>
+        <button class="options-choice" type="button" data-contrast-choice="yellow-black" onclick="setContrastMode('yellow-black')">
+          <span class="choice-check">✓</span>
+          <span>Yellow on black</span>
+          <span class="options-preview options-preview-yellow"></span>
+        </button>
+      </div>
+    </div>
+
+    <div id="options-text-size-panel" class="options-panel" style="display:none;">
+      <h2>Text size</h2>
+      <div class="options-choice-list">
+        <button class="options-choice" type="button" data-text-size-choice="normal" onclick="setTextSizeMode('normal')">
+          <span class="choice-check">✓</span>
+          <span>Regular</span>
+          <span></span>
+        </button>
+        <button class="options-choice" type="button" data-text-size-choice="large" onclick="setTextSizeMode('large')">
+          <span class="choice-check">✓</span>
+          <span>Large</span>
+          <span></span>
+        </button>
+        <button class="options-choice" type="button" data-text-size-choice="xlarge" onclick="setTextSizeMode('xlarge')">
+          <span class="choice-check">✓</span>
+          <span>Extra large</span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. Launch Creator Test Modal ── -->
+  <div id="creator-launch-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Launch Listening Test</h3>
+        <button class="modal-close" type="button" onclick="closeLaunchModal()" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="config-checkbox">
+          <input type="checkbox" id="emergency-view-enabled" />
+          <span>Enable Emergency Score Viewer for this test (reveal answer keys using custom PIN)</span>
+        </label>
+        <div class="creator-modal-actions" style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+          <button class="creator-btn" type="button" onclick="closeLaunchModal()">Cancel</button>
+          <button class="creator-btn creator-btn-primary" type="button" onclick="startPreviewTest()">Start Preview</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6. Results Modal ── -->
+  <div id="result-modal" class="modal-overlay" style="display:none;" onclick="closeResultModal(event)">
+    <div class="modal-content result-modal-content">
+      <div class="modal-header">
+        <h3>Practice Result</h3>
+        <button class="modal-close" type="button" onclick="closeResultModal(event)" aria-label="Close results">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="result-summary" class="result-summary"></div>
+        <div id="result-meta" class="result-meta"></div>
+        <div id="result-breakdown" class="result-breakdown"></div>
+        <div id="result-warning" class="result-warning" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Feedbacks -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Load Scripts -->
+  <script src="./validator.js"></script>
+  <script src="./sharing.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

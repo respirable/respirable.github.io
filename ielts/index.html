@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/theme.css" />
   <script src="/theme.js" defer></script>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./listening/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -34,8 +35,8 @@
       <h1 id="input-title" class="input-title">IELTS Reading Practice Generator</h1>
       <p id="input-subtitle" class="input-subtitle">
         Paste your raw passage and question set, add a diagram if the task needs one, and generate a shareable practice
-        interface. <b>[SUPER EARLY BETA. MANY FUNCTIONS WILL NOT WORK PROPERLY, AS THE PARSER PROMPT ISN'T OPTIMIZED
-          ENOUGH.]</b>
+        interface. <b>[MAJORITY OF FEATURES ARE BROKEN RIGHT NOW. YOU MAY NEED TO USE AN ALTERNATIVE SERVICE IF YOU WANT
+          TO GENERATE READING PRACTICE QUESTIONS AT THIS TIME.]</b>
       </p>
 
       <div class="mode-selector">
@@ -58,115 +59,40 @@
           <!-- Card 1: Manual Creator -->
           <button class="action-card action-card--primary" type="button" onclick="openReadingCreator()">
             <div class="action-card-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
               </svg>
             </div>
             <div class="action-card-body">
               <span class="action-card-title">Create Reading Test Manually</span>
-              <span class="action-card-desc">Manually build a practice test using the full-featured Creator Panel. Works 95% of the time.</span>
+              <span class="action-card-desc">Manually build a practice test using the full-featured Creator Panel. Works
+                95% of the time.</span>
             </div>
-            <svg class="action-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            <svg class="action-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </button>
 
           <!-- Card 2: Demo -->
           <button class="action-card" type="button" onclick="handleDemo()">
             <div class="action-card-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polygon points="5 3 19 12 5 21 5 3"/>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
             </div>
             <div class="action-card-body">
               <span class="action-card-title">View Demo Questions</span>
               <span class="action-card-desc">Explore all question types and learn how to interact with them.</span>
             </div>
-            <svg class="action-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            <svg class="action-card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </button>
-
-          <!-- Card 3: AI Parser (deprecated) -->
-          <div class="action-card action-card--deprecated" id="ai-parser-card">
-            <button class="action-card-trigger" type="button" onclick="toggleAiParserPanel()" aria-expanded="false" aria-controls="ai-parser-panel">
-              <div class="action-card-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                </svg>
-              </div>
-              <div class="action-card-body">
-                <span class="action-card-title">Create via AI Parser <span class="action-card-badge">Deprecated</span></span>
-                <span class="action-card-desc">Auto-generate a reading test from pasted text using AI. No bugs will be fixed for this feature.</span>
-              </div>
-              <svg class="action-card-arrow" id="ai-parser-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-            </button>
-
-            <div id="ai-parser-panel" style="display:none; padding: 0 20px 20px;">
-              <div class="input-field-group" style="margin-top:12px;">
-                <label for="raw-input" class="input-label">Raw IELTS Text</label>
-                <textarea id="raw-input" class="raw-textarea" rows="10"
-                  placeholder="Paste your IELTS reading passage and questions here..."></textarea>
-              </div>
-
-              <div class="input-field-group">
-                <label for="diagram-upload" class="input-label">Diagram Uploads</label>
-                <input id="diagram-upload" class="config-input" type="file" accept="image/*" multiple
-                  onchange="handleDiagramUpload(event)" />
-                <div id="diagram-upload-status" class="share-feedback" style="display:none;"></div>
-              </div>
-
-              <div class="config-row">
-                <div class="config-field">
-                  <label for="ai-provider" class="input-label">AI Provider</label>
-                  <select id="ai-provider" class="config-select" onchange="toggleOpenRouterModelRow('openrouter-model-row', this.value)">
-                    <option value="openrouter" selected>OpenRouter (Free Models)</option>
-                    <option value="groq">Groq</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="gemini">Gemini</option>
-                  </select>
-                </div>
-                <div class="config-field config-field--grow">
-                  <label for="api-key" class="input-label">API Key</label>
-                  <input id="api-key" class="config-input" type="password" autocomplete="off"
-                    placeholder="Paste the API key for the selected provider" />
-                </div>
-              </div>
-              <div id="openrouter-model-row" class="config-row">
-                <div class="config-field config-field--grow">
-                  <label for="openrouter-model" class="input-label">OpenRouter Model <span class="label-hint">(free tier &mdash; <a href="https://openrouter.ai/models?q=free" target="_blank" rel="noopener">browse all free models</a>)</span></label>
-                  <select id="openrouter-model" class="config-select">
-                    <option value="deepseek/deepseek-chat-v3-0324:free" selected>DeepSeek V3 (Best for long texts)</option>
-                    <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B Instruct</option>
-                    <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Reasoning)</option>
-                    <option value="google/gemini-2.0-flash:free">Gemini 2.0 Flash</option>
-                    <option value="google/gemma-3-27b-it:free">Gemma 3 27B</option>
-                  </select>
-                </div>
-              </div>
-
-              <label class="config-checkbox">
-                <input type="checkbox" id="auto-answer-key" checked />
-                <span>Generate answer keys automatically if none are detected</span>
-              </label>
-
-              <label class="config-checkbox">
-                <input type="checkbox" id="emergency-score-enabled" onchange="toggleEmergencyScorePinInput()" />
-                <span>Enable Emergency Score Viewer (PIN-gated)</span>
-              </label>
-
-              <div id="emergency-score-pin-row" class="emergency-pin-row" style="display:none;">
-                <label for="emergency-score-pin" class="input-label">Emergency score PIN</label>
-                <input id="emergency-score-pin" class="config-input" type="password" inputmode="numeric" autocomplete="off"
-                  maxlength="8" pattern="[0-9]{6,8}" placeholder="Enter a 6-8 digit PIN" />
-              </div>
-
-              <div class="action-row" style="margin-top:16px;">
-                <button id="btn-parse" class="btn-primary" type="button" onclick="handleParse()">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                  </svg>
-                  Parse &amp; Generate Test
-                </button>
-              </div>
-            </div>
-          </div>
 
         </div><!-- /.action-cards -->
       </div>
@@ -208,7 +134,8 @@
           <div class="config-row writing-ai-row">
             <div class="config-field">
               <label for="writing-ai-provider" class="input-label">AI Provider</label>
-              <select id="writing-ai-provider" class="config-select" onchange="toggleOpenRouterModelRow('writing-openrouter-model-row', this.value)">
+              <select id="writing-ai-provider" class="config-select"
+                onchange="toggleOpenRouterModelRow('writing-openrouter-model-row', this.value)">
                 <option value="openrouter" selected>OpenRouter (Free Models)</option>
                 <option value="groq">Groq</option>
                 <option value="openai">OpenAI</option>
@@ -265,10 +192,11 @@
         </div>
       </div>
 
-      <div id="listening-menu-panel" class="practice-menu-panel" style="text-align:center; padding: 48px 0;">
-        <div style="font-size: 3rem; margin-bottom: 16px;">🎧</div>
-        <p style="font-size: 1.05rem; font-weight: 600; color: var(--text, #1e293b); margin-bottom: 8px;">This feature is under development.</p>
-        <p style="font-size: 0.9rem; color: var(--muted, #64748b);">Come back later! Or never cuz I might never finish ts.</p>
+      <div id="listening-menu-panel" class="practice-menu-panel">
+        <div class="coming-soon-card">
+          <div class="coming-soon-emoji">🎧</div>
+          <h2 class="coming-soon-title">This feature is coming soon</h2>
+        </div>
       </div>
 
       <div id="loading-overlay" class="loading-overlay" style="display:none;">
@@ -280,6 +208,10 @@
   </div>
 
   <div id="test-view" class="test-view" style="display:none;">
+
+
+    <!-- Audio Element tag -->
+    <audio id="listening-audio-element" style="display:none;"></audio>
     <header class="ielts-header">
       <div class="ielts-header-center">
         <span id="timer-display" class="timer-display">60 minutes remaining</span>
@@ -317,6 +249,63 @@
         </button>
       </div>
     </header>
+    <div id="listening-creator-workspace" class="creator-editor" style="display:none;">
+      <div class="creator-editor-inner creator-builder"
+        style="max-width: 900px; margin-left: 0; padding-left: 24px; padding-right: 24px; min-height: 100vh;">
+
+        <div class="creator-passage-header" style="margin-bottom: 24px;">
+          <input type="text" id="listening-test-title-input" class="creator-ghost-input creator-ghost-title"
+            placeholder="Test Title" oninput="updateListeningTitle(this.value)">
+        </div>
+
+        <!-- Question Groups editor list -->
+        <div class="creator-builder-header">
+          <div class="creator-builder-header-left">
+            <h3>
+              <svg viewBox="0 0 24 24">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                <rect x="9" y="3" width="6" height="4" rx="1" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              Question Builder
+            </h3>
+            <p>Create and manage question sets for this part. Each set is rendered with its own editable fields.</p>
+          </div>
+          <span id="creator-questions-count-badge" class="creator-questions-badge"></span>
+        </div>
+
+        <div id="creator-question-groups-list">
+          <!-- Rendered dynamically -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Listening Player Part Header ── -->
+    <div id="listening-part-header" class="part-header listening-test-section" style="display:none;">
+      <span id="player-part-title" class="part-label">Part 1</span>
+      <span id="player-part-desc" class="part-instruction">Listen and answer the questions.</span>
+    </div>
+
+    <!-- ── Listening Player Questions Pane ── -->
+    <div id="listening-split-pane" class="split-pane listening-test-section"
+      style="display:none; flex-direction:column;">
+      <!-- Audio status bar (hidden – status shown in standalone header only) -->
+      <div class="listening-audio-bar" style="display:none; padding:8px 24px; align-items:center; gap:12px;">
+        <span id="audio-status-label" class="audio-status-label" style="font-size:13px; font-weight:600;">🔇 Audio
+          stopped</span>
+        <span id="listening-timer-pill" class="listening-timer-pill"
+          style="margin-left:auto; font-weight:700; font-size:13px; padding:4px 12px; border-radius:999px;">30:00</span>
+        <button type="button" onclick="submitListeningTest()" id="listening-submit-btn" class="listening-submit-btn"
+          style="font-size:12px; font-weight:700; border:none; border-radius:6px; padding:6px 16px; cursor:pointer;">
+          Submit
+        </button>
+      </div>
+      <section class="questions-panel" style="border-left:none; padding:24px 0 80px; overflow-y:auto; flex:1;">
+        <div id="player-questions-container" class="questions-content"
+          style="max-width:960px; margin:0; padding:0 24px;"></div>
+      </section>
+    </div>
 
     <div id="reading-part-header" class="part-header reading-test-section">
       <span id="part-label" class="part-label">Part 1</span>
@@ -397,6 +386,24 @@
       </div>
     </div>
 
+    <div id="listening-bottom-nav" class="bottom-nav listening-test-section" style="display:none;">
+      <div id="listening-nav-parts" class="nav-parts"></div>
+      <div id="listening-nav-questions" class="nav-questions"></div>
+      <div class="nav-arrows">
+        <button id="listening-nav-arrow-prev" class="nav-arrow-btn" type="button" onclick="listeningCreatorNavPrev()"
+          aria-label="Previous part">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+          </svg>
+        </button>
+        <button id="listening-nav-arrow-next" class="nav-arrow-btn" type="button" onclick="listeningCreatorNavNext()"
+          aria-label="Next part">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
     <div id="annotation-popover" class="annotation-popover">
       <button type="button" onclick="Renderer.highlightSelection()">
         <svg class="annotation-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -526,6 +533,31 @@
             </svg>
           </span>
         </button>
+        <button class="options-row" type="button" onclick="showOptionsPanel('contrast')">
+          <span class="options-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="8"></circle>
+              <path d="M12 4a8 8 0 0 0 0 16"></path>
+            </svg>
+          </span>
+          <span>Contrast</span>
+          <span id="contrast-option-state" class="options-value">Normal</span>
+          <span class="options-arrow">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </button>
+        <button class="options-row" type="button" onclick="showOptionsPanel('text-size')">
+          <span class="options-icon options-icon-text">A+</span>
+          <span>Text size</span>
+          <span id="text-size-option-state" class="options-value">Normal</span>
+          <span class="options-arrow">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6"></path>
+            </svg>
+          </span>
+        </button>
 
         <button class="options-row" type="button" onclick="creatorShare()">
           <span class="options-icon">
@@ -560,6 +592,61 @@
             </svg>
           </span>
         </button>
+        <div id="listening-audio-config-block"
+          style="display:none; padding-top:24px; margin-top:24px; border-top:1px solid #e2e8f0; width:100%;">
+          <!-- Global Audio and Transcript -->
+          <div style="margin-bottom: 32px;">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label class="input-label"
+                  style="font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase;">Audio File
+                  (Plays once for the entire test)</label>
+                <div id="audio-file-uploader" class="diagram-drop-zone"
+                  onclick="document.getElementById('audio-file-input').click()"
+                  style="min-height: 100px; margin-bottom: 0;">
+                  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px; color: var(--accent);">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span id="audio-upload-prompt" style="font-size:0.85rem; font-weight:600; color:#475569;">Click to
+                      upload Mp3, Wav or M4a audio file</span>
+                  </div>
+                  <input type="file" id="audio-file-input" style="display:none;" accept="audio/*"
+                    onchange="handleAudioUpload(event)">
+                </div>
+                <div id="audio-file-details"
+                  style="display:none; align-items: center; justify-content: space-between; background: #f8fafc; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 4px;">
+                  <span id="audio-file-name" style="font-weight:600; color: #334155; font-size: 13px;">file.mp3</span>
+                  <button class="creator-qs-icon-btn is-danger" type="button" onclick="removeAudioFile(event)"
+                    title="Remove">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M18 6L6 18" />
+                      <path d="M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase; margin-top:6px;">
+                  Or paste a public audio URL:</div>
+                <input type="text" id="creator-test-audio-url" class="creator-qs-input"
+                  placeholder="https://example.com/audio.mp3" oninput="updateTestField('audioUrl', this.value)"
+                  style="width: 100%; box-sizing: border-box;">
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label class="input-label"
+                  style="font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase;">Audio Script /
+                  Transcript (For reference & scoring validation)</label>
+                <textarea id="creator-test-transcript" class="creator-qs-textarea" rows="6"
+                  placeholder="Paste the script transcript here..." oninput="updateTestField('audioScript', this.value)"
+                  style="width: 100%; box-sizing: border-box;"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -713,7 +800,8 @@
           </div>
         </div>
         <div id="emergency-score-choice-panel" style="display:none;">
-          <p class="speed-modal-desc">Choose an action to perform. Both options stop the countdown and lock your answers; one reveals your score immediately.</p>
+          <p class="speed-modal-desc">Choose an action to perform. Both options stop the countdown and lock your
+            answers; one reveals your score immediately.</p>
           <div class="emergency-choice-stack">
             <button class="emergency-choice-btn" type="button" onclick="applyEmergencyAction('stop_timer')">
               <svg viewBox="0 0 24 24" class="choice-btn-icon">
@@ -732,7 +820,8 @@
               </svg>
               <div class="choice-btn-text">
                 <span class="choice-title">Stop Timer & Check Score</span>
-                <span class="choice-subtitle">Stop the countdown, lock your answers, and show your score immediately</span>
+                <span class="choice-subtitle">Stop the countdown, lock your answers, and show your score
+                  immediately</span>
               </div>
             </button>
           </div>
@@ -794,63 +883,69 @@
     </div>
   </div>
 
-  <div id="creator-test-modal" class="modal-overlay" style="display:none;" onclick="closeCreatorTestModal(event)">
-    <div class="modal-content emergency-score-content">
-      <div class="modal-header">
-        <h3>Launch Manual Test</h3>
-        <button class="modal-close" type="button" onclick="closeCreatorTestModal(event)" aria-label="Close creator test modal">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <label class="config-checkbox creator-pin-toggle">
-          <input type="checkbox" id="creator-emergency-enabled" onchange="toggleCreatorPinInput()" />
-          <span>Enable Emergency Score Viewer for this test</span>
-        </label>
-        <div id="creator-emergency-pin-row" class="emergency-pin-row" style="display:none;">
-          <label for="creator-emergency-pin" class="input-label">Emergency score PIN</label>
-          <input id="creator-emergency-pin" class="config-input" type="password" inputmode="numeric" autocomplete="off"
-            maxlength="8" pattern="[0-9]{6,8}" placeholder="Enter a 6-8 digit PIN" />
+  <div id="options-menu" class="options-menu" style="display:none; z-index: 10001;">
+
+
+
+    <div id="creator-test-modal" class="modal-overlay" style="display:none;" onclick="closeCreatorTestModal(event)">
+      <div class="modal-content emergency-score-content">
+        <div class="modal-header">
+          <h3>Launch Manual Test</h3>
+          <button class="modal-close" type="button" onclick="closeCreatorTestModal(event)"
+            aria-label="Close creator test modal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
-        <div class="creator-modal-actions">
-          <button class="btn-secondary" type="button" onclick="closeCreatorTestModal()">Cancel</button>
-          <button class="btn-primary" type="button" onclick="creatorStartTest()">Start Test</button>
+        <div class="modal-body">
+          <label class="config-checkbox creator-pin-toggle">
+            <input type="checkbox" id="creator-emergency-enabled" onchange="toggleCreatorPinInput()" />
+            <span>Enable Emergency Score Viewer for this test</span>
+          </label>
+          <div id="creator-emergency-pin-row" class="emergency-pin-row" style="display:none;">
+            <label for="creator-emergency-pin" class="input-label">Emergency score PIN</label>
+            <input id="creator-emergency-pin" class="config-input" type="password" inputmode="numeric"
+              autocomplete="off" maxlength="8" pattern="[0-9]{6,8}" placeholder="Enter a 6-8 digit PIN" />
+          </div>
+          <div class="creator-modal-actions">
+            <button class="btn-secondary" type="button" onclick="closeCreatorTestModal()">Cancel</button>
+            <button class="btn-primary" type="button" onclick="creatorStartTest()">Start Test</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div id="result-modal" class="modal-overlay" style="display:none;" onclick="closeResultModal(event)">
-    <div class="modal-content result-modal-content">
-      <div class="modal-header">
-        <h3>Practice Result</h3>
-        <button class="modal-close" type="button" onclick="closeResultModal(event)" aria-label="Close results">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div id="result-summary" class="result-summary"></div>
-        <div id="result-meta" class="result-meta"></div>
-        <div id="result-breakdown" class="result-breakdown"></div>
-        <div id="result-warning" class="result-warning" style="display:none;"></div>
+    <div id="result-modal" class="modal-overlay" style="display:none;" onclick="closeResultModal(event)">
+      <div class="modal-content result-modal-content">
+        <div class="modal-header">
+          <h3>Practice Result</h3>
+          <button class="modal-close" type="button" onclick="closeResultModal(event)" aria-label="Close results">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="result-summary" class="result-summary"></div>
+          <div id="result-meta" class="result-meta"></div>
+          <div id="result-breakdown" class="result-breakdown"></div>
+          <div id="result-warning" class="result-warning" style="display:none;"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="./validator.js"></script>
-  <script src="./parser.js"></script>
-  <script src="./renderer.js"></script>
-  <script src="./sharing.js"></script>
-  <div id="toast-container" class="toast-container"></div>
-  <script src="./app.js"></script>
+    <script src="./validator.js"></script>
+    <script src="./parser.js"></script>
+    <script src="./renderer.js"></script>
+    <script src="./sharing.js"></script>
+    <div id="toast-container" class="toast-container"></div>
+    <script src="./app.js"></script>
+    <script src="./listening/app.js"></script>
 </body>
 
 </html>

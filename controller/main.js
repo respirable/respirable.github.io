@@ -366,7 +366,12 @@ async function deleteFolderWrapper(prefix) {
 async function deleteFileWrapper(path) {
   if (confirm(`Delete "${path}"?`)) {
     await deleteFile(path);
-    if (currentFilePath === path) { currentFilePath = null; resetEditorPlaceholder(); }
+    if (currentFilePath === path) {
+      currentFilePath = null;
+      editorModel = null;
+      const container = document.getElementById('editorContainer');
+      if (container) container.innerHTML = '<div class="no-file-selected"><p>Select a file to edit</p></div>';
+    }
     renderFileList();
   }
 }
@@ -374,42 +379,44 @@ async function deleteFileWrapper(path) {
 // ─── MONACO ───
 function loadMonaco() {
   require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs' } });
-  require(['vs/editor/editor.main'], function () {
-    document.fonts.ready.then(() => {
-      window.editor = monaco.editor.create(document.getElementById('editorContainer'), {
-        theme: 'vs-dark',
-        automaticLayout: true,
-        fontSize: 14,
-        fontFamily: "'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace",
-        fontLigatures: true,
-        minimap: { enabled: true },
-        scrollBeyondLastLine: false,
-        padding: { top: 16, bottom: 16 },
-        renderIndentGuides: true,
-        bracketPairColorization: { enabled: true },
-        // Fix for zoom and pixel ratio misalignment
-        pixelRatio: window.devicePixelRatio || 1,
-        fixedOverflowWidgets: true,
-        wordWrap: 'on'
-      });
+  require(['vs/editor/editor.main'], async function () {
+    // Wait for Fira Code to be ready (promise set up in index.html inline script)
+    await (window._firaCodeReady || Promise.resolve());
 
-      // High-precision layout recalibration on zoom/resize
-      window.addEventListener('resize', () => {
-        if (window.editor) {
-          window.editor.updateOptions({ pixelRatio: window.devicePixelRatio || 1 });
-          window.editor.layout();
-        }
-      });
-
-      // Ensure fonts are measured correctly after loading
-      document.fonts.ready.then(() => {
-        if (monaco && monaco.editor) monaco.editor.remeasureFonts();
-        if (window.editor) window.editor.layout();
-      });
-      window.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, saveEditorContent);
-      window.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, toggleFindBar);
-      monacoLoaded = true;
+    window.editor = monaco.editor.create(document.getElementById('editorContainer'), {
+      theme: 'vs-dark',
+      automaticLayout: true,
+      fontSize: 14,
+      fontFamily: "'Fira Code', monospace",
+      fontLigatures: true,
+      minimap: { enabled: true },
+      scrollBeyondLastLine: false,
+      padding: { top: 16, bottom: 16 },
+      renderIndentGuides: true,
+      bracketPairColorization: { enabled: true },
+      // Fix for zoom and pixel ratio misalignment
+      pixelRatio: window.devicePixelRatio || 1,
+      fixedOverflowWidgets: true,
+      wordWrap: 'on'
     });
+
+    // High-precision layout recalibration on zoom/resize
+    window.addEventListener('resize', () => {
+      if (window.editor) {
+        window.editor.updateOptions({ pixelRatio: window.devicePixelRatio || 1 });
+        window.editor.layout();
+      }
+    });
+
+    // Force Monaco to remeasure fonts after editor creation — handles any race
+    // where the font finishes loading a few frames after the editor is created.
+    monaco.editor.remeasureFonts();
+    window.editor.updateOptions({ fontFamily: "'Fira Code', monospace" });
+    window.editor.layout();
+
+    window.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, saveEditorContent);
+    window.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, toggleFindBar);
+    monacoLoaded = true;
   });
 }
 

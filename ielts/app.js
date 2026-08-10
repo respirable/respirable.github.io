@@ -107,15 +107,15 @@ function switchPracticeMode(mode) {
     title.textContent = isWriting
       ? 'IELTS Writing Practice Generator'
       : isListening
-      ? 'IELTS Listening Practice Generator'
-      : 'IELTS Reading Practice Generator';
+        ? 'IELTS Listening Practice Generator'
+        : 'IELTS Reading Practice Generator';
   }
   if (subtitle) {
     subtitle.innerHTML = isWriting
       ? 'Allows you to easily create an IELTS Writing test interface with your own questions. Not sure if it is 100% accurate to the real deal <b>[EARLY BETA. SOME FEATURES MAY ALSO NOT WORK PROPERLY.]</b>'
       : isListening
-      ? ''
-      : "Paste your raw passage and question set, add a diagram if the task needs one, and generate a shareable practice interface. <b>[SUPER EARLY BETA. MANY FUNCTIONS WILL NOT WORK PROPERLY, AS THE PARSER PROMPT ISN'T OPTIMIZED ENOUGH.]</b>";
+        ? 'IELTS Listening practice tests are currently under development.'
+        : "Paste your raw passage and question set, add a diagram if the task needs one, and generate a shareable practice interface. <b>[SUPER EARLY BETA. MANY FUNCTIONS WILL NOT WORK PROPERLY, AS THE PARSER PROMPT ISN'T OPTIMIZED ENOUGH.]</b>";
   }
 
   hideValidation();
@@ -174,6 +174,13 @@ function showOptionsPanel(panel) {
   for (const [name, el] of Object.entries(panels)) {
     if (el) el.style.display = name === panel ? 'block' : 'none';
   }
+  
+  const audioConfig = document.getElementById('listening-audio-config-block');
+  if (audioConfig) {
+    const isListening = document.getElementById('listening-creator-workspace') && document.getElementById('listening-creator-workspace').style.display === 'block';
+    audioConfig.style.display = (panel === 'creator' && isListening) ? 'block' : 'none';
+  }
+  
   syncOptionsMenuState();
 }
 
@@ -256,7 +263,22 @@ function initOptionsChoiceUI() {
 
 // ── Sharing ──
 function handleShare() {
-  if (!getActiveSharePayload()) return;
+  const listeningWorkspace = document.getElementById('listening-creator-workspace');
+  if (listeningWorkspace && listeningWorkspace.style.display !== 'none') {
+    if (typeof triggerSaveListeningTest === 'function') {
+      return triggerSaveListeningTest();
+    }
+  }
+  if (activePracticeMode === 'creator') {
+    if (typeof creatorShare === 'function') {
+      return creatorShare();
+    }
+  }
+  const payload = getActiveSharePayload();
+  if (!payload) {
+    notify('warning', 'There is no active test to share.');
+    return;
+  }
   document.getElementById('share-modal').style.display = 'flex';
 }
 
@@ -270,8 +292,10 @@ async function shareViaSupabase() {
     const url = await Sharing.saveTestToSupabase(payload);
     await navigator.clipboard.writeText(url);
     const fb = document.getElementById('share-supabase-feedback');
-    fb.style.display = 'block';
-    setTimeout(() => fb.style.display = 'none', 3000);
+    if (fb) {
+      fb.style.display = 'block';
+      setTimeout(() => fb.style.display = 'none', 3000);
+    }
   } catch (err) {
     notify('error', 'Failed to save to cloud: ' + err.message);
   }
@@ -288,8 +312,13 @@ function getActiveSharePayload() {
     };
   }
 
+  if (activePracticeMode === 'listening' || window.currentListeningTestData) {
+    return window.currentListeningTestData || null;
+  }
+
   return currentTestData || null;
 }
+
 
 function closeShareModal(e) {
   const isExplicitCloseButton = !!e?.currentTarget?.closest?.('.modal-close');
@@ -564,10 +593,10 @@ function toggleOpenRouterModelRow(rowId, providerValue) {
 function toggleReadingActionMenu() {
   const menu = document.getElementById('reading-action-menu');
   if (!menu) return;
-  
+
   const isVisible = menu.style.display === 'block';
   menu.style.display = isVisible ? 'none' : 'block';
-  
+
   // Close menu when clicking outside
   if (!isVisible) {
     document.addEventListener('click', function closeMenuOnClickOutside(e) {
@@ -665,7 +694,7 @@ function setTestShellMode(mode) {
   });
 
   const shareButton = document.getElementById('share-test-button');
-  if (shareButton) shareButton.style.display = isCreator ? 'none' : '';
+  if (shareButton) shareButton.style.display = '';
 }
 
 function showTest(data) {
@@ -1283,7 +1312,7 @@ function getSetCountLabel(type) {
 /* ── WYSIWYG live preview for a question set ── */
 function renderCreatorFlowchartBuilder(group, index) {
   let html = '<div class="flowchart-builder-container" style="display:flex; flex-direction:column; gap:20px; font-family: Arial, sans-serif;">';
-  
+
   html += `
     <div class="flowchart-toolbar-redesign" style="display:flex; align-items:center; gap:10px; padding:12px 20px; background:#fff; border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,0.02);">
       <button type="button" class="creator-mini-btn" style="background:#0969da; color:white; border:none; padding:8px 16px;" onclick="creatorAddFlowNode(${index})">
@@ -1357,7 +1386,7 @@ function renderCreatorFlowchartBuilder(group, index) {
           </select>
         </div>`;
     }
-    
+
     html += '</div>';
   });
 
@@ -1376,14 +1405,14 @@ function renderCreatorFlowchartBuilder(group, index) {
         </div>
         <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:12px;">
           ${rangeNums.map(num => {
-            const ans = creatorState.answerKey?.[String(num)] || '';
-            return `
+      const ans = creatorState.answerKey?.[String(num)] || '';
+      return `
               <div style="display:flex; align-items:center; gap:10px; background:white; padding:8px 12px; border-radius:10px; border:1px solid #e2e8f0;">
                 <div style="width:28px; height:28px; background:#eff6ff; color:#0969da; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:11px; flex-shrink:0;">${num}</div>
                 <input type="text" value="${escAttr(ans)}" onchange="creatorUpdateAnswerKey(${num}, this.value)" placeholder="Enter answer..." style="flex:1; border:none; outline:none; font-size:13px; color:#1e293b;"/>
               </div>
             `;
-          }).join('')}
+    }).join('')}
         </div>
       </div>`;
   }
@@ -1423,7 +1452,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
     html += '<div class="wysiwyg-example-heading" style="margin-top:20px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; display:flex; flex-direction:column; gap:12px;">';
     html += '<h4 class="creator-qs-field-label" style="margin:0; font-size: 14px; font-weight:600; color:var(--text-main);">Example Heading Question</h4>';
     html += '<div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">';
-    
+
     // Section Dropdown
     html += '<div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width: 120px;">';
     html += '<span class="mapping-quest-label" style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--muted);">Example Section</span>';
@@ -1483,16 +1512,16 @@ function renderCreatorWYSIWYGPreview(group, index) {
             <span class="mapping-quest-label">Section</span>
             <div class="mapping-section-pills">
               ${options.map(letter => {
-                const isSelected = q.section === letter;
-                const isMappedByOther = mappedSections.has(letter) || (exampleSec === letter);
-                return `
+        const isSelected = q.section === letter;
+        const isMappedByOther = mappedSections.has(letter) || (exampleSec === letter);
+        return `
                   <button type="button" class="mapping-pill ${isSelected ? 'is-active' : ''}"
                     ${isMappedByOther ? 'disabled' : ''}
                     onclick="creatorUpdateSectionMapping(${index},${i},'${letter}')"
                     title="${exampleSec === letter ? 'Used as example' : (isMappedByOther ? 'Already mapped' : `Map to Section ${letter}`)}">
                     ${letter}
                   </button>`;
-              }).join('')}
+      }).join('')}
             </div>
           </div>
 
@@ -1502,13 +1531,13 @@ function renderCreatorWYSIWYGPreview(group, index) {
               onchange="creatorSetHeadingMatchAnswer(${index}, ${i}, this.value)">
               <option value="">— Select Heading —</option>
               ${(group.headingOptions || []).map((opt, oi) => {
-                const roman = creatorNumberToRoman(oi + 1);
-                const cleaned = cleanCreatorOptionLabel(opt);
-                const currentAns = creatorState?.answerKey?.[String(q.number)] || '';
-                const isSelected = cleaned === cleanCreatorOptionLabel(currentAns);
-                const isExample = cleaned === cleanCreatorOptionLabel(group.exampleHeading || '');
-                return `<option value="${escAttr(cleaned)}"${isSelected ? ' selected' : ''}${isExample ? ' disabled' : ''}>${roman}. ${escHtml(cleaned)}${isExample ? ' (example)' : ''}</option>`;
-              }).join('')}
+        const roman = creatorNumberToRoman(oi + 1);
+        const cleaned = cleanCreatorOptionLabel(opt);
+        const currentAns = creatorState?.answerKey?.[String(q.number)] || '';
+        const isSelected = cleaned === cleanCreatorOptionLabel(currentAns);
+        const isExample = cleaned === cleanCreatorOptionLabel(group.exampleHeading || '');
+        return `<option value="${escAttr(cleaned)}"${isSelected ? ' selected' : ''}${isExample ? ' disabled' : ''}>${roman}. ${escHtml(cleaned)}${isExample ? ' (example)' : ''}</option>`;
+      }).join('')}
             </select>
           </div>
 
@@ -1630,7 +1659,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
         <div style="flex:1"></div>
         <button class="creator-mini-btn" type="button" onclick="creatorAddWordBankOption(${index})" title="Add a word bank options list">${group.options && group.options.length ? '✓ Word Bank' : '+ Word Bank'}</button>
       </div>`;
-    
+
     const textToRender = isNote ? (group.noteText || group.summaryText || '') : (group.summaryText || '');
     const renderedText = escHtml(textToRender).replace(/_{3,}(\d+)_{3,}/g, (match, num) => {
       return `&#8203;<span class="wysiwyg-gap-inline" contenteditable="false"><span class="gap-num">${num}</span></span>&#8203;`;
@@ -1640,7 +1669,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
       oninput="creatorUpdateSummaryText(${index},this)"
       style="white-space:pre-wrap; line-height:2.2; min-height:100px; padding:16px; outline:none; font-size:.9rem; color:#334155;"
       placeholder="${isNote ? 'Start typing your notes here...' : 'Type your summary text here...'}">${renderedText}</div>`;
-    
+
     // Gap/Answer indicators
     const range = parseCreatorRange(group.questionRange);
     if (range && range.numbers.length > 0) {
@@ -1656,14 +1685,14 @@ function renderCreatorWYSIWYGPreview(group, index) {
             <span class="wysiwyg-gap-inline" style="padding:1px 8px; min-width:32px; flex-shrink:0; cursor:default;"><span class="gap-num">${num}</span></span>
             <span style="font-size:.75rem; font-weight:600; color:var(--muted); white-space:nowrap;">Correct option:</span>
             ${(group.options || []).map((opt, oi) => {
-              const letter = String.fromCharCode(65 + oi);
-              const optText = String(opt || '').replace(/^[A-Z][.)]\s+/, '');
-              const isSelected = currentAnswer === letter;
-              return `<button type="button" class="mapping-pill${isSelected ? ' is-active' : ''}"
+            const letter = String.fromCharCode(65 + oi);
+            const optText = String(opt || '').replace(/^[A-Z][.)]\s+/, '');
+            const isSelected = currentAnswer === letter;
+            return `<button type="button" class="mapping-pill${isSelected ? ' is-active' : ''}"
                 onclick="creatorUpdateAnswerKey(${num},'${letter}')"
                 title="${escAttr(optText)}"
                 style="font-size:.8rem; padding:3px 10px;">${letter}</button>`;
-            }).join('')}
+          }).join('')}
             ${currentAnswer ? `<span style="font-size:.78rem; color:#16a34a; font-weight:600;">✓ ${escHtml(currentAnswer)}. ${escHtml((group.options[currentAnswer.charCodeAt(0) - 65] || '').replace(/^[A-Z][.)]\s+/, '').substring(0, 40))}</span>` : ''}
           </div>`;
         } else {
@@ -1686,51 +1715,67 @@ function renderCreatorWYSIWYGPreview(group, index) {
     const rowHeights = group.tableRowHeights || rows.map(() => 0);
 
     html += `
-      <div class="creator-table-toolbar-redesign" style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.02); margin-bottom:8px;">
-        <button type="button" class="creator-mini-btn" onclick="creatorAddTableRow(${index})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-          Add Row
-        </button>
-        <button type="button" class="creator-mini-btn" onclick="creatorAddTableColumn(${index})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-          Add Column
-        </button>
-        <div style="width:1px; height:20px; background:#e2e8f0; margin:0 4px;"></div>
-        <button type="button" class="creator-mini-btn" style="background:#0969da; color:white; border:none;" onmousedown="event.preventDefault()" onclick="creatorInsertGapAtCursor(${index}, 'table')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-          Insert Gap
-        </button>
-        <div style="width:1px; height:20px; background:#e2e8f0; margin:0 4px;"></div>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'bold')" title="Bold" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12a4 4 0 0 0 0-8H6v8"/><path d="M15 20a4 4 0 0 0 0-8H6v8Z"/></svg>
-        </button>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'italic')" title="Italic" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
-        </button>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'bullet')" title="Bullet List" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
-        </button>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'subheading')" title="Subheading" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8M4 18V6M12 18V6"/><text x="14" y="17" font-family="Segoe UI, sans-serif" font-size="9" font-weight="bold" fill="currentColor" stroke="none">3</text></svg>
-        </button>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'align', 'left')" title="Align Left" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" x2="3" y1="10" y2="10"/><line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="3" y1="18" y2="18"/><line x1="17" x2="3" y1="14" y2="14"/></svg>
-        </button>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'align', 'center')" title="Align Center" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="10" y2="10"/><line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="3" y1="18" y2="18"/><line x1="18" x2="6" y1="14" y2="14"/></svg>
-        </button>
-        <div style="width:1px; height:20px; background:#e2e8f0; margin:0 4px;"></div>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'merge-right')" title="Merge Cell Right" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><path d="m14 9 3 3-3 3"/></svg>
-        </button>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'merge-down')" title="Merge Cell Down" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M5 12h14"/><path d="m9 14 3 3 3-3"/></svg>
-        </button>
-        <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'split')" title="Split Merged Cell" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14" stroke-dasharray="3 3"/><path d="m10 12-2-2 2-2"/><path d="m14 12 2-2-2-2"/></svg>
-        </button>
-        <div style="flex:1"></div>
-        <span style="font-size:10px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em;">${rows.length} Rows &bull; ${headers.length} Cols</span>
+      <div class="creator-table-toolbar-redesign" style="display:flex; flex-direction:column; gap:6px; padding:10px 12px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-bottom:8px;">
+        <!-- Row 1: Structure -->
+        <div style="display:flex; align-items:center; gap:5px;">
+          <button type="button" class="creator-mini-btn" onclick="creatorAddTableRow(${index})">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            Add Row
+          </button>
+          <button type="button" class="creator-mini-btn" onclick="creatorAddTableColumn(${index})">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            Add Col
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorDeleteCurrentTableRow(${index})" style="color:#ef4444;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+            Del Row
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorDeleteCurrentTableColumn(${index})" style="color:#ef4444;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="12" y1="5" x2="12" y2="19"/></svg>
+            Del Col
+          </button>
+          <div style="width:1px; height:18px; background:#e2e8f0; margin:0 3px;"></div>
+          <button type="button" class="creator-mini-btn" style="background:#0969da; color:white; border:none;" onmousedown="event.preventDefault()" onclick="creatorInsertGapAtCursor(${index}, 'table')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            Insert Gap
+          </button>
+        </div>
+
+        <div style="height:1px; background:#f1f5f9;"></div>
+
+        <!-- Row 2: Cell formatting (icon-only) -->
+        <div style="display:flex; align-items:center; gap:3px;">
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'bold')" title="Bold" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12a4 4 0 0 0 0-8H6v8"/><path d="M15 20a4 4 0 0 0 0-8H6v8Z"/></svg>
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'italic')" title="Italic" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'bullet')" title="Bullet List" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'subheading')" title="Subheading" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8M4 18V6M12 18V6"/><text x="14" y="17" font-family="Segoe UI, sans-serif" font-size="9" font-weight="bold" fill="currentColor" stroke="none">3</text></svg>
+          </button>
+          <div style="width:1px; height:18px; background:#e2e8f0; margin:0 2px;"></div>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'align', 'left')" title="Align Left" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" x2="3" y1="10" y2="10"/><line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="3" y1="18" y2="18"/><line x1="17" x2="3" y1="14" y2="14"/></svg>
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'align', 'center')" title="Align Center" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="10" y2="10"/><line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="3" y1="18" y2="18"/><line x1="18" x2="6" y1="14" y2="14"/></svg>
+          </button>
+          <div style="width:1px; height:18px; background:#e2e8f0; margin:0 2px;"></div>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'merge-right')" title="Merge Right" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><path d="m14 9 3 3-3 3"/></svg>
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'merge-down')" title="Merge Down" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M5 12h14"/><path d="m9 14 3 3 3-3"/></svg>
+          </button>
+          <button type="button" class="creator-mini-btn" onmousedown="event.preventDefault()" onclick="creatorToolbarAction(${index}, 'split')" title="Split Merged Cell" style="width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14" stroke-dasharray="3 3"/><path d="m10 12-2-2 2-2"/><path d="m14 12 2-2-2-2"/></svg>
+          </button>
+        </div>
+
       </div>`;
 
     html += '<div class="wysiwyg-table-wrap-redesign custom-scrollbar" style="overflow-x:auto;">';
@@ -1751,12 +1796,11 @@ function renderCreatorWYSIWYGPreview(group, index) {
               onchange="creatorUpdateTableHeader(${index},${hi},this.value)"
               placeholder="Header..."
               style="flex:1; border:none; background:transparent; font:inherit; font-weight:900; color:inherit; outline:none;"/>
-            <button type="button" class="text-slate-400 hover:text-red-500" onclick="creatorRemoveTableColumn(${index},${hi})" title="Remove Column" style="border:none; background:none; cursor:pointer; font-size:16px;">&times;</button>
           </div>
           <div class="creator-table-col-handle" onmousedown="creatorStartTableColResize(event, ${index}, ${hi})"></div>
         </th>`;
     });
-    html += '<th style="width:48px; background:#f8fafc;"></th></tr></thead><tbody>';
+    html += '</tr></thead><tbody>';
 
     rows.forEach((row, ri) => {
       const h = rowHeights[ri] ? `${rowHeights[ri]}px` : 'auto';
@@ -1791,13 +1835,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
               placeholder="Cell content...">${rendered}</div>
           </td>`;
       });
-      html += `
-        <td style="text-align:center; background:#f8fafc; position:relative;">
-          <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-            <button type="button" class="text-slate-300 hover:text-red-500" onclick="creatorRemoveTableRow(${index},${ri})" title="Delete Row" style="border:none; background:none; cursor:pointer; font-size:18px;">&times;</button>
-          </div>
-          <div class="creator-table-row-handle" onmousedown="creatorStartTableRowResize(event, ${index}, ${ri})"></div>
-        </td></tr>`;
+      html += '</tr>';
     });
 
     html += '</tbody></table>';
@@ -1818,14 +1856,14 @@ function renderCreatorWYSIWYGPreview(group, index) {
           </div>
           <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:12px;">
             ${rangeNums.map(num => {
-              const ans = creatorState.answerKey?.[String(num)] || '';
-              return `
+        const ans = creatorState.answerKey?.[String(num)] || '';
+        return `
                 <div style="display:flex; align-items:center; gap:10px; background:white; padding:8px 12px; border-radius:10px; border:1px solid #e2e8f0; transition:all 0.2s;" onfocuswithin="this.style.borderColor='#0969da'; this.style.boxShadow='0 0 0 3px rgba(9,105,218,0.05)'" onfocusout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
                   <div style="width:28px; height:28px; background:#eff6ff; color:#0969da; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:11px; flex-shrink:0;">${num}</div>
                   <input type="text" value="${escAttr(ans)}" onchange="creatorUpdateAnswerKey(${num}, this.value)" placeholder="Enter answer..." style="flex:1; border:none; outline:none; font-size:13px; color:#1e293b;"/>
                 </div>
               `;
-            }).join('')}
+      }).join('')}
           </div>
         </div>`;
     }
@@ -1834,7 +1872,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
 
   } else if (type === 'diagram_completion') {
     html += '<div style="margin-bottom:16px; display:flex; flex-direction:column; gap:20px; font-family: Arial, sans-serif;">';
-    
+
     // Image section
     html += `
       <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:16px;">
@@ -1867,8 +1905,8 @@ function renderCreatorWYSIWYGPreview(group, index) {
 
         <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
           ${(group.questions || []).map((q, qi) => {
-            const currentAnswer = creatorState.answerKey?.[String(q.number)] || '';
-            return `
+      const currentAnswer = creatorState.answerKey?.[String(q.number)] || '';
+      return `
               <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #eef2f6;">
                 <div style="width:28px; height:28px; background:#3b82f6; color:white; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:11px; flex-shrink:0;">${q.number}</div>
                 <input type="text" value="${escAttr(currentAnswer)}" 
@@ -1877,10 +1915,10 @@ function renderCreatorWYSIWYGPreview(group, index) {
                   style="flex:1; padding:6px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; background:white; outline:none; transition:all 0.2s;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'" onfocusout="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'"/>
               </div>
             `;
-          }).join('')}
+    }).join('')}
         </div>
       </div>`;
-    
+
     html += '</div>';
 
   } else if (['matching_features', 'matching_information'].includes(type)) {
@@ -1993,16 +2031,16 @@ function renderCreatorWYSIWYGPreview(group, index) {
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding-left:34px;">
           <span style="font-size:.75rem; font-weight:600; color:var(--muted); margin-right:4px; white-space:nowrap;">Correct ending:</span>
           ${options.map((opt, oi) => {
-            const letter = String.fromCharCode(65 + oi);
-            const isSelected = currentAnswer === letter;
-            return `<button type="button"
+        const letter = String.fromCharCode(65 + oi);
+        const isSelected = currentAnswer === letter;
+        return `<button type="button"
               class="mapping-pill${isSelected ? ' is-active' : ''}"
               onclick="creatorSetMatchingEndingAnswer(${index},${qi},'${letter}')"
               title="${escAttr(opt)}"
               style="font-size:.8rem; padding:3px 10px;">
               ${letter}
             </button>`;
-          }).join('')}
+      }).join('')}
         </div>
         ${currentAnswer ? `<div style="margin-top:6px; padding-left:34px; font-size:.8rem; color:#16a34a; font-weight:600;">
           ✓ ${escHtml(String.fromCharCode(65 + (currentAnswer.charCodeAt(0) - 65)))}. ${escHtml((options[currentAnswer.charCodeAt(0) - 65] || '').substring(0, 60))}${(options[currentAnswer.charCodeAt(0) - 65] || '').length > 60 ? '…' : ''}
@@ -2023,7 +2061,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
 
     html += '<div style="display:flex; flex-direction:column; gap:16px;">';
     html += '<div style="font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:-4px;">Sentences</div>';
-    
+
     (group.questions || []).forEach((q, qi) => {
       const currentAnswer = creatorState.answerKey?.[String(q.number)] || '';
       const rendered = escHtml(q.statement || '').replace(/_{3,}(\d+)_{3,}/g, (match, num) => {
@@ -2049,7 +2087,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
           </div>
         </div>`;
     });
-    
+
     if (canAddSentenceQuestion) {
       html += `
         <button class="creator-btn-secondary" type="button" onclick="creatorAddQuestionToSet(${index})" style="padding:12px; border:2px dashed #e2e8f0; background:#fcfdfd; border-radius:12px; width:100%; color:#64748b; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px;">
@@ -2068,7 +2106,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
 
     html += '<div style="display:flex; flex-direction:column; gap:16px;">';
     html += '<div style="font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:-4px;">Questions & Answers</div>';
-    
+
     (group.questions || []).forEach((q, qi) => {
       const currentAnswer = creatorState.answerKey?.[String(q.number)] || '';
       html += `
@@ -2091,7 +2129,7 @@ function renderCreatorWYSIWYGPreview(group, index) {
           </div>
         </div>`;
     });
-    
+
     if (canAddShortAnswerQuestion) {
       html += `
         <button class="creator-btn-secondary" type="button" onclick="creatorAddQuestionToSet(${index})" style="padding:12px; border:2px dashed #e2e8f0; background:#fcfdfd; border-radius:12px; width:100%; color:#64748b; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px;">
@@ -2572,7 +2610,7 @@ function creatorSetMatchingFeatureAnswer(index, qIndex, letter) {
   const q = group.questions[qIndex];
   if (q.number) {
     creatorState.answerKey[String(q.number)] = letter;
-    
+
     // Check if letter is used more than once for matching information
     if (group.type === 'matching_information') {
       const letterCounts = {};
@@ -2656,7 +2694,7 @@ function creatorUpdateSummaryText(index, elementOrText) {
   const part = getCreatorPart();
   const group = part?.questionGroups[index];
   if (!group) return;
-  
+
   if (typeof elementOrText === 'string') {
     group.summaryText = elementOrText;
     if (group.type === 'note_completion') {
@@ -2673,7 +2711,7 @@ function creatorUpdateSummaryText(index, elementOrText) {
   const gapNums = [];
   String(group.summaryText || '').replace(/_{3,}(\d+)_{3,}/g, (_, n) => { gapNums.push(Number(n)); });
   const sortedNums = Array.from(new Set(gapNums)).sort((a, b) => a - b);
-  
+
   // Sync group questions list
   group.questions = sortedNums.map(n => ({ number: n, statement: `___${n}___` }));
 
@@ -2691,7 +2729,7 @@ function creatorUpdateSummaryText(index, elementOrText) {
   } else {
     group.questionRange = '';
   }
-  
+
   if (part) part.questionRange = combineCreatorRanges(part.questionGroups);
   creatorDirty = true;
 }
@@ -2734,7 +2772,7 @@ function creatorUpdateTableHeader(index, headerIndex, value) {
 function creatorUpdateTableCell(index, ri, ci, element) {
   const group = getCreatorPart()?.questionGroups[index];
   if (!group || !group.tableRows[ri]) return;
-  
+
   group.tableRows[ri][ci] = extractTextFromContentEditable(element);
   creatorSyncTableQuestions(index);
   creatorDirty = true;
@@ -2854,6 +2892,22 @@ function creatorRemoveTableColumn(index, colIndex) {
   renderCreatorPanel();
 }
 
+function creatorDeleteCurrentTableRow(index) {
+  if (!creatorActiveTableCell || creatorActiveTableCell.index !== index) {
+    notify('warning', 'Click inside a cell first to set the target row.');
+    return;
+  }
+  creatorRemoveTableRow(index, creatorActiveTableCell.ri);
+}
+
+function creatorDeleteCurrentTableColumn(index) {
+  if (!creatorActiveTableCell || creatorActiveTableCell.index !== index) {
+    notify('warning', 'Click inside a cell first to set the target column.');
+    return;
+  }
+  creatorRemoveTableColumn(index, creatorActiveTableCell.ci);
+}
+
 function creatorUpdateTableColumnWidth(index, colIndex, value) {
   const group = getCreatorPart()?.questionGroups[index];
   if (!group) return;
@@ -2890,7 +2944,7 @@ function creatorMergeTableCellRight(index, ri, ci) {
     notify('warning', 'Cannot merge right: last column reached.');
     return;
   }
-  
+
   group.tableCellMerge = group.tableCellMerge || {};
   const cellKey = `${ri}-${ci}`;
   const current = group.tableCellMerge[cellKey] || { colspan: 1, rowspan: 1 };
@@ -2899,7 +2953,7 @@ function creatorMergeTableCellRight(index, ri, ci) {
     notify('warning', 'Cannot merge right: last column reached.');
     return;
   }
-  
+
   // Append content from all cells that will be merged
   for (let r = ri; r < ri + current.rowspan; r++) {
     const targetVal = group.tableRows[r][targetCol];
@@ -2908,7 +2962,7 @@ function creatorMergeTableCellRight(index, ri, ci) {
     }
     group.tableRows[r][targetCol] = '#merged';
   }
-  
+
   current.colspan += 1;
   group.tableCellMerge[cellKey] = current;
   creatorDirty = true;
@@ -2923,7 +2977,7 @@ function creatorMergeTableCellDown(index, ri, ci) {
     notify('warning', 'Cannot merge down: last row reached.');
     return;
   }
-  
+
   group.tableCellMerge = group.tableCellMerge || {};
   const cellKey = `${ri}-${ci}`;
   const current = group.tableCellMerge[cellKey] || { colspan: 1, rowspan: 1 };
@@ -2932,7 +2986,7 @@ function creatorMergeTableCellDown(index, ri, ci) {
     notify('warning', 'Cannot merge down: last row reached.');
     return;
   }
-  
+
   // Append content from all cells that will be merged
   for (let c = ci; c < ci + current.colspan; c++) {
     const targetVal = group.tableRows[targetRow][c];
@@ -2941,7 +2995,7 @@ function creatorMergeTableCellDown(index, ri, ci) {
     }
     group.tableRows[targetRow][c] = '#merged';
   }
-  
+
   current.rowspan += 1;
   group.tableCellMerge[cellKey] = current;
   creatorDirty = true;
@@ -2951,12 +3005,12 @@ function creatorMergeTableCellDown(index, ri, ci) {
 function creatorSplitTableCell(index, ri, ci) {
   const group = getCreatorPart()?.questionGroups[index];
   if (!group) return;
-  
+
   group.tableCellMerge = group.tableCellMerge || {};
   const cellKey = `${ri}-${ci}`;
   const current = group.tableCellMerge[cellKey];
   if (!current) return; // not merged
-  
+
   // Restore '#merged' cells to empty strings
   for (let r = ri; r < ri + current.rowspan; r++) {
     for (let c = ci; c < ci + current.colspan; c++) {
@@ -2964,7 +3018,7 @@ function creatorSplitTableCell(index, ri, ci) {
       group.tableRows[r][c] = '';
     }
   }
-  
+
   delete group.tableCellMerge[cellKey];
   creatorDirty = true;
   renderCreatorPanel();
@@ -3067,7 +3121,7 @@ function creatorUpdateFlowNodeText(index, nodeIndex, elementOrText) {
     node.statement = text;
     node.text = text;
   }
-  
+
   const nums = getCreatorQuestionNumbersForGroup(group);
   if (nums.length) {
     const min = Math.min(...nums);
@@ -3076,7 +3130,7 @@ function creatorUpdateFlowNodeText(index, nodeIndex, elementOrText) {
   } else {
     group.questionRange = '';
   }
-  
+
   creatorDirty = true;
 }
 function creatorUpdateFlowNodeColor(index, nodeIndex, value) {
@@ -3099,14 +3153,14 @@ function creatorMoveFlowNode(index, nodeIndex, direction) {
   const group = getCreatorPart()?.questionGroups[index];
   const nodes = group?.questions || group?.flowNodes;
   if (!nodes) return;
-  
+
   const targetIndex = nodeIndex + direction;
   if (targetIndex < 0 || targetIndex >= nodes.length) return;
-  
+
   const temp = nodes[nodeIndex];
   nodes[nodeIndex] = nodes[targetIndex];
   nodes[targetIndex] = temp;
-  
+
   creatorDirty = true;
   renderCreatorPanel();
 }
@@ -3282,7 +3336,7 @@ function creatorRemoveMatchingOption(index, optIndex) {
   }
 
   group.options.splice(optIndex, 1);
-  
+
   group.options = group.options.map((opt, i) => {
     const letter = String.fromCharCode(65 + i);
     return `${letter}. ${String(opt).replace(/^[A-Z][.)]\s+/, '')}`;
@@ -3545,7 +3599,7 @@ function creatorUpdateDiagramGapCount(index, value) {
 function creatorUpdateDiagramLabelText(index, qIndex, value) {
   const group = getCreatorPart()?.questionGroups[index];
   if (!group?.questions?.[qIndex]) return;
-  
+
   const q = group.questions[qIndex];
   q.statement = `${value} ___${q.number}___`.trim();
   creatorDirty = true;
@@ -3593,10 +3647,10 @@ function creatorInsertGapInlineBody(index) {
 function creatorSetAnswer(num, value) {
   if (!creatorState) return;
   const val = value.trim();
-  
+
   let needsRender = false;
   const part = getCreatorPart();
-  
+
   if (part) {
     for (const group of part.questionGroups) {
       if (group.type === 'heading_match') {
@@ -3791,12 +3845,59 @@ function creatorAddQuestionToSet(index) {
     creatorState.answerKey[String(nextNum)] = '[Answer]';
   }
 
+  // Ensure questions stay sorted by number
+  creatorSortGroupQuestions(group);
+
   syncCreatorGroupRangeFromQuestions(group);
   applyCreatorHeadingMarkers(part);
   part.questionRange = combineCreatorRanges(part.questionGroups);
 
   creatorDirty = true;
   renderCreatorPanel();
+}
+
+function creatorSortGroupQuestions(group) {
+  // Sort questions by their current number (does not reassign numbers)
+  if (!group || !group.questions || !group.questions.length) return;
+  group.questions.sort((a, b) => (a.number || 0) - (b.number || 0));
+}
+
+
+function creatorRenumberAllPartQuestions(part) {
+  // Renumber ALL questions across ALL groups in the part sequentially starting from 1.
+  // This ensures that deleting Q1 correctly shifts Q2→Q1, Q3→Q2, etc.
+  if (!part || !creatorState) return;
+
+  // Collect all questions in order across groups (groups are already in display order)
+  const allQuestions = [];
+  for (const group of (part.questionGroups || [])) {
+    const qs = group.questions || [];
+    qs.sort((a, b) => (a.number || 0) - (b.number || 0));
+    for (const q of qs) {
+      allQuestions.push({ q, group });
+    }
+  }
+
+  // Build a mapping from old number → answer, so we can reassign after renumbering
+  const oldAnswerKey = { ...creatorState.answerKey };
+
+  // Assign sequential numbers and migrate answer keys
+  let nextNum = 1;
+  for (const { q } of allQuestions) {
+    const oldNum = q.number;
+    const newNum = nextNum++;
+    if (oldNum !== newNum) {
+      // Migrate answer key entry
+      if (oldAnswerKey[String(oldNum)] !== undefined) {
+        creatorState.answerKey[String(newNum)] = oldAnswerKey[String(oldNum)];
+        // Only delete the old key if it won't be overwritten by a later migration
+        delete creatorState.answerKey[String(oldNum)];
+      } else if (creatorState.answerKey[String(oldNum)] !== undefined) {
+        delete creatorState.answerKey[String(oldNum)];
+      }
+      q.number = newNum;
+    }
+  }
 }
 
 function creatorRemoveQuestionFromSet(index, qIndex) {
@@ -3809,13 +3910,20 @@ function creatorRemoveQuestionFromSet(index, qIndex) {
     delete creatorState.answerKey[String(removed.number)];
   }
 
-  syncCreatorGroupRangeFromQuestions(group);
+  // Renumber ALL groups in the part sequentially to close any gaps
+  creatorRenumberAllPartQuestions(part);
+
+  // Sync ranges for each group
+  for (const g of (part.questionGroups || [])) {
+    syncCreatorGroupRangeFromQuestions(g);
+  }
   applyCreatorHeadingMarkers(part);
   part.questionRange = combineCreatorRanges(part.questionGroups);
 
   creatorDirty = true;
   renderCreatorPanel();
 }
+
 
 function creatorSetTFNGVariant(index, isYN) {
   const group = getCreatorPart()?.questionGroups[index];
@@ -3986,7 +4094,7 @@ function creatorSplitSelectionIntoSection() {
   }
   const part = getCreatorPart();
   if (!part) return;
-  
+
   const index = Number(active.getAttribute('data-section-index'));
   const cursorStart = active.selectionStart;
   const cursorEnd = active.selectionEnd;
@@ -4500,11 +4608,19 @@ function buildCreatorTestData() {
 }
 
 function creatorExit() {
+  if (document.getElementById('listening-creator-workspace') && document.getElementById('listening-creator-workspace').style.display === 'block') {
+    closeOptionsMenu();
+    return closeListeningCreator();
+  }
   closeOptionsMenu();
   backToEditor();
 }
 
 async function creatorShare() {
+  if (document.getElementById('listening-creator-workspace') && document.getElementById('listening-creator-workspace').style.display === 'block') {
+    closeOptionsMenu();
+    return triggerSaveListeningTest();
+  }
   try {
     const data = buildCreatorTestData();
     closeOptionsMenu();
@@ -4518,6 +4634,10 @@ async function creatorShare() {
 }
 
 function openCreatorTestModal() {
+  if (document.getElementById('listening-creator-workspace') && document.getElementById('listening-creator-workspace').style.display === 'block') {
+    closeOptionsMenu();
+    return previewListeningTest();
+  }
   try {
     buildCreatorTestData();
   } catch (error) {
@@ -5412,7 +5532,10 @@ async function loadSharedTestFromURL() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  switchPracticeMode(window.location.hash === '#writing' ? 'writing' : 'reading');
+  let initialMode = 'reading';
+  if (window.location.hash === '#writing') initialMode = 'writing';
+  else if (window.location.hash === '#listening') initialMode = 'listening';
+  switchPracticeMode(initialMode);
   initOptionsChoiceUI();
   toggleEmergencyScorePinInput();
   toggleWritingSpeedTimerPinInput();
@@ -5453,7 +5576,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Table Drag Resizing ── */
-window.creatorStartTableColResize = function(e, index, colIndex) {
+window.creatorStartTableColResize = function (e, index, colIndex) {
   e.preventDefault();
   const startX = e.clientX;
   const th = e.target.closest('th') || e.target.closest('td');
@@ -5461,16 +5584,16 @@ window.creatorStartTableColResize = function(e, index, colIndex) {
   const table = th.closest('table');
   const col = table?.querySelector('colgroup')?.children[colIndex];
   const startWidth = th.getBoundingClientRect().width;
-  
+
   document.body.style.cursor = 'col-resize';
-  
+
   function onMouseMove(moveEvent) {
     const delta = moveEvent.clientX - startX;
     const newWidth = Math.max(50, startWidth + delta);
     if (col) col.style.width = newWidth + 'px';
     th.style.width = newWidth + 'px';
   }
-  
+
   function onMouseUp(upEvent) {
     document.body.style.cursor = '';
     document.removeEventListener('mousemove', onMouseMove);
@@ -5479,26 +5602,26 @@ window.creatorStartTableColResize = function(e, index, colIndex) {
     creatorUpdateTableColumnWidth(index, colIndex, Math.round(finalWidth));
     renderCreatorPanel();
   }
-  
+
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
 };
 
-window.creatorStartTableRowResize = function(e, index, rowIndex) {
+window.creatorStartTableRowResize = function (e, index, rowIndex) {
   e.preventDefault();
   const startY = e.clientY;
   const tr = e.target.closest('tr');
   if (!tr) return;
   const startHeight = tr.getBoundingClientRect().height;
-  
+
   document.body.style.cursor = 'row-resize';
-  
+
   function onMouseMove(moveEvent) {
     const delta = moveEvent.clientY - startY;
     const newHeight = Math.max(28, startHeight + delta);
     tr.style.height = newHeight + 'px';
   }
-  
+
   function onMouseUp(upEvent) {
     document.body.style.cursor = '';
     document.removeEventListener('mousemove', onMouseMove);
@@ -5507,7 +5630,7 @@ window.creatorStartTableRowResize = function(e, index, rowIndex) {
     creatorUpdateTableRowHeight(index, rowIndex, Math.round(finalHeight));
     renderCreatorPanel();
   }
-  
+
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
 };
@@ -5520,7 +5643,7 @@ function extractTextFromContentEditable(el) {
     const num = numEl ? numEl.textContent : gap.textContent;
     gap.replaceWith('___' + num.replace(/[^\d]/g, '') + '___');
   });
-  
+
   let html = clone.innerHTML;
   html = html.replace(/<br\s*[\/]?>/gi, '\n');
   html = html.replace(/<\/div>/gi, '\n');
@@ -5535,26 +5658,26 @@ function creatorAddFlowNode(index) {
   const part = getCreatorPart();
   const group = part?.questionGroups[index];
   if (!group) return;
-  
+
   // Ensure we use group.questions to store nodes
   if (!group.questions) group.questions = [];
   const nodes = group.questions;
-  
+
   const nextNum = getCreatorNextQuestionNumber(part);
-  
+
   if (nextNum) {
     nodes.push({ number: nextNum, statement: `Step ${nodes.length + 1}: ___${nextNum}___`, text: `Step ${nodes.length + 1}`, color: '#3b82f6', arrow: 'down', width: 180, height: 66 });
   } else {
     nodes.push({ number: null, statement: `Step ${nodes.length + 1}`, text: `Step ${nodes.length + 1}`, color: '#3b82f6', arrow: 'down', width: 180, height: 66 });
   }
-  
+
   const nums = getCreatorQuestionNumbersForGroup(group);
   if (nums.length) {
     const min = Math.min(...nums);
     const max = Math.max(...nums);
     group.questionRange = nums.length === 1 ? String(min) : `${min}-${max}`;
   }
-  
+
   creatorDirty = true;
   renderCreatorPanel();
 }
@@ -5563,9 +5686,9 @@ function creatorRemoveFlowNode(index) {
   const part = getCreatorPart();
   const group = part?.questionGroups[index];
   if (!group || !group.questions || group.questions.length === 0) return;
-  
+
   group.questions.pop();
-  
+
   const nums = getCreatorQuestionNumbersForGroup(group);
   if (nums.length) {
     const min = Math.min(...nums);
@@ -5574,7 +5697,7 @@ function creatorRemoveFlowNode(index) {
   } else {
     group.questionRange = '';
   }
-  
+
   creatorDirty = true;
   renderCreatorPanel();
 }
@@ -5583,17 +5706,38 @@ function creatorMoveFlowNode(index, nodeIndex, direction) {
   const part = getCreatorPart();
   const group = part?.questionGroups[index];
   if (!group || !group.questions) return;
-  
+
   const nodes = group.questions;
   if (nodeIndex < 0 || nodeIndex >= nodes.length) return;
-  
+
   const newIndex = nodeIndex + direction;
   if (newIndex < 0 || newIndex >= nodes.length) return;
-  
+
   const temp = nodes[nodeIndex];
   nodes[nodeIndex] = nodes[newIndex];
   nodes[newIndex] = temp;
-  
+
   creatorDirty = true;
   renderCreatorPanel();
+}
+
+// Global Listening Forwarders (overridden when listening/app.js loads)
+if (typeof window.openListeningCreator !== 'function') {
+  window.openListeningCreator = function() {
+    if (typeof window.listeningAppOpenCreator === 'function') {
+      window.listeningAppOpenCreator();
+    } else {
+      console.warn('Listening Creator module is loading...');
+    }
+  };
+}
+
+if (typeof window.handleListeningDemo !== 'function') {
+  window.handleListeningDemo = function() {
+    if (typeof window.loadDemoTest === 'function') {
+      window.loadDemoTest();
+    } else {
+      console.warn('Listening Demo module is loading...');
+    }
+  };
 }

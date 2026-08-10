@@ -24,27 +24,43 @@ function openDB() {
     });
 }
 
-/** Save a file blob to IndexedDB */
+/** Convert a Blob/File to ArrayBuffer for safe IndexedDB storage */
+async function blobToBuffer(blob) {
+    if (blob instanceof ArrayBuffer) return blob;
+    if (blob instanceof Blob || blob instanceof File) return await blob.arrayBuffer();
+    // Already a buffer-like object
+    if (blob && blob.byteLength !== undefined) return blob;
+    return blob;
+}
+
+/** Save a file to IndexedDB (stored as ArrayBuffer for Safari compatibility) */
 async function saveFile(path, blob, mimeType) {
     const db = await openDB();
+    const buffer = await blobToBuffer(blob);
     return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
-        store.put({ path: path.toLowerCase(), blob: blob, mimeType: mimeType || '' });
+        store.put({ path: path.toLowerCase(), data: buffer, mimeType: mimeType || '' });
         tx.oncomplete = () => resolve();
         tx.onerror = (e) => reject(e.target.error);
     });
 }
 
-/** Retrieve a file from IndexedDB by path */
+/** Retrieve a file from IndexedDB by path (reconstructs Blob from stored ArrayBuffer) */
 async function getFile(path) {
-
     const db = await openDB();
     return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const store = tx.objectStore(STORE_NAME);
         const request = store.get(path.toLowerCase());
-        request.onsuccess = () => resolve(request.result || null);
+        request.onsuccess = () => {
+            const record = request.result;
+            if (!record) return resolve(null);
+            // Reconstruct Blob from stored ArrayBuffer (or handle legacy Blob records)
+            const source = record.data || record.blob;
+            const blob = (source instanceof Blob) ? source : new Blob([source], { type: record.mimeType || 'application/octet-stream' });
+            resolve({ path: record.path, blob, mimeType: record.mimeType });
+        };
         request.onerror = (e) => reject(e.target.error);
     });
 }
