@@ -1,6 +1,6 @@
 /**
  * loader.js — Cloud Bundle Fetcher for WWTBAM Controller Sandbox
- * Downloads the controller .zip from a cloud host (GitHub Releases),
+ * Downloads the controller .zip from a cloud host (GitHub Releases / Cloudflare R2),
  * extracts files using JSZip, and saves them to IndexedDB.
  */
 
@@ -35,13 +35,120 @@ function getLoaderMimeType(path) {
 }
 
 /**
+ * Auto-patch HTML and JS contents for sandbox compatibility.
+ */
+function patchSandboxContent(content, normalizedName) {
+    // Fix 1: Stop synchronous AJAX deadlocks (required for Service Workers)
+    content = content.replace(/async:\s*false/g, 'async: true');
+
+    // Fix 2: Keep question XML inside the sandbox so edited IndexedDB files are used.
+    content = content.replace(/https:\/\/pub-2d06308cf53245df865e113b0745c6d9\.r2\.dev\/questions\.xml/gi, '/controller/sandbox/questions/questions.xml');
+    content = content.replace(/https:\/\/pub-2d06308cf53245df865e113b0745c6d9\.r2\.dev\/switchQuestions\.xml/gi, '/controller/sandbox/questions/switchQuestions.xml');
+
+    // Fix 3: Inject Backspace/Esc Relay for Sandbox and Topbar Controls
+    if (normalizedName.endsWith('.html') || normalizedName.endsWith('.htm')) {
+        const relayScript = `
+        <script>
+        document.addEventListener('keydown', (e) => {
+            const t = (e.target.tagName || "").toLowerCase();
+            const isInput = t === "input" || t === "textarea" || e.target.isContentEditable;
+            
+            if (e.key === "Backspace" && !isInput) {
+                e.preventDefault();
+                window.parent.postMessage({ type: "toggle-topbar" }, "*");
+            }
+            if (e.key === "Escape" && !isInput) {
+                e.preventDefault();
+                window.parent.postMessage({ type: "toggle-devbar" }, "*");
+            }
+            if (e.code === "Backquote") {
+                e.preventDefault(); // Dead-key silent guard
+            }
+        });
+        </script>`;
+        if (/<\/body>/i.test(content)) {
+            content = content.replace(/<\/body>/i, relayScript + '</body>');
+        } else {
+            content += relayScript;
+        }
+    }
+    return content;
+}
+
+/**
+ * Extract files from an ArrayBuffer archive (ZIP or RAR).
+ * @param {ArrayBuffer} arrayBuffer 
+ * @returns {Promise<Array<{ path: string, isText: boolean, getText: () => Promise<string>, getBlob: () => Promise<Blob> }>>}
+ */
+async function extractArchiveEntries(arrayBuffer) {
+    const uint8 = new Uint8Array(arrayBuffer);
+    const isRar = uint8.length >= 4 && uint8[0] === 0x52 && uint8[1] === 0x61 && uint8[2] === 0x72 && uint8[3] === 0x21;
+
+    if (isRar) {
+        // Load node-unrar-js standalone bundle with resolved imports
+        const { createExtractorFromData } = await import('https://esm.sh/node-unrar-js@2.0.2/es2022/node-unrar-js.bundle.mjs');
+        let wasmRes = await fetch('https://cdn.jsdelivr.net/npm/node-unrar-js@2.0.2/esm/js/unrar.wasm').catch(() => null);
+        if (!wasmRes || !wasmRes.ok) {
+            wasmRes = await fetch('https://unpkg.com/node-unrar-js@2.0.2/esm/js/unrar.wasm');
+        }
+        if (!wasmRes.ok) {
+            throw new Error('Failed to fetch unrar WASM binary: ' + wasmRes.statusText);
+        }
+        const wasmBinary = await wasmRes.arrayBuffer();
+        const extractor = await createExtractorFromData({ data: arrayBuffer, wasmBinary });
+        const extracted = extractor.extract();
+
+        const results = [];
+        for (const file of extracted.files) {
+            const header = file.fileHeader;
+            if (header.flags && header.flags.directory) continue;
+            if (!file.extraction) continue;
+
+            const normalizedPath = header.name.replace(/\\/g, '/');
+            const dataBytes = file.extraction;
+            const ext = normalizedPath.split('.').pop().toLowerCase();
+            const isText = ['js', 'html', 'htm', 'css', 'json', 'xml', 'txt'].includes(ext);
+
+            results.push({
+                path: normalizedPath,
+                isText,
+                getText: async () => new TextDecoder('utf-8').decode(dataBytes),
+                getBlob: async () => new Blob([dataBytes], { type: getLoaderMimeType(normalizedPath) })
+            });
+        }
+        return results;
+    } else {
+        // ZIP format via JSZip
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        const entries = Object.keys(zip.files);
+        const results = [];
+
+        for (const entryName of entries) {
+            const entry = zip.files[entryName];
+            if (entry.dir) continue;
+            const normalizedPath = entryName.replace(/\\/g, '/');
+            const ext = normalizedPath.split('.').pop().toLowerCase();
+            const isText = ['js', 'html', 'htm', 'css', 'json', 'xml', 'txt'].includes(ext);
+
+            results.push({
+                path: normalizedPath,
+                isText,
+                getText: async () => entry.async('string'),
+                getBlob: async () => entry.async('blob')
+            });
+        }
+        return results;
+    }
+}
+
+/**
  * Load the controller bundle into IndexedDB.
- * @param {string} zipUrl - URL to the controller .zip file
+ * @param {string} zipUrl - URL to the controller .zip or .rar file
  * @param {function} onProgress - Callback with (loaded, total) for progress updates
- * @returns {Promise<void>}
+ * @returns {Promise<number>} - Number of files saved
  */
 async function loadBundle(zipUrl, onProgress) {
-    // Step 1: Download the zip with progress tracking
+    // Step 1: Download the archive with progress tracking
     const response = await fetch(zipUrl);
     if (!response.ok) {
         throw new Error('Failed to download bundle: ' + response.statusText);
@@ -64,95 +171,54 @@ async function loadBundle(zipUrl, onProgress) {
     const blob = new Blob(chunks);
     const arrayBuffer = await blob.arrayBuffer();
 
-    // Step 2: Extract files using JSZip
-    const zip = await JSZip.loadAsync(arrayBuffer);
-    const entries = Object.keys(zip.files);
+    // Step 2: Extract files from archive (ZIP or RAR)
+    const archiveEntries = await extractArchiveEntries(arrayBuffer);
+    const paths = archiveEntries.map(e => e.path);
 
-    // Normalize all paths within the zip to use forward slashes
-    const normalizedEntries = entries.map(e => e.replace(/\\/g, '/'));
-
-    // Find the root folder by looking for where default.html is located
+    // Find root prefix by looking for default.html or index.html
     let rootPrefix = '';
-    const defaultIndex = normalizedEntries.findIndex(e => e.endsWith('default.html'));
+    const defaultIndex = paths.findIndex(p => {
+        const lower = p.toLowerCase();
+        return lower.endsWith('default.html') || lower.endsWith('default.htm') || lower.endsWith('index.html') || lower.endsWith('index.htm');
+    });
+
     if (defaultIndex !== -1) {
-        const fullPath = normalizedEntries[defaultIndex];
-        rootPrefix = fullPath.substring(0, fullPath.length - 'default.html'.length);
+        const fullPath = paths[defaultIndex];
+        const slashIdx = fullPath.lastIndexOf('/');
+        rootPrefix = slashIdx !== -1 ? fullPath.substring(0, slashIdx + 1) : '';
     } else {
-        // Fallback: try to find the standard top-level folder
-        const firstEntry = normalizedEntries.find((e, idx) => !zip.files[entries[idx]].dir);
-        if (firstEntry && firstEntry.includes('/')) {
-            const parts = firstEntry.split('/');
-            const candidate = parts[0] + '/';
-            if (normalizedEntries.every(e => e.startsWith(candidate) || zip.files[entries[normalizedEntries.indexOf(e)]].dir)) {
+        // Fallback: try to find common top-level folder
+        if (paths.length > 0 && paths[0].includes('/')) {
+            const candidate = paths[0].split('/')[0] + '/';
+            if (paths.every(p => p.startsWith(candidate))) {
                 rootPrefix = candidate;
             }
         }
     }
 
     // Step 3: Save each file to IndexedDB
-    const fileEntriesIndices = entries.map((e, i) => i).filter(i => !zip.files[entries[i]].dir);
     let savedCount = 0;
 
-    for (const idx of fileEntriesIndices) {
-        const entryName = entries[idx];
-        const normalizedName = normalizedEntries[idx];
-        const extension = normalizedName.split('.').pop().toLowerCase();
-        
-        let fileData;
-        
-        // AUTO-PATCHING: Patch legacy synchronous JS calls
-        if (extension === 'js' || extension === 'html' || extension === 'htm') {
-            let content = await zip.files[entryName].async('string');
-            
-            // Fix 1: Stop synchronous AJAX deadlocks (required for Service Workers)
-            content = content.replace(/async:\s*false/g, 'async: true');
-            
-            // Fix 2: Keep question XML inside the sandbox so edited IndexedDB files are used.
-            content = content.replace(/https:\/\/pub-2d06308cf53245df865e113b0745c6d9\.r2\.dev\/questions\.xml/gi, '/controller/sandbox/questions/questions.xml');
-            content = content.replace(/https:\/\/pub-2d06308cf53245df865e113b0745c6d9\.r2\.dev\/switchQuestions\.xml/gi, '/controller/sandbox/questions/switchQuestions.xml');
-            content = content.replace(/Questions\/questions\.xml/gi, '/controller/sandbox/questions/questions.xml');
-            content = content.replace(/Questions\/switchQuestions\.xml/gi, '/controller/sandbox/questions/switchQuestions.xml');
-
-            // Fix 3: Inject Backspace Relay for Immersive Mode (In ALL HTML files)
-            if (normalizedName.endsWith('.html') || normalizedName.endsWith('.htm')) {
-                const relayScript = `
-                <script>
-                document.addEventListener('keydown', (e) => {
-                    const t = (e.target.tagName || "").toLowerCase();
-                    const isInput = t === "input" || t === "textarea" || e.target.isContentEditable;
-                    
-                    if (e.key === "Backspace" && !isInput) {
-                        e.preventDefault();
-                        window.parent.postMessage({ type: "toggle-topbar" }, "*");
-                    }
-                    if (e.key === "Escape" && !isInput) {
-                        e.preventDefault();
-                        window.parent.postMessage({ type: "toggle-devbar" }, "*");
-                    }
-                    if (e.code === "Backquote") {
-                        e.preventDefault(); // Dead-key silent guard
-                    }
-                });
-                </script>`;
-                content = content.replace('</body>', relayScript + '</body>');
-            }
-
-            fileData = new Blob([content], { type: getLoaderMimeType(normalizedName) });
-        } else {
-            // Binary files (images, sounds, etc)
-            fileData = await zip.files[entryName].async('blob');
-        }
-
-        // Strip the root folder prefix to get the relative path
-        const relativePath = normalizedName.startsWith(rootPrefix) 
-            ? normalizedName.substring(rootPrefix.length) 
+    for (const entry of archiveEntries) {
+        const normalizedName = entry.path;
+        const relativePath = normalizedName.startsWith(rootPrefix)
+            ? normalizedName.substring(rootPrefix.length)
             : normalizedName;
 
-        if (relativePath) {
-            const mimeType = getLoaderMimeType(relativePath);
-            await saveFile(relativePath, fileData, mimeType);
-            savedCount++;
+        if (!relativePath) continue;
+
+        let fileData;
+        if (entry.isText) {
+            let content = await entry.getText();
+            content = patchSandboxContent(content, relativePath);
+            fileData = new Blob([content], { type: getLoaderMimeType(relativePath) });
+        } else {
+            fileData = await entry.getBlob();
         }
+
+        const mimeType = getLoaderMimeType(relativePath);
+        await saveFile(relativePath, fileData, mimeType);
+        savedCount++;
     }
 
     return savedCount;

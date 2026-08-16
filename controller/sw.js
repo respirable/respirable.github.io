@@ -5,7 +5,7 @@
  */
 
 const DB_NAME = 'wwtbam-controller';
-const DB_VERSION = 10; // Bump to ensure clean start
+const DB_VERSION = 10;
 const STORE_NAME = 'files';
 const CONTROLLER_SCOPE = '/controller/sandbox/';
 const R2_HOST = 'pub-2d06308cf53245df865e113b0745c6d9.r2.dev';
@@ -23,12 +23,12 @@ self.addEventListener('activate', (event) => {
 // ─── MIME TYPES ───
 
 const MIME_TYPES = {
-    '.html': 'text/html',
-    '.htm': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.json': 'application/json',
-    '.xml': 'application/xml',
+    '.html': 'text/html; charset=utf-8',
+    '.htm': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.xml': 'application/xml; charset=utf-8',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
@@ -46,8 +46,8 @@ const MIME_TYPES = {
     '.ttf': 'font/ttf',
     '.otf': 'font/otf',
     '.eot': 'application/vnd.ms-fontobject',
-    '.txt': 'text/plain',
-    '.url': 'text/plain',
+    '.txt': 'text/plain; charset=utf-8',
+    '.url': 'text/plain; charset=utf-8',
 };
 
 function getMimeType(path) {
@@ -108,6 +108,8 @@ function getStorageKeyCandidates(path) {
         candidates.push('questions/questions.xml', 'questions.xml');
     } else if (fileName === 'switchquestions.xml') {
         candidates.push('questions/switchquestions.xml', 'switchquestions.xml');
+    } else if (cleanPath === 'default.html' || cleanPath === '' || cleanPath === 'index.html') {
+        candidates.push('default.html', 'default.htm', 'index.html', 'index.htm');
     }
 
     return [...new Set(candidates)];
@@ -150,11 +152,8 @@ async function handleSandboxRequest(event, url) {
         storageKey = 'default.html';
     }
 
-    // 2. Diagnostic logging for debugging
-    console.log('[SW] Looking up key:', storageKey.toLowerCase());
-
     try {
-        // 3. Try IndexedDB first
+        // 2. Try IndexedDB first
         const resolved = await getFileByCandidates(getStorageKeyCandidates(storageKey));
         const record = resolved?.record || null;
 
@@ -173,7 +172,10 @@ async function handleSandboxRequest(event, url) {
                 if (start >= total || end >= total || start > end) {
                     return new Response(null, {
                         status: 416,
-                        headers: { 'Content-Range': `bytes */${total}` }
+                        headers: { 
+                            'Content-Range': `bytes */${total}`,
+                            'Access-Control-Allow-Origin': '*'
+                        }
                     });
                 }
                 
@@ -186,6 +188,7 @@ async function handleSandboxRequest(event, url) {
                         'Content-Length': chunk.size,
                         'Content-Type': mimeType,
                         'Cache-Control': 'no-store, max-age=0',
+                        'Access-Control-Allow-Origin': '*'
                     }
                 });
             }
@@ -196,11 +199,12 @@ async function handleSandboxRequest(event, url) {
                 headers: {
                     'Content-Type': mimeType,
                     'Cache-Control': 'no-store, max-age=0',
+                    'Access-Control-Allow-Origin': '*'
                 },
             });
         }
 
-        // 4. Fallback: Try the real network before giving up
+        // 3. Fallback: Try the real network before giving up
         try {
             // Hardcoded Cloud Fallback for XML files per user request
             if (storageKey.toLowerCase().endsWith('questions.xml')) {
@@ -208,7 +212,6 @@ async function handleSandboxRequest(event, url) {
                     ? 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/switchQuestions.xml'
                     : 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/questions.xml';
                 
-                console.log('[SW] DB Miss. Falling back to Cloud R2:', cloudUrl);
                 const cloudRes = await fetch(cloudUrl);
                 if (cloudRes.ok) return cloudRes;
             }
@@ -217,16 +220,22 @@ async function handleSandboxRequest(event, url) {
             if (networkResponse.ok) return networkResponse;
         } catch (_) {}
 
-        // 5. Final 404 with diagnostic breadcrumbs
+        // 4. Final 404
         return new Response(`File not found in sandbox: "${storageKey}"`, { 
             status: 404,
-            headers: { 'Content-Type': 'text/plain' }
+            headers: { 
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*'
+            }
         });
 
     } catch (err) {
         return new Response('Service Worker error: ' + err.message, {
             status: 500,
-            headers: { 'Content-Type': 'text/plain' },
+            headers: { 
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*'
+            },
         });
     }
 }
@@ -242,7 +251,7 @@ async function handleQuestionXmlRequest(event, url) {
             return new Response(resolved.record.blob, {
                 status: 200,
                 headers: {
-                    'Content-Type': resolved.record.mimeType || 'application/xml',
+                    'Content-Type': resolved.record.mimeType || 'application/xml; charset=utf-8',
                     'Cache-Control': 'no-store',
                     'Access-Control-Allow-Origin': '*',
                 },
