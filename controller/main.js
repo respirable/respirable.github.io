@@ -1065,12 +1065,25 @@ const WHITELIST = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'html', 'css', 'j
 
 function triggerFileUpload() {
   const input = document.getElementById('fileUploadInput');
-  if (input) { input.value = ''; input.click(); }
+  if (!input) return;
+  // Snapshot the current selection NOW — before the programmatic .click() fires
+  // a synthetic document click that would otherwise deselect via the global handler.
+  const snapPath = selectedPath;
+  const snapType = selectedType;
+  input.value = '';
+  input.onchange = (e) => handleFileUpload(e.target.files, false, snapPath, snapType);
+  input.click();
 }
 
 function triggerFolderUpload() {
   const input = document.getElementById('folderUploadInput');
-  if (input) { input.value = ''; input.click(); }
+  if (!input) return;
+  // Same snapshot logic as triggerFileUpload.
+  const snapPath = selectedPath;
+  const snapType = selectedType;
+  input.value = '';
+  input.onchange = (e) => handleFileUpload(e.target.files, true, snapPath, snapType);
+  input.click();
 }
 
 async function handleFolderUpload(files) {
@@ -1078,7 +1091,7 @@ async function handleFolderUpload(files) {
   await handleFileUpload(files, true);
 }
 
-async function handleFileUpload(files, isFolderUpload = false) {
+async function handleFileUpload(files, isFolderUpload = false, snapPath = selectedPath, snapType = selectedType) {
   if (!files || !files.length) return;
   const fileArray = Array.from(files);
   const invalid = fileArray.filter(f => !WHITELIST.includes(f.name.split('.').pop().toLowerCase()));
@@ -1087,16 +1100,17 @@ async function handleFileUpload(files, isFolderUpload = false) {
     return;
   }
 
-  // Determine target directory:
-  // 1. If a folder is selected -> place inside that folder
-  // 2. If a file is selected -> place inside that file's parent folder
-  // 3. If nothing is selected -> place in root directory
+  // Determine target directory using the snapshotted selection (not the live global,
+  // which may have been cleared by the deselect handler before this runs):
+  // 1. If a folder was selected → place inside that folder
+  // 2. If a file was selected  → place inside that file's parent folder
+  // 3. If nothing was selected → place in root directory
   let targetDir = "";
-  if (selectedPath) {
-    if (selectedType === 'directory') {
-      targetDir = selectedPath;
-    } else if (selectedType === 'file' && selectedPath.includes('/')) {
-      targetDir = selectedPath.substring(0, selectedPath.lastIndexOf('/'));
+  if (snapPath) {
+    if (snapType === 'directory') {
+      targetDir = snapPath;
+    } else if (snapType === 'file' && snapPath.includes('/')) {
+      targetDir = snapPath.substring(0, snapPath.lastIndexOf('/'));
     }
     if (targetDir && !targetDir.endsWith('/')) targetDir += '/';
   }
