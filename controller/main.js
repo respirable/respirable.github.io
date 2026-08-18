@@ -16,12 +16,16 @@ let currentEditorFile = null;
 let uploadToast = null;
 let selectedVariant = sessionStorage.getItem('wwtbam-variant') || localStorage.getItem('wwtbam-variant') || null;
 let selectedFormat = sessionStorage.getItem('wwtbam-format') || localStorage.getItem('wwtbam-format') || null;
-const CONTROLLER_SW_VERSION = '2.1';
+const CONTROLLER_SW_VERSION = '2.3';
 
 const VARIANTS = {
   'olga': {
     '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_12q.zip',
     '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5.zip'
+  },
+  '2007_blue': {
+    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/2007_Blue_12q.zip',
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/2007_Blue.zip'
   },
   '2008_blue': {
     '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/2008_Blue_12q.rar',
@@ -1220,6 +1224,7 @@ function initSettingsUI() {
     const f = selectedFormat || localStorage.getItem('wwtbam-format') || '12';
     const nameMap = {
       'olga': 'Project Olga',
+      '2007_blue': 'Project Rave (2007 Blue)',
       '2008_blue': 'Project Rave (2008 Blue)',
       '2017_blue': 'Project Rave (2017 Blue)',
       'kbc_2010': 'Project Rave (KBC 2010)',
@@ -1247,16 +1252,16 @@ function applyEditorLightMode(enabled) {
       inherit: true,
       rules: [],
       colors: {
-        'editor.background':              '#f8fafc',
+        'editor.background': '#f8fafc',
         'editor.lineHighlightBackground': '#e8f0fb',
-        'editorWidget.background':        '#ffffff',
-        'editorWidget.border':            '#d0d5de',
-        'input.background':               '#f0f2f5',
-        'input.foreground':               '#0f1117',
-        'input.border':                   '#c5cad4',
-        'inputOption.activeBorder':       '#2563eb',
-        'inputOption.activeBackground':   '#dbeafe',
-        'editor.findMatchBackground':     '#bfdbfe90',
+        'editorWidget.background': '#ffffff',
+        'editorWidget.border': '#d0d5de',
+        'input.background': '#f0f2f5',
+        'input.foreground': '#0f1117',
+        'input.border': '#c5cad4',
+        'inputOption.activeBorder': '#2563eb',
+        'inputOption.activeBackground': '#dbeafe',
+        'editor.findMatchBackground': '#bfdbfe90',
         'editor.findMatchHighlightBackground': '#dbeafe70'
       }
     });
@@ -1343,6 +1348,10 @@ const groups = [
   {
     id: 'rave', name: 'Project Rave',
     items: [
+      {
+        id: 'rave2007', variantKey: '2007_blue', name: '2007 Blue', tag: null, desc: 'The iconic 2007 internation rave graphics that is basically 2008 Blue with a few differences.',
+        formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', '')], defaultFormat: '15'
+      },
       {
         id: 'rave2008', variantKey: '2008_blue', name: '2008 Blue', tag: null, desc: 'The iconic 2008 UK & international rave graphics that you definitely have seen before.',
         formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', '')], defaultFormat: '15'
