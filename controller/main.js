@@ -1575,7 +1575,7 @@ async function downloadAndBootVariant(variant, format) {
     await registerControllerServiceWorker();
 
     if (loadingStatus) loadingStatus.textContent = 'Downloading controller bundle...';
-    await loadBundle(zipUrl, (loaded, total) => {
+    const savedCount = await loadBundle(zipUrl, (loaded, total) => {
       if (total > 0) {
         const pct = Math.round((loaded / total) * 100);
         if (progressBar) progressBar.style.width = pct + '%';
@@ -1584,6 +1584,12 @@ async function downloadAndBootVariant(variant, format) {
         if (loadingStatus) loadingStatus.textContent = `Downloading bundle... (${Math.round(loaded / 1024)} KB)`;
       }
     });
+
+    // loadBundle returns the number of entries written to IndexedDB. A valid but empty
+    // archive would otherwise boot an empty sandbox that 404s on every request.
+    if (savedCount === 0) {
+      throw new Error(`The bundle downloaded from ${zipUrl} contained no usable files.`);
+    }
 
     if (loadingStatus) loadingStatus.textContent = 'Starting controller sandbox...';
     await bootController();
