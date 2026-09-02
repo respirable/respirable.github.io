@@ -5,28 +5,33 @@
  */
 
 /** MIME type lookup based on file extension */
+/* Must stay in sync with MIME_TYPES in sw.js:25-51 — see docs/variant-contract.md §4. */
 const LOADER_MIME_TYPES = {
-    '.html': 'text/html',
-    '.htm': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.json': 'application/json',
-    '.xml': 'application/xml',
+    '.html': 'text/html; charset=utf-8',
+    '.htm': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.xml': 'application/xml; charset=utf-8',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
     '.ico': 'image/x-icon',
     '.svg': 'image/svg+xml',
+    '.webp': 'image/webp',
     '.mp3': 'audio/mpeg',
     '.wav': 'audio/wav',
     '.ogg': 'audio/ogg',
     '.mp4': 'video/mp4',
+    '.webm': 'video/webm',
     '.woff': 'font/woff',
     '.woff2': 'font/woff2',
     '.ttf': 'font/ttf',
     '.otf': 'font/otf',
     '.eot': 'application/vnd.ms-fontobject',
+    '.txt': 'text/plain; charset=utf-8',
+    '.url': 'text/plain; charset=utf-8',
 };
 
 function getLoaderMimeType(path) {
