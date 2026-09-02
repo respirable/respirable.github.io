@@ -1546,6 +1546,26 @@ async function downloadAndBootVariant(variant, format) {
     loadingScreen.classList.remove('hidden');
   }
 
+  // A (variant, format) pair missing from VARIANTS used to fall through to the Olga 12q
+  // fallback below, booting the wrong controller with no signal to the user. Fail loudly.
+  if (!VARIANTS[variant]?.[format]) {
+    console.error(`No bundle URL registered for variant "${variant}" with format "${format}".`, {
+      variant,
+      format,
+      knownVariants: Object.keys(VARIANTS),
+      formatsForVariant: VARIANTS[variant] ? Object.keys(VARIANTS[variant]) : null
+    });
+    if (loadingScreen) loadingScreen.style.display = 'none';
+    const errorScreen = document.getElementById('errorScreen');
+    if (errorScreen) {
+      errorScreen.classList.add('active');
+      errorScreen.style.display = 'flex';
+      const errMsg = document.getElementById('errorMessage');
+      if (errMsg) errMsg.textContent = `No bundle is registered for "${variant}" in the ${format}-question format.`;
+    }
+    return;
+  }
+
   const zipUrl = (VARIANTS[variant] && VARIANTS[variant][format]) || VARIANTS['olga']['12'];
   const progressBar = document.getElementById('progressBar');
   const loadingStatus = document.getElementById('loadingStatus');
