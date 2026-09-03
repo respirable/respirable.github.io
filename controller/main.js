@@ -48,6 +48,8 @@ const VARIANTS = {
     'risk': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2_Risk.zip'
   },
   'olga': {
+    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_12q.zip',
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5.zip',
     '16': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_16q.zip',
     'clock': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_Clock.zip',
     'risk': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_Risk.zip'
@@ -1383,24 +1385,24 @@ const groups = [
     id: 'olga', name: 'Project Olga',
     items: [
       {
-        id: 'olgav1', variantKey: 'olga_v1', name: 'Olga V1', tag: null, desc: 'TODO',
+        id: 'olgav1', variantKey: 'olga_v1', name: 'Olga V1', tag: null, desc: 'The original WWTBAM Olga graphics. It\'s like the one you see in WWTBAM Greece, I think.',
         formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
       },
       {
-        id: 'olgav15azerbaijan', variantKey: 'olga_v1_5_azerbaijan', name: 'Olga V1.5 Azerbaijan', tag: null, desc: 'TODO',
+        id: 'olgav15azerbaijan', variantKey: 'olga_v1_5_azerbaijan', name: 'Olga V1.5 Azerbaijan', tag: null, desc: 'Also the WWTBAM Olga graphics in Vietnam, although with a slightly different win strap and PAF clock.',
         formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
       },
       {
-        id: 'olgav15vietnam', variantKey: 'olga_v1_5_vietnam', name: 'Olga V1.5 Vietnam', tag: null, desc: 'TODO',
+        id: 'olgav15vietnam', variantKey: 'olga_v1_5_vietnam', name: 'Olga V1.5 Vietnam', tag: null, desc: 'Do people really read these descriptions? Either way, it\'s the WWTBAM Olga graphics that looked revolutionary when it first came out in Vietnam, at least that\'s what I think',
         formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
       },
       {
-        id: 'olgav2', variantKey: 'olga_v2', name: 'Olga V2', tag: null, desc: 'TODO',
+        id: 'olgav2', variantKey: 'olga_v2', name: 'Olga V2', tag: null, desc: 'The WWTBAM Olga graphics used in Costa Rica, I think.',
         formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
       },
       {
-        id: 'olga', variantKey: 'olga', name: 'Olga V2.5', tag: null, desc: 'TODO',
-        formats: [fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '16'
+        id: 'olga', variantKey: 'olga', name: 'Olga V2.5', tag: null, desc: 'Olga V2 but with a different font for money tree, I think. That\'s the only thing I noticed LMFAO.',
+        formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
       },
     ]
   },
