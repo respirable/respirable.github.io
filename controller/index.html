@@ -1950,6 +1950,23 @@
       stroke-linecap: round;
     }
 
+    .vs-skip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--edit-text-muted);
+      cursor: pointer;
+    }
+
+    .vs-skip input {
+      accent-color: var(--edit-danger);
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
     .vs-modal-actions {
       display: flex;
       justify-content: flex-end;
@@ -3722,6 +3739,11 @@
           <span>Custom questions revert to the new bundle's defaults</span>
         </li>
       </ul>
+      <label class="vs-skip">
+        <input type="checkbox" id="vsSkipConfirmCheckbox">
+        In the future, do not show this type of popup again.
+      </label>
+
       <div class="vs-modal-actions">
         <button class="vs-cancel-btn" id="vsConfirmCancel" onclick="closeVariantSwitchModal()">Cancel</button>
         <button class="vs-confirm-btn" id="vsConfirmGo" onclick="confirmVariantSwitch()">Erase and switch</button>

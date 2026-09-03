@@ -1831,6 +1831,16 @@ function isVariantSwitchModalOpen() {
 function openVariantSwitchModal() {
   const item = allMenuItems().find(x => x.id === vsPickedId);
   if (!item || !vsPickedFormat) return;
+
+  // Opted out of the confirmation: go straight through. The footer warning about the
+  // sandbox being erased is on screen the whole time, so the click is still informed.
+  if (localStorage.getItem('skip-variant-switch-confirm') === 'true') {
+    confirmVariantSwitch();
+    return;
+  }
+
+  const chk = document.getElementById('vsSkipConfirmCheckbox');
+  if (chk) chk.checked = false;
   const title = document.getElementById('vsConfirmTitle');
   if (title) {
     const label = FORMAT_LABELS[vsPickedFormat] || vsPickedFormat;
@@ -1852,6 +1862,13 @@ async function confirmVariantSwitch() {
   if (!item || !vsPickedFormat) return;
   const variant = item.variantKey;
   const format = vsPickedFormat;
+
+  // Only persisted once the switch is actually confirmed, so cancelling never
+  // silently disables the prompt.
+  const chk = document.getElementById('vsSkipConfirmCheckbox');
+  if (chk && chk.checked) {
+    localStorage.setItem('skip-variant-switch-confirm', 'true');
+  }
 
   closeVariantSwitchModal();
   if (devBarVisible) toggleDevBar();
