@@ -18,7 +18,7 @@ let selectedVariant = sessionStorage.getItem('wwtbam-variant') || localStorage.g
 let selectedFormat = sessionStorage.getItem('wwtbam-format') || localStorage.getItem('wwtbam-format') || null;
 const CONTROLLER_SW_VERSION = '2.3';
 
-const VARIANTS = {
+const VARIANTS_OLD = {
   'olga_v1': {
     '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1_12q.zip',
     '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.zip',
@@ -76,6 +76,198 @@ const VARIANTS = {
     '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/1999_Endemol.zip'
   }
 };
+
+const nameMap_OLD = {
+  'olga_v1': 'Olga V1',
+  'olga_v1_5_azerbaijan': 'Olga V1.5 Azerbaijan',
+  'olga_v1_5_vietnam': 'Olga V1.5 Vietnam',
+  'olga_v2': 'Olga V2',
+  'olga': 'Olga V2.5',
+  '2007_blue': 'Project Rave (2007 Blue)',
+  '2008_blue': 'Project Rave (2008 Blue)',
+  '2017_blue': 'Project Rave (2017 Blue)',
+  'kbc_2010': 'Project Rave (KBC 2010)',
+  '1998_classic': '1998 Classic',
+  '1999_endemol': '1999 Endemol'
+};
+
+const R2_BASE = 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/';
+
+/* Menu labels for each format id, uniform across every variant that offers the format.
+   Distinct from FORMAT_LABELS below, which is the shorter wording used in Settings. */
+const FORMAT_MENU_LABELS = {
+  '12': '12 questions format',
+  '15': '15 questions format',
+  '16': '16 questions format',
+  'clock': 'Clock format',
+  'risk': 'Risk format (UK 2018)'
+};
+
+function fmt(id, label, desc) { return { id, label, desc }; }
+
+/* ─── CATALOG ───
+   The single source for every graphic variant. VARIANTS, groups and nameMap below are
+   derived from it; none of them is edited by hand. To add a variant, add it here only.
+
+   Group order and item order become the menu order. The key order inside `formats`
+   becomes both the format order in the menu and the key order in VARIANTS.
+   `settingsName` overrides the label shown in the Settings diagnostic; it is present
+   only where that label differs from `name`. */
+const CATALOG = [
+  {
+    id: 'olga', name: 'Project Olga',
+    items: [
+      {
+        id: 'olgav1', variantKey: 'olga_v1', name: 'Olga V1', tag: null,
+        desc: 'The original WWTBAM Olga graphics. It\'s like the one you see in WWTBAM Greece, I think.',
+        defaultFormat: '12',
+        formats: {
+          '12': R2_BASE + 'OlgaV1_12q.zip',
+          '15': R2_BASE + 'OlgaV1.zip',
+          '16': R2_BASE + 'OlgaV1_16q.zip',
+          'clock': R2_BASE + 'OlgaV1_Clock.zip',
+          'risk': R2_BASE + 'OlgaV1_Risk.zip'
+        }
+      },
+      {
+        id: 'olgav15azerbaijan', variantKey: 'olga_v1_5_azerbaijan', name: 'Olga V1.5 Azerbaijan', tag: null,
+        desc: 'Also the WWTBAM Olga graphics in Vietnam, although with a slightly different win strap and PAF clock.',
+        defaultFormat: '12',
+        formats: {
+          '12': R2_BASE + 'OlgaV1.5_Azerbaijan_12q.zip',
+          '15': R2_BASE + 'OlgaV1.5_Azerbaijan.zip',
+          '16': R2_BASE + 'OlgaV1.5_Azerbaijan_16q.zip',
+          'clock': R2_BASE + 'OlgaV1.5_Azerbaijan_Clock.zip',
+          'risk': R2_BASE + 'OlgaV1.5_Azerbaijan_Risk.zip'
+        }
+      },
+      {
+        id: 'olgav15vietnam', variantKey: 'olga_v1_5_vietnam', name: 'Olga V1.5 Vietnam', tag: null,
+        desc: 'Do people really read these descriptions? Either way, it\'s the WWTBAM Olga graphics that looked revolutionary when it first came out in Vietnam, at least that\'s what I think',
+        defaultFormat: '12',
+        formats: {
+          '12': R2_BASE + 'OlgaV1.5_Vietnam_12q.zip',
+          '15': R2_BASE + 'OlgaV1.5_Vietnam.zip',
+          '16': R2_BASE + 'OlgaV1.5_Vietnam_16q.zip',
+          'clock': R2_BASE + 'OlgaV1.5_Vietnam_Clock.zip',
+          'risk': R2_BASE + 'OlgaV1.5_Vietnam_Risk.zip'
+        }
+      },
+      {
+        id: 'olgav2', variantKey: 'olga_v2', name: 'Olga V2', tag: null,
+        desc: 'The WWTBAM Olga graphics used in Costa Rica, I think.',
+        defaultFormat: '12',
+        formats: {
+          '12': R2_BASE + 'OlgaV2_12q.zip',
+          '15': R2_BASE + 'OlgaV2.zip',
+          '16': R2_BASE + 'OlgaV2_16q.zip',
+          'clock': R2_BASE + 'OlgaV2_Clock.zip',
+          'risk': R2_BASE + 'OlgaV2_Risk.zip'
+        }
+      },
+      {
+        id: 'olga', variantKey: 'olga', name: 'Olga V2.5', tag: null,
+        desc: 'Olga V2 but with a different font for money tree, I think. That\'s the only thing I noticed LMFAO.',
+        defaultFormat: '12',
+        formats: {
+          '12': R2_BASE + 'OlgaV2.5_12q.zip',
+          '15': R2_BASE + 'OlgaV2.5.zip',
+          '16': R2_BASE + 'OlgaV2.5_16q.zip',
+          'clock': R2_BASE + 'OlgaV2.5_Clock.zip',
+          'risk': R2_BASE + 'OlgaV2.5_Risk.zip'
+        }
+      }
+    ]
+  },
+  {
+    id: 'rave', name: 'Project Rave',
+    items: [
+      {
+        id: 'rave2007', variantKey: '2007_blue', name: '2007 Blue', settingsName: 'Project Rave (2007 Blue)', tag: null,
+        desc: 'The iconic 2007 internation rave graphics that is basically 2008 Blue with a few differences.',
+        defaultFormat: '15',
+        formats: {
+          '12': R2_BASE + '2007_Blue_12q.zip',
+          '15': R2_BASE + '2007_Blue.zip'
+        }
+      },
+      {
+        id: 'rave2008', variantKey: '2008_blue', name: '2008 Blue', settingsName: 'Project Rave (2008 Blue)', tag: null,
+        desc: 'The iconic 2008 UK & international rave graphics that you definitely have seen before.',
+        defaultFormat: '15',
+        formats: {
+          '12': R2_BASE + '2008_Blue_12q.rar',
+          '15': R2_BASE + '2008_Blue.zip'
+        }
+      },
+      {
+        id: 'rave2017', variantKey: '2017_blue', name: '2017 Blue', settingsName: 'Project Rave (2017 Blue)', tag: null,
+        desc: 'Basically 2008 Blue but a bit different, I guess.',
+        defaultFormat: '15',
+        formats: {
+          '12': R2_BASE + '2017_Blue_12q.rar',
+          '15': R2_BASE + '2017_Blue.zip'
+        }
+      },
+      {
+        id: 'kbc2010', variantKey: 'kbc_2010', name: 'KBC 2010', settingsName: 'Project Rave (KBC 2010)', tag: null,
+        desc: 'Basically Rave Format but... purple-ish, I guess. Probably looks a bit American too.',
+        defaultFormat: '12',
+        formats: {
+          '12': R2_BASE + 'KBC_2010_12q.rar'
+        }
+      }
+    ]
+  },
+  {
+    id: 'classic', name: 'Project Classic',
+    items: [
+      {
+        id: 'classic1998', variantKey: '1998_classic', name: '1998 Classic', tag: null,
+        desc: 'The original graphic style used in the UK.',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '1998_Classic.zip'
+        }
+      },
+      {
+        id: 'endemol1999', variantKey: '1999_endemol', name: '1999 Endemol', tag: null,
+        desc: 'The graphics style used in the Netherlands.',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '1999_Endemol.zip'
+        }
+      }
+    ]
+  }
+];
+
+const CATALOG_ITEMS = CATALOG.flatMap(g => g.items);
+
+/** variantKey -> { formatId: bundleUrl } */
+const VARIANTS = Object.fromEntries(
+  CATALOG_ITEMS.map(it => [it.variantKey, { ...it.formats }])
+);
+
+/** variantKey -> label for the Settings diagnostic */
+const nameMap = Object.fromEntries(
+  CATALOG_ITEMS.map(it => [it.variantKey, it.settingsName || it.name])
+);
+
+/** The variation menu's group/item tree */
+const groups = CATALOG.map(g => ({
+  id: g.id,
+  name: g.name,
+  items: g.items.map(it => ({
+    id: it.id,
+    variantKey: it.variantKey,
+    name: it.name,
+    tag: it.tag,
+    desc: it.desc,
+    formats: Object.keys(it.formats).map(f => fmt(f, FORMAT_MENU_LABELS[f], '')),
+    defaultFormat: it.defaultFormat
+  }))
+}));
 
 /* Display names for format ids. Keep in sync with the `formats` arrays in `groups`.
    Ids are not all numeric, so never interpolate one into a "N Questions" sentence. */
@@ -1264,19 +1456,6 @@ function initSettingsUI() {
   if (diagVariant) {
     const v = selectedVariant || localStorage.getItem('wwtbam-variant') || 'olga';
     const f = selectedFormat || localStorage.getItem('wwtbam-format') || '12';
-    const nameMap = {
-      'olga_v1': 'Olga V1',
-      'olga_v1_5_azerbaijan': 'Olga V1.5 Azerbaijan',
-      'olga_v1_5_vietnam': 'Olga V1.5 Vietnam',
-      'olga_v2': 'Olga V2',
-      'olga': 'Olga V2.5',
-      '2007_blue': 'Project Rave (2007 Blue)',
-      '2008_blue': 'Project Rave (2008 Blue)',
-      '2017_blue': 'Project Rave (2017 Blue)',
-      'kbc_2010': 'Project Rave (KBC 2010)',
-      '1998_classic': '1998 Classic',
-      '1999_endemol': '1999 Endemol'
-    };
     diagVariant.textContent = `${nameMap[v] || v} (${FORMAT_LABELS[f] || f})`;
   }
 }
@@ -1379,9 +1558,7 @@ async function executeResetSandbox() {
   }
 }
 
-function fmt(id, label, desc) { return { id, label, desc }; }
-
-const groups = [
+const groups_OLD = [
   {
     id: 'olga', name: 'Project Olga',
     items: [
@@ -2124,3 +2301,8 @@ window.openVariantSwitchModal = openVariantSwitchModal; window.closeVariantSwitc
 window.inlineNewItem = inlineNewItem; window.setFileView = setFileView; window.eToggle = eToggle; window.renderFileList = renderFileList;
 window.saveEditorContent = saveEditorContent; window.triggerFileUpload = triggerFileUpload; window.triggerFolderUpload = triggerFolderUpload; window.handleFolderUpload = handleFolderUpload;
 
+
+// TEMPORARY — refactor equivalence check, removed once green.
+console.assert(JSON.stringify(VARIANTS) === JSON.stringify(VARIANTS_OLD));
+console.assert(JSON.stringify(nameMap) === JSON.stringify(nameMap_OLD));
+console.assert(JSON.stringify(groups) === JSON.stringify(groups_OLD));
