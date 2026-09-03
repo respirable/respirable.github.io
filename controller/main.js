@@ -202,7 +202,7 @@ function setFileView(view) {
 
 function switchTab(tabId) {
   activeTab = tabId;
-  const titleMap = { 'files': 'My Files', 'editor': 'Editor', 'info': 'Sandbox Guide', 'settings': 'Settings' };
+  const titleMap = { 'files': 'My Files', 'editor': 'Editor', 'info': 'Sandbox Guide', 'settings': 'Settings', 'switch': 'Switch variant' };
   const titleEl = document.getElementById('editTopTitle');
   if (titleEl) titleEl.textContent = titleMap[tabId] || 'Editor';
   document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
@@ -217,6 +217,7 @@ function switchTab(tabId) {
       if (window.editor) window.editor.layout();
     }, 50);
   }
+  if (tabId === 'switch') renderSwitchPanel();
 }
 
 // ─── IMMERSIVE MODE ───
@@ -1712,6 +1713,190 @@ async function bootController() {
   }
 }
 
+// ─── SWITCH VARIANT PANEL ───
+// Reads `groups`, `VARIANTS` and `FORMAT_LABELS`; it owns no catalogue of its own.
+// State is namespaced away from the pre-boot selection menu, which shares this document
+// and keeps its own `query` / `selectedVariantId` / `selectedFormatId`.
+let vsQuery = '';
+let vsPickedId = null;
+let vsPickedFormat = null;
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function vsFilteredGroups() {
+  const q = vsQuery.trim().toLowerCase();
+  if (!q) return groups.map(g => ({ ...g, items: g.items }));
+  return groups
+    .map(g => ({
+      ...g,
+      items: g.items.filter(it =>
+        it.name.toLowerCase().includes(q) ||
+        g.name.toLowerCase().includes(q) ||
+        it.formats.some(f => (FORMAT_LABELS[f.id] || f.id).toLowerCase().includes(q))
+      )
+    }))
+    .filter(g => g.items.length > 0);
+}
+
+function renderSwitchNav() {
+  const nav = document.getElementById('vsNav');
+  if (!nav) return;
+  const shown = vsFilteredGroups();
+
+  if (shown.length === 0) {
+    nav.innerHTML = `<div class="vs-empty">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <p>No variant matches <code>${escapeHtml(vsQuery)}</code></p>
+    </div>`;
+    return;
+  }
+
+  nav.innerHTML = shown.map(g => `
+    <div class="vs-group">${escapeHtml(g.name)}<span class="vs-group-count">${g.items.length}</span></div>
+    ${g.items.map(it => `
+      <button class="vs-item${it.id === vsPickedId ? ' sel' : ''}" data-id="${escapeHtml(it.id)}">
+        <span class="vs-radio"><i></i></span>
+        <span class="vs-item-name" title="${escapeHtml(it.name)}">${escapeHtml(it.name)}</span>
+        ${it.variantKey === selectedVariant ? '<span class="vs-chip">Current</span>' : ''}
+      </button>`).join('')}`).join('');
+}
+
+function renderSwitchDetail() {
+  const pane = document.getElementById('vsPane');
+  const goBtn = document.getElementById('vsGo');
+  const goLabel = document.getElementById('vsGoLabel');
+  if (!pane) return;
+
+  const item = allMenuItems().find(x => x.id === vsPickedId);
+  if (!item) {
+    pane.innerHTML = `<div class="vs-empty">
+      <svg viewBox="0 0 24 24"><path d="M4 8h13l-3.2-3.2M20 16H7l3.2 3.2"/></svg>
+      <p>Pick a variant on the left to see its formats.</p>
+    </div>`;
+    if (goBtn) goBtn.disabled = true;
+    return;
+  }
+
+  const group = groups.find(g => g.id === item.groupId);
+  pane.innerHTML = `
+    <p class="vs-eyebrow">${escapeHtml(group ? group.name : '')}</p>
+    <h3 class="vs-name">${escapeHtml(item.name)}</h3>
+    <p class="vs-desc">${escapeHtml(item.desc)}</p>
+    <p class="vs-label">Game format</p>
+    <div class="vs-formats">
+      ${item.formats.map(f => `
+        <button class="vs-fmt${f.id === vsPickedFormat ? ' sel' : ''}" data-format="${escapeHtml(f.id)}">
+          <span class="vs-radio"><i></i></span>
+          <span>${escapeHtml(FORMAT_LABELS[f.id] || f.id)}</span>
+        </button>`).join('')}
+    </div>`;
+
+  const isCurrent = item.variantKey === selectedVariant && vsPickedFormat === selectedFormat;
+  if (goBtn) goBtn.disabled = !vsPickedFormat;
+  if (goLabel) goLabel.textContent = isCurrent ? 'Reload variant' : 'Switch variant';
+}
+
+function vsPick(id) {
+  const item = allMenuItems().find(x => x.id === id);
+  if (!item) return;
+  vsPickedId = id;
+  // Carry the running format across when the target supports it, so switching graphics
+  // does not silently change the question count too.
+  vsPickedFormat = item.formats.some(f => f.id === selectedFormat)
+    ? selectedFormat
+    : item.defaultFormat;
+  renderSwitchNav();
+  renderSwitchDetail();
+}
+
+function renderSwitchPanel() {
+  if (!vsPickedId) {
+    const current = allMenuItems().find(x => x.variantKey === selectedVariant);
+    vsPick(current ? current.id : allMenuItems()[0].id);
+    return;
+  }
+  renderSwitchNav();
+  renderSwitchDetail();
+}
+
+function isVariantSwitchModalOpen() {
+  const overlay = document.getElementById('vsConfirmOverlay');
+  return !!overlay && overlay.classList.contains('active');
+}
+
+function openVariantSwitchModal() {
+  const item = allMenuItems().find(x => x.id === vsPickedId);
+  if (!item || !vsPickedFormat) return;
+  const title = document.getElementById('vsConfirmTitle');
+  if (title) {
+    const label = FORMAT_LABELS[vsPickedFormat] || vsPickedFormat;
+    title.textContent = `Switch to ${item.name} — ${label}?`;
+  }
+  const overlay = document.getElementById('vsConfirmOverlay');
+  if (overlay) overlay.classList.add('active');
+  const cancel = document.getElementById('vsConfirmCancel');
+  if (cancel) cancel.focus();
+}
+
+function closeVariantSwitchModal() {
+  const overlay = document.getElementById('vsConfirmOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+async function confirmVariantSwitch() {
+  const item = allMenuItems().find(x => x.id === vsPickedId);
+  if (!item || !vsPickedFormat) return;
+  const variant = item.variantKey;
+  const format = vsPickedFormat;
+
+  closeVariantSwitchModal();
+  if (devBarVisible) toggleDevBar();
+
+  selectedVariant = variant;
+  selectedFormat = format;
+  sessionStorage.setItem('wwtbam-variant', variant);
+  sessionStorage.setItem('wwtbam-format', format);
+  localStorage.setItem('wwtbam-variant', variant);
+  localStorage.setItem('wwtbam-format', format);
+
+  // The old bundle must be gone before the new one is written. saveFile overwrites by
+  // lowercased path, so without this every file the new bundle does not happen to
+  // replace survives and keeps being served alongside it.
+  await clearAll();
+  await downloadAndBootVariant(variant, format);
+}
+
+function wireSwitchPanel() {
+  const nav = document.getElementById('vsNav');
+  if (nav) nav.addEventListener('click', (e) => {
+    const btn = e.target.closest('.vs-item');
+    if (btn) vsPick(btn.getAttribute('data-id'));
+  });
+
+  const pane = document.getElementById('vsPane');
+  if (pane) pane.addEventListener('click', (e) => {
+    const btn = e.target.closest('.vs-fmt');
+    if (!btn) return;
+    vsPickedFormat = btn.getAttribute('data-format');
+    renderSwitchDetail();
+  });
+
+  const search = document.getElementById('vsSearch');
+  if (search) search.addEventListener('input', (e) => {
+    vsQuery = e.target.value;
+    renderSwitchNav();
+  });
+
+  const overlay = document.getElementById('vsConfirmOverlay');
+  if (overlay) overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeVariantSwitchModal();
+  });
+}
+
 function showConflictModal(msg) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('conflictOverlay');
@@ -1784,10 +1969,27 @@ function toggleTopBar() {
 }
 
 document.addEventListener('keydown', (e) => {
-  // Handle Esc as DevBar toggle
+  // Escape priority chain — first match wins, so a modal never closes the whole DevBar.
   if (e.key === 'Escape') {
     e.preventDefault();
-    toggleDevBar();
+    if (isVariantSwitchModalOpen()) {
+      closeVariantSwitchModal();   // confirmation modal open -> dismiss just the modal
+    } else if (devBarVisible) {
+      toggleDevBar();              // DevBar open -> close it
+    } else {
+      toggleDevBar();              // otherwise -> open it
+    }
+  }
+
+  // "/" jumps to the switch panel's search box, but only while that panel is the one
+  // showing and the caret is not already in a field.
+  if (e.key === '/' && devBarVisible && activeTab === 'switch') {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag !== 'input' && tag !== 'textarea' && !e.target.isContentEditable) {
+      e.preventDefault();
+      const box = document.getElementById('vsSearch');
+      if (box) box.focus();
+    }
   }
 
   // Silently capture Backquote (Tilde) to prevent dead-key focus locking
@@ -1839,6 +2041,7 @@ async function registerControllerServiceWorker() {
 async function init() {
   // Immediately render the graphic variation menu UI
   initMenu();
+  wireSwitchPanel();
 
   // Register Service Worker in the background
   registerControllerServiceWorker().catch(() => { });
@@ -1900,6 +2103,7 @@ window.toggleFindBar = toggleFindBar; window.openFind = openFind; window.openRep
 window.findNext = findNext; window.findPrev = findPrev;
 window.replaceOne = replaceOne; window.replaceAll = replaceAll;
 window.startWithSelection = startWithSelection; window.selectVariant = selectVariant;
+window.openVariantSwitchModal = openVariantSwitchModal; window.closeVariantSwitchModal = closeVariantSwitchModal; window.confirmVariantSwitch = confirmVariantSwitch;
 window.inlineNewItem = inlineNewItem; window.setFileView = setFileView; window.eToggle = eToggle; window.renderFileList = renderFileList;
 window.saveEditorContent = saveEditorContent; window.triggerFileUpload = triggerFileUpload; window.triggerFolderUpload = triggerFolderUpload; window.handleFolderUpload = handleFolderUpload;
 
