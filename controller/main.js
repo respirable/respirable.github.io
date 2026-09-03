@@ -19,9 +19,38 @@ let selectedFormat = sessionStorage.getItem('wwtbam-format') || localStorage.get
 const CONTROLLER_SW_VERSION = '2.3';
 
 const VARIANTS = {
+  'olga_v1': {
+    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1_12q.zip',
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.zip',
+    '16': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1_16q.zip',
+    'clock': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1_Clock.zip',
+    'risk': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1_Risk.zip'
+  },
+  'olga_v1_5_azerbaijan': {
+    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Azerbaijan_12q.zip',
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Azerbaijan.zip',
+    '16': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Azerbaijan_16q.zip',
+    'clock': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Azerbaijan_Clock.zip',
+    'risk': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Azerbaijan_Risk.zip'
+  },
+  'olga_v1_5_vietnam': {
+    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Vietnam_12q.zip',
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Vietnam.zip',
+    '16': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Vietnam_16q.zip',
+    'clock': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Vietnam_Clock.zip',
+    'risk': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV1.5_Vietnam_Risk.zip'
+  },
+  'olga_v2': {
+    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2_12q.zip',
+    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.zip',
+    '16': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2_16q.zip',
+    'clock': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2_Clock.zip',
+    'risk': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2_Risk.zip'
+  },
   'olga': {
-    '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_12q.zip',
-    '15': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5.zip'
+    '16': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_16q.zip',
+    'clock': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_Clock.zip',
+    'risk': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/OlgaV2.5_Risk.zip'
   },
   '2007_blue': {
     '12': 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/2007_Blue_12q.zip',
