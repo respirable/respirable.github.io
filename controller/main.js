@@ -164,6 +164,147 @@ const CATALOG = [
         formats: {
           '15': R2_BASE + '1999_Endemol.zip'
         }
+      },
+      {
+        id: '1999_australia', variantKey: '1999_australia', name: '1999 Australia', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '1999_Australia.zip'
+        }
+      },
+      {
+        id: '1999_classic', variantKey: '1999_classic', name: '1999 Classic', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '1999_Classic.zip'
+        }
+      },
+      {
+        id: '1999_classic_v_2', variantKey: '1999_classic_v_2', name: '1999 Classic v 2', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '1999_Classic_v2.zip'
+        }
+      },
+      {
+        id: '1999_classic_v_3', variantKey: '1999_classic_v_3', name: '1999 Classic v 3', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '1999_Classic_v3.zip'
+        }
+      },
+      {
+        id: '1999_endemol_v_2', variantKey: '1999_endemol_v_2', name: '1999 Endemol v 2', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '1999_Endemol_v2.zip'
+        }
+      },
+      {
+        id: '2000_australia', variantKey: '2000_australia', name: '2000 Australia', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '2000_Australia.zip'
+        }
+      },
+      {
+        id: '2002_classic', variantKey: '2002_classic', name: '2002 Classic', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '2002_Classic.zip'
+        }
+      },
+      {
+        id: '2002_classic_v_2', variantKey: '2002_classic_v_2', name: '2002 Classic v 2', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + '2002_Classic_v2.zip'
+        }
+      }
+    ]
+  },
+  {
+    id: 'hotseat', name: 'Project Hot Seat',
+    items: [
+      {
+        id: 'hot_seat_2009_au', variantKey: 'hot_seat_2009_au', name: 'Hot Seat 2009 AU', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2009AU.zip'
+        }
+      },
+      {
+        id: 'hot_seat_2010', variantKey: 'hot_seat_2010', name: 'Hot Seat 2010', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2010.zip'
+        }
+      },
+      {
+        id: 'hotseat_2010_vn', variantKey: 'hotseat_2010_vn', name: 'Hot Seat 2010 Vietnam', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2010VN.zip'
+        }
+      },
+      {
+        id: 'hot_seat_2026_au', variantKey: 'hot_seat_2026_au', name: 'Hot Seat 2026 AU', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2026AU.zip'
+        }
+      },
+      {
+        id: 'hotseat_2026_au_alt', variantKey: 'hotseat_2026_au_alt', name: 'Hot Seat 2026 AU (Alt)', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2026AUAlt.zip'
+        }
+      },
+      {
+        id: 'hot_seat_2026_uk', variantKey: 'hot_seat_2026_uk', name: 'Hot Seat 2026 UK', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2026UK.zip'
+        }
+      },
+      {
+        id: 'hotseat_2026_uk_alt', variantKey: 'hotseat_2026_uk_alt', name: 'Hot Seat 2026 UK (Alt)', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2026UKAlt.zip'
+        }
+      },
+      {
+        id: 'hotseat_2026_uk_alt2', variantKey: 'hotseat_2026_uk_alt2', name: 'Hot Seat 2026 UK (Alt 2)', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2026UKAlt2.zip'
+        }
+      },
+      {
+        id: 'hotseat_2026_uk_real', variantKey: 'hotseat_2026_uk_real', name: 'Hot Seat 2026 UK (Broadcast)', tag: null,
+        desc: 'TODO',
+        defaultFormat: '15',
+        formats: {
+          '15': R2_BASE + 'HotSeat2026UKReal.zip'
+        }
       }
     ]
   }
