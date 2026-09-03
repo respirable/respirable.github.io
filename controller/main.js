@@ -23,6 +23,7 @@ const R2_BASE = 'https://pub-2d06308cf53245df865e113b0745c6d9.r2.dev/';
 /* Menu labels for each format id, uniform across every variant that offers the format.
    Distinct from FORMAT_LABELS below, which is the shorter wording used in Settings. */
 const FORMAT_MENU_LABELS = {
+  '11': '11 questions format',
   '12': '12 questions format',
   '15': '15 questions format',
   '16': '16 questions format',
@@ -167,15 +168,15 @@ const CATALOG = [
       },
       {
         id: '1999_australia', variantKey: '1999_australia', name: '1999 Australia', tag: null,
-        desc: 'TODO',
-        defaultFormat: '15',
+        desc: 'The original graphic style but with slightly different fonts... and lifeline graphics... and PAF & ATA graphics... oh my god the list goes on.',
+        defaultFormat: '11',
         formats: {
-          '15': R2_BASE + '1999_Australia.zip'
+          '11': R2_BASE + '1999_Australia.zip'
         }
       },
       {
         id: '1999_classic', variantKey: '1999_classic', name: '1999 Classic', tag: null,
-        desc: 'TODO',
+        desc: '1998 Classic but a bit different. IDK the difference, maybe the lifelines icon are much squeezed or somethin\'.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + '1999_Classic.zip'
@@ -183,7 +184,7 @@ const CATALOG = [
       },
       {
         id: '1999_classic_v_2', variantKey: '1999_classic_v_2', name: '1999 Classic v 2', tag: null,
-        desc: 'TODO',
+        desc: '1999 Classic but a bit different. You just have to look for the exact difference.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + '1999_Classic_v2.zip'
@@ -191,7 +192,7 @@ const CATALOG = [
       },
       {
         id: '1999_classic_v_3', variantKey: '1999_classic_v_3', name: '1999 Classic v 3', tag: null,
-        desc: 'TODO',
+        desc: 'Alright how are there this many versions of 1999 Classic?',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + '1999_Classic_v3.zip'
@@ -199,7 +200,7 @@ const CATALOG = [
       },
       {
         id: '1999_endemol_v_2', variantKey: '1999_endemol_v_2', name: '1999 Endemol v 2', tag: null,
-        desc: 'TODO',
+        desc: 'The Classic graphics used in the Netherlands but the lifelines\' fill are actually black and not transparent, I think.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + '1999_Endemol_v2.zip'
@@ -207,7 +208,7 @@ const CATALOG = [
       },
       {
         id: '2000_australia', variantKey: '2000_australia', name: '2000 Australia', tag: null,
-        desc: 'TODO',
+        desc: '1999 Australia but with 15 questions.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + '2000_Australia.zip'
@@ -215,7 +216,7 @@ const CATALOG = [
       },
       {
         id: '2002_classic', variantKey: '2002_classic', name: '2002 Classic', tag: null,
-        desc: 'TODO',
+        desc: '1999 Classic but the graphics shifted like 0.2 pixels I think.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + '2002_Classic.zip'
@@ -223,7 +224,7 @@ const CATALOG = [
       },
       {
         id: '2002_classic_v_2', variantKey: '2002_classic_v_2', name: '2002 Classic v 2', tag: null,
-        desc: 'TODO',
+        desc: 'Alright I\'m tired of writing these descriptions. These graphics have like so little differences that I honestly do not care at all LMFAO.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + '2002_Classic_v2.zip'
@@ -236,7 +237,7 @@ const CATALOG = [
     items: [
       {
         id: 'hot_seat_2009_au', variantKey: 'hot_seat_2009_au', name: 'Hot Seat 2009 AU', tag: null,
-        desc: 'TODO',
+        desc: 'The original 2009 Hot Seat graphics used in Australia',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2009AU.zip'
@@ -244,7 +245,7 @@ const CATALOG = [
       },
       {
         id: 'hot_seat_2010', variantKey: 'hot_seat_2010', name: 'Hot Seat 2010', tag: null,
-        desc: 'TODO',
+        desc: 'The 2010 Hot Seat graphics used... somewhere, maybe in Greece, I guess.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2010.zip'
@@ -252,7 +253,7 @@ const CATALOG = [
       },
       {
         id: 'hotseat_2010_vn', variantKey: 'hotseat_2010_vn', name: 'Hot Seat 2010 Vietnam', tag: null,
-        desc: 'TODO',
+        desc: 'The 2010 Hot Seat Graphics but with Vietnamese stuff, probably with minuscule changes to how soundtracks play.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2010VN.zip'
@@ -260,7 +261,7 @@ const CATALOG = [
       },
       {
         id: 'hot_seat_2026_au', variantKey: 'hot_seat_2026_au', name: 'Hot Seat 2026 AU', tag: null,
-        desc: 'TODO',
+        desc: 'Australia has a 2026 version of WWTBAM Hot Seat????',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2026AU.zip'
@@ -268,7 +269,7 @@ const CATALOG = [
       },
       {
         id: 'hotseat_2026_au_alt', variantKey: 'hotseat_2026_au_alt', name: 'Hot Seat 2026 AU (Alt)', tag: null,
-        desc: 'TODO',
+        desc: 'And there is another graphic variation of that???',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2026AUAlt.zip'
@@ -276,7 +277,7 @@ const CATALOG = [
       },
       {
         id: 'hot_seat_2026_uk', variantKey: 'hot_seat_2026_uk', name: 'Hot Seat 2026 UK', tag: null,
-        desc: 'TODO',
+        desc: 'The graphics used in the 2026 Hot Seat version of WWTBAM UK.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2026UK.zip'
@@ -284,7 +285,7 @@ const CATALOG = [
       },
       {
         id: 'hotseat_2026_uk_alt', variantKey: 'hotseat_2026_uk_alt', name: 'Hot Seat 2026 UK (Alt)', tag: null,
-        desc: 'TODO',
+        desc: 'Alright, what\'s up with Millionaire switching up graphics every so often?',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2026UKAlt.zip'
@@ -292,7 +293,7 @@ const CATALOG = [
       },
       {
         id: 'hotseat_2026_uk_alt2', variantKey: 'hotseat_2026_uk_alt2', name: 'Hot Seat 2026 UK (Alt 2)', tag: null,
-        desc: 'TODO',
+        desc: 'I couldn\'t think of more creative descriptions for these.',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2026UKAlt2.zip'
@@ -300,7 +301,7 @@ const CATALOG = [
       },
       {
         id: 'hotseat_2026_uk_real', variantKey: 'hotseat_2026_uk_real', name: 'Hot Seat 2026 UK (Broadcast)', tag: null,
-        desc: 'TODO',
+        desc: 'Ah yes, Hot Seat 2026 UK Real, and there will be "HOT SEAT 2026 UK REAL 2" or something. I can\'t trust this anymore /j',
         defaultFormat: '15',
         formats: {
           '15': R2_BASE + 'HotSeat2026UKReal.zip'
@@ -340,6 +341,7 @@ const groups = CATALOG.map(g => ({
 /* Display names for format ids. Keep in sync with the `formats` arrays in `groups`.
    Ids are not all numeric, so never interpolate one into a "N Questions" sentence. */
 const FORMAT_LABELS = {
+  '11': '11 questions',
   '12': '12 questions',
   '15': '15 questions',
   '16': '16 questions',
