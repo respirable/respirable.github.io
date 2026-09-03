@@ -1262,7 +1262,11 @@ function initSettingsUI() {
     const v = selectedVariant || localStorage.getItem('wwtbam-variant') || 'olga';
     const f = selectedFormat || localStorage.getItem('wwtbam-format') || '12';
     const nameMap = {
-      'olga': 'Project Olga',
+      'olga_v1': 'Olga V1',
+      'olga_v1_5_azerbaijan': 'Olga V1.5 Azerbaijan',
+      'olga_v1_5_vietnam': 'Olga V1.5 Vietnam',
+      'olga_v2': 'Olga V2',
+      'olga': 'Olga V2.5',
       '2007_blue': 'Project Rave (2007 Blue)',
       '2008_blue': 'Project Rave (2008 Blue)',
       '2017_blue': 'Project Rave (2017 Blue)',
@@ -1379,8 +1383,24 @@ const groups = [
     id: 'olga', name: 'Project Olga',
     items: [
       {
-        id: 'olga25', variantKey: 'olga', name: 'Olga V2.5', tag: null, desc: 'The most modern version of Olga to date.',
-        formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', '')], defaultFormat: '12'
+        id: 'olgav1', variantKey: 'olga_v1', name: 'Olga V1', tag: null, desc: 'TODO',
+        formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
+      },
+      {
+        id: 'olgav15azerbaijan', variantKey: 'olga_v1_5_azerbaijan', name: 'Olga V1.5 Azerbaijan', tag: null, desc: 'TODO',
+        formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
+      },
+      {
+        id: 'olgav15vietnam', variantKey: 'olga_v1_5_vietnam', name: 'Olga V1.5 Vietnam', tag: null, desc: 'TODO',
+        formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
+      },
+      {
+        id: 'olgav2', variantKey: 'olga_v2', name: 'Olga V2', tag: null, desc: 'TODO',
+        formats: [fmt('12', '12 questions format', ''), fmt('15', '15 questions format', ''), fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '12'
+      },
+      {
+        id: 'olga', variantKey: 'olga', name: 'Olga V2.5', tag: null, desc: 'TODO',
+        formats: [fmt('16', '16 questions format', ''), fmt('clock', 'Clock format', ''), fmt('risk', 'Risk format (UK 2018)', '')], defaultFormat: '16'
       },
     ]
   },
@@ -1422,8 +1442,10 @@ const groups = [
 
 let query = '';
 let openGroups = new Set(['olga', 'rave', 'classic']);
-let selectedVariantId = 'olga25';
-let selectedFormatId = '12';
+// Must name a real item id in `groups` — renderDetail dereferences the match unguarded.
+// The format is read off that item so the two can never disagree at first paint.
+let selectedVariantId = 'olga';
+let selectedFormatId = allMenuItems().find(x => x.id === selectedVariantId)?.defaultFormat || '12';
 
 function allMenuItems() {
   return groups.flatMap(g => g.items.map(it => ({ ...it, groupId: g.id })));
