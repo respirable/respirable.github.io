@@ -46,6 +46,16 @@ const VARIANTS = {
   }
 };
 
+/* Display names for format ids. Keep in sync with the `formats` arrays in `groups`.
+   Ids are not all numeric, so never interpolate one into a "N Questions" sentence. */
+const FORMAT_LABELS = {
+  '12': '12 questions',
+  '15': '15 questions',
+  '16': '16 questions',
+  'clock': 'Clock format',
+  'risk': 'Risk format (UK 2018)'
+};
+
 function toggleNewMenu() { /* legacy stub */ }
 // Close menus when clicking outside
 document.addEventListener('click', (e) => {
@@ -1231,7 +1241,7 @@ function initSettingsUI() {
       '1998_classic': '1998 Classic',
       '1999_endemol': '1999 Endemol'
     };
-    diagVariant.textContent = `${nameMap[v] || v} (${f} Questions)`;
+    diagVariant.textContent = `${nameMap[v] || v} (${FORMAT_LABELS[f] || f})`;
   }
 }
 
