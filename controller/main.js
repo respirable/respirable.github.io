@@ -1274,7 +1274,7 @@ async function planBatchRename(baseName) {
     if (!taken.has(dir)) taken.set(dir, new Set());
     let i = nextIndex.get(dir) || 0;
     let candidate;
-    for (;;) {
+    for (; ;) {
       candidate = (i === 0 ? baseName : `${baseName} (${i})`) + ext;
       if (!taken.get(dir).has(candidate.toLowerCase())) break;
       i++;
@@ -1820,9 +1820,8 @@ const GUIDE_HTML = `
       <p>For now, you have to manually upload all your custom graphics to your controller.</p>
       <p style="margin-top: 6px;"><strong>IMPORTANT:</strong> Before uploading the graphics, make sure your
         Images folder is highlighted. Otherwise, all your files will end up in the main directory.</p>
-      <p style="margin-top: 6px;">You can <span class="key-badge">Ctrl</span> + click rows in My Files to pick
-        several at once, then use Rename or Delete in the toolbar. Renaming a batch gives them one shared name,
-        numbered “Name”, “Name (1)”, “Name (2)” and so on, each keeping its own file extension. In-explorer
+      <p style="margin-top: 6px;">Did you know you can also press <span class="key-badge">Ctrl</span> + click rows in My Files to pick
+        multiple files/folders at once, and rename or delete \'em all at once?. In-explorer
         drag-and-drop still has not been implemented.</p>
       <p style="margin-top: 6px;">If enough people like the idea, I will upload all graphic variations of the
         controller to the database, as long as they don’t exceed 10 GB in size.</p>
