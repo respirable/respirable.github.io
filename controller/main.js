@@ -107,7 +107,7 @@ const CATALOG = [
       },
       {
         id: 'olga_v3', variantKey: 'olga_v3', name: 'Olga V3', tag: null,
-        desc: 'TODO',
+        desc: 'It\'s the UK Hot Seat 2026 graphics but brought into Olga... I guess? Except for the money tree part, though.',
         defaultFormat: '12',
         formats: {
           '12': R2_BASE + 'OlgaV3_12q.zip',
