@@ -104,6 +104,18 @@ const CATALOG = [
           'clock': R2_BASE + 'OlgaV2.5_Clock.zip',
           'risk': R2_BASE + 'OlgaV2.5_Risk.zip'
         }
+      },
+      {
+        id: 'olga_v3', variantKey: 'olga_v3', name: 'Olga V3', tag: null,
+        desc: 'TODO',
+        defaultFormat: '12',
+        formats: {
+          '12': R2_BASE + 'OlgaV3_12q.zip',
+          '15': R2_BASE + 'OlgaV3.zip',
+          '16': R2_BASE + 'OlgaV3_16q.zip',
+          'clock': R2_BASE + 'OlgaV3_Clock.zip',
+          'risk': R2_BASE + 'OlgaV3_Risk.zip'
+        }
       }
     ]
   },
