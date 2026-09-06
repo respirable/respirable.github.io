@@ -1504,35 +1504,177 @@ function eToggle(el) {
   else el.setAttribute('data-off', '');
 }
 
+/* The Sandbox Guide body. Rendered into both the DevBar's Sandbox Guide panel and the
+   Guide & preferences modal, so the prose lives in exactly one place. */
+const GUIDE_HTML = `
+  <div class="info-hero">
+    <h3 class="info-title">WWTBAM HTML5 CONTROLLER ONLINE GUIDE</h3>
+    <p class="info-subtitle">This guide will teach you the basics of using the WWTBAM HTML5 sandbox. It’s
+      actually super straightforward if you’ve used it before. All you need to do is load up the website and
+      use the controller just like what you’d do with a local environment.</p>
+    <p class="info-subtitle" style="margin-top: 8px;">Available variations include a bit of Project Rave,
+      Project Olga (all variants except Olga V3), Project Hot Seat,
+      and Project Classic.</p>
+  </div>
+
+  <div class="info-grid-2">
+    <div class="info-card">
+      <h4>What if I don’t know how to use the controller in the first place?</h4>
+      <p>Well… sucks to suck, as GD Colon once said. There is a keystrokes tutorial in Kuby’s Project files.
+        You should take a look at that file because I’m too lazy to cite them here.</p>
+    </div>
+    <div class="info-card">
+      <h4>How does this work?</h4>
+      <p>This website uses IndexedDB for storing the controller’s file and Monaco Editor for the editor
+        interface. As for processing the files, there is a Service Worker just for that.</p>
+      <p style="margin-top: 6px;">The default controller is stored on a Cloudflare R2 “database” (or whatever
+        you call that thing), and it goes into your memory the moment you load the controller. So… no server
+        needed, and I can still host this thing on GitHub! All modifications you make to the sandbox are saved
+        in your browser’s cache. If you need to reset everything, you can head to the settings menu.</p>
+    </div>
+  </div>
+
+  <div class="info-grid-2" style="margin-top: 14px;">
+    <div class="info-card">
+      <h4>What other special keybinds are used here that I should remember?</h4>
+      <p>The only two special keybinds you’ll ever need here are <span class="key-badge">Esc</span> and <span
+          class="key-badge">Backspace</span>. The former brings up the file explorer &amp; editor, and the
+        latter brings up a top bar that can get you back to the main page.</p>
+      <p style="margin-top: 6px;">Make sure that you don’t set any functions to use this key, as it will cause
+        conflicts with the sandbox.</p>
+      <p style="margin-top: 6px;">Also, if you use UniKey or EVKey, remember to switch to the English
+        keyboard, as using the Vietnamese keyboard will trigger the top bar every few key presses.</p>
+    </div>
+    <div class="info-card">
+      <h4>I need to use another graphics set!</h4>
+      <p>For now, you have to manually upload all your custom graphics to your controller.</p>
+      <p style="margin-top: 6px;"><strong>IMPORTANT:</strong> Before uploading the graphics, make sure your
+        Images folder is highlighted. Otherwise, all your files will be at the main directory, and
+        multi-select + in-explorer drag-and-drop have not been implemented yet.</p>
+      <p style="margin-top: 6px;">If enough people like the idea, I will upload all graphic variations of the
+        controller to the database, as long as they don’t exceed 10 GB in size.</p>
+    </div>
+  </div>
+
+  <div class="info-warn" style="margin-top: 16px;">
+    <p>Also, please keep in mind that this is a work in progress, and any features you see here are subject to
+      change. Also there's like a million bugs that I'm not going to bother fix (or maybe I will but in like a
+      year or two).</p>
+  </div>
+
+  <div class="info-disc">
+    <p><strong>DISCLAIMER:</strong> The set of HTML5 controllers are based on and are modified versions of the
+      classic edition of "Who Wants to Be a Millionaire?". All rights go to their original owners. This
+      website is a non-commercial project created for educational and research purposes. I am not affiliated
+      with, sponsored by, or endorsed by Sony or any owner of the ‘Who Wants to Be a Millionaire?’ program.
+      All identifying elements of the original program used here fall within the scope of Fair Use and are not
+      intended for commercial competition.</p>
+  </div>
+`;
+
+/* The three General Preferences toggles, rendered into both the DevBar Settings panel
+   and the Guide & preferences modal. One list, two surfaces. */
+const SETTING_TOGGLES = [
+  {
+    key: 'promptConflict', idSuffix: 'ConflictPrompt',
+    label: 'Prompt before overwriting files',
+    desc: 'Show a conflict confirmation modal when uploading a file with a name that already exists in the destination folder.',
+    title: 'Toggle prompt before overwrite'
+  },
+  {
+    key: 'menuLightMode', idSuffix: 'MenuLightMode',
+    label: 'Menu Light Mode',
+    desc: 'Switch the file manager, settings panel, and graphic selector to a light colour scheme.',
+    title: 'Toggle Menu Light Mode'
+  },
+  {
+    key: 'editorLightMode', idSuffix: 'EditorLightMode',
+    label: 'Editor Light Mode',
+    desc: 'Switch the Monaco code editor to a light theme with a white background and dark text.',
+    title: 'Toggle Editor Light Mode'
+  }
+];
+
+/* Side effect to run when a preference changes. Keys without one only need persisting. */
+const SETTING_EFFECTS = {
+  menuLightMode: applyMenuLightMode,
+  editorLightMode: applyEditorLightMode
+};
+
+function settingToggleRowsHtml(idPrefix) {
+  return SETTING_TOGGLES.map(t => {
+    const id = idPrefix + t.idSuffix;
+    return `
+      <div class="sg-row">
+        <div class="sg-row-left">
+          <h4>${t.label}</h4>
+          <p>${t.desc}</p>
+        </div>
+        <div class="sg-row-right">
+          <label class="ios-switch" for="${id}" title="${t.title}">
+            <input type="checkbox" id="${id}" data-setting="${t.key}">
+            <span class="ios-switch-track">
+              <span class="ios-switch-thumb"></span>
+            </span>
+          </label>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* Wire every rendered toggle, in either surface. Keyed off data-setting rather than id
+   so the two copies cannot fight over getElementById, which returns only the first. */
+function syncSettingToggles() {
+  document.querySelectorAll('input[data-setting]').forEach(input => {
+    const key = input.getAttribute('data-setting');
+    input.checked = !!settings[key];
+    input.onchange = (e) => {
+      settings[key] = e.target.checked;
+      localStorage.setItem('sandbox-settings', JSON.stringify(settings));
+      const effect = SETTING_EFFECTS[key];
+      if (effect) effect(settings[key]);
+      // Mirror onto the same preference's other switch so the surfaces never disagree.
+      document.querySelectorAll(`input[data-setting="${key}"]`).forEach(other => {
+        if (other !== e.target) other.checked = e.target.checked;
+      });
+    };
+  });
+}
+
+/* Fill both guide surfaces and both toggle lists once, then wire them. */
+function renderGuideSurfaces() {
+  const targets = [
+    ['infoPanelBody', GUIDE_HTML],
+    ['guideModalBody', GUIDE_HTML],
+    ['settingsToggleRows', settingToggleRowsHtml('setting')],
+    ['guideToggleRows', settingToggleRowsHtml('guideSetting')]
+  ];
+  for (const [id, html] of targets) {
+    const el = document.getElementById(id);
+    if (el && !el.innerHTML.trim()) el.innerHTML = html;
+  }
+  syncSettingToggles();
+}
+
+function isGuideModalOpen() {
+  const overlay = document.getElementById('guideOverlay');
+  return !!overlay && overlay.classList.contains('active');
+}
+
+function openGuideModal() {
+  const overlay = document.getElementById('guideOverlay');
+  if (!overlay) return;
+  renderGuideSurfaces();
+  overlay.classList.add('active');
+}
+
+function closeGuideModal() {
+  const overlay = document.getElementById('guideOverlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
 function initSettingsUI() {
-  const pc = document.getElementById('settingConflictPrompt');
-  if (pc) {
-    pc.checked = settings.promptConflict;
-    pc.onchange = (e) => {
-      settings.promptConflict = e.target.checked;
-      localStorage.setItem('sandbox-settings', JSON.stringify(settings));
-    };
-  }
-
-  const mlm = document.getElementById('settingMenuLightMode');
-  if (mlm) {
-    mlm.checked = settings.menuLightMode;
-    mlm.onchange = (e) => {
-      settings.menuLightMode = e.target.checked;
-      localStorage.setItem('sandbox-settings', JSON.stringify(settings));
-      applyMenuLightMode(settings.menuLightMode);
-    };
-  }
-
-  const elm = document.getElementById('settingEditorLightMode');
-  if (elm) {
-    elm.checked = settings.editorLightMode;
-    elm.onchange = (e) => {
-      settings.editorLightMode = e.target.checked;
-      localStorage.setItem('sandbox-settings', JSON.stringify(settings));
-      applyEditorLightMode(settings.editorLightMode);
-    };
-  }
+  syncSettingToggles();
 
   const diagVariant = document.getElementById('diagVariant');
   if (diagVariant) {
@@ -2188,6 +2330,8 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (isVariantSwitchModalOpen()) {
       closeVariantSwitchModal();   // confirmation modal open -> dismiss just the modal
+    } else if (isGuideModalOpen()) {
+      closeGuideModal();           // guide modal open -> dismiss just the modal
     } else if (devBarVisible) {
       toggleDevBar();              // DevBar open -> close it
     } else {
@@ -2256,6 +2400,12 @@ async function init() {
   // Immediately render the graphic variation menu UI
   initMenu();
   wireSwitchPanel();
+  renderGuideSurfaces();
+
+  const guideOverlay = document.getElementById('guideOverlay');
+  if (guideOverlay) guideOverlay.addEventListener('click', (e) => {
+    if (e.target === guideOverlay) closeGuideModal();
+  });
 
   // Register Service Worker in the background
   registerControllerServiceWorker().catch(() => { });
@@ -2318,6 +2468,7 @@ window.findNext = findNext; window.findPrev = findPrev;
 window.replaceOne = replaceOne; window.replaceAll = replaceAll;
 window.startWithSelection = startWithSelection; window.selectVariant = selectVariant;
 window.openVariantSwitchModal = openVariantSwitchModal; window.closeVariantSwitchModal = closeVariantSwitchModal; window.confirmVariantSwitch = confirmVariantSwitch;
+window.openGuideModal = openGuideModal; window.closeGuideModal = closeGuideModal;
 window.inlineNewItem = inlineNewItem; window.setFileView = setFileView; window.eToggle = eToggle; window.renderFileList = renderFileList;
 window.saveEditorContent = saveEditorContent; window.triggerFileUpload = triggerFileUpload; window.triggerFolderUpload = triggerFolderUpload; window.handleFolderUpload = handleFolderUpload;
 

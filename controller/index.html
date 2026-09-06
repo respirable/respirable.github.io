@@ -1492,6 +1492,116 @@
       background: var(--edit-danger-bg);
     }
 
+    /* ── INFO BUTTON (selection topbar) ── */
+    .info-btn {
+      margin-left: auto;
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--edit-text-dimmed);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .info-btn:hover {
+      background: var(--edit-raised);
+      color: var(--edit-text-primary);
+    }
+
+    .info-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── GUIDE & PREFERENCES MODAL ── */
+    .guide-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9500;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px) saturate(180%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2vh 2vw;
+    }
+
+    .guide-overlay.active {
+      display: flex;
+    }
+
+    .guide-shell {
+      width: 1160px;
+      max-width: 95vw;
+      height: 680px;
+      max-height: 92vh;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 0.5px solid var(--edit-strong-border);
+      background: var(--edit-bg);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .guide-top-bar {
+      height: 44px;
+      flex-shrink: 0;
+      background: var(--edit-panel);
+      border-bottom: 0.5px solid var(--edit-border);
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+    }
+
+    .guide-top-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--edit-text-secondary);
+    }
+
+    .guide-close-btn {
+      margin-left: auto;
+      font-size: 11px;
+      padding: 4px 11px;
+      border-radius: 5px;
+      background: var(--edit-danger-bg);
+      color: var(--edit-danger);
+      border: 0.5px solid var(--edit-danger-border);
+      cursor: pointer;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      transition: background 0.2s;
+    }
+
+    .guide-close-btn:hover {
+      background: #3a1f1f;
+    }
+
+    .guide-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      background: var(--edit-bg);
+    }
+
+    .guide-body .info-content,
+    .guide-body .settings-content {
+      overflow: visible;
+    }
+
     /* ── SWITCH VARIANT PANEL ── */
     .vs-panel {
       display: flex;
@@ -3222,6 +3332,14 @@
           </svg>
         </a>
         <span class="topbar-title">Choose graphic variation</span>
+        <button class="info-btn" id="guideOpenBtn" onclick="openGuideModal()"
+          title="Guide &amp; preferences" aria-label="Guide and preferences">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9"></circle>
+            <line x1="12" y1="16" x2="12" y2="11"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </button>
       </div>
 
       <div class="content">
@@ -3506,122 +3624,18 @@
 
         <!-- Sandbox Guide Panel -->
         <div id="panel-info" class="edit-panel">
-          <div class="info-content">
-            <div class="info-hero">
-              <h3 class="info-title">WWTBAM HTML5 CONTROLLER ONLINE GUIDE</h3>
-              <p class="info-subtitle">This guide will teach you the basics of using the WWTBAM HTML5 sandbox. It’s
-                actually super straightforward if you’ve used it before. All you need to do is load up the website and
-                use the controller just like what you’d do with a local environment.</p>
-              <p class="info-subtitle" style="margin-top: 8px;">Available variations include a bit of Project Rave,
-                Project Olga (all variants except Olga V3), Project Hot Seat,
-                and Project Classic.</p>
-            </div>
-
-            <div class="info-grid-2">
-              <div class="info-card">
-                <h4>What if I don’t know how to use the controller in the first place?</h4>
-                <p>Well… sucks to suck, as GD Colon once said. There is a keystrokes tutorial in Kuby’s Project files.
-                  You should take a look at that file because I’m too lazy to cite them here.</p>
-              </div>
-              <div class="info-card">
-                <h4>How does this work?</h4>
-                <p>This website uses IndexedDB for storing the controller’s file and Monaco Editor for the editor
-                  interface. As for processing the files, there is a Service Worker just for that.</p>
-                <p style="margin-top: 6px;">The default controller is stored on a Cloudflare R2 “database” (or whatever
-                  you call that thing), and it goes into your memory the moment you load the controller. So… no server
-                  needed, and I can still host this thing on GitHub! All modifications you make to the sandbox are saved
-                  in your browser’s cache. If you need to reset everything, you can head to the settings menu.</p>
-              </div>
-            </div>
-
-            <div class="info-grid-2" style="margin-top: 14px;">
-              <div class="info-card">
-                <h4>What other special keybinds are used here that I should remember?</h4>
-                <p>The only two special keybinds you’ll ever need here are <span class="key-badge">Esc</span> and <span
-                    class="key-badge">Backspace</span>. The former brings up the file explorer &amp; editor, and the
-                  latter brings up a top bar that can get you back to the main page.</p>
-                <p style="margin-top: 6px;">Make sure that you don’t set any functions to use this key, as it will cause
-                  conflicts with the sandbox.</p>
-                <p style="margin-top: 6px;">Also, if you use UniKey or EVKey, remember to switch to the English
-                  keyboard, as using the Vietnamese keyboard will trigger the top bar every few key presses.</p>
-              </div>
-              <div class="info-card">
-                <h4>I need to use another graphics set!</h4>
-                <p>For now, you have to manually upload all your custom graphics to your controller.</p>
-                <p style="margin-top: 6px;"><strong>IMPORTANT:</strong> Before uploading the graphics, make sure your
-                  Images folder is highlighted. Otherwise, all your files will be at the main directory, and
-                  multi-select + in-explorer drag-and-drop have not been implemented yet.</p>
-                <p style="margin-top: 6px;">If enough people like the idea, I will upload all graphic variations of the
-                  controller to the database, as long as they don’t exceed 10 GB in size.</p>
-              </div>
-            </div>
-
-            <div class="info-warn" style="margin-top: 16px;">
-              <p>Also, please keep in mind that this is a work in progress, and any features you see here are subject to
-                change. Also there's like a million bugs that I'm not going to bother fix (or maybe I will but in like a
-                year or two).</p>
-            </div>
-
-            <div class="info-disc">
-              <p><strong>DISCLAIMER:</strong> The set of HTML5 controllers are based on and are modified versions of the
-                classic edition of "Who Wants to Be a Millionaire?". All rights go to their original owners. This
-                website is a non-commercial project created for educational and research purposes. I am not affiliated
-                with, sponsored by, or endorsed by Sony or any owner of the ‘Who Wants to Be a Millionaire?’ program.
-                All identifying elements of the original program used here fall within the scope of Fair Use and are not
-                intended for commercial competition.</p>
-            </div>
-          </div>
+          <!-- Filled from GUIDE_HTML in main.js so the guide has one source; the
+               Guide & preferences modal renders the same string. -->
+          <div class="info-content" id="infoPanelBody"></div>
         </div>
 
         <!-- Settings Panel -->
         <div id="panel-settings" class="edit-panel">
           <div class="settings-content">
             <div class="sg-label">General Preferences</div>
-            <div class="sg">
-              <div class="sg-row">
-                <div class="sg-row-left">
-                  <h4>Prompt before overwriting files</h4>
-                  <p>Show a conflict confirmation modal when uploading a file with a name that already exists in the
-                    destination folder.</p>
-                </div>
-                <div class="sg-row-right">
-                  <label class="ios-switch" for="settingConflictPrompt" title="Toggle prompt before overwrite">
-                    <input type="checkbox" id="settingConflictPrompt" checked>
-                    <span class="ios-switch-track">
-                      <span class="ios-switch-thumb"></span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div class="sg-row">
-                <div class="sg-row-left">
-                  <h4>Menu Light Mode</h4>
-                  <p>Switch the file manager, settings panel, and graphic selector to a light colour scheme.</p>
-                </div>
-                <div class="sg-row-right">
-                  <label class="ios-switch" for="settingMenuLightMode" title="Toggle Menu Light Mode">
-                    <input type="checkbox" id="settingMenuLightMode">
-                    <span class="ios-switch-track">
-                      <span class="ios-switch-thumb"></span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div class="sg-row">
-                <div class="sg-row-left">
-                  <h4>Editor Light Mode</h4>
-                  <p>Switch the Monaco code editor to a light theme with a white background and dark text.</p>
-                </div>
-                <div class="sg-row-right">
-                  <label class="ios-switch" for="settingEditorLightMode" title="Toggle Editor Light Mode">
-                    <input type="checkbox" id="settingEditorLightMode">
-                    <span class="ios-switch-track">
-                      <span class="ios-switch-thumb"></span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
+            <!-- Rows come from SETTING_TOGGLES in main.js; the Guide & preferences
+                 modal renders the same three from that one list. -->
+            <div class="sg" id="settingsToggleRows"></div>
 
 
             <div class="sg-label">Maintenance & Recovery</div>
@@ -3716,6 +3730,23 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ GUIDE & PREFERENCES MODAL ═══════════════════ -->
+  <div class="guide-overlay" id="guideOverlay">
+    <div class="guide-shell">
+      <div class="guide-top-bar">
+        <span class="guide-top-title">Guide &amp; preferences</span>
+        <button class="guide-close-btn" onclick="closeGuideModal()">Close (Esc)</button>
+      </div>
+      <div class="guide-body">
+        <div class="info-content" id="guideModalBody"></div>
+        <div class="settings-content" style="padding-top: 0;">
+          <div class="sg-label">General Preferences</div>
+          <div class="sg" id="guideToggleRows"></div>
+        </div>
       </div>
     </div>
   </div>
