@@ -1513,7 +1513,7 @@ const GUIDE_HTML = `
       actually super straightforward if you’ve used it before. All you need to do is load up the website and
       use the controller just like what you’d do with a local environment.</p>
     <p class="info-subtitle" style="margin-top: 8px;">Available variations include a bit of Project Rave,
-      Project Olga (all variants except Olga V3), Project Hot Seat,
+      Project Olga, Project Hot Seat,
       and Project Classic.</p>
   </div>
 
