@@ -10,6 +10,9 @@ let editorModel = null;
 let currentFilePath = null;
 let selectedPath = null;
 let selectedType = null; // 'file' or 'directory'
+/* Every selected row, path -> 'file' | 'directory'. selectedPath stays the anchor (the
+   first one picked) so the upload and new-item destinations behave exactly as before. */
+let selectedItems = new Map();
 let currentPath = '';
 let currentFile = null;
 let currentEditorFile = null;
@@ -539,7 +542,7 @@ async function renderFileList() {
     const folderPath = p.includes('/') ? p.substring(0, p.lastIndexOf('/')) : '/';
     const thumb = getGridThumbHtml(ext, name);
     gridHtml += `
-      <div class="file-card${selectedPath === p ? ' selected' : ''}" data-path="${p}" onclick="handleRowClick(event,'${p}',false)" title="${p}">
+      <div class="file-card${selectedItems.has(p) ? ' selected' : ''}" data-path="${p}" onclick="handleRowClick(event,'${p}',false)" title="${p}">
         <div class="file-thumb">${thumb}</div>
         <span class="file-card-name">${name}</span>
         <span class="file-card-path">${folderPath}</span>
@@ -548,6 +551,7 @@ async function renderFileList() {
   gridContainer.innerHTML = gridHtml;
 
   highlightSelectedRow();
+  updateSelectionActions();
 }
 
 function getGridThumbHtml(ext, name) {
@@ -614,14 +618,10 @@ function renderTreeRecursive(node, currentPath, depth = 0) {
       ? `<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2z"/><polyline points="8 14 12 10 16 14"/>`
       : `<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="9" y1="14" x2="15" y2="14"/>`;
     const chevronSvg = `<svg viewBox="0 0 24 24" class="chevron-icon"><polyline points="9 18 15 12 9 6"/></svg>`;
-    html += `<div class="file-row${isOpen ? ' open' : ''}${selectedPath === fullPath ? ' selected' : ''}" data-path="${fullPath}" data-type="folder" onclick="handleRowClick(event,'${fullPath}',true)" style="padding-left:${12 + pad}px">
+    html += `<div class="file-row${isOpen ? ' open' : ''}${selectedItems.has(fullPath) ? ' selected' : ''}" data-path="${fullPath}" data-type="folder" onclick="handleRowClick(event,'${fullPath}',true)" style="padding-left:${12 + pad}px">
       ${chevronSvg}
       <span class="node-icon" style="color:${isOpen ? 'var(--edit-accent)' : 'var(--edit-text-dimmed)'}"><svg viewBox="0 0 24 24">${folderSvg}</svg></span>
       <span class="file-name" title="${name}">${name}</span>
-      <span class="row-acts">
-        <button class="ra" onclick="event.stopPropagation();renameFolderWrapper('${fullPath}')" title="Rename"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="ra danger" onclick="event.stopPropagation();deleteFolderWrapper('${fullPath}')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-      </span>
     </div>`;
     if (isOpen) {
       const childFolders = Object.keys(node._folders[name]._folders);
@@ -644,15 +644,11 @@ function renderTreeRecursive(node, currentPath, depth = 0) {
       : `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>`;
     const bk = getBadgeClass(ext);
     const badgeText = ext ? ext.toUpperCase() : 'FILE';
-    html += `<div class="file-row${selectedPath === path ? ' selected' : ''}" data-path="${path}" data-type="file" onclick="handleRowClick(event,'${path}',false)" style="padding-left:${12 + pad}px">
+    html += `<div class="file-row${selectedItems.has(path) ? ' selected' : ''}" data-path="${path}" data-type="file" onclick="handleRowClick(event,'${path}',false)" style="padding-left:${12 + pad}px">
       <span class="chevron-spacer"></span>
       <span class="node-icon" style="color:var(--edit-text-ghost)"><svg viewBox="0 0 24 24">${iconPath}</svg></span>
       <span class="file-name" title="${name}">${name}</span>
       <span class="${bk}">${badgeText}</span>
-      <span class="row-acts">
-        <button class="ra" onclick="event.stopPropagation();renameFileWrapper('${path}')" title="Rename"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="ra danger" onclick="event.stopPropagation();deleteFileWrapper('${path}')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-      </span>
     </div>`;
   });
   return html;
@@ -660,24 +656,97 @@ function renderTreeRecursive(node, currentPath, depth = 0) {
 
 // ─── CLICK & DOUBLE CLICK ───
 function handleRowClick(e, path, isFolder) {
+  // Ctrl (Cmd on macOS) adds or removes one row without disturbing the rest, and never
+  // counts towards the double-click-to-open timer.
+  if (e && (e.ctrlKey || e.metaKey)) {
+    toggleFileSelection(path, isFolder);
+    lastClickTime = 0;
+    lastClickPath = null;
+    return;
+  }
+
   const now = Date.now();
   if (now - lastClickTime < 300 && lastClickPath === path) {
     if (isFolder) toggleFolder(path);
     else loadFile(path);
     lastClickTime = 0;
   } else {
-    selectedPath = path;
-    selectedType = isFolder ? 'directory' : 'file';
+    setFileSelection(path, isFolder);
     lastClickTime = now;
     lastClickPath = path;
     highlightSelectedRow();
+    updateSelectionActions();
   }
+}
+
+/** Replace the whole selection with one row. A plain click always does this. */
+function setFileSelection(path, isFolder) {
+  selectedItems = new Map([[path, isFolder ? 'directory' : 'file']]);
+  selectedPath = path;
+  selectedType = isFolder ? 'directory' : 'file';
+}
+
+function toggleFileSelection(path, isFolder) {
+  if (selectedItems.has(path)) {
+    selectedItems.delete(path);
+    if (selectedPath === path) promoteSelectionAnchor();
+  } else {
+    selectedItems.set(path, isFolder ? 'directory' : 'file');
+    if (!selectedPath) {
+      selectedPath = path;
+      selectedType = isFolder ? 'directory' : 'file';
+    }
+  }
+  highlightSelectedRow();
+  updateSelectionActions();
+}
+
+function clearFileSelection() {
+  selectedItems.clear();
+  selectedPath = null;
+  selectedType = null;
+  highlightSelectedRow();
+  updateSelectionActions();
+}
+
+/** The anchor was deselected, so hand the role to whatever now comes first. */
+function promoteSelectionAnchor() {
+  const next = orderedSelection()[0] || null;
+  selectedPath = next;
+  selectedType = next ? selectedItems.get(next) : null;
+}
+
+/** Selected paths in the order they appear on screen. Anything currently hidden inside a
+    collapsed folder keeps its place at the end. */
+function orderedSelection() {
+  const container = document.getElementById(currentFileView === 'list' ? 'fileList' : 'fileGrid');
+  if (!container) return [...selectedItems.keys()];
+  const onScreen = [...container.querySelectorAll('[data-path]')]
+    .map(el => el.getAttribute('data-path'))
+    .filter(p => selectedItems.has(p));
+  const seen = new Set(onScreen);
+  return onScreen.concat([...selectedItems.keys()].filter(p => !seen.has(p)));
 }
 
 function highlightSelectedRow() {
   document.querySelectorAll('.file-row, .file-card').forEach(el => {
-    el.classList.toggle('selected', el.getAttribute('data-path') === selectedPath);
+    el.classList.toggle('selected', selectedItems.has(el.getAttribute('data-path')));
   });
+}
+
+/** Enable or disable the toolbar's Rename and Delete buttons for the current selection. */
+function updateSelectionActions() {
+  const count = selectedItems.size;
+  const renameBtn = document.getElementById('btnRenameSel');
+  const deleteBtn = document.getElementById('btnDeleteSel');
+  if (renameBtn) {
+    renameBtn.disabled = count === 0;
+    renameBtn.title = count > 1 ? `Rename ${count} selected items` : 'Rename';
+  }
+  if (deleteBtn) {
+    deleteBtn.disabled = count === 0;
+    deleteBtn.title = count > 1 ? `Delete ${count} selected items` : 'Delete';
+  }
 }
 
 async function inlineNewItem(type) {
@@ -1099,6 +1168,207 @@ async function deleteFolderWrapper(prefix) {
     }
     renderFileList(); hardRefresh();
   }
+}
+
+// ─── TOOLBAR ACTIONS ON THE SELECTION ───
+
+/** Forget an open editor file that no longer exists at `path`. */
+function dropEditorFileIfGone(path) {
+  if (!currentFilePath) return;
+  if (currentFilePath !== path && !currentFilePath.startsWith(path + '/')) return;
+  currentFilePath = null;
+  if (editorModel) { editorModel.dispose(); editorModel = null; }
+  setDirty(false);
+  const editorContainer = document.getElementById('editorContainer');
+  const emptyState = document.getElementById('editorEmptyState');
+  if (editorContainer) editorContainer.style.display = 'none';
+  if (emptyState) {
+    emptyState.innerHTML = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--edit-text-ghost);"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg><p style="color: var(--edit-text-muted); font-size: 13px; margin: 0;">Select a file from My Files to start editing</p>`;
+    emptyState.style.display = 'flex';
+  }
+  const topBarTitle = document.getElementById('editorOpenFile');
+  if (topBarTitle) topBarTitle.textContent = 'No file selected';
+}
+
+async function deleteSelection() {
+  const items = orderedSelection();
+  if (items.length === 0) return;
+
+  const hasFolder = items.some(p => selectedItems.get(p) === 'directory');
+  const prompt = `Delete ${items.length} selected item(s)?` +
+    (hasFolder ? '\n\nFolders are deleted along with everything inside them.' : '');
+  if (!confirm(prompt)) return;
+
+  const allPaths = await getAllPaths();
+  for (const path of items) {
+    const affected = selectedItems.get(path) === 'directory'
+      ? allPaths.filter(p => p === path || p.startsWith(path + '/'))
+      : [path];
+    for (const p of affected) await deleteFile(p);
+    dropEditorFileIfGone(path);
+    expandedFolders.delete(path);
+  }
+
+  clearFileSelection();
+  await renderFileList();
+  hardRefresh();
+}
+
+/** Move one path, carrying a directory's whole subtree with it. */
+async function movePathTo(oldPath, newPath, isDir) {
+  if (oldPath === newPath) return;
+  const allPaths = await getAllPaths();
+  const affected = isDir
+    ? allPaths.filter(p => p === oldPath || p.startsWith(oldPath + '/'))
+    : allPaths.filter(p => p === oldPath);
+
+  for (const p of affected) {
+    const target = newPath + p.substring(oldPath.length);
+    const record = await getFile(p);
+    if (!record) continue;
+    await saveFile(target, record.blob, record.mimeType || getLoaderMimeType(target));
+    await deleteFile(p);
+    if (currentFilePath === p) {
+      currentFilePath = target;
+      const topBarTitle = document.getElementById('editorOpenFile');
+      if (topBarTitle) {
+        topBarTitle.textContent = target;
+        if (isEditorDirty) setDirty(true);
+      }
+    }
+  }
+
+  if (expandedFolders.has(oldPath)) {
+    expandedFolders.delete(oldPath);
+    expandedFolders.add(newPath);
+  }
+}
+
+/** Work out the new path for every selected item under a shared base name.
+    Numbering restarts in each directory, because a clash only means anything there. */
+async function planBatchRename(baseName) {
+  const items = orderedSelection();
+  const allPaths = await getAllPaths();
+  const dirOf = p => (p.includes('/') ? p.substring(0, p.lastIndexOf('/')) : '');
+  const nameOf = p => p.substring(p.lastIndexOf('/') + 1);
+
+  // Names already spoken for, ignoring the items about to be renamed.
+  const taken = new Map();
+  for (const p of allPaths) {
+    if (items.some(it => p === it || p.startsWith(it + '/'))) continue;
+    const dir = dirOf(p);
+    if (!taken.has(dir)) taken.set(dir, new Set());
+    taken.get(dir).add(nameOf(p).toLowerCase());
+  }
+
+  const nextIndex = new Map();
+  const plan = [];
+  for (const oldPath of items) {
+    const isDir = selectedItems.get(oldPath) === 'directory';
+    const dir = dirOf(oldPath);
+    const oldName = nameOf(oldPath);
+    const dot = oldName.lastIndexOf('.');
+    // Each file keeps its own extension; a leading dot is part of the name, not a suffix.
+    const ext = (!isDir && dot > 0) ? oldName.substring(dot) : '';
+
+    if (!taken.has(dir)) taken.set(dir, new Set());
+    let i = nextIndex.get(dir) || 0;
+    let candidate;
+    for (;;) {
+      candidate = (i === 0 ? baseName : `${baseName} (${i})`) + ext;
+      if (!taken.get(dir).has(candidate.toLowerCase())) break;
+      i++;
+    }
+    nextIndex.set(dir, i + 1);
+    taken.get(dir).add(candidate.toLowerCase());
+    plan.push({ oldPath, newPath: dir ? `${dir}/${candidate}` : candidate, isDir });
+  }
+  return plan;
+}
+
+async function applyBatchRename(baseName) {
+  const plan = await planBatchRename(baseName);
+  if (plan.length === 0) return;
+
+  // Two passes through throwaway names. A new name can be another selected item's current
+  // name, and renaming straight through would overwrite that item before it is read.
+  const stamp = `__renaming_${Date.now()}__`;
+  plan.forEach((entry, i) => {
+    const dir = entry.oldPath.includes('/')
+      ? entry.oldPath.substring(0, entry.oldPath.lastIndexOf('/') + 1)
+      : '';
+    entry.tmpPath = `${dir}${stamp}${i}`;
+  });
+
+  for (const entry of plan) await movePathTo(entry.oldPath, entry.tmpPath, entry.isDir);
+  for (const entry of plan) await movePathTo(entry.tmpPath, entry.newPath, entry.isDir);
+
+  selectedItems = new Map(plan.map(e => [e.newPath, e.isDir ? 'directory' : 'file']));
+  selectedPath = plan[0].newPath;
+  selectedType = plan[0].isDir ? 'directory' : 'file';
+
+  await renderFileList();
+  updateSelectionActions();
+  hardRefresh();
+  showNotification(`Renamed ${plan.length} item(s).`, false);
+}
+
+/** Toolbar Rename. One item behaves exactly as the old row button did; several share a
+    base name and get numbered. Either way the name is typed inline on the anchor row. */
+function renameSelection() {
+  if (selectedItems.size === 0) return;
+  if (selectedItems.size === 1) {
+    const only = orderedSelection()[0];
+    if (selectedItems.get(only) === 'directory') renameFolderWrapper(only);
+    else renameFileWrapper(only);
+    return;
+  }
+  beginBatchRenameInput();
+}
+
+function beginBatchRenameInput() {
+  const anchor = selectedPath;
+  const row = document.querySelector(`.file-row[data-path="${anchor}"], .file-card[data-path="${anchor}"]`);
+  if (!row) return;
+  const nameSpan = row.querySelector('.file-name, .file-card-name');
+  if (!nameSpan) return;
+
+  const count = selectedItems.size;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'inline-input';
+  input.placeholder = `New name for ${count} items`;
+  input.value = '';
+
+  nameSpan.replaceWith(input);
+  input.focus();
+
+  let committing = false;
+  const restore = () => { if (input.parentNode) input.replaceWith(nameSpan); };
+
+  const commit = async () => {
+    if (committing) return;
+    committing = true;
+    const raw = input.value.trim();
+    if (!raw) { restore(); return; }
+    const check = validateItemName(raw, false);
+    if (!check.valid) {
+      showNotification(check.error, false);
+      restore();
+      return;
+    }
+    restore();
+    await applyBatchRename(check.name);
+  };
+
+  input.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') commit();
+    if (e.key === 'Escape') { committing = true; restore(); }
+  });
+  input.addEventListener('blur', () => {
+    setTimeout(() => { if (!committing && document.body.contains(input)) commit(); }, 150);
+  });
 }
 
 async function deleteFileWrapper(path) {
@@ -1549,8 +1819,11 @@ const GUIDE_HTML = `
       <h4>I need to use another graphics set!</h4>
       <p>For now, you have to manually upload all your custom graphics to your controller.</p>
       <p style="margin-top: 6px;"><strong>IMPORTANT:</strong> Before uploading the graphics, make sure your
-        Images folder is highlighted. Otherwise, all your files will be at the main directory, and
-        multi-select + in-explorer drag-and-drop have not been implemented yet.</p>
+        Images folder is highlighted. Otherwise, all your files will end up in the main directory.</p>
+      <p style="margin-top: 6px;">You can <span class="key-badge">Ctrl</span> + click rows in My Files to pick
+        several at once, then use Rename or Delete in the toolbar. Renaming a batch gives them one shared name,
+        numbered “Name”, “Name (1)”, “Name (2)” and so on, each keeping its own file extension. In-explorer
+        drag-and-drop still has not been implemented.</p>
       <p style="margin-top: 6px;">If enough people like the idea, I will upload all graphic variations of the
         controller to the database, as long as they don’t exceed 10 GB in size.</p>
     </div>
@@ -2328,6 +2601,8 @@ document.addEventListener('keydown', (e) => {
   // Escape priority chain — first match wins, so a modal never closes the whole DevBar.
   if (e.key === 'Escape') {
     e.preventDefault();
+    // Escape also drops any file selection, alongside whatever else it does.
+    if (selectedItems.size > 0) clearFileSelection();
     if (isVariantSwitchModalOpen()) {
       closeVariantSwitchModal();   // confirmation modal open -> dismiss just the modal
     } else if (isGuideModalOpen()) {
@@ -2444,11 +2719,7 @@ async function init() {
 document.addEventListener('click', (e) => {
   const isInteractive = e.target.closest('.file-row, .file-card, .ra, .inline-input, .new-row, .panel-header-actions, .edit-top-bar, .rail-btn, .modal, .toast');
   if (!isInteractive && devBarVisible && activeTab === 'files') {
-    if (selectedPath !== null) {
-      selectedPath = null;
-      selectedType = null;
-      highlightSelectedRow();
-    }
+    if (selectedItems.size > 0) clearFileSelection();
   }
 });
 
@@ -2462,7 +2733,7 @@ window.toggleDevBar = toggleDevBar; window.switchTab = switchTab; window.handleF
 window.resetSandbox = resetSandbox; window.closeResetConfirmModal = closeResetConfirmModal; window.executeResetSandbox = executeResetSandbox; window.hardRefresh = hardRefresh; window.restoreDefaultQuestions = restoreDefaultQuestions;
 window.toggleFolder = toggleFolder; window.handleRowClick = handleRowClick; window.renameFileWrapper = renameFileWrapper;
 window.renameFolderWrapper = renameFolderWrapper; window.deleteFolderWrapper = deleteFolderWrapper; window.createNewFolder = () => inlineNewItem('folder'); window.createNewFile = () => inlineNewItem('file');
-window.deleteFileWrapper = deleteFileWrapper; window.editorAction = editorAction; window.toggleTopBar = toggleTopBar;
+window.deleteFileWrapper = deleteFileWrapper; window.renameSelection = renameSelection; window.deleteSelection = deleteSelection; window.editorAction = editorAction; window.toggleTopBar = toggleTopBar;
 window.toggleFindBar = toggleFindBar; window.openFind = openFind; window.openReplace = openReplace;
 window.findNext = findNext; window.findPrev = findPrev;
 window.replaceOne = replaceOne; window.replaceAll = replaceAll;
