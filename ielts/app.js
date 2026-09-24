@@ -4796,10 +4796,10 @@ async function formatWritingQuestion(text, provider, apiKey) {
   if (!text || !apiKey) return text;
 
   const endpoints = {
-    openrouter: { url: 'https://openrouter.ai/api/v1/chat/completions', model: 'google/gemini-2.0-flash:free' },
+    openrouter: { url: 'https://openrouter.ai/api/v1/chat/completions', model: 'google/gemini-3.6-flash' },
     groq: { url: 'https://api.groq.com/openai/v1/chat/completions', model: 'llama-3.3-70b-versatile' },
     openai: { url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini' },
-    gemini: { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, model: null }
+    gemini: { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, model: null }
   };
   const config = endpoints[provider];
   if (!config) return text;

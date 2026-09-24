@@ -1,0 +1,3353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LaTeX Converter | respirable</title>
+  <meta name="description"
+    content="A very noob-friendly way to create LaTeX texts...ish! Type an equation the way you would and read the raw LaTeX back, or paste LaTeX and get it back as text and image." />
+  <meta property="og:title" content="LaTeX Converter | respirable" />
+  <meta property="og:description" content="Visual LaTeX editor with live preview and export tools." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Theme — shares the site-wide "theme" key; set before first paint -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('theme'); } catch (e) { /* storage blocked */ }
+      if (t !== 'light' && t !== 'dark') {
+        t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
+  <!-- MathJax 3 — configured before load -->
+  <script>
+    window.MathJax = {
+      loader: { load: ['[tex]/mhchem'] },
+      tex: {
+        packages: { '[+]': ['ams', 'boldsymbol', 'mhchem'] },
+        macros: {
+          // Commands the MathLive visual field can emit that MathJax lacks
+          differentialD: '\\mathrm{d}',
+          exponentialE: '\\mathrm{e}',
+          imaginaryI: '\\mathrm{i}',
+          imaginaryJ: '\\mathrm{j}',
+          doubleprime: '\\prime\\prime',
+          mleft: '\\left',
+          mright: '\\right',
+          placeholder: ['{}', 1],
+          Q: '\\mathbb{Q}',
+          C: '\\mathbb{C}',
+          bm: ['\\boldsymbol{#1}', 1],
+          argmax: '\\operatorname{argmax}',
+          argmin: '\\operatorname{argmin}',
+          abs: ['\\left|#1\\right|', 1],
+          norm: ['\\left\\|#1\\right\\|', 1],
+          degree: '^{\\circ}',
+          coloneqq: '\\mathrel{:=}',
+          differential: ['\\mathrm{d}#1', 1],
+          dd: ['\\mathrm{d}#1', 1],
+          Re: '\\operatorname{Re}',
+          Im: '\\operatorname{Im}',
+          sgn: '\\operatorname{sgn}',
+          rank: '\\operatorname{rank}',
+          tr: '\\operatorname{tr}',
+          Var: '\\operatorname{Var}',
+          Cov: '\\operatorname{Cov}',
+          E: '\\mathbb{E}',
+          R: '\\mathbb{R}',
+          N: '\\mathbb{N}',
+          Z: '\\mathbb{Z}'
+        },
+        formatError: function (jax, err) { throw err; }
+      },
+      svg: { fontCache: 'local', scale: 1, exFactor: 0.5 },
+      options: { enableMenu: false },
+      startup: { typeset: false }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" id="mjSrc"></script>
+  <!-- MathLive — the visual editor (matrices, environments, mhchem) -->
+  <script src="https://cdn.jsdelivr.net/npm/mathlive@0.110.0/mathlive.min.js"></script>
+
+  <style>
+    /* ── LATEX CONVERTER · respirable ─────────────────────────────── */
+    :root {
+      --bg: #0e0f11;
+      --panel: #141517;
+      --hover: #1a1c20;
+      --raised: #1e2026;
+      --accent: #4a8fd6;
+      --accent-bg: #1d2a3d;
+      --accent-border: #263347;
+      --strong-border: #2a2c31;
+      --border: #23252a;
+      --inner-border: #1e2026;
+
+      --t-primary: #e2e4e9;
+      --t-secondary: #b0b6c0;
+      --t-muted: #9aa0ab;
+      --t-dimmed: #7c8490;
+      --t-faint: #555a63;
+      --t-ghost: #484d57;
+      --t-lnum: #2e3138;
+
+      --danger: #c46060;
+      --danger-bg: #2d1a1a;
+      --danger-border: #3d2020;
+      --ok: #5aab5a;
+
+      --field-bg: #111214;
+      --src-bg: #101113;
+      --sel-bg: #26405c;
+      --sel-fg: #fff;
+      --accent-hover: #24344a;
+      --scroll: #26282e;
+      --scroll-hover: #33363d;
+      --skel-a: #17191c;
+      --skel-b: #1e2126;
+      --shadow: rgba(0, 0, 0, 0.55);
+      --shadow-strong: rgba(0, 0, 0, 0.85);
+      --overlay: rgba(0, 0, 0, 0.78);
+      --inset: rgba(255, 255, 255, 0.03);
+      --glow: rgba(74, 143, 214, 0.05);
+      color-scheme: dark;
+
+      --ui: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --shell: min(1080px, 66vw);
+      --gutter: max(16px, calc((100vw - var(--shell)) / 2));
+    }
+
+    :root[data-theme="light"] {
+      --bg: #f4f5f7;
+      --panel: #ffffff;
+      --hover: #eef0f3;
+      --raised: #e8ebef;
+      --accent: #2a6fbd;
+      --accent-bg: #e3eefa;
+      --accent-border: #b9d2ee;
+      --strong-border: #cfd4db;
+      --border: #dde1e6;
+      --inner-border: #e8ebef;
+
+      --t-primary: #16181b;
+      --t-secondary: #33373e;
+      --t-muted: #4f5561;
+      --t-dimmed: #5f6673;
+      --t-faint: #7a818c;
+      --t-ghost: #858b96;
+      --t-lnum: #9aa0aa;
+
+      --danger: #b53b3b;
+      --danger-bg: #fbeaea;
+      --danger-border: #efc6c6;
+      --ok: #2f8a3a;
+
+      --field-bg: #ffffff;
+      --src-bg: #fbfbfc;
+      --sel-bg: #bcd6f3;
+      --sel-fg: #0b1a2c;
+      --accent-hover: #d4e5f8;
+      --scroll: #cdd1d7;
+      --scroll-hover: #b3b8c0;
+      --skel-a: #e9ecef;
+      --skel-b: #f5f6f8;
+      --shadow: rgba(20, 30, 45, 0.14);
+      --shadow-strong: rgba(20, 30, 45, 0.22);
+      --overlay: rgba(40, 46, 56, 0.38);
+      --inset: rgba(255, 255, 255, 0.6);
+      --glow: rgba(42, 111, 189, 0.06);
+      color-scheme: light;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--t-primary);
+      font-family: var(--ui);
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body,
+    input,
+    button,
+    select,
+    textarea {
+      font-family: var(--ui);
+    }
+
+    ::selection {
+      background: var(--sel-bg);
+      color: var(--sel-fg);
+    }
+
+    ::-webkit-scrollbar {
+      width: 9px;
+      height: 9px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--scroll);
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--scroll-hover);
+      background-clip: content-box;
+    }
+
+    :focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    /* ── Shell ─────────────────────────────────────────────────────── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      height: 44px;
+      flex: none;
+      background: var(--panel);
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 var(--gutter);
+      gap: 10px;
+      z-index: 30;
+    }
+
+    .page {
+      width: var(--shell);
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-left: 0.5px solid var(--border);
+      border-right: 0.5px solid var(--border);
+      min-width: 0;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--t-dimmed);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 7px;
+      flex: none;
+      border: 0.5px solid transparent;
+      transition: color 0.18s var(--ease), background 0.18s var(--ease), border-color 0.18s var(--ease);
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-color: var(--accent-border);
+    }
+
+    .back-link svg {
+      width: 14px;
+      height: 14px;
+      flex: none;
+    }
+
+    .rail-sep-v {
+      width: 0.5px;
+      height: 20px;
+      background: var(--border);
+      flex: none;
+    }
+
+    .brand-text {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .brand-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t-primary);
+      letter-spacing: -0.1px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--t-ghost);
+    }
+
+    .topbar-spacer {
+      flex: 1;
+    }
+
+    :root[data-theme="light"] #btnTheme .ico-sun,
+    :root:not([data-theme="light"]) #btnTheme .ico-moon {
+      display: none;
+    }
+
+    .seg {
+      display: flex;
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .seg button {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      color: var(--t-dimmed);
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .seg button:hover {
+      background: var(--hover);
+      color: var(--t-secondary);
+    }
+
+    .seg button.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .seg button:active {
+      transform: translateY(1px);
+    }
+
+    /* ── Icon rail ─────────────────────────────────────────────────── */
+    .rail {
+      flex: none;
+      background: var(--panel);
+      border-bottom: 0.5px solid var(--border);
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      position: sticky;
+      top: 44px;
+      z-index: 20;
+    }
+
+    .rail-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--t-ghost);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s var(--ease);
+      position: relative;
+    }
+
+    .rail-btn svg {
+      width: 19px;
+      height: 19px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .rail-btn:hover {
+      background: var(--raised);
+      color: var(--t-muted);
+    }
+
+    .rail-btn:active {
+      transform: scale(0.94);
+    }
+
+    .rail-btn.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .rail-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      width: 16px;
+      height: 2px;
+      margin-left: -8px;
+      border-radius: 2px 2px 0 0;
+      background: var(--accent);
+    }
+
+    .rail-sep {
+      width: 0.5px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 5px;
+    }
+
+    .rail-spacer {
+      margin-left: auto;
+    }
+
+    .tip {
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 7px);
+      padding: 4px 9px;
+      background: var(--raised);
+      border: 0.5px solid var(--strong-border);
+      border-radius: 5px;
+      font-size: 11px;
+      color: var(--t-secondary);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -3px);
+      transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+      box-shadow: 0 8px 24px var(--shadow);
+      z-index: 60;
+    }
+
+    .rail-btn:hover .tip {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* ── Workspace ─────────────────────────────────────────────────── */
+    .stack {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    #colVisual {
+      height: auto;
+      min-height: 208px;
+      flex: none;
+    }
+
+    #colSrc {
+      height: 168px;
+      flex: none;
+    }
+
+    #colPrev {
+      flex: 1;
+      min-height: 296px;
+    }
+
+    .splitter {
+      height: 5px;
+      flex: none;
+      background: var(--border);
+      cursor: row-resize;
+      position: relative;
+      transition: background 0.2s var(--ease);
+    }
+
+    .splitter::after {
+      content: '';
+      position: absolute;
+      inset: -4px 0;
+    }
+
+    .splitter:hover,
+    .splitter.dragging {
+      background: var(--accent);
+    }
+
+    .pane {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .pane-head {
+      height: 34px;
+      flex: none;
+      padding: 0 8px 0 12px;
+      background: var(--panel);
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pane-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.55px;
+      text-transform: uppercase;
+      color: var(--t-dimmed);
+      white-space: nowrap;
+    }
+
+    .pane-note {
+      font-size: 11px;
+      color: var(--t-ghost);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pane-acts {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .ib {
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      border: none;
+      background: transparent;
+      color: var(--t-dimmed);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s var(--ease);
+    }
+
+    .ib svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ib:hover {
+      background: var(--raised);
+      color: var(--t-secondary);
+    }
+
+    .ib:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .ib:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .ib.danger:hover:not(:disabled) {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .ib.on {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .tb {
+      font-size: 11px;
+      padding: 3px 8px;
+      height: 22px;
+      border-radius: 4px;
+      border: 0.5px solid var(--strong-border);
+      background: transparent;
+      color: var(--t-dimmed);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.18s var(--ease);
+      white-space: nowrap;
+    }
+
+    .tb svg {
+      width: 13px;
+      height: 13px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tb:hover:not(:disabled) {
+      background: var(--hover);
+      color: var(--t-secondary);
+    }
+
+    .tb:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .tb:disabled {
+      opacity: 0.32;
+      cursor: not-allowed;
+    }
+
+    .tb.accent {
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-color: var(--accent-border);
+    }
+
+    .tb.accent:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .v-sep {
+      width: 0.5px;
+      height: 15px;
+      background: var(--strong-border);
+      margin: 0 4px;
+    }
+
+    /* ── Visual field ──────────────────────────────────────────────── */
+    .field-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+      background: radial-gradient(circle at 18% 0%, var(--glow), transparent 55%), var(--bg);
+    }
+
+    .field-shell {
+      width: 100%;
+      min-height: 104px;
+      flex: none;
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--field-bg);
+      box-shadow: inset 0 1px 0 var(--inset);
+      padding: 18px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+      cursor: text;
+    }
+
+    .field-shell.focus {
+      border-color: var(--accent-border);
+      box-shadow: inset 0 1px 0 var(--inset), 0 0 0 1px var(--accent-border);
+    }
+
+    .field-shell.locked {
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    /* MathLive visual field — one <math-field>, which holds matrices,
+       cases, aligned rows and mhchem natively (no fake row stacking). */
+    #mf {
+      display: block;
+      width: 100%;
+      font-size: 27px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--t-primary);
+      --caret-color: var(--accent);
+      --selection-background-color: var(--sel-bg);
+      --selection-color: var(--sel-fg);
+      --contains-highlight-background-color: var(--hover);
+      --placeholder-color: var(--t-faint);
+      --placeholder-opacity: 0.8;
+      --smart-fence-color: var(--t-dimmed);
+      --primary: var(--accent);
+      --text-font-family: var(--ui);
+    }
+
+    #mf:focus-within {
+      outline: none;
+    }
+
+    #mf::part(content) {
+      justify-content: center;
+    }
+
+    #mf::part(menu-toggle),
+    #mf::part(virtual-keyboard-toggle) {
+      display: none;
+    }
+
+    .field-shell.nomf #mf {
+      display: none;
+    }
+
+    .field-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 13px;
+      padding: 0 8px;
+      text-align: center;
+      flex: none;
+      animation: fade 0.35s var(--ease) both;
+    }
+
+    .field-empty.gone {
+      display: none;
+    }
+
+    .field-empty p {
+      margin: 0;
+      font-size: 11.5px;
+      color: var(--t-ghost);
+      max-width: 44ch;
+      line-height: 1.6;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      pointer-events: auto;
+      max-width: 430px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 0.5px solid var(--border);
+      background: var(--panel);
+      color: var(--t-dimmed);
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      animation: rise 0.45s var(--ease) both;
+      animation-delay: calc(var(--i) * 45ms);
+    }
+
+    .chip:hover {
+      border-color: var(--accent-border);
+      color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .chip:active {
+      transform: translateY(1px);
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ── Drawer ────────────────────────────────────────────────────── */
+    .drawer {
+      flex: none;
+      height: 214px;
+      border-top: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .drawer.collapsed {
+      display: none;
+    }
+
+    .drawer-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .dpanel {
+      display: none;
+      animation: fade 0.28s var(--ease) both;
+    }
+
+    .dpanel.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .cat-bar {
+      display: flex;
+      gap: 2px;
+      padding: 6px 8px;
+      overflow-x: auto;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--panel);
+      flex: none;
+      scrollbar-width: none;
+    }
+
+    .cat-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 4px;
+      border: 0.5px solid transparent;
+      background: transparent;
+      color: var(--t-faint);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s var(--ease);
+    }
+
+    .cat:hover {
+      background: var(--hover);
+      color: var(--t-secondary);
+    }
+
+    .cat.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-color: var(--accent-border);
+    }
+
+    .sym-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+      gap: 3px;
+      padding: 8px;
+    }
+
+    .sym {
+      height: 38px;
+      border-radius: 6px;
+      border: 0.5px solid var(--border);
+      background: var(--panel);
+      color: var(--t-secondary);
+      font-size: 16px;
+      font-family: Symbola, 'Segoe UI Symbol', serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s var(--ease);
+      position: relative;
+      animation: fade 0.3s var(--ease) both;
+      animation-delay: calc(var(--i) * 8ms);
+    }
+
+    .sym:hover {
+      background: var(--accent-bg);
+      border-color: var(--accent-border);
+      color: var(--accent);
+      z-index: 5;
+    }
+
+    .sym:active {
+      transform: scale(0.93);
+    }
+
+    .sym.sm {
+      font-size: 12px;
+      font-family: var(--ui);
+    }
+
+    .sym .tip {
+      left: 50%;
+      top: -30px;
+      transform: translate(-50%, -3px);
+    }
+
+    .sym:hover .tip {
+      transform: translate(-50%, 0);
+    }
+
+    .hrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 0.5px solid var(--inner-border);
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: background 0.15s var(--ease);
+    }
+
+    .hrow:hover {
+      background: var(--hover);
+      border-left-color: var(--strong-border);
+    }
+
+    .hrow-tex {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--t-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hrow-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--t-lnum);
+      flex: none;
+    }
+
+    .hrow .ib {
+      opacity: 0;
+    }
+
+    .hrow:hover .ib {
+      opacity: 1;
+    }
+
+    .ref-search {
+      padding: 8px;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--panel);
+      flex: none;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg);
+      border: 0.5px solid var(--strong-border);
+      border-radius: 6px;
+      padding: 0 9px;
+      height: 28px;
+      transition: border-color 0.2s var(--ease);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent-border);
+    }
+
+    .search-box svg {
+      width: 13px;
+      height: 13px;
+      flex: none;
+      fill: none;
+      stroke: var(--t-ghost);
+      stroke-width: 1.8;
+      stroke-linecap: round;
+    }
+
+    .search-box input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--t-primary);
+      font-size: 12px;
+      min-width: 0;
+    }
+
+    .search-box input::placeholder {
+      color: var(--t-ghost);
+    }
+
+    .ref-group {
+      font-size: 10px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--t-lnum);
+      padding: 10px 12px 5px;
+      font-weight: 600;
+    }
+
+    .ref-row {
+      display: grid;
+      grid-template-columns: 30px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 12px;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: background 0.14s var(--ease);
+    }
+
+    .ref-row:hover {
+      background: var(--hover);
+      border-left-color: var(--accent);
+    }
+
+    .ref-gl {
+      font-family: Symbola, 'Segoe UI Symbol', serif;
+      font-size: 15px;
+      color: var(--t-secondary);
+      text-align: center;
+    }
+
+    .ref-cmd {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--accent);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ref-desc {
+      font-size: 10.5px;
+      color: var(--t-ghost);
+      white-space: nowrap;
+    }
+
+    .sg-label {
+      font-size: 10px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--t-lnum);
+      padding: 12px 12px 6px;
+      font-weight: 600;
+    }
+
+    .sg-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-top: 0.5px solid var(--inner-border);
+    }
+
+    .sg-row-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sg-row-left h4 {
+      margin: 0 0 2px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--t-secondary);
+    }
+
+    .sg-row-left p {
+      margin: 0;
+      font-size: 10.5px;
+      color: var(--t-ghost);
+      line-height: 1.4;
+    }
+
+    .ios-switch {
+      position: relative;
+      display: inline-flex;
+      flex: none;
+      cursor: pointer;
+    }
+
+    .ios-switch input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .ios-switch-track {
+      width: 38px;
+      height: 22px;
+      border-radius: 11px;
+      background: var(--raised);
+      border: 0.5px solid var(--strong-border);
+      transition: all 0.25s var(--ease);
+      display: flex;
+      align-items: center;
+      padding: 2px;
+    }
+
+    .ios-switch-thumb {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--t-faint);
+      transition: all 0.25s var(--ease);
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+
+    .ios-switch input:checked+.ios-switch-track {
+      background: var(--accent-bg);
+      border-color: var(--accent-border);
+    }
+
+    .ios-switch input:checked+.ios-switch-track .ios-switch-thumb {
+      transform: translateX(16px);
+      background: var(--accent);
+    }
+
+    .num-input,
+    .sel-input {
+      background: var(--bg);
+      border: 0.5px solid var(--strong-border);
+      border-radius: 5px;
+      color: var(--t-secondary);
+      font-size: 11.5px;
+      padding: 4px 8px;
+      font-family: var(--mono);
+      outline: none;
+      transition: border-color 0.2s var(--ease);
+      flex: none;
+    }
+
+    .num-input {
+      width: 62px;
+    }
+
+    .sel-input {
+      font-family: var(--ui);
+      min-width: 112px;
+      cursor: pointer;
+    }
+
+    .num-input:focus,
+    .sel-input:focus {
+      border-color: var(--accent-border);
+    }
+
+    /* ── LaTeX source ──────────────────────────────────────────────── */
+    .src-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      position: relative;
+      background: var(--src-bg);
+    }
+
+    .gutter {
+      flex: none;
+      width: 34px;
+      padding: 12px 0;
+      text-align: right;
+      border-right: 0.5px solid var(--inner-border);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.75;
+      color: var(--t-lnum);
+      user-select: none;
+      overflow: hidden;
+    }
+
+    .gutter div {
+      padding-right: 8px;
+    }
+
+    #srcArea {
+      flex: 1;
+      min-width: 0;
+      resize: none;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--t-primary);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.75;
+      padding: 12px 14px;
+      tab-size: 2;
+      caret-color: var(--accent);
+    }
+
+    #srcArea::placeholder {
+      color: var(--t-lnum);
+    }
+
+    .src-status {
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-top: 0.5px solid var(--border);
+      font-size: 11px;
+      background: var(--panel);
+      min-height: 29px;
+    }
+
+    .src-status.err {
+      background: var(--danger-bg);
+      border-top-color: var(--danger-border);
+    }
+
+    .src-status svg {
+      width: 13px;
+      height: 13px;
+      flex: none;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .src-status .msg {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .src-status.ok-state {
+      color: var(--t-ghost);
+    }
+
+    .src-status.err {
+      color: var(--danger);
+    }
+
+    /* ── Preview ───────────────────────────────────────────────────── */
+    .prev-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px 20px;
+      position: relative;
+      transition: background 0.3s var(--ease);
+    }
+
+    .prev-wrap[data-bg="dark"] {
+      background: #101113;
+    }
+
+    .prev-wrap[data-bg="light"] {
+      background: #f4f5f7;
+    }
+
+    .prev-wrap[data-bg="grid"] {
+      background-color: #101113;
+      background-image: linear-gradient(45deg, #17191c 25%, transparent 25%), linear-gradient(-45deg, #17191c 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #17191c 75%), linear-gradient(-45deg, transparent 75%, #17191c 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    }
+
+    #prevOut {
+      transition: font-size 0.18s var(--ease);
+      line-height: 0;
+    }
+
+    #prevOut mjx-container {
+      overflow: visible !important;
+    }
+
+    #prevOut mjx-container[display] {
+      margin: 0 !important;
+    }
+
+    .prev-empty,
+    .prev-skel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--t-ghost);
+      text-align: center;
+    }
+
+    .prev-empty svg {
+      width: 34px;
+      height: 34px;
+      fill: none;
+      stroke: var(--t-lnum);
+      stroke-width: 1.3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .prev-empty p {
+      margin: 0;
+      font-size: 11.5px;
+      max-width: 34ch;
+      line-height: 1.55;
+    }
+
+    .skel {
+      border-radius: 5px;
+      background: linear-gradient(90deg, var(--skel-a) 25%, var(--skel-b) 50%, var(--skel-a) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s linear infinite;
+    }
+
+    @keyframes shimmer {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    .export-bar {
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-top: 0.5px solid var(--border);
+      background: var(--panel);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .export-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .zoom-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: auto;
+      flex: none;
+    }
+
+    .zoom-val {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--t-faint);
+      width: 34px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 78px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--strong-border);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--t-dimmed);
+      transition: background 0.18s var(--ease);
+    }
+
+    input[type="range"]:hover::-webkit-slider-thumb {
+      background: var(--accent);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 11px;
+      height: 11px;
+      border: none;
+      border-radius: 50%;
+      background: var(--t-dimmed);
+    }
+
+    /* ── Toast ─────────────────────────────────────────────────────── */
+    .toasts {
+      position: fixed;
+      right: 14px;
+      bottom: 34px;
+      z-index: 900;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 7px;
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--raised);
+      border: 0.5px solid var(--strong-border);
+      box-shadow: 0 14px 34px var(--shadow), inset 0 1px 0 var(--inset);
+      border-radius: 7px;
+      padding: 8px 13px;
+      font-size: 11.5px;
+      color: var(--t-secondary);
+      animation: toastIn 0.32s var(--ease) both;
+    }
+
+    .toast svg {
+      width: 14px;
+      height: 14px;
+      flex: none;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .toast.good {
+      color: var(--ok);
+    }
+
+    .toast.bad {
+      color: var(--danger);
+      border-color: var(--danger-border);
+    }
+
+    .toast.out {
+      animation: toastOut 0.24s var(--ease) both;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(14px) scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+    }
+
+    /* ── Modal ─────────────────────────────────────────────────────── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      backdrop-filter: blur(9px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 800;
+      padding: 22px;
+    }
+
+    .overlay.active {
+      display: flex;
+      animation: fade 0.24s var(--ease) both;
+    }
+
+    .modal {
+      background: var(--panel);
+      border: 0.5px solid var(--strong-border);
+      border-radius: 14px;
+      max-width: 540px;
+      width: 100%;
+      box-shadow: 0 32px 80px var(--shadow-strong), inset 0 1px 0 var(--inset);
+      max-height: 84dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: pop 0.3s var(--ease) both;
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 0.5px solid var(--border);
+      flex: none;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t-primary);
+    }
+
+    .modal-body {
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-body p {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--t-muted);
+      line-height: 1.65;
+      max-width: 62ch;
+    }
+
+    .modal-body h4 {
+      margin: 18px 0 8px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--t-lnum);
+    }
+
+    .kb-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+      font-size: 11.5px;
+      color: var(--t-muted);
+    }
+
+    .kb {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--raised);
+      border: 0.5px solid var(--strong-border);
+      color: var(--t-secondary);
+      flex: none;
+      min-width: 74px;
+      text-align: center;
+    }
+
+    /* ── Mobile ────────────────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      :root {
+        --shell: 100%;
+        --gutter: 12px;
+      }
+
+      .page {
+        border-left: none;
+        border-right: none;
+      }
+    }
+
+    @media (max-width: 900px) {
+
+      .brand-sub,
+      .seg {
+        display: none;
+      }
+
+      .topbar {
+        gap: 8px;
+      }
+
+      .pane-note {
+        display: none;
+      }
+
+      .rail {
+        padding: 4px 6px;
+        gap: 2px;
+      }
+
+      #colVisual {
+        min-height: 190px;
+      }
+
+      #colSrc {
+        height: 150px;
+      }
+
+      #colPrev {
+        min-height: 250px;
+      }
+
+      .field-wrap {
+        padding: 14px 12px;
+        gap: 12px;
+      }
+
+      .field-shell {
+        min-height: 70px;
+        padding: 12px;
+      }
+
+      #mf {
+        font-size: 21px;
+      }
+
+      .prev-wrap {
+        padding: 16px 12px;
+      }
+
+      .drawer {
+        height: 210px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    /* Help dialog: larger reading size */
+    .modal {
+      max-width: 620px;
+    }
+
+    .modal-head h2 {
+      font-size: 15px;
+    }
+
+    .modal-body {
+      padding: 18px 20px 22px;
+    }
+
+    .modal-body p {
+      font-size: 13.5px;
+      max-width: 66ch;
+    }
+
+    .modal-body h4 {
+      margin: 20px 0 8px;
+      font-size: 11.5px;
+    }
+
+    .kb-row {
+      font-size: 13px;
+    }
+
+    .modal-body .kb {
+      font-size: 11.5px;
+    }
+
+    .kb.k {
+      min-width: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    // Must be set before the first <math-field> mounts. Auto-detection
+    // resolves against the script's own URL and 404s from a CDN file.
+    if (window.MathfieldElement) {
+      MathfieldElement.fontsDirectory = 'https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/';
+      MathfieldElement.soundsDirectory = null;
+    }
+  </script>
+  <div class="app">
+    <!-- ── Top bar ── -->
+    <header class="topbar">
+      <a href="/" class="back-link" id="back-home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        respirable
+      </a>
+      <div class="rail-sep-v"></div>
+      <div class="brand-text">
+        <span class="brand-name">LaTeX Converter</span>
+      </div>
+
+      <div class="topbar-spacer"></div>
+
+      <div class="seg" id="modeSeg" role="group" aria-label="Math mode">
+        <button data-mode="inline" type="button">Inline</button>
+        <button data-mode="display" class="active" type="button">Display</button>
+      </div>
+
+      <button class="ib" id="btnTheme" type="button" title="Switch light / dark theme"
+        aria-label="Switch light / dark theme">
+        <svg class="ico-sun" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
+        </svg>
+        <svg class="ico-moon" viewBox="0 0 24 24">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5" />
+        </svg>
+      </button>
+
+      <button class="ib" id="btnHelp" title="Shortcuts and notes" aria-label="Shortcuts and notes">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9.6 9.4a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.8-.9 1.4v.4" />
+          <path d="M12 17h.01" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="page">
+      <!-- ── Toolbar rail ── -->
+      <nav class="rail" id="rail">
+        <button class="rail-btn active" data-drawer="symbols" type="button" aria-label="Symbols">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 5h14L12 12l7 7H5" />
+          </svg>
+          <span class="tip">Symbols</span>
+        </button>
+        <button class="rail-btn" data-drawer="reference" type="button" aria-label="Command reference">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+            <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5" />
+            <path d="M9 7.5h6M9 11h4" />
+          </svg>
+          <span class="tip">Reference</span>
+        </button>
+        <button class="rail-btn" data-drawer="history" type="button" aria-label="History">
+          <svg viewBox="0 0 24 24">
+            <path d="M3.2 12a8.8 8.8 0 1 0 2.6-6.2" />
+            <path d="M3 4v4h4" />
+            <path d="M12 8v4.4l3 1.8" />
+          </svg>
+          <span class="tip">History</span>
+        </button>
+        <div class="rail-sep"></div>
+        <button class="rail-btn" data-drawer="settings" type="button" aria-label="Settings">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 14.6a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z" />
+          </svg>
+          <span class="tip">Settings</span>
+        </button>
+        <div class="rail-spacer"></div>
+        <button class="rail-btn" id="btnCollapse" type="button" aria-label="Collapse drawer">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 9h16M4 15h16" />
+          </svg>
+          <span class="tip">Collapse drawer</span>
+        </button>
+      </nav>
+
+      <!-- ── Workspace ── -->
+      <div class="stack" id="workspace">
+        <section class="col" id="colVisual">
+          <div class="pane" style="flex:1; min-height:0;">
+            <div class="pane-head">
+              <span class="pane-title">Visual input</span>
+              <span class="pane-note" id="fieldHint">click and type — / for fractions, ^ for powers, Enter for a new
+                line</span>
+              <div class="pane-acts">
+                <button class="tb" id="btnText" type="button"
+                  title="Insert upright text — A-Z without italics">Abc</button>
+                <button class="tb" id="btnNewLine" type="button"
+                  title="New line — or a new row inside a matrix, cases or aligned block (Enter)">↵ Row</button>
+                <button class="tb" id="btnNewCol" type="button" title="New column inside a matrix or aligned block">⇥
+                  Col</button>
+                <div class="v-sep"></div>
+                <button class="ib" id="btnUndo" title="Undo last insert" aria-label="Undo last insert" disabled>
+                  <svg viewBox="0 0 24 24">
+                    <path d="M9 14 4 9l5-5" />
+                    <path d="M4 9h10a6 6 0 0 1 0 12h-3" />
+                  </svg>
+                </button>
+                <button class="ib danger" id="btnClear" title="Clear equation" aria-label="Clear equation" disabled>
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 7h16" />
+                    <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" />
+                    <path d="M6.5 7l.8 12.1A1.5 1.5 0 0 0 8.8 20.5h6.4a1.5 1.5 0 0 0 1.5-1.4L17.5 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="field-wrap" id="fieldWrap">
+              <div class="field-shell" id="fieldShell"><math-field id="mf"
+                  aria-label="Visual equation editor"></math-field></div>
+              <div class="field-empty" id="fieldEmpty">
+                <p>Type <code style="font-family:var(--mono);color:var(--t-faint)">x^2</code>, <code
+                    style="font-family:var(--mono);color:var(--t-faint)">1/2</code> or <code
+                    style="font-family:var(--mono);color:var(--t-faint)">\sqrt</code> and the boxes build themselves —
+                  or start from one of these.</p>
+                <div class="chips" id="templateChips"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="drawer" id="drawer">
+          <div class="pane-head">
+            <span class="pane-title" id="drawerTitle">Symbols</span>
+            <div class="pane-acts" id="drawerActs"></div>
+          </div>
+          <div class="drawer-body">
+            <div class="dpanel active" id="panel-symbols">
+              <div class="cat-bar" id="catBar"></div>
+              <div class="sym-grid" id="symGrid"></div>
+            </div>
+            <div class="dpanel" id="panel-reference">
+              <div class="ref-search">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.6-3.6" />
+                  </svg>
+                  <input id="refSearch" type="text" placeholder="Search commands — integral, matrix, hat…"
+                    spellcheck="false">
+                </div>
+              </div>
+              <div id="refList"></div>
+            </div>
+            <div class="dpanel" id="panel-history">
+              <div id="histList"></div>
+            </div>
+            <div class="dpanel" id="panel-settings">
+              <div id="setList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="splitter" id="splitA" role="separator" aria-orientation="horizontal"></div>
+
+        <section class="col" id="colSrc">
+          <div class="pane" id="srcPane" style="flex:1; min-height:0;">
+            <div class="pane-head">
+              <span class="pane-title">Raw LaTeX</span>
+              <span class="pane-note" id="srcNote">editable — changes flow back to the visual field</span>
+              <div class="pane-acts">
+                <select class="sel-input" id="wrapSel" title="Delimiters used when copying"
+                  style="height:22px;padding:0 6px;font-size:11px;min-width:auto">
+                  <option value="none">no delimiters</option>
+                  <option value="dollar">$ … $</option>
+                  <option value="ddollar" selected>$$ … $$</option>
+                  <option value="paren">\( … \)</option>
+                  <option value="bracket">\[ … \]</option>
+                  <option value="equation">equation env</option>
+                </select>
+                <div class="v-sep"></div>
+                <button class="tb" id="btnCopyTex" type="button">
+                  <svg viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="11" height="11" rx="2" />
+                    <path d="M5 15V6a2 2 0 0 1 2-2h8" />
+                  </svg>
+                  Copy
+                </button>
+              </div>
+            </div>
+            <div class="src-wrap">
+              <div class="gutter" id="gutter">
+                <div>1</div>
+              </div>
+              <textarea id="srcArea" spellcheck="false" autocomplete="off" autocapitalize="off"
+                placeholder="\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}"></textarea>
+            </div>
+            <div class="src-status ok-state" id="srcStatus">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <path d="m8.5 12.2 2.4 2.4 4.6-5" />
+              </svg>
+              <span class="msg" id="srcMsg">Waiting for input</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="splitter" id="splitB" role="separator" aria-orientation="horizontal"></div>
+
+        <section class="col" id="colPrev">
+          <div class="pane" id="prevPane" style="flex:1; min-height:0;">
+            <div class="pane-head">
+              <span class="pane-title">Rendered</span>
+              <span class="pane-note" id="prevNote"></span>
+              <div class="pane-acts">
+                <button class="ib" data-bgset="dark" title="Dark backdrop" aria-label="Dark backdrop">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5" />
+                  </svg>
+                </button>
+                <button class="ib" data-bgset="light" title="Light backdrop" aria-label="Light backdrop">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="4" />
+                    <path
+                      d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
+                  </svg>
+                </button>
+                <button class="ib" data-bgset="grid" title="Transparent" aria-label="Transparent backdrop">
+                  <svg viewBox="0 0 24 24">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                    <path d="M4 12h16M12 4v16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="prev-wrap" id="prevWrap" data-bg="dark">
+              <div class="prev-skel" id="prevSkel">
+                <div class="skel" style="width:190px;height:26px"></div>
+                <div class="skel" style="width:120px;height:12px"></div>
+              </div>
+              <div class="prev-empty" id="prevEmpty" style="display:none">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 19c2.6 0 3.2-1.4 4.2-6.6C9.3 6.6 10 4.6 12.6 4.6c1.6 0 2.6.9 2.6 2.1" />
+                  <path d="M6.5 11.5h8" />
+                  <path d="M15 13.5l5 6M20 13.5l-5 6" />
+                </svg>
+                <p>Nothing to render yet. Type on the left, or paste LaTeX into the source pane.</p>
+              </div>
+              <div id="prevOut"></div>
+            </div>
+            <div class="export-bar">
+              <button class="tb accent" id="btnPng" type="button" disabled>
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 4v11" />
+                  <path d="m8 11 4 4 4-4" />
+                  <path d="M5 19h14" />
+                </svg>
+                PNG
+              </button>
+              <button class="tb" id="btnSvg" type="button" disabled>
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 4v11" />
+                  <path d="m8 11 4 4 4-4" />
+                  <path d="M5 19h14" />
+                </svg>
+                SVG
+              </button>
+              <button class="tb" id="btnCopyImg" type="button" disabled>
+                <svg viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="11" height="11" rx="2" />
+                  <path d="M5 15V6a2 2 0 0 1 2-2h8" />
+                </svg>
+                Copy image
+              </button>
+              <div class="v-sep"></div>
+              <select class="sel-input" id="scaleSel" title="PNG pixel density"
+                style="height:22px;padding:0 6px;font-size:11px;min-width:auto">
+                <option value="1">1×</option>
+                <option value="2" selected>2×</option>
+                <option value="3">3×</option>
+                <option value="4">4×</option>
+              </select>
+              <div class="zoom-wrap">
+                <input type="range" id="zoom" min="14" max="76" value="30" aria-label="Preview size">
+                <span class="zoom-val" id="zoomVal">30px</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <div class="overlay" id="helpOverlay">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>How this page works</h2>
+        <div class="pane-acts">
+          <button class="ib" id="btnHelpClose" aria-label="Close">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p>The page has two editors for one equation: the visual field at the top and the raw LaTeX pane below it. Edit
+          either one and the other updates to match. The preview is always typeset from the raw LaTeX.</p>
+        <h4>Typing in the visual field</h4>
+        <p><span class="kb k">/</span> starts a fraction, <span class="kb k">^</span> a superscript and <span
+            class="kb k">_</span> a subscript. A backslash command such as <span class="kb k">\sqrt</span> or <span
+            class="kb k">\alpha</span> turns into its symbol when you press Space or Enter. The arrow keys and Tab move
+          the caret between boxes.</p>
+        <h4>Several lines and matrices</h4>
+        <p>Enter, or the <span class="kb k">↵ Row</span> button, starts a new line. Inside a matrix, a <span
+            class="kb k">cases</span> block or an <span class="kb k">aligned</span> block, Enter adds a row and <span
+            class="kb k">⇥ Col</span> adds a column. The Multi-line tab in the symbol drawer inserts matrices and
+          blocks, and has buttons that remove the row or column the caret is in.</p>
+        <p>If you type <span class="kb k">\\</span> in the raw LaTeX pane without a <span class="kb k">\begin{}</span>
+          around it, the preview wraps the lines in <span class="kb k">aligned</span>, or in <span
+            class="kb k">gathered</span> when there is no <span class="kb k">&amp;</span>. Your text in the pane stays
+          as you wrote it.</p>
+        <h4>Limits and chemistry</h4>
+        <p>The Calculus tab has buttons for a plain limit and for the one-sided limits <span class="kb k">x → a⁺</span>
+          and <span class="kb k">x → a⁻</span>. Tab jumps to the next empty box.</p>
+        <p>The Chemistry tab has reaction arrows, state symbols, charges and isotopes. The <span class="kb k">Ab</span>
+          button switches element symbols to upright letters; click it again to switch back. A whole reaction can also
+          be written in mhchem notation, for example <span class="kb k">\ce{2H2 + O2 -> 2H2O}</span>. The visual field
+          displays <span class="kb k">\ce{}</span> but cannot edit inside it, so change the formula in the raw LaTeX
+          pane.</p>
+        <h4>What the visual field can't hold</h4>
+        <p><span class="kb k">\tag</span>, <span class="kb k">\label</span> and top-level <span
+            class="kb k">align</span> or <span class="kb k">equation</span> environments only work in the raw LaTeX
+          pane. While the source contains one of them, the visual field is dimmed and locked. Its content is kept.</p>
+        <h4>Keyboard</h4>
+        <div class="kb-row"><span class="kb">Ctrl · Shift · C</span> Copy the LaTeX with the delimiters chosen in the
+          source pane</div>
+        <div class="kb-row"><span class="kb">Ctrl · Shift · P</span> Save the render as PNG</div>
+        <div class="kb-row"><span class="kb">Ctrl · Shift · S</span> Save the render as SVG</div>
+        <div class="kb-row"><span class="kb">Ctrl · Shift · K</span> Clear the equation</div>
+        <div class="kb-row"><span class="kb">Esc</span> Close this dialog</div>
+        <h4>Exports</h4>
+        <p>SVG files are vector paths taken from the typesetter. They scale to any size, and the computer that opens
+          them does not need any maths fonts. PNG files are drawn from the same vector at the density picked in the
+          export bar (1× to 4×), on the backdrop selected above the preview.</p>
+        <h4>Differences between the two editors</h4>
+        <p>The visual field (MathLive) and the renderer (MathJax) are separate programs, and each supports a slightly
+          different set of LaTeX. Custom macros and less common packages may change or disappear when they pass through
+          the visual field. When the two disagree, the raw LaTeX pane is what gets rendered and exported.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    /* ── LaTeX Converter — visual/source/preview bridge ─────────────── */
+    (function () {
+      'use strict';
+
+      var $ = function (id) { return document.getElementById(id); };
+      var el = {
+        mf: $('mf'), fieldShell: $('fieldShell'), fieldWrap: $('fieldWrap'),
+        fieldEmpty: $('fieldEmpty'), fieldHint: $('fieldHint'), templateChips: $('templateChips'),
+        srcArea: $('srcArea'), gutter: $('gutter'), srcStatus: $('srcStatus'), srcMsg: $('srcMsg'),
+        srcNote: $('srcNote'), wrapSel: $('wrapSel'),
+        prevWrap: $('prevWrap'), prevOut: $('prevOut'), prevSkel: $('prevSkel'),
+        prevEmpty: $('prevEmpty'), prevNote: $('prevNote'),
+        zoom: $('zoom'), zoomVal: $('zoomVal'), scaleSel: $('scaleSel'),
+        btnPng: $('btnPng'), btnSvg: $('btnSvg'), btnCopyImg: $('btnCopyImg'), btnCopyTex: $('btnCopyTex'),
+        btnClear: $('btnClear'), btnUndo: $('btnUndo'), btnCollapse: $('btnCollapse'),
+        rail: $('rail'), drawer: $('drawer'), drawerTitle: $('drawerTitle'), drawerActs: $('drawerActs'),
+        catBar: $('catBar'), symGrid: $('symGrid'), refList: $('refList'), refSearch: $('refSearch'),
+        histList: $('histList'), setList: $('setList'),
+        btnText: $('btnText'), btnNewLine: $('btnNewLine'), btnNewCol: $('btnNewCol'), btnTheme: $('btnTheme'),
+        modeSeg: $('modeSeg'), toasts: $('toasts'),
+        helpOverlay: $('helpOverlay'), btnHelp: $('btnHelp'), btnHelpClose: $('btnHelpClose'),
+        splitA: $('splitA'), splitB: $('splitB'),
+        colVisual: $('colVisual'), colSrc: $('colSrc'), colPrev: $('colPrev')
+      };
+
+      var SETTINGS_KEY = 'latexconv.settings.v1';
+      var HISTORY_KEY = 'latexconv.history.v1';
+
+      var settings = {
+        live: true, backSync: true, keepHistory: true,
+        glyph: 'auto', pad: 16, backdrop: 'dark', zoom: 30, mode: 'display', wrap: 'ddollar'
+      };
+
+      var state = {
+        tex: '', fieldTex: '', sourceOnly: false, syncing: false, lastSvg: null,
+        undoStack: [], history: [], renderSeq: 0
+      };
+
+      function load(key, fallback) {
+        try {
+          var raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (e) { return fallback; }
+      }
+      function save(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* private mode */ }
+      }
+
+      var ICON_OK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.2 2.4 2.4 4.6-5"/></svg>';
+      var ICON_BAD = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></svg>';
+
+      function toast(msg, kind) {
+        var t = document.createElement('div');
+        t.className = 'toast' + (kind ? ' ' + kind : '');
+        t.innerHTML = (kind === 'bad' ? ICON_BAD : ICON_OK) + '<span></span>';
+        t.lastChild.textContent = msg;
+        el.toasts.appendChild(t);
+        setTimeout(function () {
+          t.classList.add('out');
+          setTimeout(function () { t.remove(); }, 260);
+        }, 2400);
+      }
+
+      // Palette kinds: W inserts LaTeX as-is; C inserts a template, where
+      // #? is an empty box, #0 is the selection (or an empty box) and #@ is
+      // the selection or whatever sits just before the caret, MathType-style;
+      // X runs a MathLive editing command. An optional 4th entry is the tooltip.
+      var W = 'w', C = 'c', X = 'x';
+      var PALETTE = [
+        ['Multi-line', [
+          ['+row', 'newline', X, 'New line / add a row (Enter)'],
+          ['+col', 'addColumnAfter', X, 'Add a column after the caret'],
+          ['−row', 'removeRow', X, 'Remove the current row'],
+          ['−col', 'removeColumn', X, 'Remove the current column'],
+          ['( )', '\\begin{pmatrix}#0 & #? \\\\ #? & #?\\end{pmatrix}', C, 'pmatrix — round brackets'],
+          ['[ ]', '\\begin{bmatrix}#0 & #? \\\\ #? & #?\\end{bmatrix}', C, 'bmatrix — square brackets'],
+          ['{ }', '\\begin{Bmatrix}#0 & #? \\\\ #? & #?\\end{Bmatrix}', C, 'Bmatrix — braces'],
+          ['| |', '\\begin{vmatrix}#0 & #? \\\\ #? & #?\\end{vmatrix}', C, 'vmatrix — determinant'],
+          ['‖ ‖', '\\begin{Vmatrix}#0 & #? \\\\ #? & #?\\end{Vmatrix}', C, 'Vmatrix — norm bars'],
+          ['a b', '\\begin{matrix}#0 & #? \\\\ #? & #?\\end{matrix}', C, 'matrix — no brackets'],
+          ['3×3', '\\begin{pmatrix}#0 & #? & #? \\\\ #? & #? & #? \\\\ #? & #? & #?\\end{pmatrix}', C, '3×3 pmatrix'],
+          ['(x)', '\\begin{pmatrix}#0 \\\\ #? \\\\ #?\\end{pmatrix}', C, 'column vector'],
+          ['cases', '\\begin{cases}#0 & #? \\\\ #? & #?\\end{cases}', C, 'cases — piecewise'],
+          ['align', '\\begin{aligned}#0 &= #? \\\\ #? &= #?\\end{aligned}', C, 'aligned — lines aligned at ='],
+          ['gather', '\\begin{gathered}#0 \\\\ #?\\end{gathered}', C, 'gathered — centred lines']
+        ]],
+        ['Greek', [
+          ['α', '\\alpha', W], ['β', '\\beta', W], ['γ', '\\gamma', W], ['δ', '\\delta', W],
+          ['ε', '\\epsilon', W], ['ζ', '\\zeta', W], ['η', '\\eta', W], ['θ', '\\theta', W],
+          ['ι', '\\iota', W], ['κ', '\\kappa', W], ['λ', '\\lambda', W], ['μ', '\\mu', W],
+          ['ν', '\\nu', W], ['ξ', '\\xi', W], ['π', '\\pi', W], ['ρ', '\\rho', W],
+          ['σ', '\\sigma', W], ['τ', '\\tau', W], ['υ', '\\upsilon', W], ['ϕ', '\\phi', W],
+          ['χ', '\\chi', W], ['ψ', '\\psi', W], ['ω', '\\omega', W], ['ϑ', '\\vartheta', W],
+          ['φ', '\\varphi', W], ['ϱ', '\\varrho', W], ['ς', '\\varsigma', W], ['ϵ', '\\varepsilon', W],
+          ['Γ', '\\Gamma', W], ['Δ', '\\Delta', W], ['Θ', '\\Theta', W], ['Λ', '\\Lambda', W],
+          ['Ξ', '\\Xi', W], ['Π', '\\Pi', W], ['Σ', '\\Sigma', W], ['Υ', '\\Upsilon', W],
+          ['Φ', '\\Phi', W], ['Ψ', '\\Psi', W], ['Ω', '\\Omega', W]
+        ]],
+        ['Structure', [
+          ['a÷b', '\\frac{#@}{#?}', C, '\\frac'], ['√', '\\sqrt{#0}', C, '\\sqrt'], ['ⁿ√', '\\sqrt[#?]{#0}', C, '\\sqrt[n]'],
+          ['x²', '#@^{#?}', C, 'superscript ^'], ['xₙ', '#@_{#?}', C, 'subscript _'],
+          ['∑', '\\sum_{#?}^{#?}', C, '\\sum'], ['∏', '\\prod_{#?}^{#?}', C, '\\prod'],
+          ['∫', '\\int_{#?}^{#?}', C, '\\int'], ['( )', '\\left(#0\\right)', C, '\\left( \\right)'],
+          ['[ ]', '\\left[#0\\right]', C, '\\left[ \\right]'], ['{ }', '\\left\\{#0\\right\\}', C, '\\left\\{ \\right\\}'],
+          ['|x|', '\\left|#0\\right|', C, '\\left| \\right|'], ['x̄', '\\bar{#0}', C, '\\bar'], ['x⃗', '\\vec{#0}', C, '\\vec'],
+          ['x̂', '\\hat{#0}', C, '\\hat'], ['x̃', '\\tilde{#0}', C, '\\tilde'], ['ẋ', '\\dot{#0}', C, '\\dot'],
+          ['x̅', '\\overline{#0}', C, '\\overline'], ['n k', '\\binom{#?}{#?}', C, '\\binom'],
+          ['Abc', 'text', X, 'Upright text mode'],
+          ['log', '\\log_{#?}', C, '\\log with a base'], ['ln', '\\ln', W], ['exp', '\\exp', W],
+          ['sin', '\\sin', W], ['cos', '\\cos', W], ['tan', '\\tan', W], ['max', '\\max', W],
+          ['min', '\\min', W], ['det', '\\det', W], ['gcd', '\\gcd', W], ['deg', '\\deg', W]
+        ]],
+        ['Calculus', [
+          ['lim', '\\lim_{#?\\to #?}', C, 'limit as x → a'],
+          ['lim⁺', '\\lim_{#?\\to #?^{+}}', C, 'right-hand limit, x → a⁺'],
+          ['lim⁻', '\\lim_{#?\\to #?^{-}}', C, 'left-hand limit, x → a⁻'],
+          ['lim∞', '\\lim_{#?\\to\\infty}', C, 'limit at infinity'],
+          ['lim-∞', '\\lim_{#?\\to -\\infty}', C, 'limit at minus infinity'],
+          ['d/dx', '\\frac{\\mathrm{d}}{\\mathrm{d}#?}', C, 'derivative operator'],
+          ['dy/dx', '\\frac{\\mathrm{d}#?}{\\mathrm{d}#?}', C, 'derivative'],
+          ['d²', '\\frac{\\mathrm{d}^{2}#?}{\\mathrm{d}#?^{2}}', C, 'second derivative'],
+          ['∂/∂x', '\\frac{\\partial #?}{\\partial #?}', C, 'partial derivative'],
+          ['∫dx', '\\int #0\\,\\mathrm{d}#?', C, 'indefinite integral'],
+          ['∫ₐᵇ', '\\int_{#?}^{#?} #0\\,\\mathrm{d}#?', C, 'definite integral'],
+          ['∬', '\\iint_{#?}', C, 'double integral'], ['∭', '\\iiint_{#?}', C, 'triple integral'],
+          ['∮', '\\oint_{#?}', C, 'contour integral'],
+          ['[ ]ₐᵇ', '\\left[#0\\right]_{#?}^{#?}', C, 'evaluated between bounds'],
+          ['∑ₙ', '\\sum_{n=1}^{\\infty}', W, 'sum from 1 to ∞'],
+          ['f′', '#@^{\\prime}', C, 'prime'], ['∂', '\\partial', W], ['∇', '\\nabla', W], ['∞', '\\infty', W],
+          ['Δ', '\\Delta', W], ['→', '\\to', W], ['sup', '\\sup_{#?}', C, '\\sup'], ['inf', '\\inf_{#?}', C, '\\inf']
+        ]],
+        ['Chemistry', [
+          ['→', '\\rightarrow', W, 'reaction arrow'],
+          ['⇌', '\\rightleftharpoons', W, 'equilibrium'],
+          ['⇄', '\\rightleftarrows', W, 'reversible'],
+          ['←', '\\leftarrow', W, 'reverse arrow'],
+          ['↔', '\\leftrightarrow', W, 'resonance'],
+          ['→ᵃ', '\\xrightarrow{#?}', C, 'arrow with condition above'],
+          ['→ᵃᵦ', '\\xrightarrow[#?]{#?}', C, 'arrow with conditions above and below'],
+          ['→Δ', '\\xrightarrow{\\Delta}', W, 'heated'],
+          ['⇌ᵃ', '\\overset{#?}{\\rightleftharpoons}', C, 'equilibrium with condition'],
+          ['↑', '\\uparrow', W, 'gas given off'], ['↓', '\\downarrow', W, 'precipitate'],
+          ['Ab', 'upright', X, 'upright letters for element symbols — click again to switch off'],
+          ['X₂', '#@_{#?}', C, 'subscript count'],
+          ['X⁺', '#@^{+}', C, 'cation charge'], ['X⁻', '#@^{-}', C, 'anion charge'],
+          ['Xⁿ⁺', '#@^{#?+}', C, 'charge n+'], ['Xⁿ⁻', '#@^{#?-}', C, 'charge n−'],
+          ['ᴬ𝗓X', '{}_{#?}^{#?}', C, 'isotope — atomic number below, mass above, then the element'],
+          ['(s)', '(\\mathrm{s})', W, 'solid'], ['(l)', '(\\mathrm{l})', W, 'liquid'],
+          ['(g)', '(\\mathrm{g})', W, 'gas'], ['(aq)', '(\\mathrm{aq})', W, 'aqueous'],
+          ['·', '\\cdot', W, 'hydrate dot'], ['e⁻', '\\mathrm{e}^{-}', W, 'electron'],
+          ['[X]', '\\left[#0\\right]', C, 'concentration'],
+          ['ΔH°', '\\Delta H^{\\circ}', W, 'standard enthalpy change'],
+          ['Kₑq', 'K_{\\mathrm{eq}}', W, 'equilibrium constant'], ['Kₐ', 'K_{\\mathrm{a}}', W, 'acid dissociation constant'],
+          ['Kₛₚ', 'K_{\\mathrm{sp}}', W, 'solubility product'],
+          ['hν', 'h\\nu', W, 'photon'], ['°', '^{\\circ}', W, 'degree'],
+          ['ce', '\\ce{H2O}', W, 'mhchem \\ce{} — edit the formula in the source pane'],
+          ['rxn', '\\ce{2H2 + O2 -> 2H2O}', W, 'mhchem reaction'],
+          ['eq', '\\ce{N2 + 3H2 <=> 2NH3}', W, 'mhchem equilibrium']
+        ]],
+        ['Operator', [
+          ['+', '+', W], ['−', '-', W], ['×', '\\times', W], ['÷', '\\div', W],
+          ['±', '\\pm', W], ['∓', '\\mp', W], ['·', '\\cdot', W], ['∗', '\\ast', W],
+          ['∘', '\\circ', W], ['⊕', '\\oplus', W], ['⊗', '\\otimes', W], ['⊙', '\\odot', W],
+          ['∂', '\\partial', W], ['∇', '\\nabla', W], ['∞', '\\infty', W], ['′', '^{\\prime}', W],
+          ['∮', '\\oint', W], ['∐', '\\coprod', W], ['⋆', '\\star', W], ['†', '\\dagger', W]
+        ]],
+        ['Relation', [
+          ['=', '=', W], ['≠', '\\neq', W], ['≈', '\\approx', W], ['≡', '\\equiv', W],
+          ['≤', '\\le', W], ['≥', '\\ge', W], ['≪', '\\ll', W], ['≫', '\\gg', W],
+          ['∝', '\\propto', W], ['∼', '\\sim', W], ['≅', '\\cong', W], ['≃', '\\simeq', W],
+          ['∈', '\\in', W], ['∉', '\\notin', W], ['∋', '\\ni', W], ['⊂', '\\subset', W],
+          ['⊆', '\\subseteq', W], ['⊃', '\\supset', W], ['⊇', '\\supseteq', W],
+          ['∪', '\\cup', W], ['∩', '\\cap', W], ['∅', '\\emptyset', W],
+          ['∀', '\\forall', W], ['∃', '\\exists', W], ['¬', '\\neg', W],
+          ['∧', '\\wedge', W], ['∨', '\\vee', W], ['⊥', '\\perp', W], ['∥', '\\parallel', W],
+          ['∠', '\\angle', W], ['∴', '\\therefore', W]
+        ]],
+        ['Arrow', [
+          ['→', '\\to', W], ['←', '\\gets', W], ['↔', '\\leftrightarrow', W],
+          ['⇒', '\\Rightarrow', W], ['⇐', '\\Leftarrow', W], ['⇔', '\\Leftrightarrow', W],
+          ['↦', '\\mapsto', W], ['↑', '\\uparrow', W], ['↓', '\\downarrow', W],
+          ['⟶', '\\longrightarrow', W], ['⟵', '\\longleftarrow', W], ['⇀', '\\rightharpoonup', W],
+          ['↗', '\\nearrow', W], ['↘', '\\searrow', W]
+        ]],
+        ['Misc', [
+          ['ℝ', '\\mathbb{R}', W], ['ℕ', '\\mathbb{N}', W], ['ℤ', '\\mathbb{Z}', W], ['ℚ', '\\mathbb{Q}', W],
+          ['ℂ', '\\mathbb{C}', W], ['ℵ', '\\aleph', W], ['ℏ', '\\hbar', W], ['ℓ', '\\ell', W],
+          ['…', '\\ldots', W], ['⋯', '\\cdots', W],
+          ['⋮', '\\vdots', W], ['⋱', '\\ddots', W], ['□', '\\square', W]
+        ]]
+      ];
+
+      var REFERENCE = [
+        ['Environments', [
+          ['⎡⎤', '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}', 'matrix with round brackets'],
+          ['⎢⎥', '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}', 'matrix with square brackets'],
+          ['│', '\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix}', 'determinant bars'],
+          ['{', '\\begin{cases} x & x \\ge 0 \\\\ -x & x < 0 \\end{cases}', 'piecewise definition'],
+          ['⎡', '\\begin{aligned} a &= b \\\\ c &= d \\end{aligned}', 'aligned equations'],
+          ['⌗', '\\begin{array}{ccc} 1 & 2 & 3 \\\\ 4 & 5 & 6 \\end{array}', 'raw array']
+        ]],
+        ['Big operators', [
+          ['∑', '\\sum_{n=1}^{\\infty}', 'sum with limits'],
+          ['∏', '\\prod_{i=1}^{n}', 'product with limits'],
+          ['∫', '\\int_{a}^{b} f(x)\\,dx', 'definite integral'],
+          ['∬', '\\iint_{D}', 'double integral'],
+          ['∮', '\\oint_{C}', 'contour integral'],
+          ['∪', '\\bigcup_{k \\in K}', 'big union'],
+          ['∩', '\\bigcap_{k \\in K}', 'big intersection'],
+          ['lim', '\\lim_{x \\to 0}', 'limit with subscript'],
+          ['sup', '\\sup_{x \\in X}', 'supremum']
+        ]],
+        ['Functions', [
+          ['lim', '\\lim_{x \\to a}', 'limit as x approaches a'],
+          ['lim⁺', '\\lim_{x \\to a^+}', 'right-hand limit'],
+          ['lim⁻', '\\lim_{x \\to a^-}', 'left-hand limit'],
+          ['lim∞', '\\lim_{x \\to \\infty}', 'limit at infinity'],
+          ['log_b', '\\log_{b}(x)', 'logarithm with custom base'],
+          ['log₂', '\\log_2(x)', 'base-2 logarithm'],
+          ['ln', '\\ln(x)', 'natural logarithm']
+        ]],
+        ['Fractions & roots', [
+          ['÷', '\\frac{a}{b}', 'fraction'],
+          ['⁄', '\\dfrac{a}{b}', 'display-size fraction'],
+          ['⁄', '\\tfrac{a}{b}', 'text-size fraction'],
+          ['√', '\\sqrt{x}', 'square root'],
+          ['∛', '\\sqrt[3]{x}', 'nth root'],
+          ['⒞', '\\binom{n}{k}', 'binomial coefficient'],
+          ['⁰', '\\cfrac{1}{1 + \\cfrac{1}{x}}', 'continued fraction']
+        ]],
+        ['Accents & decoration', [
+          ['x̂', '\\hat{x}', 'hat'],
+          ['x̄', '\\bar{x}', 'bar'],
+          ['x⃗', '\\vec{x}', 'vector arrow'],
+          ['x̃', '\\tilde{x}', 'tilde'],
+          ['ẋ', '\\dot{x}', 'dot'],
+          ['x̅', '\\overline{AB}', 'overline'],
+          ['x̲', '\\underline{AB}', 'underline'],
+          ['⏞', '\\overbrace{a+b}^{n}', 'labelled overbrace'],
+          ['⏟', '\\underbrace{a+b}_{n}', 'labelled underbrace'],
+          ['⬜', '\\boxed{E = mc^2}', 'boxed expression']
+        ]],
+        ['Delimiters', [
+          ['(', '\\left( x \\right)', 'auto-sized parentheses'],
+          ['[', '\\left[ x \\right]', 'auto-sized brackets'],
+          ['{', '\\left\\{ x \\right\\}', 'auto-sized braces'],
+          ['|', '\\left| x \\right|', 'absolute value'],
+          ['‖', '\\left\\| x \\right\\|', 'norm'],
+          ['⌊', '\\left\\lfloor x \\right\\rfloor', 'floor'],
+          ['⌈', '\\left\\lceil x \\right\\rceil', 'ceiling'],
+          ['⟨', '\\left\\langle x \\right\\rangle', 'angle brackets']
+        ]],
+        ['Chemistry (mhchem)', [
+          ['⚗', '\\ce{H2O}', 'chemical formula'],
+          ['→', '\\ce{2H2 + O2 -> 2H2O}', 'reaction'],
+          ['⇌', '\\ce{N2 + 3H2 <=> 2NH3}', 'equilibrium'],
+          ['⁺', '\\ce{SO4^2-}', 'ion with charge'],
+          ['ᵃ', '\\ce{Na+(aq) + Cl-(aq) -> NaCl(s)}', 'states of matter'],
+          ['Δ', '\\ce{CaCO3 ->[\\Delta] CaO + CO2 ^}', 'condition above arrow, gas given off'],
+          ['↓', '\\ce{Ag+ + Cl- -> AgCl v}', 'precipitate'],
+          ['·', '\\ce{CuSO4 * 5H2O}', 'hydrate'],
+          ['¹⁴', '\\ce{^{14}_{6}C}', 'isotope'],
+          ['e⁻', '\\ce{Fe^3+ + e- -> Fe^2+}', 'half-equation'],
+          ['⇄', '\\ce{A <=>> B}', 'equilibrium favouring products']
+        ]],
+        ['Fonts & spacing', [
+          ['ℝ', '\\mathbb{R}', 'blackboard bold'],
+          ['𝔤', '\\mathfrak{g}', 'fraktur'],
+          ['𝒜', '\\mathcal{A}', 'calligraphic'],
+          ['𝐀', '\\mathbf{A}', 'bold'],
+          ['Aa', '\\text{for all }', 'upright text'],
+          ['␣', '\\,', 'thin space'],
+          ['␣', '\\quad', 'quad space'],
+          ['␣', '\\!', 'negative thin space'],
+          ['⏎', '\\\\', 'line break']
+        ]]
+      ];
+
+      var TEMPLATES = [
+        ['Quadratic roots', 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}'],
+        ['Euler identity', 'e^{i\\pi} + 1 = 0'],
+        ['Gaussian integral', '\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}'],
+        ['Bayes', 'P(A \\mid B) = \\frac{P(B \\mid A)\\,P(A)}{P(B)}'],
+        ['Derivative', "f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}"],
+        ['Basel sum', '\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}'],
+        ['2×2 matrix', '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}'],
+        ['One-sided limit', '\\lim_{x \\to 2^{+}} \\frac{1}{x-2} = +\\infty'],
+        ['Piecewise', 'f(x) = \\begin{cases} x^2 & x \\ge 0 \\\\ -x & x < 0 \\end{cases}'],
+        ['Combustion', '\\ce{CH4 + 2O2 -> CO2 + 2H2O}']
+      ];
+
+      // The visual field is a single MathLive <math-field>. It edits matrices,
+      // cases, aligned/gathered blocks and mhchem natively, so almost
+      // everything round-trips. What's left here only makes sense in a full
+      // document (equation numbers, labels, top-level display environments),
+      // and it locks the field without clearing it.
+      var SOURCE_ONLY = /\\(?:tag|label|notag|nonumber|eqref|ref)\b|\\begin\{(?:align|equation|gather|multline|flalign|alignat|eqnarray)\*?\}/;
+      var FIELD_HINT = 'click and type — / for fractions, ^ for powers, Enter for a new line';
+
+      function setEngine(text, cls) {
+        document.body.dataset.engine = cls === 'live' ? 'ready' : (cls || 'idle');
+        document.body.dataset.engineLabel = text;
+      }
+
+      function setStatus(kind, msg) {
+        el.srcStatus.className = 'src-status ' + (kind === 'err' ? 'err' : 'ok-state');
+        el.srcStatus.firstElementChild.innerHTML = kind === 'err'
+          ? '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/>'
+          : '<circle cx="12" cy="12" r="9"/><path d="m8.5 12.2 2.4 2.4 4.6-5"/>';
+        el.srcMsg.textContent = msg;
+      }
+
+      function syncGutter() {
+        var lines = el.srcArea.value.split('\n').length;
+        var html = '';
+        for (var i = 1; i <= Math.max(lines, 1); i++) html += '<div>' + i + '</div>';
+        el.gutter.innerHTML = html;
+        el.gutter.scrollTop = el.srcArea.scrollTop;
+      }
+
+      var mf = null; // the <math-field>, set once in initMathLive
+
+      // Empty boxes are dropped from the output: MathJax has no \placeholder,
+      // and a half-typed template should still render.
+      function fieldLatex() {
+        if (!mf) return '';
+        var t;
+        try { t = mf.getValue('latex-without-placeholders'); } catch (e) { t = mf.value; }
+        return String(t || '').replace(/\\placeholder(?:\[[^\]]*\])?\{[^{}]*\}/g, '');
+      }
+
+      function setLocked(blocked) {
+        state.sourceOnly = blocked;
+        el.fieldShell.classList.toggle('locked', blocked);
+        el.fieldHint.textContent = blocked
+          ? 'source-only construct (\\tag, \\label, align…) — the visual field is locked, not cleared'
+          : FIELD_HINT;
+      }
+
+      // Source → field. A bare "\\" or "&" is wrapped in gathered/aligned
+      // first so the field gets a real environment and shows real rows.
+      // The source text itself is left alone until the field is edited.
+      function applyTexToField(tex, blocked, force) {
+        if (!mf || blocked) return;
+        if (!force && !settings.backSync) return;
+        var feed = prepareRenderTex(tex).tex;
+        state.syncing = true;
+        try { mf.setValue(feed, { silenceNotifications: true }); } catch (e) { /* noop */ }
+        state.syncing = false;
+        state.fieldTex = fieldLatex();
+      }
+
+      // Field → source. Runs on every edit in the field and after every
+      // palette insert; a no-op if the field's LaTeX didn't actually change.
+      function syncFromField() {
+        if (state.syncing || !mf) return;
+        var tex = fieldLatex();
+        if (tex === state.fieldTex) return;
+        state.fieldTex = tex;
+        state.tex = tex;
+        el.srcArea.value = tex;
+        setLocked(false);
+        pushUndo_(tex);
+        afterChange();
+      }
+
+      function setFromSource(pushUndo) {
+        if (state.syncing) return;
+        var tex = el.srcArea.value;
+        state.tex = tex;
+        var blocked = SOURCE_ONLY.test(tex);
+        applyTexToField(tex, blocked, false);
+        setLocked(blocked);
+        if (pushUndo !== false) pushUndo_(tex);
+        afterChange();
+      }
+
+      function setBoth(tex, noUndo) {
+        state.tex = tex;
+        var blocked = SOURCE_ONLY.test(tex);
+        el.srcArea.value = tex;
+        applyTexToField(tex, blocked, true);
+        setLocked(blocked);
+        if (!noUndo) pushUndo_(tex);
+        afterChange();
+      }
+
+      function pushUndo_(tex) {
+        var s = state.undoStack;
+        if (s.length && s[s.length - 1] === tex) return;
+        s.push(tex);
+        if (s.length > 80) s.shift();
+        el.btnUndo.disabled = s.length < 2;
+      }
+
+      var renderTimer = null, historyTimer = null;
+
+      function afterChange() {
+        var empty = !state.tex.trim();
+        el.fieldEmpty.classList.toggle('gone', !empty || state.sourceOnly);
+        el.btnClear.disabled = empty;
+        el.btnUndo.disabled = state.undoStack.length < 2;
+        syncGutter();
+
+        if (empty) {
+          setStatus('ok', 'Waiting for input');
+          el.prevOut.innerHTML = '';
+          el.prevEmpty.style.display = '';
+          el.prevNote.textContent = '';
+          setExportEnabled(false);
+          return;
+        }
+
+        clearTimeout(renderTimer);
+        if (settings.live) renderTimer = setTimeout(render, 130);
+
+        if (settings.keepHistory) {
+          clearTimeout(historyTimer);
+          historyTimer = setTimeout(recordHistory, 1600);
+        }
+      }
+
+      function glyphColor() {
+        if (settings.glyph === 'light') return '#eceef2';
+        if (settings.glyph === 'dark') return '#16181b';
+        if (settings.glyph === 'accent') return '#4a8fd6';
+        return settings.backdrop === 'light' ? '#16181b' : '#e2e4e9';
+      }
+
+      function backdropColor() {
+        if (settings.backdrop === 'light') return '#f4f5f7';
+        if (settings.backdrop === 'dark') return '#101113';
+        return null;
+      }
+
+      function setExportEnabled(on) {
+        el.btnPng.disabled = !on;
+        el.btnSvg.disabled = !on;
+        el.btnCopyImg.disabled = !on;
+      }
+
+      // A bare "\\" line break is only legal inside an array/math environment —
+      // MathJax throws "\\ only allowed in array or math environments" if it's
+      // typed loose. Detect that and wrap transparently before rendering, so
+      // two-line expressions just work without the user reaching for \begin{}.
+      function isBareMultiLine(tex) {
+        return (/\\\\/.test(tex) || /(^|[^\\])&/.test(tex)) && !/\\begin\{|\\displaylines/.test(tex);
+      }
+
+      function prepareRenderTex(tex) {
+        if (!isBareMultiLine(tex)) return { tex: tex, wrapped: null };
+        var env = /&/.test(tex) ? 'aligned' : 'gathered';
+        return { tex: '\\begin{' + env + '}\n' + tex + '\n\\end{' + env + '}', wrapped: env };
+      }
+
+      function render() {
+        if (!window.MathJax || !MathJax.tex2svgPromise) return;
+        var tex = state.tex.trim();
+        if (!tex) return;
+
+        var seq = ++state.renderSeq;
+        setEngine('Typesetting', 'busy');
+
+        try { MathJax.texReset(); } catch (e) { /* noop */ }
+
+        var prepared = prepareRenderTex(tex);
+
+        MathJax.tex2svgPromise(prepared.tex, { display: settings.mode === 'display' })
+          .then(function (node) {
+            if (seq !== state.renderSeq) return;
+            var svg = node.querySelector('svg');
+            if (!svg) throw new Error('The typesetter returned nothing drawable.');
+
+            el.prevEmpty.style.display = 'none';
+            el.prevOut.innerHTML = '';
+            el.prevOut.appendChild(node);
+            el.prevOut.style.color = glyphColor();
+            state.lastSvg = svg;
+
+            setEngine('Ready', 'live');
+            setStatus('ok', prepared.wrapped
+              ? 'Valid — auto-wrapped in \\begin{' + prepared.wrapped + '}…\\end{' + prepared.wrapped + '}'
+              : (state.sourceOnly
+                ? 'Valid — uses constructs only the source pane can hold'
+                : 'Valid LaTeX'));
+            setExportEnabled(true);
+            updatePrevNote();
+          })
+          .catch(function (err) {
+            if (seq !== state.renderSeq) return;
+            var msg = (err && (err.message || err.toString())) || 'Could not typeset that expression.';
+            setStatus('err', msg.replace(/^TeX(Error)?:?\s*/i, ''));
+            setEngine('Parse error', 'bad');
+            setExportEnabled(false);
+          });
+      }
+
+      function updatePrevNote() {
+        if (!state.lastSvg) { el.prevNote.textContent = ''; return; }
+        var r = state.lastSvg.getBoundingClientRect();
+        var scale = parseInt(el.scaleSel.value, 10);
+        el.prevNote.textContent = Math.round(r.width * scale) + ' × ' + Math.round(r.height * scale) + ' px at ' + scale + '×';
+      }
+
+      function buildStandaloneSvg() {
+        if (!state.lastSvg) return null;
+        var svg = state.lastSvg;
+        var rect = svg.getBoundingClientRect();
+        var vb = svg.viewBox && svg.viewBox.baseVal;
+        var vbX = vb ? vb.x : 0, vbY = vb ? vb.y : 0;
+        var vbW = vb && vb.width ? vb.width : rect.width;
+        var vbH = vb && vb.height ? vb.height : rect.height;
+
+        // getBBox() reports the actual painted geometry in the SVG's own
+        // user-unit space (the viewBox coordinate system) — it's what tall
+        // radicals, big integrals and stacked limits really occupy, which can
+        // run slightly outside the viewBox MathJax first assigns. Cropping to
+        // the viewBox alone is what clipped ascenders/descenders on complex
+        // expressions; cropping to the live bbox instead fixes that.
+        var box;
+        try {
+          var b = svg.getBBox();
+          box = (b && b.width > 0 && b.height > 0) ? b : null;
+        } catch (e) { box = null; }
+        if (!box) box = { x: vbX, y: vbY, width: vbW, height: vbH };
+
+        var pxPerUnit = vbW ? (rect.width / vbW) : 1;
+        var pad = Math.max(0, settings.pad);
+        var padUnits = pxPerUnit ? pad / pxPerUnit : pad;
+
+        var x = box.x - padUnits, y = box.y - padUnits;
+        var w = box.width + padUnits * 2, h = box.height + padUnits * 2;
+
+        var clone = svg.cloneNode(true);
+        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        clone.setAttribute('viewBox', x.toFixed(3) + ' ' + y.toFixed(3) + ' ' + w.toFixed(3) + ' ' + h.toFixed(3));
+        clone.setAttribute('width', Math.max(1, w * pxPerUnit).toFixed(2));
+        clone.setAttribute('height', Math.max(1, h * pxPerUnit).toFixed(2));
+        clone.removeAttribute('style');
+
+        var color = glyphColor();
+        clone.setAttribute('color', color);
+        clone.style.color = color;
+
+        var bg = backdropColor();
+        if (bg) {
+          var r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          r.setAttribute('x', x.toFixed(3)); r.setAttribute('y', y.toFixed(3));
+          r.setAttribute('width', w.toFixed(3)); r.setAttribute('height', h.toFixed(3));
+          r.setAttribute('fill', bg);
+          clone.insertBefore(r, clone.firstChild);
+        }
+
+        return {
+          markup: '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(clone),
+          width: w * pxPerUnit,
+          height: h * pxPerUnit
+        };
+      }
+
+      function download(blob, name) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1200);
+      }
+
+      function fileStem() {
+        var base = state.tex.replace(/\\[a-zA-Z]+|[^a-zA-Z0-9]+/g, ' ').trim().split(/\s+/).slice(0, 4).join('-');
+        return 'equation-' + (base ? base.toLowerCase() : 'latex');
+      }
+
+      function exportSvg() {
+        var built = buildStandaloneSvg();
+        if (!built) return;
+        download(new Blob([built.markup], { type: 'image/svg+xml;charset=utf-8' }), fileStem() + '.svg');
+        toast('SVG saved — vector paths, no fonts needed', 'good');
+      }
+
+      function rasterise() {
+        return new Promise(function (resolve, reject) {
+          var built = buildStandaloneSvg();
+          if (!built) { reject(new Error('Nothing rendered yet.')); return; }
+          var scale = parseInt(el.scaleSel.value, 10) || 2;
+          var img = new Image();
+          img.onload = function () {
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(built.width * scale));
+            canvas.height = Math.max(1, Math.round(built.height * scale));
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(function (blob) {
+              blob ? resolve(blob) : reject(new Error('The canvas refused to encode.'));
+            }, 'image/png');
+          };
+          img.onerror = function () { reject(new Error('The browser could not load that vector for rasterising.')); };
+          img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(built.markup)));
+        });
+      }
+
+      function exportPng() {
+        rasterise().then(function (blob) {
+          download(blob, fileStem() + '.png');
+          toast('PNG saved at ' + el.scaleSel.value + '× density', 'good');
+        }).catch(function (e) { toast(e.message, 'bad'); });
+      }
+
+      function copyImage() {
+        rasterise().then(function (blob) {
+          if (!navigator.clipboard || !window.ClipboardItem) {
+            download(blob, fileStem() + '.png');
+            toast('This browser can\'t write images to the clipboard — PNG downloaded instead', 'bad');
+            return;
+          }
+          navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(function () {
+            toast('Image on the clipboard', 'good');
+          }).catch(function () {
+            // Permission denied / blocked by the browser — fall back to a
+            // plain download so the export isn't just silently lost.
+            download(blob, fileStem() + '.png');
+            toast('Clipboard blocked by the browser — PNG downloaded instead', 'bad');
+          });
+        }).catch(function (e) { toast(e.message, 'bad'); });
+      }
+
+      function wrapped() {
+        var t = state.tex.trim();
+        switch (settings.wrap) {
+          case 'dollar': return '$' + t + '$';
+          case 'ddollar': return '$$' + t + '$$';
+          case 'paren': return '\\(' + t + '\\)';
+          case 'bracket': return '\\[' + t + '\\]';
+          case 'equation': return '\\begin{equation}\n  ' + t + '\n\\end{equation}';
+          default: return t;
+        }
+      }
+
+      function copyTex() {
+        var text = wrapped();
+        if (!text.trim()) { toast('Nothing to copy yet', 'bad'); return; }
+        var done = function () { toast('LaTeX copied', 'good'); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, fallbackCopy.bind(null, text, done));
+        } else {
+          fallbackCopy(text, done);
+        }
+      }
+
+      function fallbackCopy(text, done) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); }
+        catch (e) { toast('Copy blocked by the browser', 'bad'); }
+        ta.remove();
+      }
+
+      var activeCat = 0;
+
+      function buildPalette() {
+        el.catBar.innerHTML = '';
+        PALETTE.forEach(function (cat, i) {
+          var b = document.createElement('button');
+          b.className = 'cat' + (i === activeCat ? ' active' : '');
+          b.type = 'button';
+          b.textContent = cat[0];
+          b.addEventListener('click', function () { activeCat = i; buildPalette(); });
+          el.catBar.appendChild(b);
+        });
+
+        el.symGrid.innerHTML = '';
+        PALETTE[activeCat][1].forEach(function (item, i) {
+          var b = document.createElement('button');
+          b.className = 'sym' + (item[0].length > 2 ? ' sm' : '');
+          b.type = 'button';
+          b.style.setProperty('--i', i);
+          b.innerHTML = '<span></span><span class="tip"></span>';
+          b.firstChild.textContent = item[0];
+          b.lastChild.textContent = item[3] || item[1];
+          b.setAttribute('aria-label', item[3] || item[1]);
+          b.addEventListener('click', function () { insertSymbol(item); });
+          el.symGrid.appendChild(b);
+        });
+      }
+
+      // Template markers mean nothing to the source pane, so strip them.
+      function plainSnippet(item) {
+        if (item[2] === X) {
+          return { newline: ' \\\\\n', text: '\\text{}', upright: '\\mathrm{}' }[item[1]] || '';
+        }
+        return item[1].replace(/#[@0?]/g, '');
+      }
+
+      function insertSymbol(item) {
+        if (!mf || state.sourceOnly) {
+          var snip = plainSnippet(item);
+          if (snip) insertIntoSource(snip + (item[2] === W ? ' ' : ''));
+          else toast('Row and column tools work in the visual field only', 'bad');
+          return;
+        }
+        if (item[2] === X) { runCommand(item[1]); return; }
+
+        mf.focus();
+        var before = mf.value;
+        mf.insert(item[1], {
+          format: 'latex', focus: true, scrollIntoView: true,
+          selectionMode: item[2] === C ? 'placeholder' : 'after'
+        });
+        if (mf.value === before) {
+          toast('The visual field would not take ' + (item[3] || item[1]) + ' here', 'bad');
+          return;
+        }
+        syncFromField();
+      }
+
+      function runCommand(name) {
+        mf.focus();
+        if (name === 'newline') { newLine(); return; }
+        if (name === 'text') { mf.executeCommand(['switchMode', 'text']); return; }
+        if (name === 'upright') {
+          // Styles what gets typed next (or the selection): Fe, not 𝐹𝑒.
+          mf.applyStyle({ variant: 'normal', variantStyle: 'up' }, { operation: 'toggle' });
+          return;
+        }
+        var before = mf.value;
+        mf.executeCommand(name);
+        if (mf.value === before) {
+          toast('Put the caret inside a matrix, cases or aligned block first', 'bad');
+          return;
+        }
+        syncFromField();
+      }
+
+      // Enter / "↵ Row": inside a matrix, cases or aligned block, add a row
+      // after the caret. Anywhere else, turn the whole expression into a
+      // gathered block with a fresh empty line under it.
+      function newLine() {
+        if (!mf || state.sourceOnly) {
+          var ta = el.srcArea;
+          var hadFocus = document.activeElement === ta;
+          var s = hadFocus ? ta.selectionStart : ta.value.length;
+          var e = hadFocus ? ta.selectionEnd : ta.value.length;
+          ta.focus();
+          ta.setRangeText(' \\\\\n', s, e, 'end');
+          setFromSource();
+          return;
+        }
+        mf.focus();
+        var before = mf.value;
+        mf.executeCommand('addRowAfter');
+        if (mf.value === before) {
+          var opts = { format: 'latex', focus: true, selectionMode: 'placeholder' };
+          if (!fieldLatex().trim()) {
+            mf.value = '';
+            mf.insert('\\begin{gathered}#? \\\\ #?\\end{gathered}', opts);
+          } else {
+            // Caret sat just outside a block that is already the whole
+            // expression: grow that block instead of nesting a new one.
+            var whole = mf.value.trim();
+            var env = /^\\begin\{([a-zA-Z]+)\}([\s\S]*)\\end\{\1\}$/.exec(whole);
+            if (env && env[2].indexOf('\\end{' + env[1] + '}') > -1) env = null; // A…B + C…D, not one block
+            mf.value = '';
+            if (env) mf.insert('\\begin{' + env[1] + '}' + env[2] + ' \\\\ #?\\end{' + env[1] + '}', opts);
+            else mf.insert('\\begin{gathered}' + whole + ' \\\\ #?\\end{gathered}', opts);
+          }
+        }
+        syncFromField();
+      }
+
+      function insertIntoSource(snippet) {
+        var ta = el.srcArea;
+        // Without focus the textarea's selection is stale (often 0), which
+        // used to drop snippets at the very start — append at the end then.
+        var hadFocus = document.activeElement === ta;
+        var s = hadFocus ? ta.selectionStart : ta.value.length;
+        var e = hadFocus ? ta.selectionEnd : ta.value.length;
+        ta.focus();
+        ta.setRangeText(snippet, s, e, 'end');
+        setFromSource();
+      }
+
+      function buildReference(filter) {
+        var q = (filter || '').trim().toLowerCase();
+        el.refList.innerHTML = '';
+        var hits = 0;
+
+        REFERENCE.forEach(function (group) {
+          var rows = group[1].filter(function (r) {
+            return !q || r[1].toLowerCase().indexOf(q) > -1 || r[2].toLowerCase().indexOf(q) > -1;
+          });
+          if (!rows.length) return;
+          hits += rows.length;
+
+          var h = document.createElement('div');
+          h.className = 'ref-group';
+          h.textContent = group[0];
+          el.refList.appendChild(h);
+
+          rows.forEach(function (r) {
+            var row = document.createElement('div');
+            row.className = 'ref-row';
+            row.innerHTML = '<span class="ref-gl"></span><span class="ref-cmd"></span><span class="ref-desc"></span>';
+            row.children[0].textContent = r[0];
+            row.children[1].textContent = r[1];
+            row.children[2].textContent = r[2];
+            row.title = 'Insert into the source pane';
+            row.addEventListener('click', function () {
+              insertIntoSource(r[1]);
+              toast('Inserted into the source', 'good');
+            });
+            el.refList.appendChild(row);
+          });
+        });
+
+        if (!hits) {
+          var empty = document.createElement('div');
+          empty.className = 'prev-empty';
+          empty.style.padding = '34px 20px';
+          empty.innerHTML = '<p>No command matches that. Try a shorter word — "int", "matrix", "bold".</p>';
+          el.refList.appendChild(empty);
+        }
+      }
+
+      function recordHistory() {
+        var tex = state.tex.trim();
+        if (!tex || !settings.keepHistory) return;
+        if (state.history.length && state.history[0].tex === tex) return;
+        state.history = state.history.filter(function (h) { return h.tex !== tex; });
+        state.history.unshift({ tex: tex, at: Date.now() });
+        if (state.history.length > 40) state.history.length = 40;
+        save(HISTORY_KEY, state.history);
+        buildHistory();
+      }
+
+      function relTime(ts) {
+        var s = Math.floor((Date.now() - ts) / 1000);
+        if (s < 60) return s + 's';
+        if (s < 3600) return Math.floor(s / 60) + 'm';
+        if (s < 86400) return Math.floor(s / 3600) + 'h';
+        return Math.floor(s / 86400) + 'd';
+      }
+
+      function buildHistory() {
+        el.histList.innerHTML = '';
+        el.drawerActs.innerHTML = '';
+
+        if (!state.history.length) {
+          var empty = document.createElement('div');
+          empty.className = 'prev-empty';
+          empty.style.cssText = 'padding:40px 24px;gap:10px';
+          empty.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3.2 12a8.8 8.8 0 1 0 2.6-6.2"/><path d="M3 4v4h4"/><path d="M12 8v4.4l3 1.8"/></svg>' +
+            '<p>Equations land here once you pause for a moment. Nothing leaves this browser.</p>';
+          el.histList.appendChild(empty);
+          return;
+        }
+
+        var clear = document.createElement('button');
+        clear.className = 'ib danger';
+        clear.type = 'button';
+        clear.title = 'Clear all history';
+        clear.setAttribute('aria-label', 'Clear all history');
+        clear.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7"/><path d="M6.5 7l.8 12.1A1.5 1.5 0 0 0 8.8 20.5h6.4a1.5 1.5 0 0 0 1.5-1.4L17.5 7"/></svg>';
+        clear.addEventListener('click', function () {
+          state.history = [];
+          save(HISTORY_KEY, state.history);
+          buildHistory();
+          toast('History cleared', 'good');
+        });
+        if (el.drawerTitle.textContent === 'History') el.drawerActs.appendChild(clear);
+
+        state.history.forEach(function (h, idx) {
+          var row = document.createElement('div');
+          row.className = 'hrow';
+          row.innerHTML = '<span class="hrow-tex"></span><span class="hrow-time"></span>' +
+            '<button class="ib danger" type="button" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>';
+          row.children[0].textContent = h.tex;
+          row.children[1].textContent = relTime(h.at);
+          row.addEventListener('click', function () {
+            setBoth(h.tex);
+            toast('Loaded from history', 'good');
+          });
+          row.children[2].addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            state.history.splice(idx, 1);
+            save(HISTORY_KEY, state.history);
+            buildHistory();
+          });
+          el.histList.appendChild(row);
+        });
+      }
+
+      function switchRow(title, desc, key, onChange) {
+        var row = document.createElement('div');
+        row.className = 'sg-row';
+        row.innerHTML = '<div class="sg-row-left"><h4></h4><p></p></div>' +
+          '<label class="ios-switch"><input type="checkbox"><span class="ios-switch-track"><span class="ios-switch-thumb"></span></span></label>';
+        row.querySelector('h4').textContent = title;
+        row.querySelector('p').textContent = desc;
+        var input = row.querySelector('input');
+        input.checked = !!settings[key];
+        input.addEventListener('change', function () {
+          settings[key] = input.checked;
+          save(SETTINGS_KEY, settings);
+          if (onChange) onChange();
+        });
+        return row;
+      }
+
+      function selectRow(title, desc, key, options, onChange) {
+        var row = document.createElement('div');
+        row.className = 'sg-row';
+        row.innerHTML = '<div class="sg-row-left"><h4></h4><p></p></div><select class="sel-input"></select>';
+        row.querySelector('h4').textContent = title;
+        row.querySelector('p').textContent = desc;
+        var sel = row.querySelector('select');
+        options.forEach(function (o) {
+          var op = document.createElement('option');
+          op.value = o[0]; op.textContent = o[1];
+          if (settings[key] === o[0]) op.selected = true;
+          sel.appendChild(op);
+        });
+        sel.addEventListener('change', function () {
+          settings[key] = sel.value;
+          save(SETTINGS_KEY, settings);
+          if (onChange) onChange();
+        });
+        return row;
+      }
+
+      function numberRow(title, desc, key, min, max, onChange) {
+        var row = document.createElement('div');
+        row.className = 'sg-row';
+        row.innerHTML = '<div class="sg-row-left"><h4></h4><p></p></div><input class="num-input" type="number">';
+        row.querySelector('h4').textContent = title;
+        row.querySelector('p').textContent = desc;
+        var input = row.querySelector('input');
+        input.min = min; input.max = max; input.value = settings[key];
+        input.addEventListener('change', function () {
+          var v = parseInt(input.value, 10);
+          if (isNaN(v)) v = min;
+          v = Math.min(max, Math.max(min, v));
+          input.value = v;
+          settings[key] = v;
+          save(SETTINGS_KEY, settings);
+          if (onChange) onChange();
+        });
+        return row;
+      }
+
+      function buildSettings() {
+        el.setList.innerHTML = '';
+
+        var l1 = document.createElement('div');
+        l1.className = 'sg-label'; l1.textContent = 'Behaviour';
+        el.setList.appendChild(l1);
+        el.setList.appendChild(switchRow('Live rendering', 'Typeset on every keystroke rather than on demand.', 'live', function () {
+          if (settings.live) render();
+        }));
+        el.setList.appendChild(switchRow('Source drives the visual field', 'Turn off if you are hand-writing LaTeX and want the field left alone.', 'backSync'));
+        el.setList.appendChild(switchRow('Keep history', 'Stores the last 40 equations in this browser only.', 'keepHistory', buildHistory));
+
+        var l2 = document.createElement('div');
+        l2.className = 'sg-label'; l2.textContent = 'Output';
+        el.setList.appendChild(l2);
+        el.setList.appendChild(selectRow('Glyph colour', 'How the typeset maths is inked, in the preview and in exports.', 'glyph', [
+          ['auto', 'Match backdrop'], ['light', 'Off-white'], ['dark', 'Charcoal'], ['accent', 'Accent blue']
+        ], function () { el.prevOut.style.color = glyphColor(); }));
+        el.setList.appendChild(numberRow('Export padding', 'Breathing room baked around the equation, in pixels.', 'pad', 0, 120, updatePrevNote));
+
+        var l3 = document.createElement('div');
+        l3.className = 'sg-label'; l3.textContent = 'Danger zone';
+        el.setList.appendChild(l3);
+
+        var reset = document.createElement('div');
+        reset.className = 'sg-row';
+        reset.innerHTML = '<div class="sg-row-left"><h4>Reset everything</h4><p>Clears settings and history, then reloads with a blank field.</p></div>' +
+          '<button class="tb" type="button" style="border-color:var(--danger-border);color:var(--danger)">Reset</button>';
+        reset.querySelector('button').addEventListener('click', function () {
+          try { localStorage.removeItem(SETTINGS_KEY); localStorage.removeItem(HISTORY_KEY); } catch (e) { /* noop */ }
+          location.reload();
+        });
+        el.setList.appendChild(reset);
+      }
+
+      var DRAWER_TITLES = { symbols: 'Symbols', reference: 'Reference', history: 'History', settings: 'Settings' };
+
+      function openDrawer(name) {
+        el.drawer.classList.remove('collapsed');
+        Array.prototype.forEach.call(el.rail.querySelectorAll('.rail-btn[data-drawer]'), function (b) {
+          b.classList.toggle('active', b.dataset.drawer === name);
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('.dpanel'), function (p) {
+          p.classList.toggle('active', p.id === 'panel-' + name);
+        });
+        el.drawerTitle.textContent = DRAWER_TITLES[name];
+        el.drawerActs.innerHTML = '';
+        if (name === 'history') buildHistory();
+        if (name === 'reference' && !el.refList.children.length) buildReference('');
+      }
+
+      function makeSplitter(handle, which) {
+        var dragging = false;
+        var target = function () { return which === 'A' ? el.colVisual : el.colSrc; };
+
+        handle.addEventListener('pointerdown', function (e) {
+          dragging = true;
+          handle.classList.add('dragging');
+          handle.setPointerCapture(e.pointerId);
+          document.body.style.userSelect = 'none';
+        });
+
+        handle.addEventListener('pointermove', function (e) {
+          if (!dragging) return;
+          var pane = target();
+          var height = Math.max(120, Math.min(680, e.clientY - pane.getBoundingClientRect().top));
+          pane.style.height = height.toFixed(0) + 'px';
+          pane.style.flex = 'none';
+        });
+
+        var stop = function (e) {
+          if (!dragging) return;
+          dragging = false;
+          handle.classList.remove('dragging');
+          document.body.style.userSelect = '';
+          try { handle.releasePointerCapture(e.pointerId); } catch (err) { /* noop */ }
+          updatePrevNote();
+        };
+        handle.addEventListener('pointerup', stop);
+        handle.addEventListener('pointercancel', stop);
+      }
+
+      function buildTemplates() {
+        el.templateChips.innerHTML = '';
+        TEMPLATES.forEach(function (t, i) {
+          var b = document.createElement('button');
+          b.className = 'chip';
+          b.type = 'button';
+          b.style.setProperty('--i', i);
+          b.textContent = t[0];
+          b.addEventListener('click', function () { setBoth(t[1]); });
+          el.templateChips.appendChild(b);
+        });
+      }
+
+      function wire() {
+        el.srcArea.addEventListener('input', function () { setFromSource(); });
+        el.srcArea.addEventListener('scroll', function () { el.gutter.scrollTop = el.srcArea.scrollTop; });
+
+        el.fieldShell.addEventListener('click', function (e) {
+          if (state.sourceOnly || !mf) return;
+          if (e.target === el.fieldShell) mf.focus();
+        });
+
+        el.btnClear.addEventListener('click', function () {
+          setBoth('');
+          if (mf && !state.sourceOnly) mf.focus();
+        });
+
+        el.btnUndo.addEventListener('click', function () {
+          if (state.undoStack.length < 2) return;
+          state.undoStack.pop();
+          setBoth(state.undoStack[state.undoStack.length - 1], true);
+        });
+
+        el.btnNewLine.addEventListener('click', newLine);
+        el.btnNewCol.addEventListener('click', function () {
+          if (!mf || state.sourceOnly) { toast('Columns can only be added in the visual field', 'bad'); return; }
+          runCommand('addColumnAfter');
+        });
+
+        el.btnText.addEventListener('click', function () {
+          insertSymbol(['Abc', 'text', X]);
+        });
+
+        el.btnTheme.addEventListener('click', function () {
+          var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', next);
+          try { localStorage.setItem('theme', next); } catch (e) { /* noop */ }
+          // The preview backdrop follows the theme unless it's set to transparent.
+          if (settings.backdrop !== 'grid') setBackdrop(next);
+        });
+
+        el.btnCopyTex.addEventListener('click', copyTex);
+        el.btnPng.addEventListener('click', exportPng);
+        el.btnSvg.addEventListener('click', exportSvg);
+        el.btnCopyImg.addEventListener('click', copyImage);
+
+        el.wrapSel.addEventListener('change', function () {
+          settings.wrap = el.wrapSel.value;
+          save(SETTINGS_KEY, settings);
+        });
+
+        el.scaleSel.addEventListener('change', updatePrevNote);
+
+        el.zoom.addEventListener('input', function () {
+          settings.zoom = parseInt(el.zoom.value, 10);
+          el.prevOut.style.fontSize = settings.zoom + 'px';
+          el.zoomVal.textContent = settings.zoom + 'px';
+          save(SETTINGS_KEY, settings);
+          requestAnimationFrame(updatePrevNote);
+        });
+
+        Array.prototype.forEach.call(el.modeSeg.children, function (b) {
+          b.addEventListener('click', function () {
+            settings.mode = b.dataset.mode;
+            Array.prototype.forEach.call(el.modeSeg.children, function (x) {
+              x.classList.toggle('active', x === b);
+            });
+            save(SETTINGS_KEY, settings);
+            render();
+          });
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-bgset]'), function (b) {
+          b.addEventListener('click', function () { setBackdrop(b.dataset.bgset); });
+        });
+
+        Array.prototype.forEach.call(el.rail.querySelectorAll('.rail-btn[data-drawer]'), function (b) {
+          b.addEventListener('click', function () {
+            if (b.classList.contains('active') && !el.drawer.classList.contains('collapsed')) {
+              el.drawer.classList.add('collapsed');
+              b.classList.remove('active');
+            } else {
+              openDrawer(b.dataset.drawer);
+            }
+          });
+        });
+
+        el.btnCollapse.addEventListener('click', function () {
+          el.drawer.classList.toggle('collapsed');
+        });
+
+        el.refSearch.addEventListener('input', function () { buildReference(el.refSearch.value); });
+
+        el.btnHelp.addEventListener('click', function () { el.helpOverlay.classList.add('active'); });
+        el.btnHelpClose.addEventListener('click', function () { el.helpOverlay.classList.remove('active'); });
+        el.helpOverlay.addEventListener('click', function (e) {
+          if (e.target === el.helpOverlay) el.helpOverlay.classList.remove('active');
+        });
+
+        makeSplitter(el.splitA, 'A');
+        makeSplitter(el.splitB, 'B');
+
+        window.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') { el.helpOverlay.classList.remove('active'); return; }
+          if (!(e.ctrlKey || e.metaKey) || !e.shiftKey) return;
+          var k = e.key.toLowerCase();
+          if (k === 'c') { e.preventDefault(); copyTex(); }
+          else if (k === 'p') { e.preventDefault(); if (!el.btnPng.disabled) exportPng(); }
+          else if (k === 's') { e.preventDefault(); if (!el.btnSvg.disabled) exportSvg(); }
+          else if (k === 'k') { e.preventDefault(); el.btnClear.click(); }
+        });
+
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(updatePrevNote, 180);
+        });
+      }
+
+      function setBackdrop(name) {
+        settings.backdrop = name;
+        el.prevWrap.dataset.bg = name;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-bgset]'), function (x) {
+          x.classList.toggle('on', x.dataset.bgset === name);
+        });
+        el.prevOut.style.color = glyphColor();
+        save(SETTINGS_KEY, settings);
+      }
+
+      function applySettings() {
+        var saved = load(SETTINGS_KEY, null);
+        if (saved) {
+          for (var k in settings) {
+            if (Object.prototype.hasOwnProperty.call(saved, k)) settings[k] = saved[k];
+          }
+        }
+        // First visit: the preview backdrop starts out matching the page theme.
+        if (!saved || !saved.backdrop) {
+          settings.backdrop = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        }
+        state.history = load(HISTORY_KEY, []) || [];
+
+        el.zoom.value = settings.zoom;
+        el.zoomVal.textContent = settings.zoom + 'px';
+        el.prevOut.style.fontSize = settings.zoom + 'px';
+        el.prevWrap.dataset.bg = settings.backdrop;
+        el.wrapSel.value = settings.wrap;
+
+        Array.prototype.forEach.call(el.modeSeg.children, function (b) {
+          b.classList.toggle('active', b.dataset.mode === settings.mode);
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-bgset]'), function (b) {
+          b.classList.toggle('on', b.dataset.bgset === settings.backdrop);
+        });
+      }
+
+      function initMathLive() {
+        mf = el.mf;
+        if (!window.MathfieldElement || !mf || typeof mf.getValue !== 'function') {
+          mf = null;
+          el.fieldShell.classList.add('nomf');
+          setEngine('Visual editor unavailable', 'bad');
+          el.fieldHint.textContent = 'the visual field failed to load — the source pane still works';
+          return;
+        }
+        try {
+          MathfieldElement.soundsDirectory = null;
+          MathfieldElement.plonkSound = null;
+          MathfieldElement.keypressSound = null;
+        } catch (e) { /* older builds */ }
+
+        mf.smartMode = false;
+        mf.smartFence = true;
+        mf.smartSuperscript = false; // otherwise x^12 exits after the 1
+        mf.mathVirtualKeyboardPolicy = 'auto';
+        try {
+          mf.macros = Object.assign({}, mf.macros, {
+            R: '\\mathbb{R}', N: '\\mathbb{N}', Z: '\\mathbb{Z}', Q: '\\mathbb{Q}'
+          });
+        } catch (e) { /* noop */ }
+
+        mf.addEventListener('input', syncFromField);
+        mf.addEventListener('focusin', function () { el.fieldShell.classList.add('focus'); });
+        mf.addEventListener('focusout', function () { el.fieldShell.classList.remove('focus'); });
+
+        // Enter starts a new line / row. Capture phase on the host runs
+        // before MathLive's own key handler inside the shadow root. While a
+        // \command is still being typed (latex mode), Enter is left to
+        // MathLive so it can complete the command.
+        mf.addEventListener('keydown', function (e) {
+          if (e.key !== 'Enter' || e.isComposing || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
+          if (mf.mode === 'latex') return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          newLine();
+        }, true);
+
+        state.fieldTex = fieldLatex();
+      }
+
+      function boot() {
+        applySettings();
+        buildTemplates();
+        buildPalette();
+        buildReference('');
+        buildSettings();
+        buildHistory();
+        wire();
+
+        initMathLive();
+        syncGutter();
+        pushUndo_('');
+
+        if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
+          MathJax.startup.promise.then(function () {
+            try { document.head.appendChild(MathJax.svgStylesheet()); } catch (e) { /* noop */ }
+            el.prevSkel.style.display = 'none';
+            el.prevEmpty.style.display = state.tex.trim() ? 'none' : '';
+            setEngine('Ready', 'live');
+            if (state.tex.trim()) render();
+          }).catch(function () {
+            el.prevSkel.style.display = 'none';
+            setEngine('Typesetter failed to load', 'bad');
+            el.prevEmpty.style.display = '';
+            el.prevEmpty.querySelector('p').textContent =
+              'The typesetting engine could not be reached, so rendering and image export are off. Converting between the visual field and raw LaTeX still works.';
+          });
+        } else {
+          el.prevSkel.style.display = 'none';
+          setEngine('Typesetter failed to load', 'bad');
+          el.prevEmpty.style.display = '';
+        }
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+      else boot();
+    })();
+  </script>
+</body>
+
+</html>
