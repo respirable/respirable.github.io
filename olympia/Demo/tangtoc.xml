@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  BỘ ĐỀ DEMO - Tăng tốc. Mọi câu hỏi / đáp án dưới đây là YẾU TỐ MẪU, không phải đề thật,
+  và không kèm ảnh / video. Định dạng giống Questions/tangtoc.xml (xem chú thích ở file đó).
+-->
+<tangtoc>
+  <question seconds="20">
+    <text>Câu hỏi tăng tốc 1 (mẫu)</text>
+    <answer>TĂNGTỐC1</answer>
+  </question>
+  <question seconds="20">
+    <text>Câu hỏi tăng tốc 2 (mẫu)</text>
+    <answer>TĂNGTỐC2</answer>
+  </question>
+  <question seconds="30">
+    <text>Câu hỏi tăng tốc 3 (mẫu)</text>
+    <answer>TĂNGTỐC3</answer>
+  </question>
+  <question seconds="30">
+    <text>Câu hỏi tăng tốc 4 (mẫu)</text>
+    <answer>TĂNGTỐC4</answer>
+  </question>
+</tangtoc>

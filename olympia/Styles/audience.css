@@ -1,0 +1,190 @@
+/* Olympia Controller - audience screen (audience.html), on top of olympia.css.
+   The 1920x1080 stage is scaled (AudienceMirror.js) to fill the window. During VCNV and Tăng tốc
+   the "Chung vui với thí sinh" strip is part of that picture: it sits along the bottom and every
+   stage graphic moves up --a-shift to make room (their tops are at 95-100 px, so nothing
+   is cut). On a screen too small for that, the strip sits under the picture instead.
+   The strip speaks the graphics' language: navy card + white frame (results board), cyan tabs,
+   the stage font, answer text in the answer bars' Arial. */
+
+:root {
+	--a-cyan-hi: #22d3ff;
+	--a-cyan-lo: #0a9be6;
+	--a-navy: #062a66;
+	--a-card: radial-gradient(ellipse at 50% 0%, #0b3f9a 0%, #072a6e 55%, #051a4a 100%);
+	--a-tab: radial-gradient(ellipse 45% 120% at 50% -20%, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, 0) 70%), linear-gradient(#22d3ff, #0a9be6);
+	--a-ok: #3fdc7a;
+	--a-bad: #ff7a6e;
+	--a-shift: 84px;   /* VCNV / Tăng tốc graphics start at 95-100 px and end by 985-1002: 84 keeps both clear */
+}
+
+html, body.audience { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body.audience {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	height: 100dvh;
+	background: #020a1f;
+}
+
+/* ---------- the stage picture ---------- */
+.aViewport {
+	position: relative;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.aStageFit { position: relative; flex: 0 0 auto; overflow: hidden; }
+.aStageFit > .stageContainerDiv {
+	position: absolute;
+	left: 0;
+	top: 0;
+	transform-origin: 0 0;
+	transform: scale(var(--stage-scale, 1));
+}
+/* make room for the strip: `translate` adds to the graphics' own zoom transforms (a `transition`
+   here would replace theirs, so the move is instant) */
+.stageContainerDiv.aPlayOn > div:not(.stageBackgroundDiv) {
+	translate: 0 calc(-1 * var(--a-shift));
+}
+
+.aStatus {
+	position: absolute;
+	left: 50%;
+	top: 12px;
+	transform: translateX(-50%);
+	margin: 0;
+	padding: 8px 16px;
+	border-radius: 6px;
+	background: rgba(122, 29, 29, .92);
+	color: #fff;
+	font: bold 15px/1.3 'Olympia', 'Myriad Pro', Arial, sans-serif;
+	white-space: nowrap;
+}
+.aStatus:empty { display: none; }
+
+/* ---------- "Chung vui với thí sinh" - shared look ---------- */
+.aPlay {
+	color: white;
+	font-family: 'Olympia', 'Myriad Pro', Arial, sans-serif;
+	font-weight: bold;
+	background: var(--a-card);
+	box-sizing: border-box;
+}
+.aPlay.hidden, .aPlay .hidden { display: none !important; }
+.aPlayTitle { margin: 0; }
+.aPlayTitle span { display: inline-block; background: var(--a-tab); color: var(--a-navy); letter-spacing: .04em; white-space: nowrap; }
+.aPlayBody { display: flex; flex-wrap: wrap; align-items: stretch; }
+.aField { display: flex; align-items: stretch; border-style: solid; border-color: white; background: #051a4a; min-width: 0; }
+.aField#aForm { flex: 1 1 0; }
+.aField.aKeyword { flex: 0.75 1 0; }
+.aFieldTab { display: flex; align-items: center; background: var(--a-tab); color: var(--a-navy); white-space: nowrap; letter-spacing: .03em; }
+.aField input {
+	flex: 1;
+	min-width: 0;
+	border: 0;
+	outline: 0;
+	background: transparent;
+	color: white;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.aField input::placeholder { color: #6f87b8; text-transform: none; font-weight: normal; }
+.aField:focus-within { box-shadow: 0 0 0 4px rgba(34, 211, 255, .45); }
+.aField input:disabled { cursor: not-allowed; }
+.aSend {
+	border: 0;
+	border-left-style: solid;
+	border-left-color: white;
+	background: linear-gradient(#0d4bb5, #072a6e);
+	color: white;
+	font: inherit;
+	letter-spacing: .05em;
+	cursor: pointer;
+	font-variant-numeric: tabular-nums;
+}
+.aSend:disabled { color: #6f87b8; cursor: not-allowed; }
+.aSend:not(:disabled):hover { background: var(--a-tab); color: var(--a-navy); }
+.aResult { flex-basis: 100%; display: flex; flex-wrap: nowrap; overflow: hidden; }
+.aChip { display: inline-flex; align-items: stretch; border: 1px solid rgba(255, 255, 255, .7); white-space: nowrap; }
+.aChip .k { background: rgba(255, 255, 255, .12); color: #b8cdf2; font-weight: normal; }
+.aChip .v { font-family: Arial, Helvetica, sans-serif; }
+.aChip.ok { border-color: var(--a-ok); }
+.aChip.ok .v { color: var(--a-ok); }
+.aChip.bad { border-color: var(--a-bad); }
+.aChip.bad .v { color: var(--a-bad); }
+
+/* ---------- inside the picture (stage px: the strip is scaled with the stage) ---------- */
+.stageContainerDiv > .aPlay {
+	position: absolute;
+	left: 60px;
+	right: 60px;
+	bottom: 14px;
+	height: 140px;
+	border: 3px solid white;
+	padding: 24px 22px 12px;
+	z-index: 5;
+}
+.stageContainerDiv > .aPlay .aPlayTitle { position: absolute; left: 22px; top: -22px; }
+.stageContainerDiv > .aPlay .aPlayTitle span { height: 38px; line-height: 40px; padding: 0 22px; font-size: 24px; border: 3px solid white; border-bottom: 0; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); }
+.stageContainerDiv > .aPlay .aPlayBody { gap: 8px 18px; height: 100%; }
+.stageContainerDiv > .aPlay .aField { height: 56px; border-width: 3px; }
+.stageContainerDiv > .aPlay .aFieldTab { padding: 0 18px; font-size: 24px; }
+.stageContainerDiv > .aPlay .aField input { padding: 0 18px; font-size: 32px; }
+.stageContainerDiv > .aPlay .aField input::placeholder { font-size: 24px; }
+.stageContainerDiv > .aPlay .aSend { min-width: 150px; border-left-width: 3px; font-size: 24px; }
+.stageContainerDiv > .aPlay .aResult { gap: 10px; height: 30px; font-size: 22px; }
+.stageContainerDiv > .aPlay .aChip span { padding: 1px 12px; line-height: 26px; }
+
+/* ---------- under the picture (small screens) ---------- */
+body > .aPlay { flex: 0 0 auto; border-top: 3px solid white; padding: 8px 10px 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+body > .aPlay .aPlayTitle { margin-bottom: 8px; }
+body > .aPlay .aPlayTitle span { padding: 4px 12px; font-size: 14px; }
+body > .aPlay .aPlayBody { gap: 8px; }
+body > .aPlay .aField { flex-basis: 100%; height: 44px; border-width: 2px; }
+body > .aPlay .aFieldTab { padding: 0 10px; font-size: 13px; }
+body > .aPlay .aField input { padding: 0 10px; font-size: 18px; }
+body > .aPlay .aField input::placeholder { font-size: 15px; }
+body > .aPlay .aSend { min-width: 84px; border-left-width: 2px; font-size: 15px; }
+body > .aPlay .aResult { flex-wrap: wrap; gap: 6px; font-size: 14px; }
+body > .aPlay .aChip span { padding: 3px 8px; }
+
+/* a phone held upright: picture at the top, the free space below says how to see it bigger */
+@media (orientation: portrait) {
+	.aViewport { align-items: flex-start; }
+	.aViewport::after {
+		content: "Xoay ngang điện thoại để xem đồ hoạ lớn hơn";
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 18px;
+		text-align: center;
+		color: #6f87b8;
+		font: bold 14px/1.3 'Olympia', 'Myriad Pro', Arial, sans-serif;
+	}
+}
+
+/* a stage page showing a game that runs elsewhere (Init.js -> ?view=stage): picture only */
+body.stageView { cursor: none; background: #000; }
+body.stageView .aViewport::after { display: none; }
+body.stageView .aStatus { top: auto; bottom: 12px; }
+
+/* stage screen: the panel plays the sound here, but the browser waits for a click first */
+.aSound {
+	position: fixed;
+	left: 50%;
+	top: 24px;
+	transform: translateX(-50%);
+	z-index: 50;
+	padding: 14px 26px;
+	border: 2px solid #fff;
+	border-radius: 10px;
+	background: rgba(7, 42, 110, 0.92);
+	color: #fff;
+	font: bold 20px/1.3 Arial, sans-serif;
+	cursor: pointer;
+}
+.aSound.hidden { display: none; }

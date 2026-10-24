@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Thí sinh. seat = vị trí đứng 1..4. Tên hiển thị trên đồ hoạ = 2 từ cuối của <name>.
+  <school> chưa dùng trên đồ hoạ; hiện ở màn quản lý (để trống được).
+-->
+<players>
+  <player seat="1">
+    <name>Thí sinh 1</name>
+    <school></school>
+  </player>
+  <player seat="2">
+    <name>Thí sinh 2</name>
+    <school></school>
+  </player>
+  <player seat="3">
+    <name>Thí sinh 3</name>
+    <school></school>
+  </player>
+  <player seat="4">
+    <name>Thí sinh 4</name>
+    <school></school>
+  </player>
+</players>

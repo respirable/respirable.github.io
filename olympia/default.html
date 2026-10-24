@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<title>Olympia</title>
+	<link rel="stylesheet" type="text/css" href="Styles/olympia.css">
+
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script> <!-- only used with ?room= -->
+	<script src="Scripts/Config.js"></script> <!-- Supabase URL + public anon key -->
+	<script src="Scripts/Auth.js"></script> <!-- sign-in (anonymous here) -->
+	<script src="Scripts/Variables.js"></script> <!-- settings + all game state -->
+	<script src="Scripts/StateSync.js"></script> <!-- two-screen sync: this browser, or a room (?room=CODE) -->
+	<script src="Scripts/AudioControl.js"></script> <!-- sound - graphics page ONLY -->
+	<script src="Scripts/TimerControl.js"></script> <!-- the clock behind every timer bar -->
+	<script src="Scripts/QuestionLoader.js"></script> <!-- (empty - moved into Init.js) -->
+	<script src="Scripts/StageControl.js"></script> <!-- background, title card, DOM helpers -->
+	<script src="Scripts/ScoreboardControl.js"></script> <!-- contestant bars + scores -->
+	<script src="Scripts/ScoreSummaryControl.js"></script><!-- key M -->
+	<script src="Scripts/ScoreBoardScreenControl.js"></script><!-- key F6 -->
+	<script src="Scripts/VcnvControl.js"></script> <!-- VCNV board / picture / question bar -->
+	<script src="Scripts/VcnvTreeControl.js"></script> <!-- answer tree (VCNV + Tăng tốc) -->
+	<script src="Scripts/TangTocControl.js"></script> <!-- Tăng tốc frame -->
+	<script src="Scripts/VeDichControl.js"></script> <!-- Về đích screens -->
+	<script src="Scripts/QuestionControl.js"></script> <!-- Khởi động question bar -->
+	<script src="Scripts/GeneralControl.js"></script> <!-- switching rounds -->
+	<script src="Scripts/Rounds/KhoiDong.js"></script> <!-- step functions of each round -->
+	<script src="Scripts/Rounds/VCNV.js"></script>
+	<script src="Scripts/Rounds/TangToc.js"></script>
+	<script src="Scripts/Rounds/VeDich.js"></script>
+	<script src="Scripts/Rounds/TieBreak.js"></script>
+	<script src="Scripts/KeyboardController.js"></script> <!-- EVERY key: which step it calls -->
+	<script src="Scripts/PanelStateControl.js"></script> <!-- what the control panel is told -->
+	<script src="Scripts/PanelCommands.js"></script> <!-- what the control panel can ask -->
+	<script src="Scripts/PlayerActions.js"></script> <!-- players' own devices (room mode) -->
+	<script src="Scripts/Recovery.js"></script> <!-- emergency progress recovery (control panel) -->
+	<script src="Scripts/GameSave.js"></script> <!-- automatic save of the game + resuming from it -->
+	<script src="Scripts/MatchLog.js"></script> <!-- match log + undo of the last action's points -->
+	<script src="Scripts/VcnvPublicImage.js"></script> <!-- the VCNV picture players / audience may see -->
+	<script src="Scripts/QuestionSet.js"></script> <!-- a room's question set from Supabase Storage -->
+	<script src="Scripts/Init.js"></script>
+</head>
+
+<body>
+	<div class="stageContainerDiv">
+
+		<!-- background: hidden until C -->
+		<div class="stageBackgroundDiv visible">
+			<img src="O24/background.png" alt="">
+		</div>
+
+		<!-- round title card -->
+		<div class="titleCardDiv">
+			<img data-round="kd" src="O24/Warm-up/text.png" width="1077" height="240" alt="">
+			<img data-round="vcnv" src="O24/Beat the Obstacle/text.png" width="1731" height="460" alt="">
+			<img data-round="tt" src="O24/Accelerate/text.png" width="959" height="250" alt="">
+			<img data-round="vd" src="O24/Finish Line/text.png" width="749" height="250" alt="">
+		</div>
+
+		<!-- question bar -->
+		<div class="questionBarDiv offstage">
+			<img src="O24/Warm-up/question_bar.png" alt="" class="questionBarImg">
+			<p class="questionTextP"></p>
+			<p class="questionClockP"></p>
+		</div>
+
+		<!-- four contestant bars, built by ScoreboardControl.render() -->
+		<div class="scoreboardDiv offstage"></div>
+
+		<!-- score summary (key M): plain question bar shrunk to a panel + Accelerate name tab on top -->
+		<!-- Vượt chướng ngại vật: picture + covers (left), letter board (right), question bar (bottom-left).
+		     Contents are built by VcnvControl.render() from Questions/vcnv.xml. -->
+		<div class="vcnvDiv offstage">
+			<div class="vcnvPictureDiv"></div>
+			<div class="vcnvBoardDiv"></div>
+			<div class="vcnvQuestionDiv"></div>
+		</div>
+
+		<!-- Tăng tốc: question bar + contents frame (built by TangTocControl) -->
+		<div class="ttDiv offstage"></div>
+
+		<!-- Ve dich: choose screen, name tabs + question bar, score box (built by VeDichControl) -->
+		<div class="vdDiv offstage"></div>
+
+		<!-- VCNV answer tree (built by VcnvTreeControl) -->
+		<div class="vcnvTreeDiv offstage"></div>
+		<!-- CNV signal tabs while the answer tree is up - same screen spot as on the question bar -->
+		<div class="vcnvSignalsDiv vcnvTreeSignalsDiv offstage"></div>
+
+		<div class="summaryDiv offstage">
+			<img src="O24/Warm-up/question_bar_without_timer.png" alt="" class="summaryPanelImg">
+			<img src="O24/Accelerate/Answers/contestant_name_bar.png" alt="" class="summaryTabImg">
+			<p class="summaryNameP"></p>
+			<p class="summaryScoreP"></p>
+		</div>
+
+		<!-- "current results" board (F6): four CSS score cards, built by ScoreBoardScreenControl -->
+		<div class="boardScreenDiv offstage"></div>
+
+		<!-- shown when a second graphics tab is detected -->
+		<div class="authorityWarningDiv">Một màn hình đồ hoạ khác đang mở — âm thanh sẽ bị lặp. Đóng tab này hoặc tab
+			kia.</div>
+
+	</div>
+</body>
+
+</html>

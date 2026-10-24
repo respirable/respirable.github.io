@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<title>Olympia — Khán giả</title>
+	<link rel="stylesheet" type="text/css" href="Styles/olympia.css">
+	<link rel="stylesheet" type="text/css" href="Styles/audience.css">
+
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+	<script src="Scripts/Config.js"></script>
+	<script src="Scripts/Auth.js"></script>
+	<script src="Scripts/PublicRoom.js"></script>
+	<!-- the stage's own graphics modules - drawn from the public state, no game logic, no sound -->
+	<script src="Scripts/Variables.js"></script>
+	<script src="Scripts/AudioControl.js"></script> <!-- stage screens: replays the sound the engine relays -->
+	<script src="Scripts/StageControl.js"></script>
+	<script src="Scripts/TimerControl.js"></script>
+	<script src="Scripts/QuestionControl.js"></script>
+	<script src="Scripts/ScoreboardControl.js"></script>
+	<script src="Scripts/ScoreBoardScreenControl.js"></script>
+	<script src="Scripts/VcnvControl.js"></script>
+	<script src="Scripts/VcnvTreeControl.js"></script>
+	<script src="Scripts/TangTocControl.js"></script>
+	<script src="Scripts/VeDichControl.js"></script>
+	<script src="Scripts/AudienceMirror.js" defer></script>
+	<script src="Scripts/AudiencePlay.js" defer></script>
+</head>
+
+<body class="audience">
+	<div class="aViewport" id="aViewport">
+		<div class="aStageFit" id="aStageFit">
+			<!-- same markup as default.html -->
+			<div class="stageContainerDiv">
+				<div class="stageBackgroundDiv visible"><img src="O24/background.png" alt=""></div>
+				<div class="titleCardDiv">
+					<img data-round="kd" src="O24/Warm-up/text.png" width="1077" height="240" alt="">
+					<img data-round="vcnv" src="O24/Beat the Obstacle/text.png" width="1731" height="460" alt="">
+					<img data-round="tt" src="O24/Accelerate/text.png" width="959" height="250" alt="">
+					<img data-round="vd" src="O24/Finish Line/text.png" width="749" height="250" alt="">
+				</div>
+				<div class="questionBarDiv offstage">
+					<img src="O24/Warm-up/question_bar.png" alt="" class="questionBarImg">
+					<p class="questionTextP"></p>
+					<p class="questionClockP"></p>
+				</div>
+				<div class="scoreboardDiv offstage"></div>
+				<div class="vcnvDiv offstage">
+					<div class="vcnvPictureDiv"></div>
+					<div class="vcnvBoardDiv"></div>
+					<div class="vcnvQuestionDiv"></div>
+				</div>
+				<div class="ttDiv offstage"></div>
+				<div class="vdDiv offstage"></div>
+				<div class="vcnvTreeDiv offstage"></div>
+				<div class="vcnvSignalsDiv vcnvTreeSignalsDiv offstage"></div>
+				<div class="summaryDiv offstage">
+					<img src="O24/Warm-up/question_bar_without_timer.png" alt="" class="summaryPanelImg">
+					<img src="O24/Accelerate/Answers/contestant_name_bar.png" alt="" class="summaryTabImg">
+					<p class="summaryNameP"></p>
+					<p class="summaryScoreP"></p>
+				</div>
+				<div class="boardScreenDiv offstage"></div>
+			</div>
+		</div>
+		<p class="aStatus" id="aStatus" role="status"></p>
+		<button type="button" class="aSound hidden" id="aSound">Bấm để bật âm thanh trên màn này</button>
+	</div>
+
+	<!-- "Chung vui với thí sinh" (VCNV + Tăng tốc only). AudienceMirror.js puts it INSIDE the stage
+	     picture (bottom strip; the graphics move up to make room) when the screen is big enough,
+	     otherwise right under the picture. -->
+	<section class="aPlay hidden" id="aPlay">
+		<p class="aPlayTitle"><span>CHUNG VUI VỚI THÍ SINH</span></p>
+		<div class="aPlayBody">
+			<form class="aField" id="aForm" autocomplete="off">
+				<span class="aFieldTab" id="aFieldTab">ĐÁP ÁN</span>
+				<input type="text" id="aInput" maxlength="100" spellcheck="false" placeholder="Chờ câu hỏi..." disabled>
+				<button type="submit" class="aSend" id="aSend" disabled>GỬI</button>
+			</form>
+			<form class="aField aKeyword hidden" id="aKeyForm" autocomplete="off">
+				<span class="aFieldTab">CHƯỚNG NGẠI VẬT</span>
+				<input type="text" id="aKeyInput" maxlength="40" spellcheck="false" placeholder="Đoán chướng ngại vật...">
+				<button type="submit" class="aSend" id="aKeySend">ĐOÁN</button>
+			</form>
+			<div class="aResult" id="aResult"></div>
+		</div>
+	</section>
+</body>
+
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Olympia Controller — Sảnh</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css">
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+	<script src="Scripts/Config.js"></script>
+	<script src="Scripts/Auth.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+	<script src="Scripts/QrCode.js"></script>
+	<script src="Scripts/Lobby.js" defer></script>
+	<script src="Scripts/LobbyPublic.js" defer></script>
+</head>
+
+<body>
+	<div class="betaBar hidden" id="betaBar" role="note">PHẦN MỀM ĐANG TRONG QUÁ TRÌNH THỬ NGHIỆM. BÁO LỖI TẠI TRANG
+		<a href="https://github.com/respirable/respirable.github.io" target="_blank"
+			rel="noopener">https://github.com/respirable/respirable.github.io</a> NẾU CẦN</div>
+	<main class="wrap">
+		<header class="top">
+			<div>
+				<p class="eyebrow">Olympia Controller</p>
+				<h1>Sảnh quản lý</h1>
+			</div>
+			<div class="who hidden" id="who">
+				<span id="whoName"></span>
+				<button type="button" class="btn" id="accountOpen">Tài khoản</button>
+				<button type="button" class="btn" id="signOut">Đăng xuất</button>
+			</div>
+		</header>
+
+		<p class="notice hidden" id="notice"></p>
+
+		<!-- ============ sign in ============ -->
+		<section class="card narrow hidden" id="loginCard">
+			<h2>Đăng nhập</h2>
+			<p class="meta">Chỉ dành cho người quản lý có tài khoản do BTC cấp. Thí sinh, màn sân khấu, khán giả và
+				bảng điểm không cần đăng nhập — chỉ cần mã phòng.</p>
+			<form id="loginForm" class="stack">
+				<label>Email hoặc tên đăng nhập
+					<input type="text" id="login" autocomplete="username" required>
+				</label>
+				<label>Mật khẩu
+					<input type="password" id="password" autocomplete="current-password" required>
+				</label>
+				<button type="submit" class="btn primary" id="loginBtn">Đăng nhập</button>
+			</form>
+			<div class="or"><span>hoặc</span></div>
+			<button type="button" class="btn wide" id="googleBtn">Đăng nhập bằng Google</button>
+			<p class="error" id="loginError" role="alert"></p>
+			<!-- for people without an account (Scripts/LobbyPublic.js) -->
+			<div class="publicLinks">
+				<button type="button" class="linkBtn" id="reqOpen">Không có tài khoản? <b>Yêu cầu một tài
+						khoản</b></button>
+				<button type="button" class="btn wide" id="joinOpen">Tham gia trận đấu</button>
+			</div>
+		</section>
+
+		<!-- ============ rooms ============ -->
+		<section class="hidden" id="roomsView">
+			<div class="card">
+				<h2>Tạo phòng mới</h2>
+				<form id="createForm" class="row">
+					<label class="grow">Tên phòng (tuỳ chọn)
+						<input type="text" id="roomName" maxlength="80" placeholder="Ví dụ: Tuần 1 — Tháng 1">
+					</label>
+					<label>Mật khẩu cho thí sinh (4–20 ký tự)
+						<input type="text" id="roomPassword" minlength="4" maxlength="20" required autocomplete="off">
+					</label>
+					<button type="submit" class="btn primary" id="createBtn">Tạo phòng</button>
+				</form>
+				<p class="error" id="createError" role="alert"></p>
+			</div>
+
+			<div class="listHead">
+				<h2>Phòng của bạn</h2>
+				<button type="button" class="btn" id="refresh">Làm mới</button>
+			</div>
+			<p class="meta" id="emptyRooms">Chưa có phòng nào.</p>
+			<div id="rooms" class="rooms"></div>
+		</section>
+	</main>
+
+	<template id="roomTpl">
+		<article class="card room">
+			<div class="roomHead">
+				<div>
+					<p class="eyebrow">Mã phòng</p>
+					<p class="code" data-f="code"></p>
+				</div>
+				<div class="grow">
+					<p class="roomName" data-f="name"></p>
+					<p class="meta" data-f="created"></p>
+					<p class="meta expiry" data-f="expiry"></p>
+					<p class="role hidden" data-f="role">Được mời cùng quản lý</p>
+				</div>
+				<p class="stage" data-f="stage"></p>
+			</div>
+
+			<!-- the room's screens: one button each (Scripts/Lobby.js) -->
+			<div class="roomBtns">
+				<a class="tile primary" data-o="control" target="_blank" rel="noopener">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" />
+						<circle cx="16" cy="6" r="2" />
+						<circle cx="10" cy="12" r="2" />
+						<circle cx="18" cy="18" r="2" />
+					</svg>
+					<span><b>Quản lý trận</b></span>
+				</a>
+				<a class="tile" data-o="questions" target="_blank" rel="noopener">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+						<path d="M14 3v5h5" />
+						<path d="M10 12.5a2 2 0 1 1 2.8 1.8c-.5.3-.8.7-.8 1.2v.5" />
+						<path d="M12 18.5h0" />
+					</svg>
+					<span><b>Quản lý câu hỏi</b></span>
+				</a>
+				<a class="tile" data-o="stage" target="_blank" rel="noopener">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<rect x="2.5" y="4" width="19" height="12" rx="1.5" />
+						<path d="M8 20h8M12 16v4" />
+					</svg>
+					<span><b>Vào màn sân khấu</b></span>
+				</a>
+				<a class="tile" data-o="player" target="_blank" rel="noopener">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M6 15a6 6 0 0 1 12 0" />
+						<path d="M4 15h16v3H4z" />
+						<path d="M12 9V6M9.5 6.5 8 4.5M14.5 6.5 16 4.5" />
+					</svg>
+					<span><b>Vào thi</b></span>
+				</a>
+				<a class="tile" data-o="audience" target="_blank" rel="noopener">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="9" cy="8" r="3" />
+						<path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
+						<circle cx="17" cy="9" r="2.5" />
+						<path d="M15.5 14.3A4.5 4.5 0 0 1 21 18.5" />
+					</svg>
+					<span><b>Hiện màn khán giả</b></span>
+				</a>
+				<button type="button" class="tile" data-a="podiums">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M8 21V11h8v10M2 21v-6h6M16 21v-8h6v8M1 21h22" />
+						<path d="M12 3l1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 9l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z" />
+					</svg>
+					<span><b>Hiện bảng điểm</b></span>
+				</button>
+				<button type="button" class="tile" data-a="share">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="18" cy="5" r="2.5" />
+						<circle cx="6" cy="12" r="2.5" />
+						<circle cx="18" cy="19" r="2.5" />
+						<path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" />
+					</svg>
+					<span><b>Chia sẻ liên kết trận</b></span>
+				</button>
+			</div>
+
+			<div class="seats" data-f="seats"></div>
+
+			<div class="actions">
+				<button type="button" class="btn sm" data-a="managers">Người cùng quản lý</button>
+				<button type="button" class="btn sm" data-a="password">Đổi mật khẩu thí sinh</button>
+				<button type="button" class="btn sm" data-a="release">Giải phóng phòng</button>
+				<button type="button" class="btn sm" data-a="clearSave">Xoá bản lưu tự động</button>
+				<button type="button" class="btn sm danger" data-a="delete">Xoá phòng</button>
+			</div>
+		</article>
+	</template>
+
+	<!-- dialogs shared by every room (filled by Scripts/Lobby.js for the room they are opened from) -->
+	<dialog class="lobbyDialog" id="shareDialog">
+		<div class="dlgHead"><b>Chia sẻ liên kết trận · <span data-d="code"></span></b><button type="button"
+				class="btn sm" data-close>Đóng</button></div>
+		<p class="meta">Gửi liên kết cho đúng người: thí sinh cần thêm mật khẩu BTC; sân khấu, khán giả và bảng điểm chỉ
+			cần
+			mã phòng. Liên kết quản lý trận chỉ mở được bằng tài khoản quản lý.</p>
+		<div class="links" id="shareLinks"></div>
+		<div class="shareQr">
+			<figure>
+				<div id="qrAudience"></div>
+				<figcaption>Khán giả</figcaption>
+			</figure>
+			<figure>
+				<div id="qrPlayer"></div>
+				<figcaption>Thí sinh (cần mật khẩu BTC)</figcaption>
+			</figure>
+		</div>
+		<div class="dlgFoot"><button type="button" class="btn" id="shareAll">Chép tất cả</button><button type="button"
+				class="btn primary hidden" id="shareNative">Chia sẻ…</button></div>
+	</dialog>
+
+	<!-- the manager's own account (Scripts/Lobby.js; deleting needs migrations/0007) -->
+	<dialog class="lobbyDialog account" id="accountDialog">
+		<div class="dlgHead"><b>Tài khoản · <span id="accName"></span></b><button type="button" class="btn sm"
+				data-close>Đóng</button></div>
+
+		<section class="accSec">
+			<h3>Đổi mật khẩu</h3>
+			<form id="pwForm" class="stack">
+				<label id="pwCurrentLabel">Mật khẩu hiện tại
+					<input type="password" id="pwCurrent" autocomplete="current-password">
+				</label>
+				<label>Mật khẩu mới (ít nhất 8 ký tự)
+					<input type="password" id="pwNew" autocomplete="new-password" minlength="8" required>
+				</label>
+				<label>Nhập lại mật khẩu mới
+					<input type="password" id="pwNew2" autocomplete="new-password" minlength="8" required>
+				</label>
+				<button type="submit" class="btn primary" id="pwBtn">Đổi mật khẩu</button>
+				<p class="meta" id="pwMsg"></p>
+			</form>
+		</section>
+
+		<section class="accSec">
+			<h3>Đăng xuất khỏi các phiên khác</h3>
+			<p class="meta">Đăng xuất tài khoản này trên mọi máy / trình duyệt khác. Máy này vẫn đăng nhập. Màn sân
+				khấu,
+				khán giả, thí sinh không dùng tài khoản nên không bị ảnh hưởng; bàn điều khiển trên máy khác phải đăng
+				nhập lại.</p>
+			<button type="button" class="btn" id="signOutOthers">Đăng xuất khỏi các phiên khác</button>
+			<p class="meta" id="othersMsg"></p>
+		</section>
+
+		<section class="accSec danger">
+			<h3>Xoá tài khoản</h3>
+			<p class="meta">Xoá vĩnh viễn tài khoản cùng mọi phòng, bộ đề, ảnh / video và bản lưu của nó. Email sẽ bị gỡ
+				khỏi
+				danh sách được phép của BTC.</p>
+			<label>Gõ tên người dùng của bạn: <b id="delNameHint"></b>
+				<input type="text" id="delName" autocomplete="off" autocapitalize="off" spellcheck="false">
+			</label>
+			<label>Gõ lại chính xác câu dưới đây (không sao chép được)
+				<canvas id="delSentence" class="sentence" aria-label="Câu xác nhận"></canvas>
+				<textarea id="delConfirm" rows="4" autocomplete="off" spellcheck="false"></textarea>
+			</label>
+			<button type="button" class="btn danger" id="delBtn" disabled>Xoá tài khoản vĩnh viễn</button>
+			<p class="meta" id="delMsg"></p>
+		</section>
+	</dialog>
+
+	<!-- co-managers of one room (migrations/0008) -->
+	<dialog class="lobbyDialog" id="managersDialog">
+		<div class="dlgHead"><b>Người cùng quản lý · <span data-d="code"></span></b><button type="button" class="btn sm"
+				data-close>Đóng</button></div>
+		<p class="meta">Những email dưới đây đăng nhập sảnh sẽ thấy phòng này và mở được bàn điều khiển của phòng (kể cả
+			khi
+			BTC chưa cấp tài khoản cho email đó). Chỉ bạn xoá phòng, mời ra thí sinh, đổi bộ đề và danh sách này.</p>
+		<div class="mgrList" id="mgrList"></div>
+		<label>Thêm email (mỗi dòng hoặc cách nhau bằng dấu phẩy)
+			<textarea id="mgrAdd" rows="3" placeholder="tro.ly@example.com, giam.khao@example.com"></textarea>
+		</label>
+		<div class="dlgFoot"><span class="meta" id="mgrMsg"></span><button type="button" class="btn primary"
+				id="mgrSave">Mời</button></div>
+	</dialog>
+
+	<dialog class="lobbyDialog" id="podiumDialog">
+		<div class="dlgHead"><b>Bảng điểm từng ghế · <span data-d="code"></span></b><button type="button" class="btn sm"
+				data-close>Đóng</button></div>
+		<p class="meta">Mỗi ghế một màn hình (TV / máy tính bảng trước bục). Không cần đăng nhập.</p>
+		<div class="podiumPick" id="podiumLinks"></div>
+	</dialog>
+
+	<!-- ============ "Yêu cầu một tài khoản" (LobbyPublic.js -> Edge Function request-account) ============ -->
+	<dialog class="lobbyDialog" id="reqDialog">
+		<div class="dlgHead"><b>Yêu cầu một tài khoản quản lý</b><button type="button" class="btn sm"
+				data-close>Đóng</button></div>
+		<p class="reqWarn">NẾU CHỈ CẦN THAM GIA TRẬN ĐẤU, BẠN KHÔNG CẦN YÊU CẦU MỘT TÀI KHOẢN.</p>
+		<p class="meta">Tài khoản quản lý dùng để tạo phòng, soạn bộ đề và điều khiển trận. Yêu cầu được gửi tới chủ sở
+			hữu trang web, nên hãy cẩn thận với những thông tin bạn chia sẻ. Mỗi
+			email chỉ gửi được một yêu cầu trong 7 ngày.</p>
+		<form id="reqForm" class="stack" novalidate>
+			<label><span class="lbl">Tên <span class="req">*</span></span>
+				<input type="text" id="reqName" maxlength="100" autocomplete="name" required>
+			</label>
+			<label><span class="lbl">Ngày sinh <span class="opt">(không bắt buộc)</span></span>
+				<input type="date" id="reqBirth" min="1900-01-01">
+			</label>
+			<label><span class="lbl">Email <span class="req">*</span></span>
+				<input type="email" id="reqEmail" maxlength="254" autocomplete="email" required>
+			</label>
+			<label><span class="lbl">Thông tin liên hệ khác <span class="opt">(không bắt buộc)</span></span>
+				<input type="text" id="reqContact" maxlength="300"
+					placeholder="Số điện thoại, Zalo, Facebook, Discord...">
+				<small class="hint">Nếu có, các thông báo và quyết định về yêu cầu của bạn sẽ ưu tiên được gửi về
+					đây.</small>
+			</label>
+			<label><span class="lbl">Giới thiệu bản thân và lý do yêu cầu tài khoản <span class="req">*</span></span>
+				<textarea id="reqAbout" rows="7" maxlength="12000" required></textarea>
+				<small class="hint" id="reqWords">0 / 1000 từ</small>
+			</label>
+			<div class="captchaBox" id="reqCaptcha"></div>
+			<p class="error" id="reqMsg" role="alert"></p>
+			<div class="dlgFoot"><span></span><button type="submit" class="btn primary" id="reqSend">Gửi yêu
+					cầu</button></div>
+		</form>
+		<div class="reqDone hidden" id="reqDone">
+			<p><b>Đã gửi yêu cầu.</b></p>
+			<p class="meta" id="reqDoneText"></p>
+		</div>
+	</dialog>
+
+	<!-- ============ "Tham gia trận đấu" (LobbyPublic.js) ============ -->
+	<dialog class="lobbyDialog" id="joinDialog">
+		<div class="dlgHead"><b>Tham gia trận đấu</b><button type="button" class="btn sm" data-close>Đóng</button></div>
+		<form id="joinForm" class="stack" novalidate>
+			<label>Mã phòng
+				<input type="text" id="joinCode" maxlength="12" autocomplete="off" autocapitalize="characters"
+					spellcheck="false" placeholder="VD: AZM7MG" required>
+			</label>
+			<fieldset class="joinAs">
+				<legend>Vào với vai trò</legend>
+				<label class="choice"><input type="radio" name="joinAs" value="player" checked>
+					<span><b>Thí sinh</b><small>Cần mật khẩu thí sinh do BTC đưa.</small></span></label>
+				<label class="choice"><input type="radio" name="joinAs" value="audience">
+					<span><b>Khán giả</b><small>Xem trận trực tiếp.</small></span></label>
+				<label class="sub" id="joinPlayBox"><input type="checkbox" id="joinPlay" checked> Trả lời cùng thí sinh
+					(VCNV và Tăng tốc, chỉ trên máy bạn)</label>
+				<label class="choice"><input type="radio" name="joinAs" value="podium">
+					<span><b>Bảng điểm từng thí sinh</b><small>Một màn cho một ghế, đặt trước
+							bục.</small></span></label>
+				<label class="sub" id="joinSeatBox">Ghế
+					<select id="joinSeat">
+						<option value="1">Ghế 1</option>
+						<option value="2">Ghế 2</option>
+						<option value="3">Ghế 3</option>
+						<option value="4">Ghế 4</option>
+					</select>
+				</label>
+			</fieldset>
+			<p class="error" id="joinMsg" role="alert"></p>
+			<div class="dlgFoot"><span></span><button type="submit" class="btn primary">Vào</button></div>
+		</form>
+	</dialog>
+</body>
+
+</html>

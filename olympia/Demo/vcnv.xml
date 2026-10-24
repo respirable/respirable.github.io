@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  BỘ ĐỀ DEMO - Vượt chướng ngại vật. Mọi câu hỏi / đáp án dưới đây là YẾU TỐ MẪU, không phải đề thật.
+  Định dạng giống Questions/vcnv.xml (xem chú thích ở file đó).
+-->
+<vcnv>
+  <keyword><text>CHƯỚNG NGẠI VẬT</text></keyword>
+  <image>O24/VCNV Image.png</image>
+
+  <row><text>Câu hỏi hàng ngang 1 (mẫu)</text><answer>HÀNGNGANG1</answer></row>
+  <row><text>Câu hỏi hàng ngang 2 (mẫu)</text><answer>HÀNGNGANG2</answer></row>
+  <row><text>Câu hỏi hàng ngang 3 (mẫu)</text><answer>HÀNGNGANG3</answer></row>
+  <row><text>Câu hỏi hàng ngang 4 (mẫu)</text><answer>HÀNGNGANG4</answer></row>
+
+  <center><text>Câu hỏi ô trung tâm (mẫu)</text><answer>TRUNGTÂM</answer></center>
+</vcnv>

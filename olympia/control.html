@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<title>Olympia Controller — Quản lý</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Roboto+Mono:wght@500&display=swap">
+	<link rel="stylesheet" type="text/css" href="Styles/control.css">
+	<!-- NO AudioControl.js here: only the graphics page plays sound. -->
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+	<script src="Scripts/Config.js"></script>
+	<script src="Scripts/Auth.js"></script>
+	<script src="Scripts/Variables.js"></script>
+	<script src="Scripts/StateSync.js"></script>
+	<script src="Scripts/KeyboardController.js"></script>
+	<script src="Scripts/ControlPanel.js"></script>
+	<script src="Scripts/RecoveryPanel.js"></script>
+	<script src="Scripts/EmbeddedStage.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+	<script src="Scripts/QrCode.js"></script>
+	<script src="Scripts/RoomPresence.js"></script>
+</head>
+
+<body>
+	<div class="banner" id="connectionBanner">Trận chưa chạy — bấm "Chạy trận trên máy này" ở mục Màn đồ hoạ, hoặc mở
+		default.html trong cùng trình duyệt.</div>
+
+	<div class="page">
+		<!-- ================= MAIN COLUMN ================= -->
+		<div class="main">
+
+			<!-- title + clock -->
+			<div class="head">
+				<h1><small>OLYMPIA CONTROLLER · MÀN QUẢN LÝ</small><span id="roundName">—</span></h1>
+				<div class="headRight">
+				<div class="clock" id="clockBox">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<circle cx="12" cy="13" r="8" />
+						<path d="M12 9v4l3 2M9 3h6" />
+					</svg>
+					<b id="timerValue">—</b><span class="bar"><i id="timerBar"></i></span>
+				</div>
+				<!-- emergency progress recovery, right under the clock (Scripts/RecoveryPanel.js -> Recovery.js on the stage) -->
+				<div class="recovery headRecovery" id="recoverySec">
+					<div class="rcLauncher">
+						<button type="button" class="btn danger" id="rcOpen">Phục hồi tiến trình khẩn cấp…</button>
+						<span class="meta" id="rcState">— chỉ dùng được trước khi bắt đầu Khởi động</span>
+					</div>
+					<!-- the form opens as a dialog over the panel (RecoveryPanel.js) -->
+					<dialog class="recovery rcDialog" id="rcDialog">
+						<div class="rcHead">
+							<b>Phục hồi tiến trình khẩn cấp</b>
+							<button type="button" class="btn sm" id="rcClose">Đóng</button>
+						</div>
+						<div class="bd">
+							<p class="meta">Khi trận phải chạy lại giữa buổi thi (bàn điều khiển tải lại, hoặc chuyển sang máy
+								khác): khai báo trận đang ở đâu và trận sẽ nhảy tới đó; sau đó điều khiển bằng phím như bình thường.
+								Chỉ dùng được khi trận vừa chạy lại (chưa bấm gì ở Khởi động). Khai sai thì bấm "Dừng chạy trên
+								máy này", "Chạy trận trên máy này" rồi khai lại.</p>
+
+							<div class="rcSaved">
+								<h3>Bản lưu tự động</h3>
+								<p class="meta" id="rcSavedText">—</p>
+								<label class="rcCheck hidden" id="rcResumeBox"><input type="checkbox" id="rcResume" checked> <span id="rcResumeText">Chạy tiếp đồng hồ đang dở</span></label>
+							<button type="button" class="btn danger" id="rcSavedApply">Khôi phục từ bản lưu tự động</button>
+								<p class="meta">Trận đang thi được lưu tự động vài giây một lần. Khôi phục sẽ đưa trận về
+									đúng điểm, đúng vòng, ở bước an toàn gần nhất (câu đang hỏi được hỏi lại; đồng hồ đang chạy
+									phải bật lại). Hoặc khai báo tay bên dưới.</p>
+							</div>
+
+							<h3>Điểm số hiện tại</h3>
+							<div class="rcGrid4" id="rcScores"></div>
+
+							<h3>Tiếp tục ở vòng</h3>
+							<div class="rcChoice" id="rcRound">
+								<label><input type="radio" name="rcRound" value="kd" checked> Khởi động</label>
+								<label><input type="radio" name="rcRound" value="vcnv"> Vượt chướng ngại vật</label>
+								<label><input type="radio" name="rcRound" value="tt"> Tăng tốc</label>
+								<label><input type="radio" name="rcRound" value="vd"> Về đích</label>
+								<label><input type="radio" name="rcRound" value="tb"> Câu hỏi phụ</label>
+							</div>
+
+							<div class="rcPane" data-r="kd">
+								<div class="rcChoice">
+									<label><input type="radio" name="rcKdMode" value="individual" checked> Lượt riêng</label>
+									<label><input type="radio" name="rcKdMode" value="common"> Lượt chung</label>
+								</div>
+								<div class="rcSub" data-m="individual">
+									<p class="meta">Ai đã thi xong lượt riêng?</p>
+									<div class="rcGrid4" id="rcKdDone"></div>
+									<div class="rcRow">
+										<label>Đang thi: <select id="rcKdSeat"></select></label>
+										<label>Bắt đầu lại từ câu: <select id="rcKdQ"></select></label>
+									</div>
+								</div>
+								<div class="rcSub" data-m="common">
+									<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcKdCommonQ"></select></label></div>
+								</div>
+							</div>
+
+							<div class="rcPane" data-r="vcnv">
+								<div class="rcGrid5" id="rcVcnvRows"></div>
+								<p class="meta">Ai đã bị loại khỏi phần chướng ngại vật?</p>
+								<div class="rcGrid4" id="rcVcnvOut"></div>
+								<p class="meta">Màn sân khấu về bảng chướng ngại vật; các góc ảnh của hàng trả lời đúng được mở sẵn.
+									Nếu chướng ngại vật đã được giải, chọn Tăng tốc.</p>
+							</div>
+
+							<div class="rcPane" data-r="tt">
+								<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcTtQ"></select></label></div>
+							</div>
+
+							<div class="rcPane" data-r="vd">
+								<p class="meta"><b>Bắt buộc:</b> chọn cho từng thí sinh đã thi xong lượt Về đích hay chưa.</p>
+								<div class="rcGrid4" id="rcVdDone"></div>
+								<div class="rcRow">
+									<label>Người thi tiếp theo: <select id="rcVdSeat"></select></label>
+								</div>
+								<label class="rcCheck"><input type="checkbox" id="rcVdMid"> Đang giữa lượt (đã chọn gói câu hỏi)</label>
+								<div class="rcSub" id="rcVdMidBox">
+									<div class="rcRow">
+										<label>Câu 1: <select class="rcVdVal"><option value="20">20</option><option value="30">30</option></select></label>
+										<label>Câu 2: <select class="rcVdVal"><option value="20">20</option><option value="30">30</option></select></label>
+										<label>Câu 3: <select class="rcVdVal"><option value="20">20</option><option value="30">30</option></select></label>
+									</div>
+									<div class="rcRow">
+										<label>Bắt đầu lại từ câu: <select id="rcVdQ"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+										<label>Ngôi sao hy vọng: <select id="rcVdStar">
+											<option value="">chưa dùng</option>
+											<option value="1">đặt ở câu 1</option><option value="2">đặt ở câu 2</option><option value="3">đặt ở câu 3</option>
+											<option value="used">đã dùng</option>
+										</select></label>
+									</div>
+								</div>
+							</div>
+
+							<div class="rcPane" data-r="tb">
+								<p class="meta">Ai thi câu hỏi phụ? Không chọn ai = các thí sinh bằng điểm cao nhất (theo điểm ở trên).</p>
+								<div class="rcGrid4" id="rcTbSeats"></div>
+								<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcTbQ"></select></label></div>
+								<p class="meta">Màn sân khấu: ← hiện đồ hoạ, → ra câu đã chọn. Người bị loại ở câu đang dở được thi
+									lại câu đó.</p>
+							</div>
+
+							<p class="rcSummary" id="rcSummary"></p>
+							<button type="button" class="btn danger" id="rcApply">Phục hồi tiến trình</button>
+						</div>
+					</dialog>
+				</div>
+				</div>
+			</div>
+
+			<!-- status chips -->
+			<div class="chips">
+				<div class="chip who" id="chipWho">—</div>
+				<div class="chip pts" id="chipPts">—</div>
+				<div class="chip st wait" id="chipStatus">—</div>
+			</div>
+
+			<!-- the question -->
+			<div class="qpanel"><span class="eyebrow">Câu hỏi</span>
+				<div id="deckQuestion" class="qtext empty">Chưa có câu hỏi.</div>
+			</div>
+			<div class="ans"><span class="eyebrow">Đáp án (host)</span><b id="deckAnswer">—</b></div>
+
+			<!-- icon stats -->
+			<div class="stats">
+				<div class="stat"><span class="k" id="stat1k">Câu</span>
+					<div class="v" id="stat1v">—</div>
+				</div>
+				<div class="stat"><span class="k" id="stat2k">Lượt thi</span>
+					<div class="v" id="stat2v">—</div>
+				</div>
+				<div class="stat"><span class="k" id="stat3k">Đang thi</span>
+					<div class="v" id="stat3v">—</div>
+				</div>
+				<div class="stat"><span class="k" id="stat4k">Giành quyền</span>
+					<div class="v" id="stat4v">—</div>
+				</div>
+			</div>
+
+			<!-- action bars: one group per round, only the current round's group shows -->
+			<div class="bars" data-round="kd">
+				<div class="split">
+					<button type="button" class="bar-btn grey" data-cmd="kdKey" data-key="ArrowLeft"><kbd>←</kbd><span
+							id="kdLeftLabel">Bắt đầu · Chọn thí sinh · Hiện đồ hoạ</span></button>
+					<button type="button" class="bar-btn grey" data-cmd="kdKey" data-key="ArrowRight"><kbd>→</kbd>Câu
+						tiếp theo</button>
+				</div>
+				<button type="button" class="bar-btn purple" data-cmd="kdKey" data-key=" "><kbd>␣</kbd>Đồng hồ 3
+					giây</button>
+				<button type="button" class="bar-btn green" data-cmd="kdKey" data-key="ArrowUp"><kbd>↑</kbd>Trả lời
+					đúng</button>
+				<button type="button" class="bar-btn red" data-cmd="kdKey" data-key="ArrowDown"><kbd>↓</kbd>Sai / không
+					trả lời</button>
+				<div class="split4">
+					<button type="button" class="bar-btn blue" data-cmd="kdKey" data-key="1"><kbd>1</kbd><span
+							class="seatName" data-seat="1">Chuông 1</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="kdKey" data-key="2"><kbd>2</kbd><span
+							class="seatName" data-seat="2">Chuông 2</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="kdKey" data-key="3"><kbd>3</kbd><span
+							class="seatName" data-seat="3">Chuông 3</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="kdKey" data-key="4"><kbd>4</kbd><span
+							class="seatName" data-seat="4">Chuông 4</span></button>
+				</div>
+				<button type="button" class="bar-btn grey" data-cmd="kdKey" data-key="Backspace"><kbd>⌫</kbd>Xoá chuông
+					bấm nhầm</button>
+				<button type="button" class="bar-btn grey roundGfxBtn" data-sendkey=","><kbd>,</kbd><span
+						class="roundGfxLabel">Ẩn thanh câu hỏi + thanh tên Khởi động (màn xanh)</span></button>
+			</div>
+
+			<div class="bars" data-round="vcnv">
+				<div class="split">
+					<button type="button" class="bar-btn grey" data-cmd="vcnvKey" data-key="ArrowLeft"><kbd>←</kbd>Thẻ
+						vòng · Bảng CNV · Ẩn đồ hoạ</button>
+					<button type="button" class="bar-btn grey" data-cmd="vcnvKey"
+						data-key="ArrowRight"><kbd>→</kbd><span id="vcnvRightLabel">Câu hỏi · 15 s · Cây · Chấm · Về
+							bảng · Mở ảnh</span></button>
+				</div>
+				<div class="split4">
+					<button type="button" class="bar-btn blue" data-cmd="vcnvKey" data-key="1"><kbd>1</kbd><span
+							id="vcnvB1">Hàng 1</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="vcnvKey" data-key="2"><kbd>2</kbd><span
+							id="vcnvB2">Hàng 2</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="vcnvKey" data-key="3"><kbd>3</kbd><span
+							id="vcnvB3">Hàng 3</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="vcnvKey" data-key="4"><kbd>4</kbd><span
+							id="vcnvB4">Hàng 4</span></button>
+				</div>
+				<div class="split">
+					<button type="button" class="bar-btn blue" data-cmd="vcnvKey" data-key="5"><kbd>5</kbd>Câu ô trung
+						tâm</button>
+					<button type="button" class="bar-btn grey" data-cmd="vcnvKey" data-key="u"><kbd>U</kbd>Huỷ chọn
+						hàng</button>
+				</div>
+				<div class="split4">
+					<button type="button" class="bar-btn amber" data-cmd="vcnvKey" data-key="q"><kbd>Q</kbd><span
+							class="seatName cnv" data-seat="1">Ghế 1 xin CNV</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="vcnvKey" data-key="w"><kbd>W</kbd><span
+							class="seatName cnv" data-seat="2">Ghế 2 xin CNV</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="vcnvKey" data-key="e"><kbd>E</kbd><span
+							class="seatName cnv" data-seat="3">Ghế 3 xin CNV</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="vcnvKey" data-key="r"><kbd>R</kbd><span
+							class="seatName cnv" data-seat="4">Ghế 4 xin CNV</span></button>
+				</div>
+				<div class="split">
+					<button type="button" class="bar-btn red" id="vcnvCnvWrong"><kbd>0</kbd>Tất cả người xin đều sai —
+						loại</button>
+					<button type="button" class="bar-btn grey" data-cmd="vcnvKey" data-key="Backspace"><kbd>⌫</kbd>Bỏ
+						người xin cuối</button>
+				</div>
+				<button type="button" class="bar-btn grey roundGfxBtn" data-sendkey=","><kbd>,</kbd><span
+						class="roundGfxLabel">Ẩn toàn bộ đồ hoạ VCNV (màn xanh)</span></button>
+			</div>
+
+			<div class="bars" data-round="tt">
+				<div class="split">
+					<button type="button" class="bar-btn grey" data-cmd="ttKey" data-key="ArrowLeft"><kbd>←</kbd>Thẻ
+						vòng · Câu 1 · Ẩn đồ hoạ</button>
+					<button type="button" class="bar-btn grey" data-cmd="ttKey" data-key="ArrowRight"><kbd>→</kbd><span
+							id="ttRightLabel">Đồng hồ · Cây đáp án · Cộng điểm · Cất cây · Câu kế</span></button>
+				</div>
+				<div class="split4">
+					<button type="button" class="bar-btn green" id="ttCorrect1"><kbd>1</kbd>Ghế 1 đúng</button>
+					<button type="button" class="bar-btn green" id="ttCorrect2"><kbd>2</kbd>Ghế 2 đúng</button>
+					<button type="button" class="bar-btn green" id="ttCorrect3"><kbd>3</kbd>Ghế 3 đúng</button>
+					<button type="button" class="bar-btn green" id="ttCorrect4"><kbd>4</kbd>Ghế 4 đúng</button>
+				</div>
+				<button type="button" class="bar-btn purple" id="ttReview"><kbd>B</kbd>Xem lại khung câu hỏi / ảnh đáp
+					án</button>
+				<button type="button" class="bar-btn grey roundGfxBtn" data-sendkey=","><kbd>,</kbd><span
+						class="roundGfxLabel">Ẩn khung câu hỏi + đáp án Tăng tốc (màn xanh)</span></button>
+			</div>
+
+			<div class="bars" data-round="vd">
+				<div class="split">
+					<button type="button" class="bar-btn grey" id="vdShowBar"><kbd>←</kbd><span id="vdLeftLabel">Gọi lên
+							sân khấu · Màn chọn gói · Khung câu hỏi</span></button>
+					<button type="button" class="bar-btn grey" id="vdNext"><kbd>→</kbd><span id="vdRightLabel">Hiện câu
+							hỏi · Đồng hồ · Câu kế</span></button>
+				</div>
+				<div class="split4">
+					<button type="button" class="bar-btn blue" id="vdPick20"><kbd>2</kbd>20 điểm</button>
+					<button type="button" class="bar-btn blue" id="vdPick30"><kbd>3</kbd>30 điểm</button>
+					<button type="button" class="bar-btn grey" id="vdUnpick"><kbd>U</kbd>Bỏ lựa chọn cuối</button>
+					<button type="button" class="bar-btn amber" id="vdStarBtn"><kbd>S</kbd>★ Đặt Ngôi sao hy
+						vọng</button>
+				</div>
+				<button type="button" class="bar-btn green" id="vdCorrect"><kbd>↑</kbd>Trả lời đúng</button>
+				<button type="button" class="bar-btn red" id="vdWrong"><kbd>↓</kbd>Sai / hết giờ — mở 5 s giành
+					quyền</button>
+				<div class="split4">
+					<button type="button" class="bar-btn blue" id="vdStealSeat1"><kbd>1</kbd><span
+							class="seatName steal" data-seat="1">Ghế 1 giành</span></button>
+					<button type="button" class="bar-btn blue" id="vdStealSeat2"><kbd>2</kbd><span
+							class="seatName steal" data-seat="2">Ghế 2 giành</span></button>
+					<button type="button" class="bar-btn blue" id="vdStealSeat3"><kbd>3</kbd><span
+							class="seatName steal" data-seat="3">Ghế 3 giành</span></button>
+					<button type="button" class="bar-btn blue" id="vdStealSeat4"><kbd>4</kbd><span
+							class="seatName steal" data-seat="4">Ghế 4 giành</span></button>
+				</div>
+			</div>
+
+			<div class="bars" data-round="tb">
+				<div class="split">
+					<button type="button" class="bar-btn grey" data-cmd="tbKey" data-key="ArrowLeft"><kbd>←</kbd><span
+							id="tbLeftLabel">Chọn thí sinh · Hiện đồ hoạ · Kết thúc</span></button>
+					<button type="button" class="bar-btn grey" data-cmd="tbKey" data-key="ArrowRight"><kbd>→</kbd><span
+							id="tbRightLabel">Câu hỏi · 15 giây · Câu kế</span></button>
+				</div>
+				<button type="button" class="bar-btn green" data-cmd="tbKey" data-key="ArrowUp"><kbd>↑</kbd>Trả lời
+					đúng</button>
+				<button type="button" class="bar-btn red" data-cmd="tbKey" data-key="ArrowDown"><kbd>↓</kbd><span
+						id="tbWrongLabel">Sai — loại khỏi câu này</span></button>
+				<div class="split4">
+					<button type="button" class="bar-btn blue" data-cmd="tbKey" data-key="1"><kbd>1</kbd><span
+							class="seatName" data-seat="1">Chuông 1</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="tbKey" data-key="2"><kbd>2</kbd><span
+							class="seatName" data-seat="2">Chuông 2</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="tbKey" data-key="3"><kbd>3</kbd><span
+							class="seatName" data-seat="3">Chuông 3</span></button>
+					<button type="button" class="bar-btn blue" data-cmd="tbKey" data-key="4"><kbd>4</kbd><span
+							class="seatName" data-seat="4">Chuông 4</span></button>
+				</div>
+				<button type="button" class="bar-btn grey" data-cmd="tbKey" data-key="Backspace"><kbd>⌫</kbd>Xoá chuông
+					bấm nhầm (không loại ai)</button>
+				<button type="button" class="bar-btn grey roundGfxBtn" data-sendkey=","><kbd>,</kbd><span
+						class="roundGfxLabel">Ẩn thanh câu hỏi + thanh tên (màn xanh)</span></button>
+			</div>
+
+			<!-- round chooser -->
+			<section class="sec">
+				<div class="hd"><span class="eyebrow">Vòng thi</span><span class="cnt">tab tự chuyển theo vòng đang thi
+						· bấm tab khác để xem tạm</span></div>
+				<div class="bd rtabs tabBar" id="tabBar">
+					<button type="button" class="rtab tab" data-tab="kd">Khởi động</button>
+					<button type="button" class="rtab tab" data-tab="vcnv">Vượt chướng ngại vật</button>
+					<button type="button" class="rtab tab" data-tab="tt">Tăng tốc</button>
+					<button type="button" class="rtab tab" data-tab="vd">Về đích</button>
+					<button type="button" class="rtab tab" data-tab="tb">Câu hỏi phụ</button>
+				</div>
+			</section>
+
+			<!-- ===== KHỞI ĐỘNG ===== -->
+			<section class="sec tabPanel" data-tab="kd">
+				<div class="hd"><span class="eyebrow">Khởi động</span><span class="cnt" id="kdMode">—</span></div>
+				<div class="bd">
+					<p class="phase" id="kdPhase">—</p>
+					<div class="kv">
+						<span>Thí sinh</span><b id="kdSeat">—</b>
+						<span>Câu</span><b id="kdQuestion">—</b>
+						<span>Chuông</span><b id="kdBuzz">—</b>
+						<span>Kết quả câu cuối</span><b id="kdResult">—</b>
+					</div>
+					<p class="hidden" id="kdText"></p>
+					<p class="hidden" id="kdAnswer"></p>
+					<div class="flow aux">
+						<button type="button" class="btn" id="kdClearBuzz">Xoá chuông</button>
+						<button type="button" class="btn" id="kdResetCommon">Chạy lại lượt chung từ câu 1</button>
+						<button type="button" class="btn danger" id="kdResetAll">Đặt lại phần Khởi động</button>
+					</div>
+				</div>
+			</section>
+
+			<!-- ===== VCNV ===== -->
+			<section class="sec tabPanel" data-tab="vcnv">
+				<div class="hd"><span class="eyebrow">Vượt chướng ngại vật</span><span class="cnt"
+						id="vcnvPrize">—</span></div>
+				<div class="bd">
+					<p class="phase" id="vcnvPhase">—</p>
+					<div class="kv">
+						<span>Chướng ngại vật</span><b id="vcnvKeyword" class="gold">—</b>
+						<span>Các hàng</span><b id="vcnvRows">—</b>
+						<span>Xin trả lời CNV</span><b id="vcnvQueue">—</b>
+						<span>Bị loại</span><b id="vcnvEliminated">—</b>
+					</div>
+					<p class="hidden" id="vcnvQuestion"></p>
+					<p class="hidden" id="vcnvAnswer"></p>
+
+					<h3>Ai đúng chướng ngại vật? <span class="meta">(chỉ khi có người xin trả lời)</span></h3>
+					<div class="split4">
+						<button type="button" class="btn cnvBtn" id="vcnvCnv1">Ghế 1 đúng CNV</button>
+						<button type="button" class="btn cnvBtn" id="vcnvCnv2">Ghế 2 đúng CNV</button>
+						<button type="button" class="btn cnvBtn" id="vcnvCnv3">Ghế 3 đúng CNV</button>
+						<button type="button" class="btn cnvBtn" id="vcnvCnv4">Ghế 4 đúng CNV</button>
+					</div>
+
+					<h3>Đáp án thí sinh <span class="meta" id="vcnvAnswersRow">— (chưa chọn hàng)</span></h3>
+					<div class="rows">
+						<div class="irow"><span class="tag"><i></i><span id="vcnvAnsName1">1</span></span><input
+								type="text" id="vcnvAns1" autocomplete="off" placeholder="đáp án ghế 1"><span
+								class="saved" id="vcnvAnsSaved1"></span><button type="button" class="mark"
+								id="vcnvAnsCorrect1">Ghế 1 đúng</button></div>
+						<div class="irow"><span class="tag"><i></i><span id="vcnvAnsName2">2</span></span><input
+								type="text" id="vcnvAns2" autocomplete="off" placeholder="đáp án ghế 2"><span
+								class="saved" id="vcnvAnsSaved2"></span><button type="button" class="mark"
+								id="vcnvAnsCorrect2">Ghế 2 đúng</button></div>
+						<div class="irow"><span class="tag"><i></i><span id="vcnvAnsName3">3</span></span><input
+								type="text" id="vcnvAns3" autocomplete="off" placeholder="đáp án ghế 3"><span
+								class="saved" id="vcnvAnsSaved3"></span><button type="button" class="mark"
+								id="vcnvAnsCorrect3">Ghế 3 đúng</button></div>
+						<div class="irow"><span class="tag"><i></i><span id="vcnvAnsName4">4</span></span><input
+								type="text" id="vcnvAns4" autocomplete="off" placeholder="đáp án ghế 4"><span
+								class="saved" id="vcnvAnsSaved4"></span><button type="button" class="mark"
+								id="vcnvAnsCorrect4">Ghế 4 đúng</button></div>
+					</div>
+					<p class="meta">Đánh dấu đúng (bấm lại để bỏ) — +10 chỉ cộng khi → chấm hàng. Đáp án tự lưu khi rời
+						ô.</p>
+					<div class="flow aux">
+						<button type="button" class="btn" id="vcnvAnswersSave">Lưu đáp án</button>
+						<button type="button" class="btn" id="vcnvUnEliminate">Khôi phục quyền thi cho ghế…</button>
+						<button type="button" class="btn" id="vcnvReveal">Mở hết ảnh + đáp án</button>
+						<button type="button" class="btn danger" id="vcnvReset">Đặt lại phần VCNV</button>
+					</div>
+				</div>
+			</section>
+
+			<!-- ===== TĂNG TỐC ===== -->
+			<section class="sec tabPanel" data-tab="tt">
+				<div class="hd"><span class="eyebrow">Tăng tốc</span><span class="cnt" id="ttIndex">—</span></div>
+				<div class="bd">
+					<p class="phase" id="ttPhase">—</p>
+					<div class="kv"><span>Media</span><b id="ttMedia">—</b></div>
+					<p class="hidden" id="ttQuestion"></p>
+					<p class="hidden" id="ttAnswer"></p>
+
+					<h3>Đáp án &amp; thời gian <span class="meta">(giây, ví dụ 1.25 — trống = không trả lời; tự lưu khi
+							rời ô)</span></h3>
+					<div class="rows">
+						<div class="irow time"><span class="tag"><i></i><span id="ttName1">1</span></span><input
+								type="text" id="ttAns1" autocomplete="off" placeholder="đáp án ghế 1"><input type="text"
+								id="ttTime1" class="time" autocomplete="off" placeholder="…s"><span class="saved"
+								id="ttPreview1"></span><button type="button" class="mark" id="ttMark1">Ghế 1 đúng</button>
+						</div>
+						<div class="irow time"><span class="tag"><i></i><span id="ttName2">2</span></span><input
+								type="text" id="ttAns2" autocomplete="off" placeholder="đáp án ghế 2"><input type="text"
+								id="ttTime2" class="time" autocomplete="off" placeholder="…s"><span class="saved"
+								id="ttPreview2"></span><button type="button" class="mark" id="ttMark2">Ghế 2 đúng</button>
+						</div>
+						<div class="irow time"><span class="tag"><i></i><span id="ttName3">3</span></span><input
+								type="text" id="ttAns3" autocomplete="off" placeholder="đáp án ghế 3"><input type="text"
+								id="ttTime3" class="time" autocomplete="off" placeholder="…s"><span class="saved"
+								id="ttPreview3"></span><button type="button" class="mark" id="ttMark3">Ghế 3 đúng</button>
+						</div>
+						<div class="irow time"><span class="tag"><i></i><span id="ttName4">4</span></span><input
+								type="text" id="ttAns4" autocomplete="off" placeholder="đáp án ghế 4"><input type="text"
+								id="ttTime4" class="time" autocomplete="off" placeholder="…s"><span class="saved"
+								id="ttPreview4"></span><button type="button" class="mark" id="ttMark4">Ghế 4 đúng</button>
+						</div>
+					</div>
+					<div class="flow aux">
+						<button type="button" class="btn" id="ttAnswersSave">Lưu đáp án + thời gian</button>
+						<button type="button" class="btn" id="ttGoto">Chạy lại câu…</button>
+						<button type="button" class="btn danger" id="ttReset">Đặt lại phần Tăng tốc</button>
+					</div>
+				</div>
+			</section>
+
+			<!-- ===== VỀ ĐÍCH ===== -->
+			<section class="sec tabPanel" data-tab="vd">
+				<div class="hd"><span class="eyebrow">Về đích</span><span class="cnt" id="vdSeat">—</span></div>
+				<div class="bd">
+					<p class="phase" id="vdPhase">—</p>
+					<div class="kv">
+						<span>Thứ tự thi</span><b id="vdOrder">—</b>
+						<span>Gói</span><b id="vdValues">—</b>
+						<span>Ngôi sao hy vọng</span><b id="vdStar" class="gold">—</b>
+						<span>Giành quyền</span><b id="vdSteal">—</b>
+					</div>
+					<p class="hidden" id="vdQuestion"></p>
+					<p class="hidden" id="vdAnswer"></p>
+					<p class="meta">Đúng +GT câu hỏi (★ +2*GT câu hỏi) · Sai không trừ (★ −GT câu hỏi ngay) · Giành
+						đúng: +GT câu hỏi người giành, −GT câu hỏi thí sinh đang thi (câu có ★ thì không trừ thêm) ·
+						Giành sai: −GT câu hỏi/2.</p>
+					<div class="flow aux">
+						<button type="button" class="btn" id="vdSetOrder">Đổi thứ tự thi…</button>
+						<button type="button" class="btn" id="vdGoto">Chạy lại lượt của ghế…</button>
+						<button type="button" class="btn danger" id="vdReset">Đặt lại phần Về đích</button>
+					</div>
+				</div>
+			</section>
+
+			<!-- ===== CÂU HỎI PHỤ ===== -->
+			<section class="sec tabPanel" data-tab="tb">
+				<div class="hd"><span class="eyebrow">Câu hỏi phụ</span><span class="cnt" id="tbCount">—</span></div>
+				<div class="bd">
+					<p class="phase" id="tbPhase">—</p>
+					<div class="kv">
+						<span>Thí sinh thi</span><b id="tbSeats">—</b>
+						<span>Câu</span><b id="tbQuestion">—</b>
+						<span>Chuông</span><b id="tbBuzz">—</b>
+						<span>Bị loại câu này</span><b id="tbOut">—</b>
+						<span>Kết quả câu cuối</span><b id="tbResult">—</b>
+
+					</div>
+					<p class="meta">Chỉ dùng khi có từ hai thí sinh bằng điểm cao nhất. Tối đa 3 câu. Ai trả lời đúng
+						trước thì câu hỏi phụ kết thúc (không cộng điểm); trả lời sai thì bị loại khỏi câu đó. Bấm chuông
+						trước khi bật 15 giây thì chỉ có thể chấm sai.</p>
+					<div class="flow aux">
+						<button type="button" class="btn" id="tbSetSeats">Chọn thí sinh thi câu phụ…</button>
+						<button type="button" class="btn danger" id="tbReset">Đặt lại câu hỏi phụ</button>
+					</div>
+				</div>
+			</section>
+
+
+			<!-- sound board -->
+			<section class="sec">
+				<details>
+					<summary>Bảng âm thanh <span class="meta">— phát chồng, không đổi trạng thái vòng</span></summary>
+					<div class="bd sounds" id="soundBoard"></div>
+				</details>
+			</section>
+
+			<!-- full keymap -->
+			<section class="sec">
+				<details>
+					<summary>Bảng phím tắt đầy đủ</summary>
+					<table class="keymap">
+						<tr>
+							<td><kbd>←</kbd></td>
+							<td>KĐ lượt riêng: (1) thẻ KHỞI ĐỘNG → (2) chọn thí sinh + âm chuẩn bị → (3) hiện đồ hoạ.
+								Sau thí sinh 4: lượt chung. VCNV: thẻ → bảng CNV; sau giải xong: ẩn. TT: thẻ → câu 1;
+								xong: ẩn. VĐ: gọi lên sân khấu → màn chọn gói → khung câu hỏi; sau lượt: gọi người kế.
+							</td>
+						</tr>
+						<tr>
+							<td><kbd>→</kbd></td>
+							<td>KĐ: câu tiếp theo (câu 1 bật nhạc 60 s; sau câu cuối: đồ hoạ tắt). VCNV: câu hỏi → 15 s
+								→ cây → chấm → về bảng → mở ảnh. TT: đồng hồ → cây → cộng điểm → cất cây → câu kế. VĐ:
+								hiện câu → đồng hồ; sau khi chấm: câu kế / ẩn khung.</td>
+						</tr>
+						<tr>
+							<td><kbd>Space</kbd></td>
+							<td>KĐ: đồng hồ 3 giây.</td>
+						</tr>
+						<tr>
+							<td><kbd>↑</kbd> / <kbd>↓</kbd></td>
+							<td>KĐ: đúng +10 / sai (lượt chung −5 cho người bấm chuông; không ai bấm: chỉ âm; mỗi câu
+								chấm một lần). VĐ: đúng / sai cho thí sinh chính hoặc người giành quyền.</td>
+						</tr>
+						<tr>
+							<td><kbd>1</kbd>–<kbd>4</kbd></td>
+							<td>KĐ chung: chuông (người đầu khoá). VCNV: chọn hàng / đánh dấu ghế đúng / ghế đúng CNV
+								(khi đang xin). TT: đánh dấu ghế đúng. VĐ: giành quyền (khác thí sinh chính).</td>
+						</tr>
+						<tr>
+							<td><kbd>5</kbd> <kbd>U</kbd></td>
+							<td>VCNV: câu ô trung tâm (khi 4 hàng xong) / huỷ chọn hàng. VĐ: U bỏ lựa chọn gói cuối.
+							</td>
+						</tr>
+						<tr>
+							<td><kbd>Q W E R</kbd> <kbd>0</kbd> <kbd>⌫</kbd></td>
+							<td>VCNV: ghế 1-4 xin trả lời CNV (khoá hàng ngay; bấm lại phím người đã xin = người đó
+								đúng) / tất cả sai → loại / bỏ người cuối. KĐ chung: ⌫ xoá chuông.</td>
+						</tr>
+						<tr>
+							<td><kbd>2</kbd> <kbd>3</kbd> <kbd>S</kbd> <kbd>B</kbd></td>
+							<td>VĐ: chọn 20 / 30 điểm, đặt Ngôi sao hy vọng (trước khi câu hiện). TT: B xem lại khung
+								câu hỏi khi cây đang hiện.</td>
+						</tr>
+						<tr>
+							<td><kbd>M</kbd> <kbd>F6</kbd> <kbd>.</kbd> <kbd>0</kbd></td>
+							<td>Tổng kết điểm (khi đồ hoạ vòng đã tắt) · bảng điểm 4 ô (mọi lúc, khoá phím khác) · âm ô
+								trống · hiện/ẩn bảng điểm KĐ.</td>
+						</tr>
+						<tr>
+							<td><kbd>,</kbd></td>
+							<td>Chỉ khi màn xanh bật. KĐ: ẩn hoặc hiện thanh câu hỏi và thanh tên. VCNV / TT: toàn bộ đồ
+								hoạ VCNV, khung câu hỏi và cây đáp án TT. Lúc ẩn vẫn chấm được; thanh câu hỏi KĐ mở lại, mở
+								cây đáp án, về bảng ô chữ (VCNV) hoặc câu kế (TT) thì tự hiện lại.</td>
+						</tr>
+						<tr>
+							<td><kbd>F1</kbd>–<kbd>F5</kbd></td>
+							<td>Đổi vòng: KĐ, VCNV, TT, VĐ, Câu hỏi phụ.</td>
+						</tr>
+						<tr>
+							<td>Câu hỏi phụ</td>
+							<td>← chọn các thí sinh bằng điểm nhất → ← hiện đồ hoạ → → câu hỏi (mở chuông ngay) → → bật
+								15 giây · 1-4 chuông · ↑ đúng (chỉ khi bấm sau lúc bật giờ) · ↓ sai = loại khỏi câu
+								· ⌫ xoá chuông nhầm · không ai đúng: → câu kế (tối đa 3 câu) · có người đúng: ← ẩn đồ hoạ.</td>
+						</tr>
+					</table>
+				</details>
+			</section>
+		</div>
+
+		<!-- ================= SIDE COLUMN ================= -->
+		<aside class="side">
+			<section class="sec score">
+				<div class="bd">
+					<h2>Điểm số của các thí sinh</h2>
+					<table class="score">
+						<thead>
+							<tr>
+								<th>STT</th>
+								<th>Người chơi</th>
+								<th class="r">Điểm</th>
+							</tr>
+						</thead>
+						<tbody id="playersBody"></tbody>
+					</table>
+					<div class="edit">
+						<select id="scoreSeat">
+							<option value="1">Ghế 1</option>
+							<option value="2">Ghế 2</option>
+							<option value="3">Ghế 3</option>
+							<option value="4">Ghế 4</option>
+						</select>
+						<input type="number" step="5" id="scoreInput" placeholder="điểm">
+						<button type="button" class="btn" id="scoreSet">Đặt điểm</button>
+					</div>
+					<button type="button" class="btn undoBtn" id="undoScore" disabled title="Ctrl+Z">↶ Hoàn tác điểm</button>
+					<details class="logBox" id="logBox">
+						<summary>Nhật ký trận <span class="meta" id="logCount"></span></summary>
+						<ol class="logList" id="logList"></ol>
+						<button type="button" class="btn sm" id="logDownload">Tải nhật ký (CSV)</button>
+					</details>
+				</div>
+			</section>
+
+			<section class="sec">
+				<details id="namesDetails">
+					<summary>Tên thí sinh <span class="meta">— sửa trước Khởi động</span></summary>
+					<div class="bd names">
+						<div class="nrow"><i>1</i><input type="text" id="name1" autocomplete="off"
+								placeholder="Họ và tên"><button type="button" class="btn sm"
+								id="nameSet1">Đặt</button><span class="saved" id="nameShown1"></span></div>
+						<div class="nrow"><i>2</i><input type="text" id="name2" autocomplete="off"
+								placeholder="Họ và tên"><button type="button" class="btn sm"
+								id="nameSet2">Đặt</button><span class="saved" id="nameShown2"></span></div>
+						<div class="nrow"><i>3</i><input type="text" id="name3" autocomplete="off"
+								placeholder="Họ và tên"><button type="button" class="btn sm"
+								id="nameSet3">Đặt</button><span class="saved" id="nameShown3"></span></div>
+						<div class="nrow"><i>4</i><input type="text" id="name4" autocomplete="off"
+								placeholder="Họ và tên"><button type="button" class="btn sm"
+								id="nameSet4">Đặt</button><span class="saved" id="nameShown4"></span></div>
+						<button type="button" class="btn sm" id="namesReset">Về tên trong players.xml</button>
+					</div>
+				</details>
+			</section>
+
+			<!-- who is connected (room mode only - Scripts/RoomPresence.js) -->
+			<section class="sec hidden" id="presenceSec">
+				<div class="hd"><span class="eyebrow">Thiết bị trong phòng</span><span class="cnt">chấm xanh = đang kết nối</span></div>
+				<div class="bd">
+					<div class="presGrid">
+						<span>Bảng điểm</span>
+						<div class="dots"><i class="pdot" id="presPodium1">1</i><i class="pdot" id="presPodium2">2</i><i class="pdot" id="presPodium3">3</i><i class="pdot" id="presPodium4">4</i></div>
+						<span>Thí sinh</span>
+						<div class="dots"><i class="pdot" id="presPlayer1">1</i><i class="pdot" id="presPlayer2">2</i><i class="pdot" id="presPlayer3">3</i><i class="pdot" id="presPlayer4">4</i></div>
+						<span>Khán giả</span>
+						<b id="presAudience">—</b>
+					</div>
+					<div class="flow">
+						<button type="button" class="btn" id="qrOpen">Mã QR khán giả / thí sinh</button>
+					</div>
+				</div>
+				<dialog class="rcDialog qrDialog" id="qrDialog">
+					<div class="rcHead"><b id="qrTitle">Mã QR</b><button type="button" class="btn sm" id="qrClose">Đóng</button></div>
+					<div class="bd">
+						<div class="flow">
+							<button type="button" class="btn sm" data-qr="audience">Khán giả</button>
+							<button type="button" class="btn sm" data-qr="player">Thí sinh</button>
+						</div>
+						<div class="qrBox" id="qrBox"></div>
+						<code class="qrLink" id="qrLink"></code>
+					</div>
+				</dialog>
+			</section>
+
+			<section class="sec">
+				<div class="hd"><span class="eyebrow">Màn đồ hoạ</span><span class="cnt"><span class="conn"
+							id="connDot"><span id="updatedAt">—</span></span></span></div>
+				<div class="bd">
+					<!-- the game engine: in a room it always runs in a control panel (EmbeddedStage.js) -->
+					<div class="engineBox">
+						<p class="engineState" id="engineState">Đang khởi động trận...</p>
+						<div class="savedRow hidden" id="savedRow">
+							<span id="savedText"></span>
+							<button type="button" class="btn sm" id="savedContinue">Tiếp tục trận từ bản lưu…</button>
+						</div>
+						<label class="soundRow hidden" id="soundRow">
+							<span>Âm thanh phát ở</span>
+							<select id="soundAt">
+								<option value="here">Máy chạy trận</option>
+								<option value="stage">Màn sân khấu</option>
+								<option value="both">Cả hai</option>
+							</select>
+							<small id="soundHint"></small>
+						</label>
+						<div class="enginePreview hidden" id="enginePreview"></div>
+						<div class="flow">
+							<button type="button" class="btn" id="engineStart">Chạy trận trên máy này</button>
+							<button type="button" class="btn danger hidden" id="engineStop">Dừng chạy trên máy này</button>
+						</div>
+					</div>
+					<div class="kv small">
+						<span>Bộ đề</span><b id="questionSetValue">—</b>
+						<span>Nền</span><b id="backgroundValue">—</b>
+						<span>Nhạc</span><b id="bedValue">—</b>
+						<span>Tổng kết M</span><b id="summaryValue">—</b>
+						<span>Bảng F6</span><b id="boardValue">—</b>
+						<span>Màn xanh</span><b id="greenScreenValue">—</b>
+					</div>
+					<div class="flow">
+						<button type="button" class="btn" id="greenScreenBtn">Green Screen: TẮT</button>
+					</div>
+					<div class="dpad">
+						<button type="button" class="btn up" data-sendkey="ArrowUp">↑</button>
+						<button type="button" class="btn lf" data-sendkey="ArrowLeft">←</button>
+						<button type="button" class="btn dn" data-sendkey="ArrowDown">↓</button>
+						<button type="button" class="btn rt" data-sendkey="ArrowRight">→</button>
+					</div>
+					<div class="flow">
+						<button type="button" class="btn" data-sendkey=" "><kbd>␣</kbd>Space</button>
+						<button type="button" class="btn" data-sendkey="m"><kbd>M</kbd>Tổng kết</button>
+						<button type="button" class="btn" data-sendkey="F6" id="boardBtn"><kbd>F6</kbd>Bảng 4 ô</button>
+						<button type="button" class="btn" data-sendkey="."><kbd>.</kbd>Ô trống</button>
+						<button type="button" class="btn" data-sendkey="0"><kbd>0</kbd>Bảng KĐ</button>
+					</div>
+					<div class="flow">
+						<button type="button" class="btn sm" data-sendkey="F1">F1 KĐ</button>
+						<button type="button" class="btn sm" data-sendkey="F2">F2 VCNV</button>
+						<button type="button" class="btn sm" data-sendkey="F3">F3 TT</button>
+						<button type="button" class="btn sm" data-sendkey="F4">F4 VĐ</button>
+						<button type="button" class="btn sm" data-sendkey="F5">F5 Câu phụ</button>
+						<button type="button" class="btn sm" id="requestState" style="margin-left:auto">Xin trạng
+							thái</button>
+					</div>
+				</div>
+			</section>
+		</aside>
+	</div>
+</body>
+
+</html>

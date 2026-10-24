@@ -1,0 +1,100 @@
+/* Olympia Controller - question manager (questions.html). Builds on lobby.css. */
+.qe { max-width: 1180px; padding-bottom: 120px; }
+.back { color: var(--blue-2); text-decoration: none; }
+.back:hover { text-decoration: underline; }
+select, textarea { font: inherit; }
+select { height: 40px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--input); color: var(--text); padding: 0 10px; }
+textarea { width: 100%; min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--input); color: var(--text); font-size: 15px; font-weight: 400; line-height: 1.4; resize: vertical; }
+textarea:focus, select:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: transparent; }
+input[type="file"] { height: auto; padding: 8px 0; }
+
+.setBar { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.setBar select { width: 100%; }
+.setInfo { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.setActions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.tab { height: 38px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel-2); color: var(--muted); font-weight: 800; cursor: pointer; }
+.tab.on { color: #fff; background: #0d2342; border-color: #1f4f8f; }
+.pane { display: none; flex-direction: column; gap: 16px; }
+.pane.on { display: flex; }
+
+.block { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); }
+.block h3 { margin: 0; font-size: 16px; }
+.block .sub { margin: 6px 0 0; font-weight: 800; color: var(--blue-2); }
+.qRow { display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(160px, 280px); gap: 10px; align-items: start; }
+.qNum { padding-top: 30px; font: 700 13px "Roboto Mono", Consolas, monospace; color: var(--muted); text-align: right; }
+.fld { min-width: 0; }
+.fld input { width: 100%; }
+.fld .count { font-weight: 600; color: var(--muted); }
+.fld .count.warn { color: var(--amber-2); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: 160px repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.cell { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.mediaLine { display: flex; gap: 8px; align-items: center; }
+.mediaLine select { flex: 1 1 auto; min-width: 0; }
+.mediaList { display: flex; flex-direction: column; gap: 6px; }
+.mediaItem { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.fld.media > label { display: flex; flex-direction: column; gap: 6px; }
+
+/* previews of the pictures / videos */
+.preview { position: relative; display: flex; align-items: center; justify-content: center; margin-top: 8px; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 8px; background: #05080c; overflow: hidden; }
+.preview img, .preview video { width: 100%; height: 100%; object-fit: contain; display: block; }
+.preview.empty { aspect-ratio: auto; min-height: 56px; padding: 10px; background: transparent; border-style: dashed; }
+.preview.bare { margin-top: 0; }
+.preview.thumb { width: 96px; margin: 0; aspect-ratio: 16 / 9; }
+.preview.thumb .meta { font-size: 11px; }
+
+/* VCNV: the picture under its covers + the letter board */
+.vcnvLook { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.lookCol { display: flex; flex-direction: column; gap: 8px; }
+.vcnvPic { position: relative; }
+.vcnvPic .covers { position: absolute; inset: 0; display: none; border-radius: 8px; overflow: hidden; }
+.vcnvPic.covered .covers { display: block; }
+/* stage: picture 756 x 470, corners 378 x 235, the centre piece the same size at (189, 118) */
+.cover { position: absolute; width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; }
+.cover img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cover.c1 { left: 0; top: 0; }
+.cover.c2 { left: 50%; top: 0; }
+.cover.c3 { left: 50%; top: 50%; }
+.cover.c4 { left: 0; top: 50%; }
+.cover.cm { left: 25%; top: 25.1%; z-index: 2; }
+.coverToggle { flex-direction: row; align-items: center; gap: 6px; color: var(--muted); font-weight: 700; cursor: pointer; }
+.coverToggle input { height: auto; }
+.vcnvBoard { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #05080c; }
+.vcnvBoard .kw { margin-bottom: 4px; }
+.bRow { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.bNum { width: 28px; font: 700 13px "Roboto Mono", Consolas, monospace; color: var(--muted); }
+.bCell { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #0d2a52; border: 1px solid #2f6fd0; color: #fff; font-weight: 800; font-size: 14px; }
+.bMore { color: var(--amber-2); font-weight: 800; font-size: 12px; margin-left: 4px; }
+.bRow.center { margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+
+/* the XML guide */
+.guide { width: min(860px, calc(100vw - 32px)); max-height: calc(100vh - 48px); padding: 0; border: 1px solid var(--line-2); border-radius: 12px; background: var(--panel); color: var(--text); }
+.guide::backdrop { background: rgba(0, 0, 0, .65); }
+.guide .gHead { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; background: var(--panel); border-bottom: 1px solid var(--line); font-size: 17px; }
+.guide .gBody { display: flex; flex-direction: column; gap: 12px; padding: 16px 20px 22px; }
+.guide h3 { margin: 10px 0 0; font-size: 16px; color: var(--blue-2); }
+.guide p, .guide li { color: var(--text); font-size: 14px; }
+.guide ul, .guide ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+.guide pre { margin: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: #05080c; color: #c9d1d9; font: 500 12.5px/1.55 "Roboto Mono", Consolas, monospace; white-space: pre; overflow-x: auto; }
+.guide code { font: 500 13px "Roboto Mono", Consolas, monospace; color: #e3b341; }
+.guide .dl { display: flex; gap: 8px; flex-wrap: wrap; }
+.mediaItem code { font: 500 13px "Roboto Mono", Consolas, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* the save bar stays at the bottom of the window */
+.saveBar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; gap: 10px; align-items: center; justify-content: flex-end; padding: 12px 24px; background: rgba(13, 17, 23, .96); border-top: 1px solid var(--line); }
+.saveBar span { margin-right: auto; color: var(--muted); font-weight: 700; }
+.saveBar.dirty span { color: var(--amber-2); }
+
+@media (max-width: 760px) {
+	.qRow { grid-template-columns: 30px minmax(0, 1fr); }
+	.qRow .ans { grid-column: 2; }
+	.grid2, .grid3, .grid4, .vcnvLook { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* VCNV picture: the stage's picture box (756 x 470, photo filling it - olympia.css .vcnvPhotoImg) */
+.vcnvPic .preview { aspect-ratio: 756 / 470; }
+.vcnvPic .preview img { object-fit: cover; }
+.vcnvPic .preview.empty { aspect-ratio: 756 / 470; }

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Olympia Controller — Quản lý câu hỏi</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css">
+	<link rel="stylesheet" type="text/css" href="Styles/questions.css">
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+	<script src="Scripts/Config.js"></script>
+	<script src="Scripts/Auth.js"></script>
+	<script src="Scripts/QuestionEditor.js" defer></script>
+</head>
+
+<body>
+	<main class="wrap qe">
+		<header class="top">
+			<div>
+				<p class="eyebrow">Olympia Controller · <a href="index.html" class="back">← Sảnh</a></p>
+				<h1>Quản lý câu hỏi</h1>
+				<p class="meta" id="roomLine"></p>
+			</div>
+			<div class="who">
+				<button type="button" class="btn" id="openGuide">Hướng dẫn tạo thư mục XML</button>
+				<span id="whoName"></span>
+			</div>
+		</header>
+
+		<p class="notice hidden" id="notice"></p>
+
+		<!-- ============ the sets ============ -->
+		<section class="card">
+			<div class="setBar">
+				<label class="grow">Bộ đề đang sửa
+					<select id="setSelect"></select>
+				</label>
+				<button type="button" class="btn" id="newBlank">Bộ đề mới (trống)</button>
+				<button type="button" class="btn" id="showUpload">Tải lên thư mục…</button>
+			</div>
+			<div class="setInfo" id="setInfo">
+				<p class="meta" id="setMeta">—</p>
+				<div class="setActions">
+					<button type="button" class="btn sm primary" id="useForRoom">Dùng cho phòng này</button>
+					<button type="button" class="btn sm" id="renameSet">Đổi tên</button>
+					<button type="button" class="btn sm danger" id="deleteSet">Xoá bộ đề</button>
+				</div>
+			</div>
+			<form id="uploadForm" class="row hidden">
+				<label class="grow">Tên bộ đề
+					<input type="text" id="upName" maxlength="80" placeholder="Ví dụ: Tuần 3 — Quý 2" required>
+				</label>
+				<label>Thư mục bộ đề (giống thư mục Questions/)
+					<input type="file" id="upFiles" webkitdirectory directory multiple required>
+				</label>
+				<button type="submit" class="btn primary" id="upBtn">Tải lên</button>
+			</form>
+			<p class="meta" id="progress"></p>
+			<p class="error" id="error" role="alert"></p>
+		</section>
+
+		<!-- ============ the editor ============ -->
+		<section class="card hidden" id="editor">
+			<div class="tabs" id="tabs">
+				<button type="button" class="tab" data-t="players">Thí sinh</button>
+				<button type="button" class="tab" data-t="kd">Khởi động</button>
+				<button type="button" class="tab" data-t="vcnv">Vượt chướng ngại vật</button>
+				<button type="button" class="tab" data-t="tt">Tăng tốc</button>
+				<button type="button" class="tab" data-t="vd">Về đích</button>
+				<button type="button" class="tab" data-t="tb">Câu hỏi phụ</button>
+				<button type="button" class="tab" data-t="media">Ảnh / video</button>
+			</div>
+			<div class="pane" data-t="players" id="paneplayers"></div>
+			<div class="pane" data-t="kd" id="panekd"></div>
+			<div class="pane" data-t="vcnv" id="panevcnv"></div>
+			<div class="pane" data-t="tt" id="panett"></div>
+			<div class="pane" data-t="vd" id="panevd"></div>
+			<div class="pane" data-t="tb" id="panetb"></div>
+			<div class="pane" data-t="media" id="panemedia"></div>
+		</section>
+
+		<!-- how to build a set folder by hand (for those who prefer editing XML) -->
+		<dialog class="guide" id="guideDialog">
+			<div class="gHead"><b>Hướng dẫn tạo thư mục bộ câu hỏi bằng XML</b><button type="button" class="btn sm" id="closeGuide">Đóng</button></div>
+			<div class="gBody">
+				<p>Có thể soạn bộ đề ngay trên trang này. Nếu muốn soạn bằng tay (Notepad, VS Code...), hãy tạo một thư mục
+					theo mẫu dưới đây rồi bấm <b>Tải lên thư mục…</b>. Cùng thư mục này cũng chép được vào <code>Questions/</code>
+					trên máy sân khấu (phòng không chọn bộ đề sẽ đọc từ đó).</p>
+
+				<h3>1. Cấu trúc thư mục</h3>
+				<pre>Tuan3/
+├─ players.xml      thí sinh (tuỳ chọn - thiếu thì dùng "Thí sinh 1..4")
+├─ khoidong.xml     Khởi động                (bắt buộc)
+├─ vcnv.xml         Vượt chướng ngại vật      (bắt buộc)
+├─ tangtoc.xml      Tăng tốc                  (bắt buộc)
+├─ vedich.xml       Về đích                   (bắt buộc)
+├─ cauhoiphu.xml    Câu hỏi phụ (tuỳ chọn - thiếu thì dùng câu mẫu)
+├─ vcnv_anh.png     ảnh chướng ngại vật
+├─ tt1.png  tt2.jpg  tt3.png  tt4.mp4      ảnh / video Tăng tốc
+└─ ...</pre>
+				<ul>
+					<li>Tên file XML phải đúng như trên (chữ thường). Ảnh / video đặt cùng thư mục, có thể trong thư mục con.</li>
+					<li>Ảnh: PNG, JPG, GIF, WEBP. Video: MP4, WEBM. Mỗi file tối đa 50 MB.</li>
+					<li>Trong XML ghi <b>tên file</b>, ví dụ <code>tt1.png</code>. Nếu thư mục còn được chép vào <code>Questions/</code> trên
+						máy sân khấu thì ghi <code>Questions/tt1.png</code> - cách ghi này dùng được cho cả hai nơi. Tên có dấu
+						hay khoảng trắng vẫn được (khi tải lên sẽ đổi thành không dấu, nối bằng <code>_</code>, ví dụ
+						<code>Hình 1.png</code> → <code>hinh_1.png</code>).</li>
+					<li>Lưu file ở dạng <b>UTF-8</b>. Không dùng HTML trong câu hỏi. Ký tự <code>&amp;</code> <code>&lt;</code>
+						<code>&gt;</code> phải viết là <code>&amp;amp;</code> <code>&amp;lt;</code> <code>&amp;gt;</code>.</li>
+					<li><code>&lt;text&gt;</code> hiện trên đồ hoạ; <code>&lt;answer&gt;</code> chỉ hiện cho BTC ở bàn điều khiển.</li>
+				</ul>
+
+				<h3>2. players.xml</h3>
+				<pre>&lt;players&gt;
+  &lt;player seat="1"&gt;&lt;name&gt;Nguyễn Văn An&lt;/name&gt;&lt;school&gt;THPT ...&lt;/school&gt;&lt;/player&gt;
+  ... ghế 2, 3, 4
+&lt;/players&gt;</pre>
+				<p>Tên hiển thị trên đồ hoạ là 2 từ cuối của họ tên ("Văn An").</p>
+
+				<h3>3. khoidong.xml — 6 câu lượt riêng mỗi ghế, 12 câu lượt chung</h3>
+				<pre>&lt;khoidong&gt;
+  &lt;individual seat="1"&gt;
+    &lt;question&gt;&lt;text&gt;Câu hỏi 1 của ghế 1?&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
+    ... đủ 6 câu
+  &lt;/individual&gt;
+  ... seat="2", "3", "4"
+  &lt;common&gt;
+    &lt;question&gt;&lt;text&gt;Câu hỏi lượt chung 1?&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
+    ... đủ 12 câu
+  &lt;/common&gt;
+&lt;/khoidong&gt;</pre>
+
+				<h3>4. vcnv.xml — từ khoá, ảnh, 4 hàng ngang, ô trung tâm</h3>
+				<pre>&lt;vcnv&gt;
+  &lt;keyword&gt;&lt;text&gt;CHƯỚNG NGẠI VẬT&lt;/text&gt;&lt;/keyword&gt;
+  &lt;image&gt;Questions/vcnv_anh.png&lt;/image&gt;
+  &lt;row&gt;&lt;text&gt;Câu hỏi hàng ngang 1&lt;/text&gt;&lt;answer&gt;ĐÁPÁN&lt;/answer&gt;&lt;/row&gt;
+  ... 4 dòng &lt;row&gt;
+  &lt;center&gt;&lt;text&gt;Câu hỏi ô trung tâm&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/center&gt;
+&lt;/vcnv&gt;</pre>
+				<ul>
+					<li>Mỗi chữ (không tính khoảng trắng) của đáp án hàng ngang là một ô tròn; tối đa 10 ô.</li>
+					<li>Ảnh là một file nguyên, không cần cắt: sân khấu tự che bằng 4 miếng góc + 1 miếng giữa.</li>
+				</ul>
+
+				<h3>5. tangtoc.xml — 4 câu</h3>
+				<pre>&lt;tangtoc&gt;
+  &lt;question seconds="20"&gt;
+    &lt;text&gt;Câu hỏi tăng tốc 1&lt;/text&gt;
+    &lt;media type="image"&gt;Questions/tt1.png&lt;/media&gt;
+    &lt;answerMedia type="image"&gt;tt1_dapan.png&lt;/answerMedia&gt;   (tuỳ chọn)
+    &lt;answer&gt;Đáp án&lt;/answer&gt;
+  &lt;/question&gt;
+  ... câu 2 (20 giây), câu 3, 4 (30 giây); video: &lt;media type="video"&gt;tt4.mp4&lt;/media&gt;
+&lt;/tangtoc&gt;</pre>
+
+				<h3>6. vedich.xml — mỗi ghế 3 câu 20 điểm + 3 câu 30 điểm</h3>
+				<pre>&lt;vedich&gt;
+  &lt;package seat="1"&gt;
+    &lt;question value="20"&gt;&lt;text&gt;Câu 20 điểm thứ nhất&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
+    ... 3 câu value="20", 3 câu value="30"
+  &lt;/package&gt;
+  ... seat="2", "3", "4"
+&lt;/vedich&gt;</pre>
+				<p>Câu 20 điểm thứ k / câu 30 điểm thứ k được dùng theo thứ tự thí sinh chọn gói.</p>
+
+				<h3>7. cauhoiphu.xml — tối đa 3 câu</h3>
+				<pre>&lt;cauhoiphu&gt;
+  &lt;question&gt;&lt;text&gt;Câu hỏi phụ 1&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
+  ... tối đa 3 câu (câu thứ 4 trở đi bị bỏ qua)
+&lt;/cauhoiphu&gt;</pre>
+
+				<h3>8. Tải bộ mẫu về để sửa</h3>
+				<p>Mỗi file mẫu đã có đủ số câu đúng định dạng; mở bằng trình soạn văn bản, thay nội dung rồi lưu lại (UTF-8).</p>
+				<div class="dl">
+					<a class="btn sm" href="Demo/players.xml" download>players.xml</a>
+					<a class="btn sm" href="Demo/khoidong.xml" download>khoidong.xml</a>
+					<a class="btn sm" href="Demo/vcnv.xml" download>vcnv.xml</a>
+					<a class="btn sm" href="Demo/tangtoc.xml" download>tangtoc.xml</a>
+					<a class="btn sm" href="Demo/vedich.xml" download>vedich.xml</a>
+					<a class="btn sm" href="Demo/cauhoiphu.xml" download>cauhoiphu.xml</a>
+				</div>
+
+				<h3>9. Tải lên</h3>
+				<ol>
+					<li>Bấm <b>Tải lên thư mục…</b>, đặt tên bộ đề, chọn cả thư mục.</li>
+					<li>Thiếu một trong 4 file bắt buộc thì trang sẽ báo, không tải gì.</li>
+					<li>Sau khi tải xong, kiểm tra lại từng tab (ảnh có hiện trong ô xem trước không), rồi bấm
+						<b>Dùng cho phòng này</b> và tải lại màn sân khấu.</li>
+				</ol>
+			</div>
+		</dialog>
+
+		<div class="saveBar hidden" id="saveBar">
+			<span id="saveState">Chưa có thay đổi.</span>
+			<button type="button" class="btn" id="revert">Bỏ thay đổi</button>
+			<button type="button" class="btn primary" id="save">Lưu bộ đề</button>
+		</div>
+	</main>
+</body>
+
+</html>

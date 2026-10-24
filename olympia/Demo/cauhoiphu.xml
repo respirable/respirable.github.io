@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Câu hỏi phụ (chỉ dùng khi có từ hai thí sinh trở lên bằng điểm cao nhất sau Về đích).
+  Tối đa 3 câu (câu thứ 4 trở đi bị bỏ qua), hỏi lần lượt theo thứ tự trong file, mỗi câu 15 giây
+  bấm chuông; câu chưa ai trả lời đúng thì sang câu kế.
+  Mỗi <question> có <text> (hiện trên đồ hoạ) và <answer> (chỉ hiện cho host ở màn quản lý).
+  ĐÂY LÀ BỘ CÂU MẪU - thay bằng Questions/cauhoiphu.xml cùng định dạng.
+-->
+<cauhoiphu>
+  <question><text>Câu hỏi phụ 1 (mẫu): thủ đô của Việt Nam là thành phố nào?</text><answer>Hà Nội</answer></question>
+  <question><text>Câu hỏi phụ 2 (mẫu): 7 × 8 bằng bao nhiêu?</text><answer>56</answer></question>
+  <question><text>Câu hỏi phụ 3 (mẫu): nguyên tố hoá học nào có kí hiệu là O?</text><answer>Oxi</answer></question>
+</cauhoiphu>

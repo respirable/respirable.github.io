@@ -1,0 +1,1762 @@
+/* ==========================================================================
+   Olympia Controller - graphics page (default.html)
+   Fixed 1920x1080 stage, absolute positioning, no responsive behaviour.
+   Coordinates derived from the O24 broadcast reference frame (1280x720 x 1.5).
+   ========================================================================== */
+
+/* ---------- reset (Eric Meyer, trimmed) ---------- */
+html,
+body,
+div,
+span,
+p,
+img,
+table,
+tr,
+td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+img {
+	display: block;
+}
+
+/* ---------- fonts ---------- */
+@font-face {
+	font-family: 'Olympia';
+	src: url('../Fonts/MYRIADPRO-BOLDSEMICN_0.OTF') format('opentype');
+	font-weight: bold;
+	font-style: normal;
+}
+
+/* ---------- stage ---------- */
+body {
+	overflow: hidden;
+	width: 1920px;
+	height: 1080px;
+	background-color: black;
+	font-family: 'Olympia', 'Myriad Pro', Arial, sans-serif;
+	font-weight: bold;
+	color: white;
+}
+
+.stageContainerDiv {
+	position: relative;
+	width: 1920px;
+	height: 1080px;
+	overflow: hidden;
+	-webkit-user-select: none;   /* no dragging a blue selection over the graphics */
+	user-select: none;
+}
+
+.stageContainerDiv>div {
+	position: absolute;
+}
+
+/* ---------- background ---------- */
+.stageBackgroundDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+	opacity: 0;   /* the div carries .visible from the markup - the background is there from the first frame */
+}
+
+.stageBackgroundDiv.visible {
+	opacity: 1;
+}
+
+.stageBackgroundDiv img {
+	width: 1920px;
+	height: 1080px;
+}
+
+/* ---------- round title card ----------
+   No animation: the card cuts straight in and straight out, both ways instant. */
+.titleCardDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.titleCardDiv.visible {
+	opacity: 1;
+}
+
+/* one <img> per round, all loaded at page start; showTitle() just switches which one is shown,
+   so a round change never repaints the previous card at the new card's size */
+.titleCardDiv img {
+	display: none;
+}
+
+.titleCardDiv img.current {
+	display: block;
+}
+
+/* green screen (StageControl.js applyGreenScreenColor): no round title cards; state untouched, so
+   turning green screen off while a card is up shows it again */
+.stageContainerDiv.greenScreen > .titleCardDiv {
+	display: none !important;
+}
+
+
+.questionBarDiv {
+	left: 100px;
+	top: 715px;
+	width: 1284px;
+	height: 264px;
+	transform-origin: 0 0;
+	/* the image's own top-left corner, see comment above */
+	transform: scale(1);
+	opacity: 1;
+	transition: transform 900ms cubic-bezier(0.16, 0.84, 0.44, 1);
+
+}
+
+.questionBarDiv.offstage {
+	transform: scale(0.001);
+	opacity: 0;
+}
+
+
+.questionBarDiv.noTransition {
+	transition: none;
+}
+
+.questionBarImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1284px;
+	height: 264px;
+}
+
+.questionTextP {
+	position: absolute;
+	left: 26px;
+	top: 26px;
+	width: 1240px;
+	height: 186px;
+	display: flex;
+	align-items: flex-start;
+	font-size: 32px;
+	line-height: 1.3;
+	text-align: left;
+	color: white;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	white-space: pre-wrap;
+	word-break: break-word;
+	user-select: none;
+}
+
+
+.questionClockP {
+	position: absolute;
+	left: 1034px;
+	top: 70px;
+	bottom: 0;
+	width: 360px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 120px;
+	line-height: 1;
+	color: #ffffff;
+	text-shadow: 0 3px 6px rgba(0, 0, 0, 0.55);
+	opacity: 0;
+	font-variant-numeric: tabular-nums;
+	user-select: none;
+}
+
+.questionClockP.visible {
+	opacity: 1;
+}
+
+/* Câu hỏi phụ: the 15 s strip runs in the dark groove along the bottom of the timer skin
+   (question_bar.png: x 51-1266, y 252-258). Fill and dot: the house timer style (.vcnvTimerFill). */
+.questionTimerDiv {
+	position: absolute;
+	left: 52px;
+	top: 252px;
+	width: 1213px;
+	height: 7px;
+	display: none;
+}
+
+.questionTimerDiv.visible {
+	display: block;
+}
+
+.questionTimerDiv .vcnvTimerFill {
+	height: 7px;
+}
+
+.questionTimerDiv .vcnvTimerDot {
+	top: -6px;
+}
+
+
+.scoreboardDiv {
+	left: 1444px;
+	top: 715px;
+	width: 377px;
+	height: 266px;
+	transition: opacity 400ms ease-out;
+	opacity: 1;
+}
+
+.scoreboardDiv.hidden {
+	opacity: 0;
+}
+
+
+.contestantBar {
+	position: absolute;
+	left: 0;
+	width: 377px;
+	height: 62px;
+	opacity: 0;
+}
+
+.contestantBar.shown {
+	opacity: 1;
+}
+
+.contestantBar.seat1 {
+	top: 0;
+}
+
+.contestantBar.seat2 {
+	top: 68px;
+}
+
+.contestantBar.seat3 {
+	top: 136px;
+}
+
+.contestantBar.seat4 {
+	top: 204px;
+}
+
+.contestantBar img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 377px;
+	height: 62px;
+}
+
+.barIdleImg {
+	opacity: 1;
+}
+
+/* Red (buzz / on stage) overlay cuts in and out instantly - no fade. */
+.barSignalImg {
+	opacity: 0;
+}
+
+.contestantBar.onStage .barSignalImg,
+.contestantBar.buzzed .barSignalImg {
+	opacity: 1;
+}
+
+
+.contestantBar.shown.eliminated {
+	opacity: 0.45;
+}
+
+/* Câu hỏi phụ (ScoreboardControl.js contestantBarLook): the bars show the name only - no seat
+   number, no score - and the seats not in the tie-break are not shown at all */
+.contestantBar.plain .contestantScoreP {
+	display: none;
+}
+
+.contestantBar.plain .contestantNameP {
+	right: 28px;
+}
+
+.contestantBar.absent,
+.contestantBar.shown.absent {
+	opacity: 0;
+}
+
+.contestantNameP,
+.contestantScoreP {
+	position: absolute;
+	top: 0;
+	height: 62px;
+	display: flex;
+	align-items: center;
+	font-size: 34px;
+	line-height: 1;
+	color: white;
+	text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+	white-space: nowrap;
+	user-select: none;
+}
+
+.contestantNameP {
+	left: 18px;
+	right: 110px;
+	overflow: hidden;
+}
+
+.contestantScoreP {
+	right: 28px;
+	width: 90px;
+	justify-content: flex-end;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---------- score summary (key M) ----------
+   Composed from existing assets: the plain question bar scaled to 935x183 as the panel, the
+   Accelerate name tab stretched to 440x64 sitting on its top edge, both centred on the stage.
+   Reference frame: O24 broadcast (tab at ~y 722, panel ~y 778-961, x 492-1427 in 1920x1080).
+   Entrance = the same PowerPoint Zoom as the question bar (pivot = the panel's own top-left);
+   name/score swaps and the exit are instant - no transition anywhere else. */
+.summaryDiv {
+	left: 492px;
+	top: 722px;
+	width: 935px;
+	height: 239px;
+	transform-origin: 0 0;
+	transform: scale(1);
+	opacity: 1;
+	transition: transform 900ms cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+
+.summaryDiv.offstage {
+	transform: scale(0.001);
+	opacity: 0;
+}
+
+.summaryDiv.noTransition {
+	transition: none;
+}
+
+.summaryPanelImg {
+	position: absolute;
+	left: 0;
+	top: 56px;
+	width: 935px;
+	height: 183px;
+}
+
+
+.summaryTabImg {
+	position: absolute;
+	left: 270px;
+	top: 21px;
+	width: 396px;
+	height: 64px;
+}
+
+.summaryNameP {
+	position: absolute;
+	left: 270px;
+	top: 21px;
+	width: 396px;
+	height: 64px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 34px;
+	line-height: 1;
+	color: white;
+	text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+	white-space: nowrap;
+	user-select: none;
+}
+
+.summaryScoreP {
+	position: absolute;
+	left: 0;
+	top: 62px;
+	width: 935px;
+	height: 183px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: 700;
+	/* Bold, not Black - Arial has no separate Black weight anyway */
+	font-size: 88px;
+	line-height: 1;
+	color: white;
+	text-shadow: 0 3px 6px rgba(0, 0, 0, 0.55);
+	font-variant-numeric: tabular-nums;
+	user-select: none;
+}
+
+/* ---------- Vượt chướng ngại vật ----------
+   Layout measured off the O24 broadcast frame (1308-px screenshot x 1.468):
+   picture 756x470 | board 856x450 at x+771 | question bar 903x402 at y+487 - the block is
+   889 px tall and sits vertically centred on the 1080 stage: top = (1080 - 889) / 2 = 96.
+   No animation anywhere in this round: everything cuts in and out instantly. */
+.vcnvDiv {
+	left: 142px;
+	top: 96px;
+	width: 1627px;
+	height: 889px;
+}
+
+.vcnvDiv.offstage {
+	display: none;
+}
+
+.vcnvDiv p {
+	user-select: none;
+}
+
+/* --- picture: one photo under 5 covers. Quarter <-> row: 1 TL, 2 TR, 3 BR, 4 BL --- */
+.vcnvPictureDiv {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 756px;
+	height: 470px;
+	overflow: hidden;
+}
+
+/* the photo sits 6 px inside the cover area: the frame PNGs have a soft/transparent edge, and a
+   photo the exact size of the covers used to peek out around them */
+.vcnvPhotoImg {
+	position: absolute;
+	left: 6px;
+	top: 6px;
+	width: 744px;
+	height: 458px;
+	object-fit: cover;
+}
+
+.vcnvCover {
+	position: absolute;
+	width: 378px;
+	height: 235px;
+}
+
+.vcnvCover img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.vcnvCover1 {
+	left: 0;
+	top: 0;
+}
+
+.vcnvCover2 {
+	left: 378px;
+	top: 0;
+}
+
+.vcnvCover3 {
+	left: 378px;
+	top: 235px;
+}
+
+.vcnvCover4 {
+	left: 0;
+	top: 235px;
+}
+
+/* the centre piece is the same size as a quarter (asset 413x246 like the corners), centred */
+.vcnvCoverMiddle {
+	left: 189px;
+	top: 118px;
+	z-index: 2;
+}
+
+.vcnvCover.open {
+	display: none;
+}
+
+/* --- board: title tab, one strip of letter circles per row, row badges --- */
+.vcnvBoardDiv {
+	position: absolute;
+	left: 771px;
+	top: 0;
+	width: 856px;
+	height: 450px;
+}
+
+.vcnvBoardImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 856px;
+	height: 450px;
+}
+
+.vcnvBoardTitleP {
+	position: absolute;
+	left: 120px;
+	top: 0;
+	width: 609px;
+	height: 64px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 36px;
+	line-height: 1;
+	color: white;
+	white-space: nowrap;
+}
+
+/* strips: up to 10 cells laid out by VcnvControl (cell.style.left = i * pitch), circle 75 px,
+   horizontal pitch 70 (auto-shrunk for 10 letters), row pitch 86. The 4-row block
+   (3*86 + 75 = 333) is centred in the area under the title tab (64..450):
+   top = 64 + (386 - 333) / 2 = 90. Badges (60 px) sit centred on each row. */
+.vcnvStrip {
+	position: absolute;
+	left: 15px;
+	height: 75px;
+	width: 715px;
+}
+
+.vcnvStrip1 {
+	top: 90px;
+}
+
+.vcnvStrip2 {
+	top: 176px;
+}
+
+.vcnvStrip3 {
+	top: 262px;
+}
+
+.vcnvStrip4 {
+	top: 348px;
+}
+
+.vcnvCell {
+	position: absolute;
+	top: 0;
+	width: 75px;
+	height: 75px;
+}
+
+.vcnvCell img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 75px;
+	height: 75px;
+	display: none;
+}
+
+/* one skin visible at a time: idle (blue) by default; chosen (cyan) while the row is selected /
+   open and, with letters, once answered; wrong (grey). All instant. */
+.vcnvCell img.idle {
+	display: block;
+}
+
+.vcnvCell.selected img.idle,
+.vcnvCell.revealed img.idle,
+.vcnvCell.wrong img.idle {
+	display: none;
+}
+
+.vcnvCell.selected img.chosen,
+.vcnvCell.revealed img.chosen {
+	display: block;
+}
+
+.vcnvCell.wrong img.wrong {
+	display: block;
+}
+
+.vcnvLetterP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 75px;
+	height: 75px;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: 700;
+	font-size: 48px;
+	line-height: 1;
+	color: #0a3a8a;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.vcnvCell.revealed .vcnvLetterP {
+	display: flex;
+}
+
+.vcnvBadgeImg {
+	position: absolute;
+	left: 740px;
+	width: 59px;
+	height: 60px;
+}
+
+.vcnvBadge1 {
+	top: 98px;
+}
+
+.vcnvBadge2 {
+	top: 184px;
+}
+
+.vcnvBadge3 {
+	top: 270px;
+}
+
+.vcnvBadge4 {
+	top: 356px;
+}
+
+/* --- question bar (bottom-left) --- */
+.vcnvQuestionDiv {
+	position: absolute;
+	left: 0;
+	top: 487px;
+	width: 903px;
+	height: 402px;
+}
+
+.vcnvQuestionImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 903px;
+	height: 402px;
+}
+
+.vcnvQuestionTextP {
+	position: absolute;
+	left: 30px;
+	top: 28px;
+	width: 840px;
+	height: 300px;
+	display: flex;
+	align-items: flex-start;
+	font-size: 32px;
+	line-height: 1.3;
+	text-align: left;
+	color: white;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* CNV signal tabs: along the bottom edge of the question bar, right-aligned, in press order
+   (reference frame 3: "Dao Kiệt" "Xuân Mai" tabs). obstacle_answer_signal_bar.png is 216x44. */
+/* Sized so that all FOUR tabs fit inside the 903 px bar: 4 x 196 + 3 x 8 = 808, right margin 40.
+   196x40 keeps the PNG's 216:44 ratio. Same size whether 1 or 4 are showing. */
+.vcnvSignalsDiv {
+	position: absolute;
+	right: 40px;
+	bottom: 24px;
+	height: 40px;
+	display: flex;
+	flex-direction: row;
+	gap: 8px;
+}
+
+.vcnvSignalTab {
+	position: relative;
+	width: 196px;
+	height: 40px;
+}
+
+.vcnvSignalTab img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 196px;
+	height: 40px;
+}
+
+.vcnvSignalNameP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 196px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 25px;
+	line-height: 1;
+	color: white;
+	text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+	white-space: nowrap;
+}
+
+/* 15 s timer: the dark strip in question_bar.png is y 400-407, x 48-909 of 927x413; the bar is
+   shown at 903x402 (x0.974) -> left 47, top 390, 839x8. The red fill must sit exactly on that
+   strip; the 18 px dot is centred on the strip's mid-line and rides the fill's right edge.
+   Width is set every frame by VcnvControl.timerSet() - no CSS transition, constant speed. */
+.vcnvTimerDiv {
+	position: absolute;
+	left: 47px;
+	top: 390px;
+	width: 839px;
+	height: 8px;
+	display: none;
+}
+
+.vcnvTimerDiv.visible {
+	display: block;
+}
+
+/* House style for every timer bar in the show: the tail is #272523, the head is #B5043E, and
+   the gradient always spans the part that has run so far - however long it is - so the head is
+   always fully red. The dot is head-coloured with a soft glow of the same colour. */
+.vcnvTimerFill {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 8px;
+	width: 0;
+	background: linear-gradient(to right, #272523 0%, #B5043E 100%);
+}
+
+.vcnvTimerDot {
+	position: absolute;
+	top: -5px;
+	left: -9px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #B5043E;
+	box-shadow: 0 0 6px 2px rgba(181, 4, 62, 0.75);
+}
+
+/* While the tree is up the question bar is hidden, so the signal tabs are drawn by this stage-level
+   twin at exactly the same screen position: bar (142,583) 903x402, tabs right 40 / bottom 24
+   -> right 1920-1005 = 915, bottom 1080-961 = 119. Same tab styling (.vcnvSignalsDiv). */
+.vcnvTreeSignalsDiv {
+	right: 915px;
+	bottom: 119px;
+	left: auto;
+	top: auto;
+}
+
+.vcnvTreeSignalsDiv.offstage {
+	display: none;
+}
+
+
+.vcnvTreeDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+	overflow: hidden;
+}
+
+.vcnvTreeDiv.offstage {
+	display: none;
+}
+
+.treeAxis {
+	position: absolute;
+	left: 952px;
+	top: 131px;
+	width: 16px;
+	height: 0;
+	object-fit: fill;
+}
+
+/* the cap scales up from its own centre during the burst (duration set from VcnvTreeControl) */
+.treeCap {
+	position: absolute;
+	left: 927px;
+	top: 100px;
+	width: 66px;
+	height: 61px;
+	display: none;
+	transform-origin: 50% 50%;
+	transform: scale(0.001);
+	transition-property: transform;
+	transition-timing-function: cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+
+.treeCap.in {
+	transform: scale(1);
+}
+
+/* the opening flash on the top node: a bright core with rays, scaling up and fading */
+.treeBurst {
+	position: absolute;
+	left: 880px;
+	top: 51px;
+	width: 160px;
+	height: 160px;
+	border-radius: 50%;
+	background:
+		radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(190, 240, 255, 0.9) 12%, rgba(120, 210, 255, 0.35) 30%, rgba(120, 210, 255, 0) 60%),
+		repeating-conic-gradient(rgba(255, 255, 255, 0.55) 0deg 3deg, rgba(255, 255, 255, 0) 3deg 30deg);
+	display: none;
+	pointer-events: none;
+	opacity: 0;
+	transform: scale(0.2);
+	animation-name: treeBurst;
+	animation-timing-function: ease-out;
+	animation-fill-mode: forwards;
+}
+
+.treeBurst.on {
+	display: block;
+}
+
+@keyframes treeBurst {
+	0% {
+		opacity: 0;
+		transform: scale(0.2) rotate(0deg);
+	}
+
+	25% {
+		opacity: 1;
+		transform: scale(1) rotate(20deg);
+	}
+
+	100% {
+		opacity: 0;
+		transform: scale(1.7) rotate(60deg);
+	}
+}
+
+.treeCap.on,
+.treeNode.on {
+	display: block;
+}
+
+.treeBranch {
+	position: absolute;
+	left: 0;
+	width: 1920px;
+	height: 0;
+}
+
+/* node zooms from its own centre (duration set from VcnvTreeControl) */
+.treeNode {
+	position: absolute;
+	left: 937px;
+	top: -20px;
+	width: 46px;
+	height: 41px;
+	display: none;
+	transform-origin: 50% 50%;
+	transform: scale(0.001);
+	transition-property: transform;
+	transition-timing-function: cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+
+.treeNode.in {
+	transform: scale(1);
+}
+
+/* the ARM = connector + card as one element. Geometry (relative to the branch line, y = node
+   centre): connector 105x11 starts 30 px off the axis; card 550x160 starts 146 px off the axis
+   with its top 85 px above the line. Right arm: x 990..1656; left arm: x 264..930.
+   Zoom pivot = the connector's corner at the axis: right arm -> connector top-left (0, 80);
+   left arm -> connector top-right (100%, 80px). Same easing/duration as the KĐ question bar. */
+.treeArm {
+	position: absolute;
+	top: -85px;
+	width: 666px;
+	height: 160px;
+	display: none;
+	transform: scale(0.001);
+	transition-property: transform;
+	transition-timing-function: cubic-bezier(0.16, 0.84, 0.44, 1);
+}
+
+.treeBranch.right .treeArm {
+	left: 990px;
+	transform-origin: 0 80px;
+}
+
+.treeBranch.left .treeArm {
+	left: 264px;
+	transform-origin: 100% 80px;
+}
+
+.treeBranch.right .treeArm.in,
+.treeBranch.left .treeArm.in {
+	transform: scale(1);
+}
+
+.treeArm.on {
+	display: block;
+}
+
+.treeConnector {
+	position: absolute;
+	top: 80px;
+	width: 105px;
+	height: 11px;
+}
+
+.treeBranch.right .treeConnector {
+	left: 0;
+}
+
+.treeBranch.left .treeConnector {
+	left: 561px;
+	transform: scaleX(-1);
+}
+
+.treeCard {
+	position: absolute;
+	top: 0;
+	width: 550px;
+	height: 160px;
+}
+
+.treeBranch.right .treeCard {
+	left: 116px;
+}
+
+.treeBranch.left .treeCard {
+	left: 0;
+}
+
+.treeBar {
+	position: absolute;
+	left: 0;
+	top: 40px;
+	width: 550px;
+	height: 120px;
+}
+
+.treeBar img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 550px;
+	height: 120px;
+}
+
+.treeBranch.left .treeBar img {
+	transform: scaleX(-1);
+}
+
+/* a long answer is never clipped: VcnvTreeControl.fitText() squeezes it (scaleX) to the bar's
+   text width, anchored at the axis-facing end (left on right-hand bars, right on left-hand) */
+.treeAnswerP {
+	position: absolute;
+	top: 36px;
+	height: 70px;
+	width: 502px;
+	display: flex;
+	align-items: center;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: 700;
+	font-size: 64px;
+	line-height: 1;
+	color: white;
+	white-space: nowrap;
+	user-select: none;
+}
+
+.treeAnswerP span {
+	display: inline-block;
+	white-space: nowrap;
+}
+
+/* answer_bar.png's axis-side end is cut on a slant along its bottom: the border runs straight
+   down to a "foot" 58 px (x1.04 = 60 px) in from the edge, then slopes away. The text's
+   axis-facing edge sits exactly on that foot: 60 px from the bar's axis-side edge. */
+.treeBranch.right .treeAnswerP {
+	left: 60px;
+	width: 466px;
+	justify-content: flex-start;
+}
+
+.treeBranch.left .treeAnswerP {
+	left: 24px;
+	width: 466px;
+	justify-content: flex-end;
+}
+
+.treeBranch.right .treeAnswerP span {
+	transform-origin: 0 50%;
+}
+
+.treeBranch.left .treeAnswerP span {
+	transform-origin: 100% 50%;
+}
+
+/* the name tab sits ON the bar's top edge, overlapping it by 16 px (after the bar in the DOM) */
+/* tab pushed 10 px further down onto the bar: its PNG has a soft bottom edge, so a 16 px
+   overlap still showed a hairline gap - now it overlaps by 26 px */
+.treeTab {
+	position: absolute;
+	top: 10px;
+	width: 266px;
+	height: 56px;
+}
+
+.treeTab img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 266px;
+	height: 56px;
+}
+
+.treeBranch.right .treeTab {
+	left: 0;
+}
+
+.treeBranch.left .treeTab {
+	left: 284px;
+}
+
+.treeBranch.left .treeTab img {
+	transform: scaleX(-1);
+}
+
+.treeNameP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 266px;
+	height: 56px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: 700;
+	font-size: 26px;
+	line-height: 1;
+	color: white;
+	white-space: nowrap;
+	user-select: none;
+}
+
+/* graded: a branch whose contestant was not right goes black and white */
+.treeBranch.wrong .treeBar,
+.treeBranch.wrong .treeTab {
+	filter: grayscale(1);
+}
+
+/* ---- Tăng tốc layout: axis at x 532, all four branches to the right (reference frame x1.458:
+   axis 365 -> 532, nodes y 273/455/637/819, bar 678..1218). Same parts, shifted. ---- */
+.vcnvTreeDiv.layoutRight .treeAxis {
+	left: 524px;
+}
+
+.vcnvTreeDiv.layoutRight .treeCap {
+	left: 499px;
+}
+
+.vcnvTreeDiv.layoutRight .treeBurst {
+	left: 452px;
+}
+
+.vcnvTreeDiv.layoutRight .treeNode {
+	left: 509px;
+}
+
+.vcnvTreeDiv.layoutRight .treeBranch.right .treeArm {
+	left: 562px;
+}
+
+/* answer + time on one bar: the answer keeps the left (narrower box, a bit smaller type), the
+   time takes the right. Written with the side selector so it outranks the plain side rule;
+   a long answer is squeezed by fitText() exactly like a VCNV answer. */
+.treeBranch.right .treeAnswerP.withTime,
+.treeBranch.left .treeAnswerP.withTime {
+	width: 330px;   /* +10% (was 300): the time is right-aligned, so it still clears it */
+	font-size: 56px;
+}
+
+.treeTimeP {
+	position: absolute;
+	top: 36px;
+	right: 40px;
+	height: 70px;
+	width: 200px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: 700;
+	font-size: 50px;
+	line-height: 1;
+	color: white;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	user-select: none;
+}
+
+
+/* ---------- Tăng tốc question graphics ----------
+   Measured off a 1920x1080 broadcast frame: question bar x 240-1418, y 95-272; contents frame
+   x 240-1418, y 280-1000 -> both assets shown at x0.953 (1236 -> 1178 wide): bar 1178x174,
+   frame 1178x725, 8 px apart, inside one group at (240,95). The media (picture / video) sits in
+   the frame's inner area above its dark strip; that strip (y 746-754, x 87-1144 of the PNG ->
+   y 711-719, x 83-1091 here) carries the timer bar (VCNV house style). */
+.ttDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+}
+
+.ttDiv.offstage {
+	display: none;
+}
+
+/* question bar + contents frame are ONE group; it enters with the Khởi động question-bar zoom
+   (scale ~0 -> 1 pivoting on the group's top-left) at constant speed. .in is added a frame
+   after display by TangTocControl. */
+.ttGroupDiv {
+	position: absolute;
+	left: 240px;
+	top: 95px;
+	width: 1178px;
+	height: 907px;
+	transform-origin: 0 0;
+	transform: scale(0.001);
+	transition: transform 600ms linear;
+	/* constant speed from start to end */
+}
+
+.ttGroupDiv.in {
+	transform: scale(1);
+}
+
+/* review view (key B while the answer tree is up): the frame is simply there, no zoom */
+.ttGroupDiv.noAnim {
+	transition: none;
+}
+
+/* O24/glare.png (525x350, centre ~262,175) centred on the group's top-left corner (240,95):
+   flashes in and fades over the zoom; keyframes so it replays on every show() */
+.ttGlareImg {
+	position: absolute;
+	left: -22px;
+	top: -80px;
+	width: 525px;
+	height: 350px;
+	pointer-events: none;
+	opacity: 0;
+	transform: scale(0.6);
+	transform-origin: 50% 50%;
+	mix-blend-mode: screen;
+	z-index: 5;
+	/* above the group (it is created first in the DOM, so it would paint underneath) */
+}
+
+.ttGlareImg.on {
+	animation: ttGlare 700ms ease-out forwards;
+}
+
+@keyframes ttGlare {
+	0% {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+
+	20% {
+		opacity: 1;
+		transform: scale(1.05);
+	}
+
+	100% {
+		opacity: 0;
+		transform: scale(1.3);
+	}
+}
+
+.ttQuestionDiv {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1178px;
+	height: 174px;
+}
+
+.ttQuestionImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1178px;
+	height: 174px;
+}
+
+/* the question is centred in the bar, both ways (reference frame) */
+.ttQuestionTextP {
+	position: absolute;
+	left: 60px;
+	top: 0;
+	width: 1058px;
+	height: 174px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	font-size: 30px;
+	line-height: 1.3;
+	color: white;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	white-space: pre-wrap;
+	word-break: break-word;
+	user-select: none;
+}
+
+.ttContentDiv {
+	position: absolute;
+	left: 0;
+	top: 182px;
+	width: 1178px;
+	height: 725px;
+}
+
+.ttContentImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1178px;
+	height: 725px;
+}
+
+/* media area: inside the frame, above the timer strip */
+.ttMediaDiv {
+	position: absolute;
+	left: 83px;
+	top: 19px;
+	width: 1008px;
+	height: 679px;
+	overflow: hidden;
+}
+
+.ttMediaImg,
+.ttMediaVideo {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: none;
+	background: transparent;
+}
+
+.ttMediaImg.on,
+.ttMediaVideo.on {
+	display: block;
+}
+
+.ttTimerDiv {
+	position: absolute;
+	left: 83px;
+	top: 711px;
+	width: 1008px;
+	height: 8px;
+	display: none;
+}
+
+.ttTimerDiv.visible {
+	display: block;
+}
+
+
+.vdDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+}
+
+.vdDiv.offstage {
+	display: none;
+}
+
+.vdChooseDiv {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+	display: none;
+}
+
+.vdChooseDiv.on {
+	display: block;
+}
+
+/* Two-stage entrance. Outer box: sits at the target rect but is held at CHOOSE_PRESCALE (0.8)
+   pivoting on its middle-right edge, so the 80 % picture's top-left is offset (0.2W, 0.1H) from
+   the target's; stage 2 (.grown) lets it grow to full size about that same pivot (500 ms).
+   Inner layer: zooms from a vanishing point 1/7 of the way down its own top-left -> bottom-right
+   diagonal (transform-origin 14.2857 %), 680 ms linear (stage 1, .in). Stage 2 starts
+   CHOOSE_ZOOM_MS + CHOOSE_PAUSE_MS after stage 1 (VeDichControl.js) - keep CHOOSE_ZOOM_MS equal
+   to the inner transition's duration below. */
+.vdChooseBox {
+	position: absolute;
+	top: 701px;
+	width: 517px;
+	height: 196px;
+	transform-origin: 100% 50%;
+	transform: scale(0.8);
+}
+
+.vdChooseBox.value20 {
+	left: 347px;
+}
+
+.vdChooseBox.value30 {
+	left: 1071px;
+}
+
+.vdChooseBox.grown {
+	transform: scale(1);
+	transition: transform 425ms ease-out;
+}
+
+.vdChooseInner {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 517px;
+	height: 196px;
+	transform-origin: 14.2857% 14.2857%;
+	/* 1/7 of the diagonal from the top-left */
+	transform: scale(0.001);
+}
+
+.vdChooseBox.in .vdChooseInner {
+	transform: scale(1);
+	transition: transform 680ms linear;
+}
+
+.vdChooseImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 517px;
+	height: 196px;
+}
+
+.vdChooseTextP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 517px;
+	height: 196px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 96px;
+	/* show font (Myriad Pro / 'Olympia', inherited from body) */
+	color: white;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	white-space: nowrap;
+	user-select: none;
+}
+
+/* glare (O24/glare.png, see .ttGlareImg) - 30 % smaller here than in Tăng tốc: 368x245, centre
+   184,122 - centred on each zoom pivot: choose bar: the inner layer's vanishing point
+   (517/7, 196/7) = (74, 28) inside the box; group: its top-left (139,680); score box: its
+   top-left (1411,735). Stage-level ones sit in .vdDiv; the choose ones sit in the (pre-scaled)
+   box so they follow it. */
+.vdDiv .ttGlareImg {
+	width: 368px;
+	height: 245px;
+}
+
+.vdChooseGlare {
+	left: -110px;
+	top: -94px;
+}
+
+.vdGroupGlare {
+	left: -45px;
+	top: 558px;
+}
+
+.vdScoreGlare {
+	left: 1227px;
+	top: 613px;
+}
+
+/* three tick boxes (61x60) in a column just right of the bar - 3x60 + 2x8 = the bar's height */
+.vdChooseTicksDiv {
+	position: absolute;
+	left: 529px;
+	top: 0;
+	width: 61px;
+	height: 196px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.vdTickDiv {
+	position: relative;
+	width: 61px;
+	height: 60px;
+}
+
+.vdTickImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 61px;
+	height: 60px;
+}
+
+.vdTickP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 61px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	font-size: 46px;
+	line-height: 1;
+	color: white;
+	user-select: none;
+}
+
+/* question group: tabs + bar as ONE zooming element (top-left pivot, 600 ms linear) */
+.vdQuestionGroup {
+	position: absolute;
+	left: 139px;
+	top: 680px;
+	width: 1243px;
+	height: 319px;
+	display: none;
+	transform-origin: 0 0;
+	transform: scale(0.001);
+	transition: transform 600ms linear;
+}
+
+.vdQuestionGroup.on {
+	display: block;
+}
+
+.vdQuestionGroup.in {
+	transform: scale(1);
+}
+
+.vdTab {
+	position: absolute;
+	top: 24px;
+	width: 270px;
+	height: 63px;
+	z-index: 2;
+}
+
+.vdTab.seat1 {
+	left: 37px;
+}
+
+.vdTab.seat2 {
+	left: 327px;
+}
+
+.vdTab.seat3 {
+	left: 617px;
+}
+
+.vdTab.seat4 {
+	left: 907px;
+}
+
+.vdTab.onStage {
+	z-index: 3;
+}
+
+.vdTabImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 270px;
+	height: 63px;
+}
+
+/* no red asset: the stealer's tab is the idle tab hue-rotated to red */
+.vdTab.stealing .vdTabImg {
+	filter: hue-rotate(150deg) saturate(1.6);
+}
+
+.vdTabTextP {
+	position: absolute;
+	left: 12px;
+	top: 0;
+	width: 246px;
+	height: 58px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 28px;
+	color: white;
+	text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+	white-space: nowrap;
+	overflow: hidden;
+	user-select: none;
+}
+
+.vdQuestionBar {
+	position: absolute;
+	left: 0;
+	top: 63px;
+	width: 1243px;
+	height: 256px;
+	z-index: 1;
+}
+
+.vdQuestionImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1243px;
+	height: 256px;
+}
+
+.vdQuestionTextP {
+	position: absolute;
+	left: 32px;
+	top: 36px;
+	width: 1180px;
+	height: 196px;
+	display: block;
+	text-align: left;
+	font-size: 29px;
+	line-height: 1.3;
+	color: white;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	white-space: pre-wrap;
+	word-break: break-word;
+	overflow: hidden;
+	user-select: none;
+}
+
+/* timer on the bar's dark strip (answer time 15/20 s and the 5 s steal window), house style */
+.vdTimerDiv {
+	position: absolute;
+	left: 50px;
+	top: 244px;
+	width: 1173px;
+	height: 7px;
+	display: none;
+}
+
+.vdTimerDiv.visible {
+	display: block;
+}
+
+.vdTimerDiv .vcnvTimerFill {
+	height: 7px;
+}
+
+.vdTimerDiv .vcnvTimerDot {
+	top: -6px;
+}
+
+
+/* score box: its own element, zooming from its own top-left once the group's zoom is over;
+   its bottom edge (735 + 264 = 999) is flush with the question bar's (680 + 63 + 256) */
+.vdScoreBox {
+	position: absolute;
+	left: 1411px;
+	top: 735px;
+	width: 288px;
+	height: 264px;
+	display: none;
+	transform-origin: 0 0;
+	transform: scale(0.001);
+	transition: transform 600ms linear;
+}
+
+.vdScoreBox.on {
+	display: block;
+}
+
+.vdScoreBox.in {
+	transform: scale(1);
+}
+
+.vdScoreImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 288px;
+	height: 264px;
+}
+
+.vdScoreHeaderP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 288px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 32px;
+	color: white;
+	white-space: nowrap;
+	user-select: none;
+}
+
+.vdScoreP {
+	position: absolute;
+	left: 0;
+	top: 44px;
+	width: 288px;
+	height: 220px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	font-size: 105px;
+	line-height: 1;
+	color: white;
+	user-select: none;
+}
+
+.vdStar {
+	position: absolute;
+	left: 990px;
+	top: -169px;
+	width: 270px;
+	height: 270px;
+	display: none;
+	pointer-events: none;
+	background: transparent;
+	z-index: 4;
+}
+
+.vdStar.on {
+	display: block;
+}
+
+/* ---------- "Kết quả hiện tại" board (F6) ----------
+   Four CSS-only score cards (no asset), measured off the O22 reference frame 1320x740 (x1.4545):
+   cards 407x233, pitch 451, first at (87,417); header 44 px. Instant show / hide. While it is
+   up (.boardMode on the stage) every other stage element but the background is hidden - their
+   classes/state are untouched, so they come back exactly as they were. */
+.stageContainerDiv.boardMode > div:not(.stageBackgroundDiv):not(.boardScreenDiv) {
+	display: none !important;
+}
+
+/* Key ',' (green screen): the VCNV graphics, the answer tree and the Tăng tốc frame are hidden the
+   same way - state untouched, so grading goes on unseen and everything comes back as it was.
+   StageControl.js hideRoundGraphics() / showRoundGraphics() toggle the class. */
+.stageContainerDiv.roundGraphicsHidden > .vcnvDiv,
+.stageContainerDiv.roundGraphicsHidden > .vcnvTreeDiv,
+.stageContainerDiv.roundGraphicsHidden > .vcnvTreeSignalsDiv,
+.stageContainerDiv.roundGraphicsHidden > .ttDiv,
+.stageContainerDiv.roundGraphicsHidden[data-hidden-round="kd"] > .questionBarDiv,
+.stageContainerDiv.roundGraphicsHidden[data-hidden-round="kd"] > .scoreboardDiv,
+.stageContainerDiv.roundGraphicsHidden[data-hidden-round="tb"] > .questionBarDiv,
+.stageContainerDiv.roundGraphicsHidden[data-hidden-round="tb"] > .scoreboardDiv {
+	display: none !important;
+}
+
+.boardScreenDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+}
+
+.boardScreenDiv.offstage {
+	display: none;
+}
+
+.boardCardDiv {
+	position: absolute;
+	top: 417px;
+	width: 407px;
+	height: 233px;
+	box-sizing: border-box;
+	border: 4px solid white;   /* was 3 px navy + 1 px light edge */
+	background: radial-gradient(ellipse at 50% 45%, #0b3f9a 0%, #072a6e 55%, #051a4a 100%);
+	overflow: hidden;
+	user-select: none;
+}
+
+.boardCardDiv.seat1 { left: 87px; }
+.boardCardDiv.seat2 { left: 538px; }
+.boardCardDiv.seat3 { left: 989px; }
+.boardCardDiv.seat4 { left: 1440px; }
+.boardCardDiv.absent { display: none; }   /* Câu hỏi phụ: a seat not playing */
+
+/* header: cyan gradient with a soft glow at the top centre (reference close-up) */
+.boardHeaderP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background:
+		radial-gradient(ellipse 45% 120% at 50% -20%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 70%),
+		linear-gradient(#22d3ff, #0a9be6);
+	border-bottom: 2px solid #063a80;
+	font-family: Verdana, Geneva, sans-serif;
+	font-weight: bold;
+	font-size: 26px;
+	line-height: 1;
+	color: #062a66;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.boardScoreP {
+	position: absolute;
+	left: 0;
+	top: 44px;
+	width: 100%;
+	height: 183px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: Verdana, Geneva, sans-serif;
+	font-weight: bold;
+	font-size: 104px;
+	line-height: 1;
+	color: white;
+}
+
+/* ---------- warnings ---------- */
+.authorityWarningDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	padding: 14px 0;
+	background: rgba(200, 0, 0, 0.9);
+	font-size: 30px;
+	text-align: center;
+	display: none;
+}
+
+.authorityWarningDiv.visible {
+	display: block;
+}

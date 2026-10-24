@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Olympia — Thí sinh</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css">
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+	<script src="Scripts/Config.js"></script>
+	<script src="Scripts/Auth.js"></script>
+	<script src="Scripts/PublicRoom.js"></script>
+	<script src="Scripts/PlayerPanel.js" defer></script>
+	<script src="Scripts/PlayerJoin.js" defer></script>
+</head>
+
+<body>
+	<main class="wrap">
+		<header class="top" id="joinHeader">
+			<div>
+				<p class="eyebrow">Olympia</p>
+				<h1>Thí sinh</h1>
+			</div>
+		</header>
+
+		<p class="notice hidden" id="notice"></p>
+
+		<section class="card narrow hidden" id="joinCard">
+			<h2>Vào phòng thi</h2>
+			<p class="meta">Nhập mã phòng, chọn đúng ghế của bạn và mật khẩu do BTC cung cấp.</p>
+			<form id="joinForm" class="stack">
+				<label>Mã phòng
+					<input type="text" id="code" required maxlength="12" autocomplete="off" autocapitalize="characters"
+						spellcheck="false">
+				</label>
+				<div>
+					<p class="meta">Ghế</p>
+					<div class="seatPick" id="seatPick">
+						<label><input type="radio" name="seat" value="1" required> 1</label>
+						<label><input type="radio" name="seat" value="2"> 2</label>
+						<label><input type="radio" name="seat" value="3"> 3</label>
+						<label><input type="radio" name="seat" value="4"> 4</label>
+					</div>
+				</div>
+				<label>Mật khẩu
+					<input type="password" id="password" required minlength="4" maxlength="20" autocomplete="off">
+				</label>
+				<button type="submit" class="btn primary" id="joinBtn">Vào phòng</button>
+			</form>
+			<p class="error" id="joinError" role="alert"></p>
+		</section>
+
+		<section class="play hidden" id="joinedCard">
+			<!-- who I am, where we are, the clock -->
+			<div class="card playTop">
+				<div class="me">
+					<p class="eyebrow"><span id="joinedRoom"></span> · <span id="joinedSeat"></span> <i class="dot" id="connDot" title="Kết nối"></i></p>
+					<p class="playerName" id="playerName">—</p>
+				</div>
+				<div class="where">
+					<p class="roundName" id="roundName">—</p>
+					<p class="stepText" id="stepText">Đang chờ màn sân khấu...</p>
+				</div>
+				<div class="clock" id="clockBox">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l3 2M9 3h6" /></svg>
+					<b id="timerValue">—</b>
+				</div>
+				<div class="score"><p class="eyebrow">Điểm</p><p id="playerScore">0</p></div>
+				<span class="timeBar"><i id="timerBar"></i></span>
+			</div>
+
+			<p class="notice hidden" id="playNotice"></p>
+			<p class="banner" id="feedback" role="status"></p>
+
+			<div class="playGrid">
+				<div class="playMain">
+					<!-- what the stage is showing -->
+					<div class="card view">
+						<div class="vcnvView hidden" id="vcnvView">
+							<div class="vcnvPic" id="vcnvPic">
+								<img id="vcnvImg" alt="">
+								<span class="cover c1" data-c="1">1</span><span class="cover c2" data-c="2">2</span>
+								<span class="cover c3" data-c="3">3</span><span class="cover c4" data-c="4">4</span>
+								<span class="cover cm" data-c="middle"></span>
+							</div>
+							<div class="vcnvBoard">
+								<p class="vcnvTitle" id="vcnvTitle"></p>
+								<div id="vcnvRows"></div>
+							</div>
+						</div>
+						<div class="mediaView hidden" id="mediaView">
+							<img id="ttImg" alt="" class="hidden">
+							<video id="ttVideo" class="hidden" muted playsinline preload="auto"></video>
+						</div>
+						<p class="questionText empty" id="questionText">Chưa có câu hỏi.</p>
+						<div class="facts" id="facts"></div>
+						<div class="answersView hidden" id="answersView">
+							<p class="eyebrow" id="answersTitle">Câu trả lời của các thí sinh</p>
+							<table class="answers"><thead><tr><th>#</th><th>Thí sinh</th><th>Đáp án</th><th class="t">Thời gian</th></tr></thead><tbody id="answersBody"></tbody></table>
+						</div>
+					</div>
+
+					<!-- what I can do -->
+					<div class="actionsBig">
+						<button type="button" class="bigBtn buzz" id="buzzBtn" disabled><span id="buzzLabel">BẤM CHUÔNG</span><small id="buzzSub"></small></button>
+						<button type="button" class="bigBtn cnv" id="cnvBtn" disabled><span>XIN TRẢ LỜI CHƯỚNG NGẠI VẬT</span><small id="cnvSub"></small></button>
+					</div>
+
+					<form class="card answerCard" id="answerForm">
+						<label for="answerInput" id="answerLabel">Đáp án</label>
+						<div class="answerRow">
+							<input type="text" id="answerInput" maxlength="100" autocomplete="off" spellcheck="false" disabled placeholder="Nhập đáp án ở đây...">
+							<button type="submit" class="btn primary" id="answerBtn" disabled>Gửi</button>
+						</div>
+						<div class="sent hidden" id="sentBox"><span class="sentTime" id="sentTime"></span><span class="sentText" id="sentText"></span><span class="sentState" id="sentState"></span></div>
+					</form>
+				</div>
+
+				<aside class="card scores">
+					<p class="eyebrow">Điểm số các thí sinh</p>
+					<table class="scoreTable"><tbody id="scoreBody"></tbody></table>
+					<p class="meta keys">Phím tắt: <b>Space</b> bấm chuông / xin trả lời CNV · <b>Enter</b> gửi đáp án</p>
+					<button type="button" class="btn sm" id="leaveBtn">Rời ghế</button>
+				</aside>
+			</div>
+		</section>
+	</main>
+</body>
+
+</html>

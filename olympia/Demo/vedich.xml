@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Về đích. Mỗi <package seat="N"> có 6 câu: 3 câu value="20" và 3 câu value="30".
+  Thí sinh chọn 3 giá trị đầu lượt; câu 20 thứ k / câu 30 thứ k được lấy theo thứ tự chọn.
+  <text> hiện trên đồ hoạ, <answer> chỉ hiện cho host. Không dùng HTML.
+-->
+<vedich>
+  <package seat="1">
+      <question value="20"><text>Có hai thùng đựng dầu. Thùng thứ nhất nhiều hơn thùng thứ hai 7 lít dầu. Nếu đổ thêm 5 lít vào thùng thứ nhất và 3 lít vào thùng thứ hai thì số dầu của thùng thứ nhất nhiều gấp đôi thùng thứ hai. Xác định số dầu ban đầu trong mỗi thùng là bao nhiêu?</text><answer>13 lít, 6 lít</answer></question>
+    <question value="20"><text>Triều đại nhà Nguyễn, có ba chị em nữ sĩ rất nổi tiếng trong giới thi nhân lúc bấy giờ là Trọng Khanh (hiệu Nguyệt Đình), Thúc Khanh (hiệu Mai Am) và Quý Khanh (hiệu Huệ Phố) - đều là con gái của vị hoàng đế nào?</text><answer>Minh Mạng</answer></question>
+    <question value="20"><text>Bạn hãy trả lời câu hỏi sau của vị khách mời đặc biệt.</text><answer>Jules Verne</answer></question>
+    <question value="30"><text>Theo quyết định số 148/2004/QĐ-TTg ngày 13/8/2004 của Thủ tướng Chính phủ, vùng Kinh tế trọng điểm miền Trung gồm 5 tỉnh, thành phố nào (trước ngày 12/6/2025)?</text><answer>Huế, Đà Nẵng, Quảng Nam, Quảng Ngãi, Bình Định</answer></question>
+    <question value="30"><text>Bạn hãy điền "ải Nam Quan", "Trường Sơn", "Cửu Long Giang", "Cà Mau", "Thái Bình Dương" vào các câu thơ sau: "Mẹ Việt Nam tuổi bốn mươi thế kỷ/ Gót ... đầu tận .../ ... buông dài làn sóng tóc/ Dựa ..., đứng gác ..." (Trích "Bà mẹ Việt Nam", Huỳnh Văn Nghệ).</text><answer>Cà Mau, ải Nam Quan, Cửu Long Giang, Trường Sơn, Thái Bình Dương</answer></question>
+    <question value="30"><text>Điều kiện để có sóng dừng trên một sợi dây có hai đầu cố định là gì?</text><answer>Chiều dài sợi dây bằng một số nguyên lần nửa bước sóng</answer></question>
+  </package>
+  <package seat="2">
+    <question value="20"><text>Khi siêu bão Yagi đổ bộ vào miền Bắc nước ta tháng 9/2024, nhiều tòa nhà trong vùng ảnh hưởng đã xảy ra tình trạng cửa kính bị giật tung, cuốn ra bên ngoài. Nguyên nhân chủ yếu của hiện tượng này là gì?</text><answer>Do sự chênh lệch áp suất không khí lớn bên trong và bên ngoài tòa nhà, tốc độ gió bão lớn làm khí áp mặt ngoài của tòa nhà giảm mạnh theo nguyên lý Bernoulli</answer></question>
+    <question value="20"><text>Thám tử Kiên điều tra một vụ ăn vụng bánh ngọt trong nhà bếp với ba nghi phạm là Đức, Minh và Phú. Đức nói: "Tôi không ăn vụng bánh ngọt". Minh nói: "Phú là người ăn vụng bánh". Phú nói: "Minh đang nói dối". Biết có hai người nói dối, hỏi ai là người duy nhất đã ăn vụng bánh, và ai là người nói thật?</text><answer>Đức, Phú</answer></question>
+    <question value="20"><text>Hiện tượng "cối xay kiến" xảy ra khi một nhóm kiến bị tách khỏi đường đi chính và liên tục tìm và đi theo dấu vết pheromone của nhau, tạo thành một vòng tròn khép kín. Chúng cứ nối đuôi nhau di chuyển mà không nhận ra mình đang đi lòng vòng cho đến khi kiệt sức. Hiện tượng này là minh chứng cho loại tập tính nào ở động vật?</text><answer>Lý Công Uẩn (Lý Thái Tổ)</answer></question>
+    <question value="30"><text>Tuấn ghi lên bảng mười số nguyên dương liên tiếp. Sau đó Tuấn xoá đi một số và thấy tổng của chín số còn lại bằng 2006. Hỏi Tuấn đã xoá đi số nào?</text><answer>219</answer></question>
+    <question value="30"><text>Anh hùng lực lượng vũ trang nhân dân nào đã cùng các chiến sĩ tiểu đoàn 353 trung đoàn 66 diệt xe tăng của thực dân Pháp do Mĩ trang bị, mở đầu phong trào đánh xe tăng, phương tiện chiến đấu hiện đại của địch bằng vũ khí thông thường vào năm 1951?</text><answer>Cù Chính Lan</answer></question>
+    <question value="30"><text>Loại bạch tạng phát sinh do đột biến gen OCA2 (trước đây gọi là gen P) nằm trên nhiễm sắc thể số bao nhiêu?</text><answer>Số 15</answer></question>
+  </package>
+  <package seat="3">
+     <question value="20"><text>Tác phẩm nào của Nam Cao (sáng tác năm 1948) được xem như một tuyên ngôn nghệ thuật của các nhà văn buổi đầu đi theo Cách mạng và kháng chiến, đã xác định đối tượng tìm hiểu và ca ngợi của nền văn học mới là nhân dân lao động?</text><answer>Đôi mắt</answer></question>
+    <question value="20"><text>Cuối thế kỷ XVIII, vua Quang Trung đã viết một bức thư triệu mời vị danh sĩ nào ra giúp nước với lời lẽ: "Nay Phu tử nghĩ đến thiên hạ với sinh dân, vụt dậy đi ra, để cho quả đức có thầy mà thờ, cho đời này có thầy mà cậy. Như thế, mới ngõ hầu khỏi phụ ý trời sinh ra người giỏi"?</text><answer>Nguyễn Thiếp/La Sơn phu tử</answer></question>
+    <question value="20"><text>Điền tên hai chất còn thiếu trong đoạn sau: Dịch vị dạ dày có chứa acid ... với pH dao động trong khoảng 2 - 4, phù hợp để các enzyme tiêu hóa hoạt động hiệu quả, acid này còn có nhiệm vụ sát khuẩn, tiêu diệt nhiều loại vi khuẩn có trong thức ăn. Ngoài ra trong dịch vị còn có ... - một chất giúp chuyển hóa protein trong thức ăn thành các chất đạm mà cơ thể hấp thu được.</text><answer>Hydrochloric, Pepsin</answer></question>
+    <question value="30"><text>"Các triều đại bể dâu nhưng thi cảo trường tồn/ Anh lập công trên dòng ngôn ngữ ấy/ Bạch Đằng anh cắm cọc vào thời gian nước chảy/ Cho nghìn năm sau vầng trăng tiếng Việt mãi còn". Những dòng thơ trên của Chế Lan Viên gợi nhớ đến danh nhân nào của dân tộc Việt Nam?</text><answer>Nguyễn Du</answer></question>
+    <question value="30"><text>Năm 1834, vua Minh Mạng đã cho lập ... làm cơ quan tư vấn tối cao cho nhà vua về những vấn đề quân sự quan trọng, đứng đầu là quan văn, võ do đích thân nhà vua lựa chọn.</text><answer>Cơ mật viện</answer></question>
+    <question value="30"><text>Vào thế kỷ XIX, nhà hóa học người Nga Dmitri Mendeleev đã dự đoán các tính chất và đặc điểm của nguyên tố X gần tương tự như silicon (ông gọi đó là nguyên tố eka-silicon). Những dự đoán bao gồm: Khối lượng nguyên tử khoảng 72, không tan trong HCl, oxide kim loại có công thức XO2 và có tính kiềm rất yếu... Bạn hãy cho biết X là nguyên tố nào?</text><answer>Germanium</answer></question>
+  </package>
+  <package seat="4">
+    <question value="20"><text>Dựa trên hiện tượng phát xạ cảm ứng (phát xạ kích thích), nhà vật lí Theodore Maiman đã phát minh ra loại tia gì mà ngày nay có nhiều ứng dụng trong thực tế như dùng làm dao mổ trong y học, đo khoảng cách trắc địa, dùng làm đầu đọc đĩa CD?</text><answer>Tia Laser</answer></question>
+    <question value="20"><text>Một cửa hàng muốn bày bán mặt hàng mới. Mặt hàng này có giá là một số tự nhiên có hai chữ số (nghìn đồng), với các chữ số đều khác 0. Tuy nhiên trong quá trình in ấn, nhân viên cửa hàng đã sơ suất đảo vị trí của chữ số hàng chục và hàng đơn vị, do đó giá sản phẩm bằng 450% giá ban đầu. Hỏi giá ban đầu của sản phẩm là bao nhiêu (nghìn đồng)?</text><answer>18 nghìn đồng</answer></question>
+    <question value="20"><text>Tính đến hết tháng 6.2025, Việt Nam đã thiết lập quan hệ đối tác chiến lược toàn diện với bốn quốc gia trong khối ASEAN. Đó là những quốc gia nào?</text><answer>Indonesia, Singapore, Malaysia, Thái Lan</answer></question>
+    <question value="30"><text>Bạn hãy trả lời câu hỏi sau bằng tiếng Anh.</text><answer>Reverse engineering</answer></question>
+    <question value="30"><text>Theo Danh mục cảng biển Việt Nam kèm Quyết định số 804/QĐ-TTg ngày 08 tháng 7 năm 2022 của Thủ tướng Chính phủ, có hai cảng được xếp loại đặc biệt. Một cảng nằm ở vùng Đồng bằng sông Hồng. Một cảng nằm ở vùng Đông Nam Bộ. Đó là hai cảng nào?</text><answer>Hải Phòng, Bà Rịa - Vũng Tàu</answer></question>
+    <question value="30"><text>Đất phù sa ở đồng bằng sông Cửu Long được chia thành ba loại chính là: đất phù sa ... (là loại đất phù sa sông không bị nhiễm phèn, mặn và có độ phì cao) phân bố thành một dải dọc sông Tiền và sông Hậu; đất ... phân bố tập trung ở Đồng Tháp Mười, Tứ giác Long Xuyên và vùng trung tâm bán đảo Cà Mau; đất ... phân bố thành một dải ven biển.</text><answer>ngọt, phèn, mặn</answer></question>
+  </package>
+</vedich>
