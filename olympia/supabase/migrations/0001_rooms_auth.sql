@@ -52,7 +52,7 @@ begin
 	end if;
 	return jsonb_build_object('error', jsonb_build_object(
 		'http_code', 403,
-		'message', 'Tài khoản quản lý chỉ do BTC cấp - email này chưa được cho phép.'));
+		'message', 'Tài khoản quản lý chỉ do chủ sở hữu trang web cấp - email này chưa được cho phép.'));
 end $$;
 grant usage on schema public to supabase_auth_admin;
 grant execute on function public.before_user_created(jsonb) to supabase_auth_admin;

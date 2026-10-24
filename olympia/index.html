@@ -39,8 +39,7 @@
 		<!-- ============ sign in ============ -->
 		<section class="card narrow hidden" id="loginCard">
 			<h2>Đăng nhập</h2>
-			<p class="meta">Chỉ dành cho người quản lý có tài khoản do BTC cấp. Thí sinh, màn sân khấu, khán giả và
-				bảng điểm không cần đăng nhập — chỉ cần mã phòng.</p>
+			<p class="meta">Đây là phần đăng nhập cho người quản lý phòng thi. Nếu muốn tham gia một trận đấu, nhấn nút Tham gia trận đấu bên dưới</p>
 			<form id="loginForm" class="stack">
 				<label>Email hoặc tên đăng nhập
 					<input type="text" id="login" autocomplete="username" required>
@@ -180,7 +179,7 @@
 	<dialog class="lobbyDialog" id="shareDialog">
 		<div class="dlgHead"><b>Chia sẻ liên kết trận · <span data-d="code"></span></b><button type="button"
 				class="btn sm" data-close>Đóng</button></div>
-		<p class="meta">Gửi liên kết cho đúng người: thí sinh cần thêm mật khẩu BTC; sân khấu, khán giả và bảng điểm chỉ
+		<p class="meta">Gửi liên kết cho đúng người: thí sinh cần thêm mật khẩu phòng; sân khấu, khán giả và bảng điểm chỉ
 			cần
 			mã phòng. Liên kết quản lý trận chỉ mở được bằng tài khoản quản lý.</p>
 		<div class="links" id="shareLinks"></div>
@@ -191,7 +190,7 @@
 			</figure>
 			<figure>
 				<div id="qrPlayer"></div>
-				<figcaption>Thí sinh (cần mật khẩu BTC)</figcaption>
+				<figcaption>Thí sinh (cần mật khẩu phòng)</figcaption>
 			</figure>
 		</div>
 		<div class="dlgFoot"><button type="button" class="btn" id="shareAll">Chép tất cả</button><button type="button"
@@ -234,7 +233,7 @@
 			<h3>Xoá tài khoản</h3>
 			<p class="meta">Xoá vĩnh viễn tài khoản cùng mọi phòng, bộ đề, ảnh / video và bản lưu của nó. Email sẽ bị gỡ
 				khỏi
-				danh sách được phép của BTC.</p>
+				danh sách được phép của chủ sở hữu trang web.</p>
 			<label>Gõ tên người dùng của bạn: <b id="delNameHint"></b>
 				<input type="text" id="delName" autocomplete="off" autocapitalize="off" spellcheck="false">
 			</label>
@@ -253,7 +252,7 @@
 				data-close>Đóng</button></div>
 		<p class="meta">Những email dưới đây đăng nhập sảnh sẽ thấy phòng này và mở được bàn điều khiển của phòng (kể cả
 			khi
-			BTC chưa cấp tài khoản cho email đó). Chỉ bạn xoá phòng, mời ra thí sinh, đổi bộ đề và danh sách này.</p>
+			chủ sở hữu trang web chưa cấp tài khoản cho email đó). Chỉ bạn xoá phòng, mời ra thí sinh, đổi bộ đề và danh sách này.</p>
 		<div class="mgrList" id="mgrList"></div>
 		<label>Thêm email (mỗi dòng hoặc cách nhau bằng dấu phẩy)
 			<textarea id="mgrAdd" rows="3" placeholder="tro.ly@example.com, giam.khao@example.com"></textarea>
@@ -313,13 +312,13 @@
 		<div class="dlgHead"><b>Tham gia trận đấu</b><button type="button" class="btn sm" data-close>Đóng</button></div>
 		<form id="joinForm" class="stack" novalidate>
 			<label>Mã phòng
-				<input type="text" id="joinCode" maxlength="12" autocomplete="off" autocapitalize="characters"
+				<input type="text" id="joinCode" autocomplete="off" autocapitalize="characters"
 					spellcheck="false" placeholder="VD: AZM7MG" required>
 			</label>
 			<fieldset class="joinAs">
 				<legend>Vào với vai trò</legend>
 				<label class="choice"><input type="radio" name="joinAs" value="player" checked>
-					<span><b>Thí sinh</b><small>Cần mật khẩu thí sinh do BTC đưa.</small></span></label>
+					<span><b>Thí sinh</b><small>Cần mật khẩu phòng do người quản lý phòng đưa.</small></span></label>
 				<label class="choice"><input type="radio" name="joinAs" value="audience">
 					<span><b>Khán giả</b><small>Xem trận trực tiếp.</small></span></label>
 				<label class="sub" id="joinPlayBox"><input type="checkbox" id="joinPlay" checked> Trả lời cùng thí sinh

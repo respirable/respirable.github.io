@@ -2,7 +2,7 @@
 -- Olympia Controller - "Yêu cầu một tài khoản" (index.html, Scripts/LobbyPublic.js).
 --
 -- A request goes: page -> Edge Function request-account (supabase/functions, checks the
--- Turnstile captcha, then mails the request to the BTC) -> submit_account_request() below.
+-- Turnstile captcha, then mails the request to the site owner) -> submit_account_request() below.
 -- The function only works with the gate secret the Edge Function holds, so nobody can skip the
 -- captcha by calling it straight from the browser. One request per email per 7 days.
 --

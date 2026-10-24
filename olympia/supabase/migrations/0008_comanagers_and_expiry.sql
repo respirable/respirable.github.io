@@ -4,7 +4,7 @@
 --
 -- Co-managers
 --   The owner lists e-mails in the lobby ("Người cùng quản lý"). Those people sign in like any
---   manager (an invited e-mail may sign in even if BTC has not added it to manager_allowlist),
+--   manager (an invited e-mail may sign in even if the site owner has not added it to manager_allowlist),
 --   see the room in their own lobby and run its control panel. Only the owner deletes the room,
 --   frees seats, edits who co-manages, and picks its question set.
 --
@@ -83,7 +83,7 @@ begin
 	end if;
 	return jsonb_build_object('error', jsonb_build_object(
 		'http_code', 403,
-		'message', 'Tài khoản quản lý chỉ do BTC cấp - email này chưa được cho phép.'));
+		'message', 'Tài khoản quản lý chỉ do chủ sở hữu trang web cấp - email này chưa được cho phép.'));
 end $$;
 grant execute on function public.before_user_created(jsonb) to supabase_auth_admin;
 revoke execute on function public.before_user_created(jsonb) from public, anon, authenticated;

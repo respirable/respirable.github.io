@@ -1,5 +1,5 @@
 /*
- * Olympia Controller - player page, step 1: join a seat with the room code + BTC's player password.
+ * Olympia Controller - player page, step 1: join a seat with the room code + the room's player password.
  * No account: the browser signs in anonymously. The playing controls come in Phase 3.
  */
 (function () {
@@ -15,11 +15,35 @@
 		expired: 'Phòng này đã hết hạn (mỗi phòng dùng được 4 tiếng).',
 		throttled: 'Nhập sai quá nhiều lần - đợi 10 phút rồi thử lại.',
 		bad_password: 'Sai mật khẩu.',
-		seat_taken: 'Ghế này đã có người vào. Nếu đó là bạn trên máy khác, nhờ BTC "Mời ra" rồi vào lại.'
+		seat_taken: 'Ghế này đã có người vào. Nếu đó là bạn trên máy khác, nhờ người quản lý phòng "Mời ra" rồi vào lại.'
 	};
+
+	var SEAT_KEY = 'olympia.seat.';   /* + room code: the seat this device last joined */
+	function remember(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* private window */ } }
+	function recall(key) { try { return localStorage.getItem(key) || ''; } catch (e) { return ''; } }
+	function validCode(code) { return /^[A-Z0-9]{4,12}$/.test(code); }
 
 	function codeFromUrl() {
 		return (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();
+	}
+
+	/* the code from the link (lobby "Tham gia trận đấu", a shared link, a QR) is not asked again */
+	function lockCode(on) {
+		$('#codeText').textContent = $('#code').value;
+		show($('#codeFixed'), on);
+		show($('#codeBox'), !on);
+	}
+
+	/* the last seat in this room is picked again; the cursor goes to the first thing still missing */
+	function prefill() {
+		var code = $('#code').value.trim().toUpperCase();
+		var seat = validCode(code) ? recall(SEAT_KEY + code) : '';
+		var pick = seat && document.querySelector('input[name="seat"][value="' + seat + '"]');
+		if (pick && !document.querySelector('input[name="seat"]:checked')) { pick.checked = true; }
+		var next = !validCode(code) ? $('#code')
+			: document.querySelector('input[name="seat"]:checked') ? $('#password')
+			: document.querySelector('input[name="seat"]');
+		next.focus();
 	}
 
 	function showJoined(code, seat) {
@@ -36,6 +60,7 @@
 		show($('#joinedCard'), false);
 		show($('#joinHeader'), true);
 		show($('#joinCard'), true);
+		prefill();
 	}
 
 	async function onJoin(ev) {
@@ -44,7 +69,7 @@
 		var code = $('#code').value.trim().toUpperCase();
 		var seatInput = document.querySelector('input[name="seat"]:checked');
 		var pw = $('#password').value;
-		if (!/^[A-Z0-9]{4,12}$/.test(code)) { $('#joinError').textContent = 'Mã phòng không hợp lệ.'; return; }
+		if (!validCode(code)) { $('#joinError').textContent = 'Mã phòng không hợp lệ.'; lockCode(false); $('#code').focus(); return; }
 		if (!seatInput) { $('#joinError').textContent = RESULT_TEXT.bad_seat; return; }
 		if (pw.length < 4 || pw.length > 20) { $('#joinError').textContent = 'Mật khẩu có từ 4 đến 20 ký tự.'; return; }
 		$('#joinBtn').disabled = true;
@@ -54,6 +79,7 @@
 			if (r.error) { throw new Error(r.error.message); }
 			if (r.data !== 'ok') { $('#joinError').textContent = RESULT_TEXT[r.data] || r.data; return; }
 			$('#password').value = '';
+			remember(SEAT_KEY + code, seatInput.value);
 			history.replaceState(null, '', '?room=' + encodeURIComponent(code));
 			showJoined(code, seatInput.value);
 		}
@@ -73,6 +99,8 @@
 		if (!db) { $('#notice').textContent = 'Không tải được thư viện Supabase - kiểm tra kết nối mạng.'; show($('#notice'), true); return; }
 		var code = codeFromUrl();
 		$('#code').value = code;
+		lockCode(validCode(code));
+		$('#codeChange').addEventListener('click', function () { lockCode(false); $('#code').select(); $('#code').focus(); });
 		$('#joinForm').addEventListener('submit', onJoin);
 		$('#leaveBtn').addEventListener('click', onLeave);
 		/* back after a reload: still holding a seat? */

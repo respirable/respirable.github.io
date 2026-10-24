@@ -227,7 +227,7 @@
 	/* ---------- the room dialogs (index.html: shareDialog, podiumDialog) ---------- */
 
 	var LINK_NAMES = [
-		['control', 'Quản lý trận (bàn điều khiển)'], ['stage', 'Màn sân khấu'], ['player', 'Thí sinh (cần mật khẩu BTC)'], ['audience', 'Khán giả'],
+		['control', 'Quản lý trận (bàn điều khiển)'], ['stage', 'Màn sân khấu'], ['player', 'Thí sinh (cần mật khẩu phòng)'], ['audience', 'Khán giả'],
 		['podium1', 'Bảng điểm ghế 1'], ['podium2', 'Bảng điểm ghế 2'], ['podium3', 'Bảng điểm ghế 3'], ['podium4', 'Bảng điểm ghế 4']
 	];
 

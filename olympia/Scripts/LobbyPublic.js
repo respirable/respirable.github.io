@@ -4,7 +4,7 @@
  *
  *   "Yêu cầu một tài khoản"  a form sent to the Edge Function request-account
  *       (supabase/functions/request-account: checks the Cloudflare Turnstile captcha, stores the
- *       request - one per email per 7 days, migrations/0009 - and mails it to the BTC with the
+ *       request - one per email per 7 days, migrations/0009 - and mails it to the site owner with the
  *       steps to add the account). The captcha's site key is OlympiaConfig.turnstileSiteKey.
  *   "Tham gia trận đấu"      room code + role: contestant (player.html), audience
  *       (audience.html, with or without answering along: &play=0) or one seat's score screen
@@ -70,7 +70,7 @@
 		contact: 'Thông tin liên hệ khác dài quá (tối đa 300 ký tự).',
 		about: 'Phần giới thiệu và lý do không được để trống và tối đa ' + MAX_WORDS + ' từ.',
 		busy: 'Đang có quá nhiều yêu cầu - thử lại sau ít phút.',
-		gate: 'Máy chủ chưa được cấu hình đầy đủ để nhận yêu cầu. Hãy báo BTC.',
+		gate: 'Máy chủ chưa được cấu hình đầy đủ để nhận yêu cầu. Hãy báo chủ sở hữu trang web.',
 		server: 'Máy chủ gặp lỗi - thử lại sau.'
 	};
 	function errorText(d) {
@@ -119,7 +119,7 @@
 			show($('#reqForm'), false);
 			show($('#reqDone'), true);
 			var to = body.contact ? ('qua ' + body.contact + ' (hoặc email ' + body.email + ')') : ('qua email ' + body.email);
-			$('#reqDoneText').textContent = 'BTC sẽ xem yêu cầu và báo kết quả ' + to + '. Khi được duyệt, bạn đăng nhập bằng email này.';
+			$('#reqDoneText').textContent = 'Chủ sở hữu trang web sẽ xem yêu cầu và báo kết quả ' + to + '. Khi được duyệt, bạn đăng nhập bằng email này.';
 			return;
 		}
 		msg('#reqMsg', errorText(data));
@@ -137,7 +137,15 @@
 
 	/* ---------- join a match ---------- */
 
-	var CODE_KEY = 'olympia.lastJoinCode';
+	var CODE_KEY = 'olympia.lastJoinCode', AS_KEY = 'olympia.lastJoinAs', SEAT_KEY = 'olympia.lastJoinSeat', PLAY_KEY = 'olympia.lastJoinPlay';
+	function remember(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* private window */ } }
+	function recall(key) { try { return localStorage.getItem(key) || ''; } catch (e) { return ''; } }
+
+	/* a whole link pasted into "Mã phòng" (…?room=ABC123…) gives its code */
+	function cleanCode() {
+		var c = $('#joinCode'), m = /[?&]room=([A-Za-z0-9]+)/.exec(c.value);
+		c.value = (m ? m[1] : c.value).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+	}
 
 	function refreshJoin() {
 		var as = (document.querySelector('input[name=joinAs]:checked') || {}).value;
@@ -148,9 +156,12 @@
 	function join(ev) {
 		ev.preventDefault();
 		var code = $('#joinCode').value.trim().toUpperCase();
-		if (!/^[A-Z0-9]{4,12}$/.test(code)) { msg('#joinMsg', 'Mã phòng gồm 4-12 chữ cái hoặc chữ số, BTC sẽ đưa cho bạn.'); return; }
-		try { localStorage.setItem(CODE_KEY, code); } catch (e) { /* private window */ }
+		if (!/^[A-Z0-9]{4,12}$/.test(code)) { msg('#joinMsg', 'Mã phòng gồm 4-12 chữ cái hoặc chữ số, người quản lý phòng sẽ đưa cho bạn.'); return; }
 		var as = (document.querySelector('input[name=joinAs]:checked') || {}).value;
+		remember(CODE_KEY, code);
+		remember(AS_KEY, as || '');
+		remember(SEAT_KEY, $('#joinSeat').value);
+		remember(PLAY_KEY, $('#joinPlay').checked ? '1' : '0');
 		var q = new URLSearchParams({ room: code });
 		var page = 'player.html';
 		if (as === 'audience') { page = 'audience.html'; if (!$('#joinPlay').checked) { q.set('play', '0'); } }
@@ -160,10 +171,18 @@
 
 	function openJoin() {
 		msg('#joinMsg', '');
-		if (!$('#joinCode').value) { try { $('#joinCode').value = localStorage.getItem(CODE_KEY) || ''; } catch (e) { /* private window */ } }
+		/* the same choices as last time on this device: role, podium seat, answering along */
+		if (!$('#joinCode').value) {
+			$('#joinCode').value = recall(CODE_KEY);
+			var last = document.querySelector('input[name=joinAs][value="' + recall(AS_KEY) + '"]');
+			if (last) { last.checked = true; }
+			if (/^[1-4]$/.test(recall(SEAT_KEY))) { $('#joinSeat').value = recall(SEAT_KEY); }
+			if (recall(PLAY_KEY)) { $('#joinPlay').checked = recall(PLAY_KEY) === '1'; }
+		}
 		refreshJoin();
 		$('#joinDialog').showModal();
 		$('#joinCode').focus();
+		$('#joinCode').select();   /* typing a new code replaces the old one */
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {
@@ -172,7 +191,7 @@
 		$('#reqAbout').addEventListener('input', countWords);
 		$('#joinOpen').addEventListener('click', openJoin);
 		$('#joinForm').addEventListener('submit', join);
-		$('#joinCode').addEventListener('input', function () { var c = $('#joinCode'); c.value = c.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+		$('#joinCode').addEventListener('input', cleanCode);
 		document.querySelectorAll('input[name=joinAs]').forEach(function (r) { r.addEventListener('change', refreshJoin); });
 		['#reqDialog', '#joinDialog'].forEach(function (id) {
 			$(id).querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { $(id).close(); }); });

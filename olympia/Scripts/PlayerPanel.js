@@ -401,9 +401,9 @@
 		if (sent.pending) { return { text: 'đang gửi...', cls: '' }; }
 		var r = snap && snap.answerReceipts && snap.answerReceipts[seat];
 		if (r && r.nonce === sent.nonce) {
-			return r.ok ? { text: 'BTC đã nhận', cls: 'ok' } : { text: 'BTC KHÔNG nhận - đã hết giờ', cls: 'bad' };
+			return r.ok ? { text: 'Bàn điều khiển đã nhận', cls: 'ok' } : { text: 'Bàn điều khiển KHÔNG nhận - đã hết giờ', cls: 'bad' };
 		}
-		if (Date.now() - sent.at > 6000) { return { text: 'chưa được xác nhận - báo BTC nếu cần', cls: 'bad' }; }
+		if (Date.now() - sent.at > 6000) { return { text: 'chưa được xác nhận - báo người quản lý phòng nếu cần', cls: 'bad' }; }
 		return { text: 'đang chờ xác nhận...', cls: '' };
 	}
 

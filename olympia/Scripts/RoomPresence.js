@@ -67,7 +67,7 @@
 		var box = $('#qrBox');
 		box.textContent = '';
 		box.appendChild(window.OlympiaQr.canvas(url, 420));
-		$('#qrTitle').textContent = which === 'player' ? 'Thí sinh vào thi (cần mật khẩu BTC)' : 'Khán giả xem trận và chung vui';
+		$('#qrTitle').textContent = which === 'player' ? 'Thí sinh vào thi (cần mật khẩu phòng)' : 'Khán giả xem trận và chung vui';
 		$('#qrLink').textContent = url;
 		document.querySelectorAll('#qrDialog [data-qr]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-qr') === which); });
 		if (!$('#qrDialog').open) { $('#qrDialog').showModal(); }

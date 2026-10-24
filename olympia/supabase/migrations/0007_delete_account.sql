@@ -5,7 +5,7 @@
 -- The page first removes the account's files from Storage (Supabase does not allow deleting
 -- storage objects from SQL), then calls delete_my_account with the username and the exact
 -- sentence the manager had to type. The function checks both again, takes the email off
--- manager_allowlist (so the same email cannot simply sign in again - BTC must add it back),
+-- manager_allowlist (so the same email cannot simply sign in again - the site owner must add it back),
 -- and deletes the auth user; rooms, question sets, the profile and seats go with it
 -- (on delete cascade).
 -- =====================================================================================

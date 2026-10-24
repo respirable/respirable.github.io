@@ -6,7 +6,7 @@
  *                                      keeps any session already here, else signs in anonymously
  *   OlympiaAuth.requireManager()       control / lobby: a permanent account or back to the lobby
  *   OlympiaAuth.signIn(login, pw)      login = email or username
- *   OlympiaAuth.signInWithGoogle()     only works for emails already allowed by BTC
+ *   OlympiaAuth.signInWithGoogle()     only works for emails the site owner already allowed
  *   OlympiaAuth.isManager(session)
  */
 (function () {
@@ -35,7 +35,7 @@
 		if (/invalid login credentials|invalid/i.test(m)) { return 'Sai tên đăng nhập / email hoặc mật khẩu.'; }
 		if (/throttled|rate limit|too many/i.test(m)) { return 'Thử sai quá nhiều lần - đợi vài phút rồi thử lại.'; }
 		if (/email not confirmed/i.test(m)) { return 'Email chưa được xác nhận.'; }
-		if (/BTC|not allowed|signups? not allowed|403/i.test(m)) { return 'Tài khoản quản lý chỉ do BTC cấp - email này chưa được cho phép.'; }
+		if (/BTC|chủ sở hữu trang web|not allowed|signups? not allowed|403/i.test(m)) { return 'Tài khoản quản lý chỉ do chủ sở hữu trang web cấp - email này chưa được cho phép.'; }
 		if (/provider is not enabled|unsupported provider/i.test(m)) { return 'Đăng nhập bằng Google chưa được bật.'; }
 		if (/anonymous sign-ins are disabled/i.test(m)) { return 'Máy chủ chưa bật đăng nhập ẩn danh (Anonymous sign-ins).'; }
 		return m || 'Có lỗi xảy ra.';

@@ -16,7 +16,7 @@
 
 -- STEP 1 - allow the email
 insert into public.manager_allowlist (email, note)
-values (lower('nguoi.quan.ly@example.com'), 'BTC')
+values (lower('nguoi.quan.ly@example.com'), 'chủ sở hữu trang web')
 on conflict (email) do nothing;
 
 -- STEP 2 - username (3-32 chars: a-z 0-9 _ . -), after the account exists

@@ -23,15 +23,19 @@
 				<p class="eyebrow">Olympia</p>
 				<h1>Thí sinh</h1>
 			</div>
+			<a class="btn" href="index.html">Trở lại</a>
 		</header>
 
 		<p class="notice hidden" id="notice"></p>
 
 		<section class="card narrow hidden" id="joinCard">
 			<h2>Vào phòng thi</h2>
-			<p class="meta">Nhập mã phòng, chọn đúng ghế của bạn và mật khẩu do BTC cung cấp.</p>
+			<p class="meta">Chọn đúng ghế của bạn và nhập mật khẩu phòng do người quản lý phòng cung cấp.</p>
 			<form id="joinForm" class="stack">
-				<label>Mã phòng
+				<!-- a code that came in the link is shown, not asked again (Scripts/PlayerJoin.js) -->
+				<p class="roomFixed hidden" id="codeFixed"><span>Phòng <b id="codeText"></b></span><button type="button"
+						class="linkBtn" id="codeChange"><b>Đổi mã phòng</b></button></p>
+				<label id="codeBox">Mã phòng
 					<input type="text" id="code" required maxlength="12" autocomplete="off" autocapitalize="characters"
 						spellcheck="false">
 				</label>
@@ -122,7 +126,10 @@
 					<p class="eyebrow">Điểm số các thí sinh</p>
 					<table class="scoreTable"><tbody id="scoreBody"></tbody></table>
 					<p class="meta keys">Phím tắt: <b>Space</b> bấm chuông / xin trả lời CNV · <b>Enter</b> gửi đáp án</p>
-					<button type="button" class="btn sm" id="leaveBtn">Rời ghế</button>
+					<div class="row">
+						<a class="btn sm" href="index.html" title="Về sảnh; ghế vẫn giữ cho bạn">Trở lại</a>
+						<button type="button" class="btn sm" id="leaveBtn">Rời ghế</button>
+					</div>
 				</aside>
 			</div>
 		</section>

@@ -112,7 +112,7 @@
 	}
 
 	/* The player's page tags each answer with a random nonce; the public state says, per seat,
-	 * whether the answer with that nonce was taken - so "BTC đã nhận" means THIS answer arrived
+	 * whether the answer with that nonce was taken - so "Bàn điều khiển đã nhận" means THIS answer arrived
 	 * in time (an earlier answer of the same seat no longer counts as proof). No answer text. */
 	function receipt(seat, nonce, accepted) {
 		if (typeof nonce !== 'string' || !nonce) { return; }

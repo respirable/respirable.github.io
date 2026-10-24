@@ -124,6 +124,6 @@ ${r.data.allowed ? '<p><b>Lưu ý:</b> email này đã có trong danh sách đư
 		if (!m.ok) { console.error('resend', m.status, await m.text()); }
 	} catch (e) { console.error('resend', e); }
 
-	// the request is stored either way; the BTC can still read it in account_requests
+	// the request is stored either way; the site owner can still read it in account_requests
 	return reply({ ok: true, mailed });
 });
