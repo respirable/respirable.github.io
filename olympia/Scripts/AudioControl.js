@@ -1,7 +1,7 @@
 /*
  * Olympia Controller - audio. The engine (default.html, in a room: the one the control panel runs)
  * plays it; control.html never loads this file (the two pages would echo each other). In a room
- * the stage screens (audience.html?view=stage) load it too, to play what the engine relays to
+ * the stage and audience screens (audience.html) load it too, to play what the engine relays to
  * them - see "where the sound plays" at the end.
  *
  * Seven channels, one HTMLAudioElement each, kept in window.GameVariables (same idea as Olga):
@@ -191,18 +191,18 @@ function fadeOutLongPassiveSound(ms) {
 
 /* ---------- where the sound plays (room mode) ----------
  * In a room the engine runs in the control panel, so its sound would come out of the operator's
- * machine. SoundAt (chosen on the panel, kept in this browser):
- *   'here'   this machine only (as before)
- *   'stage'  the stage screens only: every sound call below is relayed on pub:CODE and replayed
- *            there by the same functions; here the audio still runs (clocks, bed loop) but muted
- *   'both'   both
+ * machine - so in a room SoundAt is always 'stage': every sound call below is relayed on
+ * pub:CODE and replayed by the stage and audience screens; here the audio still runs (clocks,
+ * bed loop) but muted. Without a room ('here') this page is the stage and plays it itself.
  * Only the outermost call is relayed (startLongPassiveSound calls startSound itself...), and
  * callbacks stay here. */
 (function (gv) {
-	var KEY = 'olympia.soundAt';
 	if (!gv.Sync || !gv.Sync.publish) { return; }   /* not the engine (a stage screen only replays - AudienceMirror.js) */
-	try { gv.SoundAt = localStorage.getItem(KEY) || 'here'; } catch (e) { gv.SoundAt = 'here'; }
-	if (['here', 'stage', 'both'].indexOf(gv.SoundAt) === -1) { gv.SoundAt = 'here'; }
+	/* in a room the engine runs inside the control panel: its sound only ever plays on the stage
+	 * and audience screens. Without a room this page IS the stage, so it plays here. */
+	function inRoom() { return !!(gv.Sync && gv.Sync.room); }
+	/* read live: Sync.room is only set once the room is joined, after this file runs */
+	Object.defineProperty(gv, 'SoundAt', { configurable: true, get: function () { return inRoom() ? 'stage' : 'here'; }, set: function () { /* fixed */ } });
 
 	var depth = 0;
 	function relay(op, args) {
@@ -239,15 +239,8 @@ function fadeOutLongPassiveSound(ms) {
 	gv.sendCurrentSounds = function () { if (gv.SoundAt !== 'here' && gv.Sync && gv.Sync.room) { sendCurrent(); } };
 
 	gv.Commands = gv.Commands || {};
-	gv.Commands.setSoundAt = function (args) {
-		var at = args && args.at;
-		if (['here', 'stage', 'both'].indexOf(at) === -1 || at === gv.SoundAt) { return; }
-		var was = gv.SoundAt;
-		if (was !== 'here' && at === 'here' && gv.Sync.room) { gv.Sync.sendPublic({ type: 'sound', op: 'stopAllSounds', args: [], at: Date.now() }); }
-		gv.SoundAt = at;
-		try { localStorage.setItem(KEY, at); } catch (e) { /* private window */ }
-		channelAudios().forEach(function (x) { x.a.muted = (at === 'stage' && !!gv.Sync.room); });
-		if (was === 'here') { gv.sendCurrentSounds(); }
-		console.log('[Audio] sound plays at: ' + at);
+	/* kept so an older panel's command does nothing harmful: the choice is fixed now */
+	gv.Commands.setSoundAt = function () {
+		channelAudios().forEach(function (x) { x.a.muted = inRoom(); });
 	};
 })(window.GameVariables);

@@ -3,8 +3,8 @@
  *
  * Draws the STAGE's graphics with the stage's own modules (VcnvControl, VcnvTreeControl,
  * TangTocControl, VeDichControl, QuestionControl, ScoreboardControl, ScoreBoardScreenControl),
- * from the public state - no game logic, no keys. Sound only on a stage screen (?view=stage), and
- * only when the control panel chose to play it there: the engine relays its sound calls and this
+ * from the public state - no game logic, no keys. Sound plays here (stage and audience screens,
+ * never the panel / players / podiums) once someone clicks the sound button: the engine relays its sound calls and this
  * page replays them with AudioControl.js (see "sound" below). The stage describes what it is
  * showing (buildSceneForPublic in PanelStateControl.js, read from its own DOM); this file turns
  * every change of that description into the same show / hide / set calls the rounds make, so the
@@ -301,7 +301,7 @@
 		if (snap) { try { apply(snap); } catch (e) { console.error(e); } }
 	}
 
-	/* ---------- sound (stage screens, when the panel plays the sound here) ----------
+	/* ---------- sound (stage and audience screens) ----------
 	 * Browsers only play sound after a click on the page: the button shows while the panel wants
 	 * the sound here and nobody has clicked yet. The panel sees which screens have sound on. */
 	var stageView = params.get('view') === 'stage';
@@ -309,7 +309,7 @@
 	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'stopAllSounds',
 		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'];
 	function fileOf(a) { try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
-	function wantsSound() { return stageView && !!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both'); }
+	function wantsSound() { return !!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both'); }
 	function refreshSoundButton() {
 		var b = $('#aSound');
 		if (b) { b.classList.toggle('hidden', !(wantsSound() && !soundOn)); }
@@ -323,7 +323,7 @@
 		if (room) { room.hello(); }   /* the engine answers with what is playing now */
 	}
 	function onSound(m) {
-		if (!stageView || !soundOn || SOUND_OPS.indexOf(m.op) === -1 || typeof window[m.op] !== 'function') { return; }
+		if (!soundOn || SOUND_OPS.indexOf(m.op) === -1 || typeof window[m.op] !== 'function') { return; }
 		var args = Array.isArray(m.args) ? m.args : [];
 		/* "what is playing now" (seek set): skip it when this channel already plays that file */
 		if (typeof m.seek === 'number' && m.ch) {

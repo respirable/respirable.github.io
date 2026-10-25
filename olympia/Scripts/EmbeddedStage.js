@@ -11,7 +11,7 @@
  *     panel may already run it - then this panel follows that one)
  *   - that other panel gone for good: this panel takes over (its engine starts fresh; the last
  *     automatic save - GameSave.js - brings the match back, see the "continue" line)
- *   - the sound plays on this machine, on the stage screens, or both (AudioControl.js SoundAt)
+ *   - the sound plays only on the stage and audience screens, never here (AudioControl.js SoundAt)
  * "Dừng chạy trên máy này" ends the engine and frees the room.
  */
 (function (gv) {
@@ -131,7 +131,6 @@
 	function renderSound() {
 		var row = $('#soundRow'), snap = gv.Sync.lastSnapshot;
 		show(row, !!gv.Sync.room && !!snap && gv.Sync.isAuthorityAlive());
-		if (snap && snap.soundAt && document.activeElement !== $('#soundAt')) { $('#soundAt').value = snap.soundAt; }
 		var screens = window.OlympiaRoomPresence ? window.OlympiaRoomPresence.screens() : null;
 		var hint = '';
 		if (snap && snap.soundAt && snap.soundAt !== 'here' && screens) {
@@ -160,11 +159,6 @@
 		$('#engineStart').addEventListener('click', function () { autoDone = true; userStopped = false; start(); });
 		$('#engineStop').addEventListener('click', function () {
 			if (confirm('Dừng chạy trận trên máy này? Trận dừng hẳn cho tới khi bấm "Chạy trận trên máy này" (ở đây hoặc ở bàn điều khiển khác). Bản lưu tự động vẫn còn để chạy tiếp.')) { userStopped = true; stop(true); }
-		});
-		$('#soundAt').addEventListener('change', function () {
-			var at = $('#soundAt').value;
-			try { localStorage.setItem('olympia.soundAt', at); } catch (e) { /* private window */ }
-			gv.Sync.sendCommand('setSoundAt', { at: at });
 		});
 		$('#savedContinue').addEventListener('click', function () { var b = $('#rcOpen'); if (b) { b.click(); } });
 		window.addEventListener('resize', fitPreview);
