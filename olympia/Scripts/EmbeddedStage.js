@@ -152,6 +152,14 @@
 	/* RecoveryPanel.js: a recovery aimed at a freshly opened stage page first ends this engine */
 	window.OlympiaEmbeddedStage = {
 		running: function () { return !!frame; },
+		/* ControlPanel.js: why the game is not running here, for the red strip ('' = nothing known) */
+		problem: function () {
+			var engine = engineSync();
+			if (frame && engine && (engine.status === 'error' || engine.status === 'denied')) { return 'Không chạy được trận trên máy này: ' + (engine.statusDetail || engine.status); }
+			if (frame && engine && engine.status === 'taken') { return 'Đang chờ phòng: một máy khác vừa giữ phòng (tối đa 30 giây)...'; }
+			if (!frame && note) { return note; }
+			return '';
+		},
 		stop: function (why) { if (frame) { note = why || ''; stop(false); } }
 	};
 
