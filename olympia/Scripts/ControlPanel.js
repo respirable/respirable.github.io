@@ -616,7 +616,9 @@
 		if (st === 'denied' || st === 'error') { return gv.Sync.statusDetail || ('Không vào được phòng ' + code + '.'); }
 		if (st === 'connecting') { return 'Đang kết nối phòng ' + code + '...'; }
 		if (st === 'offline') { return 'Mất kết nối tới máy chủ - đang thử lại...'; }
-		return alive ? '' : 'Trận của phòng ' + code + ' chưa chạy - bàn điều khiển đang khởi động trận, hoặc bấm "Chạy trận trên máy này".';
+		if (alive) { return ''; }
+		var why = window.OlympiaEmbeddedStage && window.OlympiaEmbeddedStage.problem ? window.OlympiaEmbeddedStage.problem() : '';
+		return why || 'Trận của phòng ' + code + ' chưa chạy - bàn điều khiển đang khởi động trận, hoặc bấm "Chạy trận trên máy này".';
 	}
 	/* more than one stage page runs a game: the panel follows one (StateSync.js), say so */
 	function duplicateText() {
