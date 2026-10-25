@@ -54,6 +54,7 @@
 
 	function stop(release) {
 		if (!frame) { return; }
+		console.log('[Engine] stopped here' + (note ? ': ' + note : (release ? ' by the operator' : '')));
 		frame.remove();
 		frame = null;
 		show($('#enginePreview'), false);
@@ -112,7 +113,11 @@
 		 * keys and commands no longer drive two games. */
 		var engine = engineSync();
 		var lead = gv.Sync.followedEngine && gv.Sync.followedEngine();
-		if (frame && engine && lead && engine.instanceId && lead !== engine.instanceId) {
+		/* only a stage PAGE wins: another panel's engine is sorted out by the room claim
+		 * (claim_stage) - stepping aside for it made two panels each stop for the other's engine,
+		 * and then nobody ran the game */
+		var leadIsStagePage = !!(gv.Sync.lastSnapshot && gv.Sync.lastSnapshot.embedded === false);
+		if (frame && engine && lead && engine.instanceId && lead !== engine.instanceId && leadIsStagePage) {
 			note = 'Màn sân khấu đã mở và đang chạy trận, nên máy này đã dừng chạy trận.';
 			stop(false);
 			render();
