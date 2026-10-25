@@ -130,9 +130,9 @@
 	 * the latest state is always the one that ends up saved. Ignored by the 3 s heartbeat when
 	 * nothing changed. */
 	var SAVE_EVERY_MS = 2000;
-	var saveTimer = null, savePending = null, lastSaved = '', lastSaveAt = 0;
+	var saveTimer = null, savePending = null, lastSaved = '', lastSaveAt = 0, saveMissing = false;
 	function savePublicState(pub) {
-		if (!room || !room.ready.pub) { return; }
+		if (!room || !room.ready.pub || saveMissing) { return; }
 		savePending = pub;
 		if (saveTimer) { return; }
 		saveTimer = setTimeout(function () {
@@ -142,7 +142,10 @@
 			if (key === lastSaved) { return; }
 			lastSaved = key; lastSaveAt = Date.now();
 			room.client.rpc('save_public_state', { p_code: room.code, p_state: s }).then(function (r) {
-				if (r.error) { console.warn('[Sync] save_public_state failed', r.error.message); lastSaved = ''; }
+				if (!r.error) { return; }
+				/* the function is not in the database: retrying every 2 s only floods the console */
+				if (r.error.code === 'PGRST202') { saveMissing = true; console.warn('[Sync] save_public_state is missing - run supabase/migrations/0004_saved_public_state.sql in the SQL Editor (saving the public state is off until the page reloads)'); return; }
+				console.warn('[Sync] save_public_state failed', r.error.message); lastSaved = '';
 			});
 		}, Math.max(0, SAVE_EVERY_MS - (Date.now() - lastSaveAt)));
 	}
