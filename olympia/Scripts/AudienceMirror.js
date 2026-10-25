@@ -302,8 +302,9 @@
 	}
 
 	/* ---------- sound (stage and audience screens) ----------
-	 * Browsers only play sound after a click on the page: the button shows while the panel wants
-	 * the sound here and nobody has clicked yet. The panel sees which screens have sound on. */
+	 * Sound is on by default. A browser that blocks sound until the page is touched gets it on the
+	 * first click / tap / key anywhere; the button only shows while it is still blocked. The panel
+	 * sees which screens have sound on. */
 	var stageView = params.get('view') === 'stage';
 	var soundOn = false;
 	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'stopAllSounds',
@@ -314,13 +315,20 @@
 		var b = $('#aSound');
 		if (b) { b.classList.toggle('hidden', !(wantsSound() && !soundOn)); }
 	}
-	function enableSound() {
+	function soundReady() {
+		if (soundOn) { return; }
 		soundOn = true;
-		/* a silent play inside the click unlocks audio for the page */
-		try { var a = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA='); var p = a.play(); if (p && p.catch) { p.catch(function () {}); } } catch (e) { /* ignore */ }
 		refreshSoundButton();
 		if (room && room.track) { room.track({ sound: true }); }
 		if (room) { room.hello(); }   /* the engine answers with what is playing now */
+	}
+	/* a silent play: it unlocks audio for the page, and fails while the browser still blocks it */
+	function enableSound() {
+		if (soundOn) { return; }
+		try {
+			var p = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=').play();
+			if (p && p.then) { p.then(soundReady, function () { refreshSoundButton(); }); } else { soundReady(); }
+		} catch (e) { refreshSoundButton(); }
 	}
 	function onSound(m) {
 		if (!soundOn || SOUND_OPS.indexOf(m.op) === -1 || typeof window[m.op] !== 'function') { return; }
@@ -370,6 +378,7 @@
 		if (!/^[A-Z0-9]{4,12}$/.test(code)) { status('Link chưa đúng: cần dạng audience.html?room=MÃPHÒNG'); return; }
 		if (stageView) { document.body.classList.add('stageView'); document.title = 'Olympia — Sân khấu (chỉ chiếu)'; }
 		$('#aSound').addEventListener('click', enableSound);
+		['pointerdown', 'touchend', 'keydown'].forEach(function (t) { document.addEventListener(t, enableSound, true); });
 		renderQuestionBar();
 		renderTangTocFrame();
 		renderVeDich();
@@ -384,6 +393,7 @@
 				else { status(''); }
 			}
 		});
+		enableSound();   /* on by default - works at once where the browser allows it */
 		window.OlympiaAuth.ensureAnonymous().then(function () { return syncClock(5); }).catch(function () {});
 		setInterval(function () { syncClock(3); }, 60000);
 		setInterval(syncVideo, 200);
