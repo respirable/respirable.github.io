@@ -684,7 +684,11 @@
 		if (m.full && logWanted) { logWanted = false; downloadLog(m.full); }
 	}
 
-	function csvCell(v) { var s = String(v === undefined || v === null ? '' : v); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+	function csvCell(v) {
+		var s = String(v === undefined || v === null ? '' : v);
+		/* a cell starting with = + - @ (or tab / CR) is run as a formula by Excel/Sheets - names and texts come from players */
+		if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) { s = "'" + s; }
+		return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
 
 	function downloadLog(list) {
 		var names = (snap.players || []).map(function (p) { return p.seat + '. ' + p.displayName; });
