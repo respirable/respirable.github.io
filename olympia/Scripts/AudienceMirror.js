@@ -322,13 +322,23 @@
 		if (room && room.track) { room.track({ sound: true }); }
 		if (room) { room.hello(); }   /* the engine answers with what is playing now */
 	}
-	/* a silent play: it unlocks audio for the page, and fails while the browser still blocks it */
-	function enableSound() {
+	/* 0.1 s of silence: playing it unlocks audio for the page */
+	var SILENCE = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+	function playSilence() {
+		try { var p = new Audio(SILENCE).play(); return (p && p.then) ? p : Promise.resolve(); } catch (e) { return Promise.reject(e); }
+	}
+	/* a click / tap / key (ev set) always turns the sound on - the browser allows audio after it.
+	 * Without one (page just opened) only when the browser lets this page play sound already. */
+	function enableSound(ev) {
 		if (soundOn) { return; }
-		try {
-			var p = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=').play();
-			if (p && p.then) { p.then(soundReady, function () { refreshSoundButton(); }); } else { soundReady(); }
-		} catch (e) { refreshSoundButton(); }
+		if (ev) { playSilence().catch(function () {}); soundReady(); return; }
+		var policy = null;
+		try { if (navigator.getAutoplayPolicy) { policy = navigator.getAutoplayPolicy('mediaelement'); } } catch (e) { /* not supported */ }
+		if (policy === 'allowed') { soundReady(); return; }
+		playSilence().then(soundReady, function (err) {
+			if (err && err.name === 'NotAllowedError') { refreshSoundButton(); return; }   /* blocked until a click */
+			soundReady();   /* any other failure is about the clip, not about sound being blocked */
+		});
 	}
 	function onSound(m) {
 		if (!soundOn || SOUND_OPS.indexOf(m.op) === -1 || typeof window[m.op] !== 'function') { return; }

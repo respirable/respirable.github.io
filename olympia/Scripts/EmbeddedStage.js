@@ -43,7 +43,7 @@
 		note = '';
 		frame = document.createElement('iframe');
 		frame.src = engineUrl();
-		frame.title = 'Màn sân khấu chạy trên máy này';
+		frame.title = 'Trận chạy trên máy này';
 		frame.setAttribute('allow', 'autoplay; fullscreen');
 		frame.tabIndex = -1;   /* keys stay on the panel, which relays them like to any stage */
 		$('#enginePreview').appendChild(frame);
@@ -78,7 +78,7 @@
 		if (frame) {
 			var s = engine ? engine.status : 'connecting';
 			if (ignored.length && (s === 'online' || s === 'local')) { st.textContent = 'Trận đang chạy trên máy này; một màn sân khấu kiểu cũ cũng đang chạy trận và bị bỏ qua - hãy tải lại màn đó.'; st.classList.add('warn'); }
-			else if (s === 'online' || s === 'local') { st.textContent = gv.Sync.room ? 'Trận đang chạy trên máy này. Màn sân khấu chỉ chiếu đồ hoạ: đóng hay tải lại nó không ảnh hưởng trận.' : 'Trận đang chạy trên máy này (âm thanh phát ở máy này).'; st.classList.add('on'); }
+			else if (s === 'online' || s === 'local') { st.textContent = gv.Sync.room ? 'Trận đang chạy trên máy này. Màn sân khấu chỉ chiếu đồ hoạ: đóng hay tải lại nó không ảnh hưởng trận.' : 'Trận đang chạy trên máy này (máy này không phát âm thanh).'; st.classList.add('on'); }
 			else if (s === 'taken') { st.textContent = 'Đang chờ phòng: một máy khác vừa giữ phòng (tối đa 30 giây)...'; st.classList.add('warn'); }
 			else if (s === 'error' || s === 'denied') { st.textContent = 'Không chạy được trên máy này: ' + (engine.statusDetail || s); st.classList.add('warn'); }
 			else { st.textContent = 'Đang khởi động trận trên máy này...'; }

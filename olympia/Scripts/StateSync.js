@@ -301,7 +301,9 @@
 			}
 			setTimeout(claim, STAGE_HEARTBEAT_MS);
 		}
-		setInterval(function () { if (connected && everyChannelReady()) { gv.Sync.publish(); } }, STATE_HEARTBEAT_MS);
+		/* the panels' heartbeat needs only ops:CODE - a screen channel (pub) that is slow to join
+		 * must not make the control panel think the game stopped (sends on it wait in its queue) */
+		setInterval(function () { if (connected && room.ready.ops) { gv.Sync.publish(); } }, STATE_HEARTBEAT_MS);
 		await claim();
 	}
 

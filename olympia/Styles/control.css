@@ -258,8 +258,9 @@ table.score .full { display: block; font-size: 12px; color: var(--muted); }
 .soundRow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
 .soundRow small { flex-basis: 100%; font-weight: 400; color: var(--muted); }
 .soundRow small:empty { display: none; }
-.enginePreview { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 6px; border: 1px solid var(--line-2); background: #000; }
-.enginePreview iframe { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; border: 0; transform-origin: 0 0; transform: scale(var(--engine-scale, .18)); pointer-events: none; }
+/* the engine runs here unseen: the panel shows no graphics (a 1 px box, not display:none - a hidden frame's graphics and timers can stall) */
+.enginePreview { position: fixed; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.enginePreview iframe { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; border: 0; pointer-events: none; }
 
 /* the clock and, right under it, the emergency recovery button (RecoveryPanel.js) */
 .headRight { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
