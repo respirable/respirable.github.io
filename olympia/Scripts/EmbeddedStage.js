@@ -174,23 +174,55 @@
 			if (confirm('Dừng chạy trận trên máy này? Trận dừng hẳn cho tới khi bấm "Chạy trận trên máy này" (ở đây hoặc ở bàn điều khiển khác). Bản lưu tự động vẫn còn để chạy tiếp.')) { userStopped = true; stop(true); }
 		});
 		$('#savedContinue').addEventListener('click', function () { var b = $('#rcOpen'); if (b) { b.click(); } });
-		/* "Kết thúc trận đấu": a dialog of the page (not the browser's confirm), then the engine
-		 * ends the match itself (GameSave.js endMatch) - whichever panel runs it */
-		var END_TEXT = $('#endText').textContent;
+		/* "Kết thúc trận đấu": a dialog of the page (not the browser's confirm). The engine stops
+		 * every sound and wipes the save (GameSave.js endMatch) - whichever panel runs it. In a room
+		 * the room goes too (its owner only - the database allows nobody else), and this panel goes
+		 * back to the lobby; without a room the engine just starts a fresh match. */
+		function endText(alive) {
+			if (!alive) { return 'Trận chưa chạy nên không có gì để kết thúc.'; }
+			return gv.Sync.room
+				? 'Trận đang chơi dừng ngay, âm thanh tắt trên mọi màn và phòng ' + gv.Sync.room + ' bị xoá: thí sinh, khán giả và màn sân khấu đều bị ngắt, bàn điều khiển trở về sảnh. Không thể hoàn tác.'
+				: 'Trận đang chơi dừng ngay: âm thanh tắt, bản lưu tự động bị xoá và trận trở về từ đầu. Không thể hoàn tác.';
+		}
+		async function deleteRoom() {
+			var c = window.OlympiaAuth && window.OlympiaAuth.client;
+			if (!c) { return 'Không kết nối được máy chủ.'; }
+			var r = await c.from('rooms').delete().eq('code', gv.Sync.room).select('code');
+			if (r.error) { return r.error.message; }
+			return (r.data && r.data.length) ? '' : 'chỉ chủ phòng mới xoá được phòng';
+		}
 		$('#endMatchOpen').addEventListener('click', function () {
 			var alive = gv.Sync.isAuthorityAlive();
-			$('#endText').textContent = alive ? END_TEXT : 'Trận chưa chạy nên không có gì để kết thúc.';
+			$('#endText').textContent = endText(alive);
 			$('#endConfirm').disabled = !alive;
 			$('#endConfirm').textContent = 'Kết thúc trận';
+			$('#endCancel').disabled = false;
+			$('#endCancel').textContent = 'Huỷ';
 			$('#endDialog').showModal();
 		});
 		$('#endCancel').addEventListener('click', function () { $('#endDialog').close(); });
-		$('#endConfirm').addEventListener('click', function () {
-			gv.Sync.sendCommand('endMatch');
+		$('#endConfirm').addEventListener('click', async function () {
 			$('#endConfirm').disabled = true;
+			$('#endCancel').disabled = true;
 			$('#endConfirm').textContent = 'Đang kết thúc...';
-			$('#endText').textContent = 'Đang kết thúc trận - trận mới sẽ sẵn sàng sau vài giây.';
-			setTimeout(function () { $('#endDialog').close(); }, 4000);
+			gv.Sync.sendCommand('endMatch');   /* sounds off on every screen at once, save wiped */
+			if (!gv.Sync.room) {
+				$('#endText').textContent = 'Đang kết thúc trận - trận mới sẽ sẵn sàng sau vài giây.';
+				setTimeout(function () { $('#endDialog').close(); }, 4000);
+				return;
+			}
+			await new Promise(function (ok) { setTimeout(ok, 800); });   /* let the sound stop reach the screens first */
+			var why = await deleteRoom();
+			if (!why) {
+				userStopped = true;
+				stop(false);
+				$('#endText').textContent = 'Đã kết thúc trận và xoá phòng ' + gv.Sync.room + '. Đang về sảnh...';
+				setTimeout(function () { location.href = window.OlympiaAuth.lobbyUrl(); }, 1200);
+				return;
+			}
+			$('#endText').textContent = 'Đã kết thúc trận (trận mới sẵn sàng sau vài giây) nhưng chưa xoá được phòng: ' + why + '.';
+			$('#endCancel').disabled = false;
+			$('#endCancel').textContent = 'Đóng';
 		});
 		window.addEventListener('resize', fitPreview);
 		setInterval(tick, 1000);
