@@ -30,7 +30,7 @@ function startSound(channel, filename, overlap, onEnded) {
 	try {
 		if (!overlap) { stopSound(channel); }
 		var a = new Audio('Sounds/' + filename);
-		if (window.GameVariables.SoundAt === 'stage' && window.GameVariables.Sync && window.GameVariables.Sync.room) { a.muted = true; }   /* the stage screens play it instead */
+		if (window.GameVariables.SoundAt === 'stage') { a.muted = true; }   /* the stage / audience screens play it instead */
 		if (onEnded) { a.addEventListener('ended', onEnded); }
 		if (!overlap) { window.GameVariables[channel] = a; }
 		var p = a.play();
@@ -193,7 +193,8 @@ function fadeOutLongPassiveSound(ms) {
  * In a room the engine runs in the control panel, so its sound would come out of the operator's
  * machine - so in a room SoundAt is always 'stage': every sound call below is relayed on
  * pub:CODE and replayed by the stage and audience screens; here the audio still runs (clocks,
- * bed loop) but muted. Without a room ('here') this page is the stage and plays it itself.
+ * bed loop) but muted. The engine a control panel runs is silent even without a room; a
+ * graphics page opened on its own without a room ('here') is the stage and plays it itself.
  * Only the outermost call is relayed (startLongPassiveSound calls startSound itself...), and
  * callbacks stay here. */
 (function (gv) {
@@ -201,8 +202,11 @@ function fadeOutLongPassiveSound(ms) {
 	/* in a room the engine runs inside the control panel: its sound only ever plays on the stage
 	 * and audience screens. Without a room this page IS the stage, so it plays here. */
 	function inRoom() { return !!(gv.Sync && gv.Sync.room); }
+	/* the engine a control panel runs (?embedded=1) is always silent, room or not */
+	var embedded = new URLSearchParams(location.search).get('embedded') === '1';
+	function silentHere() { return embedded || inRoom(); }
 	/* read live: Sync.room is only set once the room is joined, after this file runs */
-	Object.defineProperty(gv, 'SoundAt', { configurable: true, get: function () { return inRoom() ? 'stage' : 'here'; }, set: function () { /* fixed */ } });
+	Object.defineProperty(gv, 'SoundAt', { configurable: true, get: function () { return silentHere() ? 'stage' : 'here'; }, set: function () { /* fixed */ } });
 
 	var depth = 0;
 	function relay(op, args) {
@@ -241,6 +245,6 @@ function fadeOutLongPassiveSound(ms) {
 	gv.Commands = gv.Commands || {};
 	/* kept so an older panel's command does nothing harmful: the choice is fixed now */
 	gv.Commands.setSoundAt = function () {
-		channelAudios().forEach(function (x) { x.a.muted = inRoom(); });
+		channelAudios().forEach(function (x) { x.a.muted = silentHere(); });
 	};
 })(window.GameVariables);

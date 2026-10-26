@@ -610,15 +610,21 @@
 
 	/* what the red strip says - in a room there is more that can go wrong than "no stage" */
 	var localBannerText = null;
+	var STARTING_GRACE_MS = 20000;   /* the panel starts its own engine: silence this long is a real problem */
+	var notAliveSince = Date.now();
 	function bannerText(alive) {
 		var st = gv.Sync.status, code = gv.Sync.room;
 		if (!code) { return alive ? '' : localBannerText; }
 		if (st === 'denied' || st === 'error') { return gv.Sync.statusDetail || ('Không vào được phòng ' + code + '.'); }
 		if (st === 'connecting') { return 'Đang kết nối phòng ' + code + '...'; }
 		if (st === 'offline') { return 'Mất kết nối tới máy chủ - đang thử lại...'; }
-		if (alive) { return ''; }
+		if (alive) { notAliveSince = 0; return ''; }
+		if (!notAliveSince) { notAliveSince = Date.now(); }
 		var why = window.OlympiaEmbeddedStage && window.OlympiaEmbeddedStage.problem ? window.OlympiaEmbeddedStage.problem() : '';
-		return why || 'Trận của phòng ' + code + ' chưa chạy - bàn điều khiển đang khởi động trận, hoặc bấm "Chạy trận trên máy này".';
+		if (why) { return why; }
+		/* starting (or taking over): no stage screen is needed, the engine runs in this panel */
+		if (Date.now() - notAliveSince < STARTING_GRACE_MS) { return ''; }
+		return 'Trận của phòng ' + code + ' chưa chạy được trên máy này - bấm "Chạy trận trên máy này" (mục Trận đấu).';
 	}
 	/* more than one stage page runs a game: the panel follows one (StateSync.js), say so */
 	function duplicateText() {
