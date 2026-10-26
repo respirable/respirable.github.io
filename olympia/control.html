@@ -8,7 +8,9 @@
 		href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Roboto+Mono:wght@500&display=swap">
 	<link rel="stylesheet" type="text/css" href="Styles/control.css">
 	<!-- NO AudioControl.js here: only the graphics page plays sound. -->
-	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
+		integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"
+		crossorigin="anonymous"></script>
 	<script src="Scripts/Config.js"></script>
 	<script src="Scripts/Auth.js"></script>
 	<script src="Scripts/Variables.js"></script>
@@ -17,13 +19,15 @@
 	<script src="Scripts/ControlPanel.js"></script>
 	<script src="Scripts/RecoveryPanel.js"></script>
 	<script src="Scripts/EmbeddedStage.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"
+		integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k"
+		crossorigin="anonymous"></script>
 	<script src="Scripts/QrCode.js"></script>
 	<script src="Scripts/RoomPresence.js"></script>
 </head>
 
 <body>
-	<div class="banner" id="connectionBanner">Trận chưa chạy — bấm "Chạy trận trên máy này" ở mục Màn đồ hoạ, hoặc mở
+	<div class="banner" id="connectionBanner">Trận chưa chạy — bấm "Chạy trận trên máy này" ở mục Trận đấu, hoặc mở
 		default.html trong cùng trình duyệt.</div>
 
 	<div class="page">
@@ -34,120 +38,151 @@
 			<div class="head">
 				<h1><small>OLYMPIA CONTROLLER · MÀN QUẢN LÝ</small><span id="roundName">—</span></h1>
 				<div class="headRight">
-				<div class="clock" id="clockBox">
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<circle cx="12" cy="13" r="8" />
-						<path d="M12 9v4l3 2M9 3h6" />
-					</svg>
-					<b id="timerValue">—</b><span class="bar"><i id="timerBar"></i></span>
-				</div>
-				<!-- emergency progress recovery, right under the clock (Scripts/RecoveryPanel.js -> Recovery.js on the stage) -->
-				<div class="recovery headRecovery" id="recoverySec">
-					<div class="rcLauncher">
-						<button type="button" class="btn danger" id="rcOpen">Phục hồi tiến trình khẩn cấp…</button>
-						<span class="meta" id="rcState">— chỉ dùng được trước khi bắt đầu Khởi động</span>
+					<div class="clock" id="clockBox">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<circle cx="12" cy="13" r="8" />
+							<path d="M12 9v4l3 2M9 3h6" />
+						</svg>
+						<b id="timerValue">—</b><span class="bar"><i id="timerBar"></i></span>
 					</div>
-					<!-- the form opens as a dialog over the panel (RecoveryPanel.js) -->
-					<dialog class="recovery rcDialog" id="rcDialog">
-						<div class="rcHead">
-							<b>Phục hồi tiến trình khẩn cấp</b>
-							<button type="button" class="btn sm" id="rcClose">Đóng</button>
+					<!-- emergency progress recovery, right under the clock (Scripts/RecoveryPanel.js -> Recovery.js on the stage) -->
+					<div class="recovery headRecovery" id="recoverySec">
+						<div class="rcLauncher">
+							<button type="button" class="btn danger" id="rcOpen">Phục hồi tiến trình khẩn cấp…</button>
+							<span class="meta" id="rcState">— chỉ dùng được trước khi bắt đầu Khởi động</span>
 						</div>
-						<div class="bd">
-							<p class="meta">Khi trận phải chạy lại giữa buổi thi (bàn điều khiển tải lại, hoặc chuyển sang máy
-								khác): khai báo trận đang ở đâu và trận sẽ nhảy tới đó; sau đó điều khiển bằng phím như bình thường.
-								Chỉ dùng được khi trận vừa chạy lại (chưa bấm gì ở Khởi động). Khai sai thì bấm "Dừng chạy trên
-								máy này", "Chạy trận trên máy này" rồi khai lại.</p>
-
-							<div class="rcSaved">
-								<h3>Bản lưu tự động</h3>
-								<p class="meta" id="rcSavedText">—</p>
-								<label class="rcCheck hidden" id="rcResumeBox"><input type="checkbox" id="rcResume" checked> <span id="rcResumeText">Chạy tiếp đồng hồ đang dở</span></label>
-							<button type="button" class="btn danger" id="rcSavedApply">Khôi phục từ bản lưu tự động</button>
-								<p class="meta">Trận đang thi được lưu tự động vài giây một lần. Khôi phục sẽ đưa trận về
-									đúng điểm, đúng vòng, ở bước an toàn gần nhất (câu đang hỏi được hỏi lại; đồng hồ đang chạy
-									phải bật lại). Hoặc khai báo tay bên dưới.</p>
+						<!-- the form opens as a dialog over the panel (RecoveryPanel.js) -->
+						<dialog class="recovery rcDialog" id="rcDialog">
+							<div class="rcHead">
+								<b>Phục hồi tiến trình khẩn cấp</b>
+								<button type="button" class="btn sm" id="rcClose">Đóng</button>
 							</div>
+							<div class="bd">
+								<p class="meta">Khi trận phải chạy lại giữa buổi thi (bàn điều khiển tải lại, hoặc
+									chuyển sang máy
+									khác): khai báo trận đang ở đâu và trận sẽ nhảy tới đó; sau đó điều khiển bằng phím
+									như bình thường.
+									Chỉ dùng được khi trận vừa chạy lại (chưa bấm gì ở Khởi động). Khai sai thì bấm
+									"Dừng chạy trên
+									máy này", "Chạy trận trên máy này" rồi khai lại.</p>
 
-							<h3>Điểm số hiện tại</h3>
-							<div class="rcGrid4" id="rcScores"></div>
-
-							<h3>Tiếp tục ở vòng</h3>
-							<div class="rcChoice" id="rcRound">
-								<label><input type="radio" name="rcRound" value="kd" checked> Khởi động</label>
-								<label><input type="radio" name="rcRound" value="vcnv"> Vượt chướng ngại vật</label>
-								<label><input type="radio" name="rcRound" value="tt"> Tăng tốc</label>
-								<label><input type="radio" name="rcRound" value="vd"> Về đích</label>
-								<label><input type="radio" name="rcRound" value="tb"> Câu hỏi phụ</label>
-							</div>
-
-							<div class="rcPane" data-r="kd">
-								<div class="rcChoice">
-									<label><input type="radio" name="rcKdMode" value="individual" checked> Lượt riêng</label>
-									<label><input type="radio" name="rcKdMode" value="common"> Lượt chung</label>
+								<div class="rcSaved">
+									<h3>Bản lưu tự động</h3>
+									<p class="meta" id="rcSavedText">—</p>
+									<label class="rcCheck hidden" id="rcResumeBox"><input type="checkbox" id="rcResume"
+											checked> <span id="rcResumeText">Chạy tiếp đồng hồ đang dở</span></label>
+									<button type="button" class="btn danger" id="rcSavedApply">Khôi phục từ bản lưu tự
+										động</button>
+									<p class="meta">Trận đang thi được lưu tự động vài giây một lần. Khôi phục sẽ đưa
+										trận về
+										đúng điểm, đúng vòng, ở bước an toàn gần nhất (câu đang hỏi được hỏi lại; đồng
+										hồ đang chạy
+										phải bật lại). Hoặc khai báo tay bên dưới.</p>
 								</div>
-								<div class="rcSub" data-m="individual">
-									<p class="meta">Ai đã thi xong lượt riêng?</p>
-									<div class="rcGrid4" id="rcKdDone"></div>
-									<div class="rcRow">
-										<label>Đang thi: <select id="rcKdSeat"></select></label>
-										<label>Bắt đầu lại từ câu: <select id="rcKdQ"></select></label>
+
+								<h3>Điểm số hiện tại</h3>
+								<div class="rcGrid4" id="rcScores"></div>
+
+								<h3>Tiếp tục ở vòng</h3>
+								<div class="rcChoice" id="rcRound">
+									<label><input type="radio" name="rcRound" value="kd" checked> Khởi động</label>
+									<label><input type="radio" name="rcRound" value="vcnv"> Vượt chướng ngại vật</label>
+									<label><input type="radio" name="rcRound" value="tt"> Tăng tốc</label>
+									<label><input type="radio" name="rcRound" value="vd"> Về đích</label>
+									<label><input type="radio" name="rcRound" value="tb"> Câu hỏi phụ</label>
+								</div>
+
+								<div class="rcPane" data-r="kd">
+									<div class="rcChoice">
+										<label><input type="radio" name="rcKdMode" value="individual" checked> Lượt
+											riêng</label>
+										<label><input type="radio" name="rcKdMode" value="common"> Lượt chung</label>
+									</div>
+									<div class="rcSub" data-m="individual">
+										<p class="meta">Ai đã thi xong lượt riêng?</p>
+										<div class="rcGrid4" id="rcKdDone"></div>
+										<div class="rcRow">
+											<label>Đang thi: <select id="rcKdSeat"></select></label>
+											<label>Bắt đầu lại từ câu: <select id="rcKdQ"></select></label>
+										</div>
+									</div>
+									<div class="rcSub" data-m="common">
+										<div class="rcRow"><label>Bắt đầu lại từ câu: <select
+													id="rcKdCommonQ"></select></label></div>
 									</div>
 								</div>
-								<div class="rcSub" data-m="common">
-									<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcKdCommonQ"></select></label></div>
+
+								<div class="rcPane" data-r="vcnv">
+									<div class="rcGrid5" id="rcVcnvRows"></div>
+									<p class="meta">Ai đã bị loại khỏi phần chướng ngại vật?</p>
+									<div class="rcGrid4" id="rcVcnvOut"></div>
+									<p class="meta">Màn sân khấu về bảng chướng ngại vật; các góc ảnh của hàng trả lời
+										đúng được mở sẵn.
+										Nếu chướng ngại vật đã được giải, chọn Tăng tốc.</p>
 								</div>
-							</div>
 
-							<div class="rcPane" data-r="vcnv">
-								<div class="rcGrid5" id="rcVcnvRows"></div>
-								<p class="meta">Ai đã bị loại khỏi phần chướng ngại vật?</p>
-								<div class="rcGrid4" id="rcVcnvOut"></div>
-								<p class="meta">Màn sân khấu về bảng chướng ngại vật; các góc ảnh của hàng trả lời đúng được mở sẵn.
-									Nếu chướng ngại vật đã được giải, chọn Tăng tốc.</p>
-							</div>
-
-							<div class="rcPane" data-r="tt">
-								<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcTtQ"></select></label></div>
-							</div>
-
-							<div class="rcPane" data-r="vd">
-								<p class="meta"><b>Bắt buộc:</b> chọn cho từng thí sinh đã thi xong lượt Về đích hay chưa.</p>
-								<div class="rcGrid4" id="rcVdDone"></div>
-								<div class="rcRow">
-									<label>Người thi tiếp theo: <select id="rcVdSeat"></select></label>
-								</div>
-								<label class="rcCheck"><input type="checkbox" id="rcVdMid"> Đang giữa lượt (đã chọn gói câu hỏi)</label>
-								<div class="rcSub" id="rcVdMidBox">
-									<div class="rcRow">
-										<label>Câu 1: <select class="rcVdVal"><option value="20">20</option><option value="30">30</option></select></label>
-										<label>Câu 2: <select class="rcVdVal"><option value="20">20</option><option value="30">30</option></select></label>
-										<label>Câu 3: <select class="rcVdVal"><option value="20">20</option><option value="30">30</option></select></label>
-									</div>
-									<div class="rcRow">
-										<label>Bắt đầu lại từ câu: <select id="rcVdQ"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
-										<label>Ngôi sao hy vọng: <select id="rcVdStar">
-											<option value="">chưa dùng</option>
-											<option value="1">đặt ở câu 1</option><option value="2">đặt ở câu 2</option><option value="3">đặt ở câu 3</option>
-											<option value="used">đã dùng</option>
-										</select></label>
+								<div class="rcPane" data-r="tt">
+									<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcTtQ"></select></label>
 									</div>
 								</div>
-							</div>
 
-							<div class="rcPane" data-r="tb">
-								<p class="meta">Ai thi câu hỏi phụ? Không chọn ai = các thí sinh bằng điểm cao nhất (theo điểm ở trên).</p>
-								<div class="rcGrid4" id="rcTbSeats"></div>
-								<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcTbQ"></select></label></div>
-								<p class="meta">Màn sân khấu: ← hiện đồ hoạ, → ra câu đã chọn. Người bị loại ở câu đang dở được thi
-									lại câu đó.</p>
-							</div>
+								<div class="rcPane" data-r="vd">
+									<p class="meta"><b>Bắt buộc:</b> chọn cho từng thí sinh đã thi xong lượt Về đích hay
+										chưa.</p>
+									<div class="rcGrid4" id="rcVdDone"></div>
+									<div class="rcRow">
+										<label>Người thi tiếp theo: <select id="rcVdSeat"></select></label>
+									</div>
+									<label class="rcCheck"><input type="checkbox" id="rcVdMid"> Đang giữa lượt (đã chọn
+										gói câu hỏi)</label>
+									<div class="rcSub" id="rcVdMidBox">
+										<div class="rcRow">
+											<label>Câu 1: <select class="rcVdVal">
+													<option value="20">20</option>
+													<option value="30">30</option>
+												</select></label>
+											<label>Câu 2: <select class="rcVdVal">
+													<option value="20">20</option>
+													<option value="30">30</option>
+												</select></label>
+											<label>Câu 3: <select class="rcVdVal">
+													<option value="20">20</option>
+													<option value="30">30</option>
+												</select></label>
+										</div>
+										<div class="rcRow">
+											<label>Bắt đầu lại từ câu: <select id="rcVdQ">
+													<option value="1">1</option>
+													<option value="2">2</option>
+													<option value="3">3</option>
+												</select></label>
+											<label>Ngôi sao hy vọng: <select id="rcVdStar">
+													<option value="">chưa dùng</option>
+													<option value="1">đặt ở câu 1</option>
+													<option value="2">đặt ở câu 2</option>
+													<option value="3">đặt ở câu 3</option>
+													<option value="used">đã dùng</option>
+												</select></label>
+										</div>
+									</div>
+								</div>
 
-							<p class="rcSummary" id="rcSummary"></p>
-							<button type="button" class="btn danger" id="rcApply">Phục hồi tiến trình</button>
-						</div>
-					</dialog>
-				</div>
+								<div class="rcPane" data-r="tb">
+									<p class="meta">Ai thi câu hỏi phụ? Không chọn ai = các thí sinh bằng điểm cao nhất
+										(theo điểm ở trên).</p>
+									<div class="rcGrid4" id="rcTbSeats"></div>
+									<div class="rcRow"><label>Bắt đầu lại từ câu: <select id="rcTbQ"></select></label>
+									</div>
+									<p class="meta">Màn sân khấu: ← hiện đồ hoạ, → ra câu đã chọn. Người bị loại ở câu
+										đang dở được thi
+										lại câu đó.</p>
+								</div>
+
+								<p class="rcSummary" id="rcSummary"></p>
+								<button type="button" class="btn danger" id="rcApply">Phục hồi tiến trình</button>
+							</div>
+						</dialog>
+					</div>
 				</div>
 			</div>
 
@@ -431,22 +466,26 @@
 						<div class="irow time"><span class="tag"><i></i><span id="ttName1">1</span></span><input
 								type="text" id="ttAns1" autocomplete="off" placeholder="đáp án ghế 1"><input type="text"
 								id="ttTime1" class="time" autocomplete="off" placeholder="…s"><span class="saved"
-								id="ttPreview1"></span><button type="button" class="mark" id="ttMark1">Ghế 1 đúng</button>
+								id="ttPreview1"></span><button type="button" class="mark" id="ttMark1">Ghế 1
+								đúng</button>
 						</div>
 						<div class="irow time"><span class="tag"><i></i><span id="ttName2">2</span></span><input
 								type="text" id="ttAns2" autocomplete="off" placeholder="đáp án ghế 2"><input type="text"
 								id="ttTime2" class="time" autocomplete="off" placeholder="…s"><span class="saved"
-								id="ttPreview2"></span><button type="button" class="mark" id="ttMark2">Ghế 2 đúng</button>
+								id="ttPreview2"></span><button type="button" class="mark" id="ttMark2">Ghế 2
+								đúng</button>
 						</div>
 						<div class="irow time"><span class="tag"><i></i><span id="ttName3">3</span></span><input
 								type="text" id="ttAns3" autocomplete="off" placeholder="đáp án ghế 3"><input type="text"
 								id="ttTime3" class="time" autocomplete="off" placeholder="…s"><span class="saved"
-								id="ttPreview3"></span><button type="button" class="mark" id="ttMark3">Ghế 3 đúng</button>
+								id="ttPreview3"></span><button type="button" class="mark" id="ttMark3">Ghế 3
+								đúng</button>
 						</div>
 						<div class="irow time"><span class="tag"><i></i><span id="ttName4">4</span></span><input
 								type="text" id="ttAns4" autocomplete="off" placeholder="đáp án ghế 4"><input type="text"
 								id="ttTime4" class="time" autocomplete="off" placeholder="…s"><span class="saved"
-								id="ttPreview4"></span><button type="button" class="mark" id="ttMark4">Ghế 4 đúng</button>
+								id="ttPreview4"></span><button type="button" class="mark" id="ttMark4">Ghế 4
+								đúng</button>
 						</div>
 					</div>
 					<div class="flow aux">
@@ -495,7 +534,8 @@
 
 					</div>
 					<p class="meta">Chỉ dùng khi có từ hai thí sinh bằng điểm cao nhất. Tối đa 3 câu. Ai trả lời đúng
-						trước thì câu hỏi phụ kết thúc (không cộng điểm); trả lời sai thì bị loại khỏi câu đó. Bấm chuông
+						trước thì câu hỏi phụ kết thúc (không cộng điểm); trả lời sai thì bị loại khỏi câu đó. Bấm
+						chuông
 						trước khi bật 15 giây thì chỉ có thể chấm sai.</p>
 					<div class="flow aux">
 						<button type="button" class="btn" id="tbSetSeats">Chọn thí sinh thi câu phụ…</button>
@@ -568,7 +608,8 @@
 						<tr>
 							<td><kbd>,</kbd></td>
 							<td>Chỉ khi màn xanh bật. KĐ: ẩn hoặc hiện thanh câu hỏi và thanh tên. VCNV / TT: toàn bộ đồ
-								hoạ VCNV, khung câu hỏi và cây đáp án TT. Lúc ẩn vẫn chấm được; thanh câu hỏi KĐ mở lại, mở
+								hoạ VCNV, khung câu hỏi và cây đáp án TT. Lúc ẩn vẫn chấm được; thanh câu hỏi KĐ mở lại,
+								mở
 								cây đáp án, về bảng ô chữ (VCNV) hoặc câu kế (TT) thì tự hiện lại.</td>
 						</tr>
 						<tr>
@@ -579,7 +620,8 @@
 							<td>Câu hỏi phụ</td>
 							<td>← chọn các thí sinh bằng điểm nhất → ← hiện đồ hoạ → → câu hỏi (mở chuông ngay) → → bật
 								15 giây · 1-4 chuông · ↑ đúng (chỉ khi bấm sau lúc bật giờ) · ↓ sai = loại khỏi câu
-								· ⌫ xoá chuông nhầm · không ai đúng: → câu kế (tối đa 3 câu) · có người đúng: ← ẩn đồ hoạ.</td>
+								· ⌫ xoá chuông nhầm · không ai đúng: → câu kế (tối đa 3 câu) · có người đúng: ← ẩn đồ
+								hoạ.</td>
 						</tr>
 					</table>
 				</details>
@@ -611,7 +653,8 @@
 						<input type="number" step="5" id="scoreInput" placeholder="điểm">
 						<button type="button" class="btn" id="scoreSet">Đặt điểm</button>
 					</div>
-					<button type="button" class="btn undoBtn" id="undoScore" disabled title="Ctrl+Z">↶ Hoàn tác điểm</button>
+					<button type="button" class="btn undoBtn" id="undoScore" disabled title="Ctrl+Z">↶ Hoàn tác
+						điểm</button>
 					<details class="logBox" id="logBox">
 						<summary>Nhật ký trận <span class="meta" id="logCount"></span></summary>
 						<ol class="logList" id="logList"></ol>
@@ -643,13 +686,16 @@
 
 			<!-- who is connected (room mode only - Scripts/RoomPresence.js) -->
 			<section class="sec hidden" id="presenceSec">
-				<div class="hd"><span class="eyebrow">Thiết bị trong phòng</span><span class="cnt">chấm xanh = đang kết nối</span></div>
+				<div class="hd"><span class="eyebrow">Thiết bị trong phòng</span><span class="cnt">chấm xanh = đang kết
+						nối</span></div>
 				<div class="bd">
 					<div class="presGrid">
 						<span>Bảng điểm</span>
-						<div class="dots"><i class="pdot" id="presPodium1">1</i><i class="pdot" id="presPodium2">2</i><i class="pdot" id="presPodium3">3</i><i class="pdot" id="presPodium4">4</i></div>
+						<div class="dots"><i class="pdot" id="presPodium1">1</i><i class="pdot" id="presPodium2">2</i><i
+								class="pdot" id="presPodium3">3</i><i class="pdot" id="presPodium4">4</i></div>
 						<span>Thí sinh</span>
-						<div class="dots"><i class="pdot" id="presPlayer1">1</i><i class="pdot" id="presPlayer2">2</i><i class="pdot" id="presPlayer3">3</i><i class="pdot" id="presPlayer4">4</i></div>
+						<div class="dots"><i class="pdot" id="presPlayer1">1</i><i class="pdot" id="presPlayer2">2</i><i
+								class="pdot" id="presPlayer3">3</i><i class="pdot" id="presPlayer4">4</i></div>
 						<span>Khán giả</span>
 						<b id="presAudience">—</b>
 					</div>
@@ -658,7 +704,8 @@
 					</div>
 				</div>
 				<dialog class="rcDialog qrDialog" id="qrDialog">
-					<div class="rcHead"><b id="qrTitle">Mã QR</b><button type="button" class="btn sm" id="qrClose">Đóng</button></div>
+					<div class="rcHead"><b id="qrTitle">Mã QR</b><button type="button" class="btn sm"
+							id="qrClose">Đóng</button></div>
 					<div class="bd">
 						<div class="flow">
 							<button type="button" class="btn sm" data-qr="audience">Khán giả</button>
@@ -687,7 +734,8 @@
 						<div class="enginePreview hidden" id="enginePreview"></div>
 						<div class="flow">
 							<button type="button" class="btn" id="engineStart">Chạy trận trên máy này</button>
-							<button type="button" class="btn danger hidden" id="engineStop">Dừng chạy trên máy này</button>
+							<button type="button" class="btn danger hidden" id="engineStop">Dừng chạy trên máy
+								này</button>
 						</div>
 					</div>
 					<div class="kv small">
@@ -727,6 +775,21 @@
 			</section>
 		</aside>
 	</div>
+
+	<!-- end of the page: end the match without leaving (EmbeddedStage.js) -->
+	<footer class="endBar">
+		<button type="button" class="btn danger" id="endMatchOpen">Kết thúc trận đấu</button>
+	</footer>
+	<dialog class="rcDialog endDialog" id="endDialog">
+		<div class="rcHead"><b>Kết thúc trận đấu?</b></div>
+		<div class="bd">
+			<p id="endText"></p>
+			<div class="endActions">
+				<button type="button" class="btn" id="endCancel">Huỷ</button>
+				<button type="button" class="btn danger" id="endConfirm">Kết thúc trận</button>
+			</div>
+		</div>
+	</dialog>
 </body>
 
 </html>
