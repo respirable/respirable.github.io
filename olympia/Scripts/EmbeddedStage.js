@@ -174,6 +174,24 @@
 			if (confirm('Dừng chạy trận trên máy này? Trận dừng hẳn cho tới khi bấm "Chạy trận trên máy này" (ở đây hoặc ở bàn điều khiển khác). Bản lưu tự động vẫn còn để chạy tiếp.')) { userStopped = true; stop(true); }
 		});
 		$('#savedContinue').addEventListener('click', function () { var b = $('#rcOpen'); if (b) { b.click(); } });
+		/* "Kết thúc trận đấu": a dialog of the page (not the browser's confirm), then the engine
+		 * ends the match itself (GameSave.js endMatch) - whichever panel runs it */
+		var END_TEXT = $('#endText').textContent;
+		$('#endMatchOpen').addEventListener('click', function () {
+			var alive = gv.Sync.isAuthorityAlive();
+			$('#endText').textContent = alive ? END_TEXT : 'Trận chưa chạy nên không có gì để kết thúc.';
+			$('#endConfirm').disabled = !alive;
+			$('#endConfirm').textContent = 'Kết thúc trận';
+			$('#endDialog').showModal();
+		});
+		$('#endCancel').addEventListener('click', function () { $('#endDialog').close(); });
+		$('#endConfirm').addEventListener('click', function () {
+			gv.Sync.sendCommand('endMatch');
+			$('#endConfirm').disabled = true;
+			$('#endConfirm').textContent = 'Đang kết thúc...';
+			$('#endText').textContent = 'Đang kết thúc trận - trận mới sẽ sẵn sàng sau vài giây.';
+			setTimeout(function () { $('#endDialog').close(); }, 4000);
+		});
 		window.addEventListener('resize', fitPreview);
 		setInterval(tick, 1000);
 		render();

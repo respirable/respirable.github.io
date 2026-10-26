@@ -74,9 +74,10 @@
 
 	/* ---------- writing ---------- */
 
-	var timer = null, lastKey = '', lastAt = 0;
+	var timer = null, lastKey = '', lastAt = 0, ending = false;
 	function write() {
 		timer = null;
+		if (ending) { return; }   /* endMatch: the save is being wiped */
 		if (typeof recoveryAllowed === 'function' && recoveryAllowed()) { return; }   /* nothing played on this page */
 		var s = buildSave();
 		var key = JSON.stringify(Object.assign({}, s, { at: 0 }));
@@ -303,5 +304,23 @@
 		if (!room()) { once(); return; }
 		if (gv.Sync.status === 'online') { once(); }
 		gv.Sync.on('status', function (st) { if (st === 'online') { once(); } });
+	};
+
+	/* "Kết thúc trận đấu" on the control panel: stop every sound (the screens too), wipe the
+	 * automatic save, then reload this engine - it comes back with a fresh match, nothing to
+	 * resume. The wait lets a save already on its way land before the wipe. */
+	gv.Commands.endMatch = function () {
+		if (ending) { return; }
+		ending = true;
+		if (timer) { clearTimeout(timer); timer = null; }
+		if (typeof stopAllSounds === 'function') { stopAllSounds(); }
+		console.log('[GameSave] ending the match');
+		setTimeout(async function () {
+			if (room()) {
+				if (client()) { try { await client().rpc('clear_game_state', { p_code: room() }); } catch (e) { /* the reload still ends the match */ } }
+			}
+			else { try { localStorage.removeItem(LOCAL_KEY); } catch (e) { /* blocked */ } }
+			location.reload();
+		}, SAVE_EVERY_MS + 500);
 	};
 })(window.GameVariables);

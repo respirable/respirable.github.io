@@ -23,7 +23,7 @@
 </head>
 
 <body>
-	<div class="banner" id="connectionBanner">Trận chưa chạy — bấm "Chạy trận trên máy này" ở mục Màn đồ hoạ, hoặc mở
+	<div class="banner" id="connectionBanner">Trận chưa chạy — bấm "Chạy trận trên máy này" ở mục Trận đấu, hoặc mở
 		default.html trong cùng trình duyệt.</div>
 
 	<div class="page">
@@ -727,6 +727,22 @@
 			</section>
 		</aside>
 	</div>
+
+	<!-- end of the page: end the match without leaving (EmbeddedStage.js) -->
+	<footer class="endBar">
+		<button type="button" class="btn danger" id="endMatchOpen">Kết thúc trận đấu</button>
+	</footer>
+	<dialog class="rcDialog endDialog" id="endDialog">
+		<div class="rcHead"><b>Kết thúc trận đấu?</b></div>
+		<div class="bd">
+			<p id="endText">Trận đang chơi dừng ngay: âm thanh tắt trên mọi màn, bản lưu tự động bị xoá và trận trở về
+				từ đầu. Không thể hoàn tác.</p>
+			<div class="endActions">
+				<button type="button" class="btn" id="endCancel">Huỷ</button>
+				<button type="button" class="btn danger" id="endConfirm">Kết thúc trận</button>
+			</div>
+		</div>
+	</dialog>
 </body>
 
 </html>
