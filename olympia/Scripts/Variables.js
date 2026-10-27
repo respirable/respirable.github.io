@@ -212,6 +212,7 @@
 	gameVariables.IsVeDichQuestionRevealed = false;  /* the question text is on the bar */
 	gameVariables.IsVeDichStarUsed = false;          /* this contestant already placed the star */
 	gameVariables.IsVeDichTimerRunning = false;
+	gameVariables.IsVeDichTimerFrozen = false;       /* answered right: the bar stays where it stopped */
 	gameVariables.IsVeDichTimerDone = false;
 
 	gameVariables.IsTieBreakTimerRunning = false;
