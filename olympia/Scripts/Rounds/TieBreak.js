@@ -9,7 +9,7 @@
  * screen says who takes which prize.
  *
  *     Left    (0) the seats tied for first are chosen + kd_ready
- *     Left    (1) bars + empty question bar (timer skin) + kd_open_question
+ *     Left    (1) bars + empty question bar (timer skin) + tt_open_question
  *     Right   (2) question 1 - buzzers open at once
  *     1-4         buzz (players' devices too): the first press locks the question, bar turns red,
  *                 and the 15 s clock + its music PAUSE until the verdict (wrong: they go on)
@@ -19,7 +19,7 @@
  *     Down        the buzzed seat is wrong -> out of THIS question, buzzers open again for the rest
  *     Backspace   clear a mistaken buzz without ruling (nobody is put out)
  *     Right   (5) nobody won the question (time up / everyone out): the next question (up to 3)
- *     Left    (5) somebody won: graphics off (no sting) -> finished
+ *     Left    (5) somebody won, or every question was put without a winner: graphics off (no sting) -> finished
  *
  * TieBreakSequenceCounter (table in Variables.js):
  *   0 idle   1 ready   2 set   3 question   4 timer   5 closed   6 finished
@@ -109,7 +109,7 @@ function tieBreakOpenQuestionBar() {
 	showRoundGraphics();
 	showQuestionBar();
 	revealContestantBars();
-	startGeneralSound('kd_open_question.mp3');
+	startGeneralSound('tt_open_question.mp3');   /* the Tăng tốc 'open question' sound */
 	window.GameVariables.TieBreakSequenceCounter = 2;
 	tieBreakRefreshBars();
 }
@@ -231,10 +231,10 @@ function tieBreakJudgeWrong() {
 	tieBreakCloseIfOver();
 }
 
-/* Left (closed with a winner): graphics off - no completion sting */
+/* Left (closed with a winner, or with no question left): graphics off - no completion sting */
 function tieBreakFinish() {
 	var g = window.GameVariables;
-	if (g.TieBreakWinner === null) { return; }
+	if (g.TieBreakWinner === null && g.TieBreakQuestionIndex < tieBreakQuestionLimit()) { return; }   /* nobody yet: → the next question first */
 	tieBreakStopTimer();
 	hideQuestionTimer();
 	clearQuestionBar();

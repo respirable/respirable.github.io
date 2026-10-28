@@ -50,6 +50,19 @@ function startClock(opts) {
 	window.GameVariables.TimerState = { running: true, finished: false, mode: c.mode, duration: c.duration, wallStart: Date.now() - gone * 1000, label: c.label };
 	if (window.GameVariables.changed) { window.GameVariables.changed(); }
 	tickClock();   /* first tick at once so the display shows the start value on the same frame */
+	armClockEnd(c);
+}
+
+/* A browser may hold back animation frames (the engine runs in a hidden frame of the control
+ * panel; a tab in the background): a timeout makes sure the clock still ends on time. */
+function armClockEnd(c) {
+	if (c.endTimer) { clearTimeout(c.endTimer); }
+	var left = c.duration - (performance.now() - c.t0) / 1000;
+	c.endTimer = setTimeout(function () {
+		if (window.GameVariables.CurrentClock !== c || c.paused) { return; }
+		if (c.raf) { cancelAnimationFrame(c.raf); c.raf = null; }
+		tickClock();
+	}, Math.max(0, left * 1000) + 20);
 }
 
 function pauseClock() {
@@ -57,6 +70,7 @@ function pauseClock() {
 	if (!c || c.paused) { return; }
 	if (c.raf) { cancelAnimationFrame(c.raf); c.raf = null; }
 	c.paused = true;
+	if (c.endTimer) { clearTimeout(c.endTimer); c.endTimer = null; }
 	c.pausedElapsed = Math.min(c.duration, (performance.now() - c.t0) / 1000);
 	window.GameVariables.TimerState = Object.assign({}, window.GameVariables.TimerState || {}, { running: false, paused: true, pausedElapsed: c.pausedElapsed });
 	if (window.GameVariables.changed) { window.GameVariables.changed(); }
@@ -70,12 +84,14 @@ function resumeClock() {
 	window.GameVariables.TimerState = Object.assign({}, window.GameVariables.TimerState || {}, { running: true, paused: false, pausedElapsed: null, wallStart: Date.now() - c.pausedElapsed * 1000 });
 	if (window.GameVariables.changed) { window.GameVariables.changed(); }
 	tickClock();
+	armClockEnd(c);
 }
 
 function stopClock() {
 	var c = window.GameVariables.CurrentClock;
 	if (c) {
 		if (c.raf) { cancelAnimationFrame(c.raf); }
+		if (c.endTimer) { clearTimeout(c.endTimer); }
 		window.GameVariables.CurrentClock = null;
 		window.GameVariables.TimerState = window.GameVariables.TimerState ? Object.assign({}, window.GameVariables.TimerState, { running: false, paused: false }) : null;
 		if (window.GameVariables.changed) { window.GameVariables.changed(); }

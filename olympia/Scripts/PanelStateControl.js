@@ -186,6 +186,7 @@ function buildSceneForPublic() {
 				return out;
 			})(),
 			shown: Array.prototype.map.call(document.querySelectorAll('.scoreboardDiv .contestantBar.shown'), function (b) { return Number(b.id.replace('contestantBar', '')); }),
+			revealId: g.BarsRevealId || 0,   /* ScoreboardControl.js revealContestantBars */
 			grey: Array.prototype.map.call(document.querySelectorAll('.scoreboardDiv .contestantBar.eliminated'), function (b) { return Number(b.id.replace('contestantBar', '')); }),
 			stripOn: !!g.IsScoreboardShowing
 		},

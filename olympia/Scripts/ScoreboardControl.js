@@ -143,6 +143,10 @@ function toggleScoreboard() {
 
 function revealContestantBars() {
 	cancelContestantBarsReveal();
+	/* the screens run the same entrance themselves (AudienceMirror.js): the bars shown one by one
+	 * here never reached them in time - only the next state did, with two or four bars at once */
+	window.GameVariables.BarsRevealId = (window.GameVariables.BarsRevealId || 0) + 1;
+	if (window.GameVariables.changed) { window.GameVariables.changed(); }
 	window.GameVariables.Players.forEach(function (p) {
 		var seat = p.seat;
 		window.GameVariables.ContestantBarRevealTimeouts.push(setTimeout(function () {

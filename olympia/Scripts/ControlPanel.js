@@ -198,8 +198,8 @@
 			}
 		}
 		if (ph === 'closed') {
-			if (tb.winner != null) { k.push('ArrowLeft'); }
-			else if (!tb.lastQuestion) { k.push('ArrowRight'); }
+			if (tb.winner != null || tb.lastQuestion) { k.push('ArrowLeft'); }
+			else { k.push('ArrowRight'); }
 		}
 		return k;
 	}
@@ -207,7 +207,7 @@
 	/* the closed step: who answered right, or what is left */
 	function tbClosedText(tb) {
 		if (tb.winner != null) { return nameOf(tb.winner) + ' trả lời đúng — ← kết thúc, ẩn đồ hoạ'; }
-		if (tb.lastQuestion) { return 'Không ai đúng — đã hết ' + tb.questionCount + ' câu hỏi phụ'; }
+		if (tb.lastQuestion) { return 'Không ai đúng — đã hết ' + tb.questionCount + ' câu hỏi phụ — ← ẩn đồ hoạ'; }
 		return 'Không ai đúng — → câu kế';
 	}
 
