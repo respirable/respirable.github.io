@@ -223,7 +223,7 @@
 			 * room once the site owner gives it one (migrations/0011, 0012) */
 			var n = await db.rpc('invited_emails_without_account', { p_room: room.id, p_emails: emails.slice(0, 50) });
 			if (!n.error && (n.data || []).length) {
-				$('#mgrMsg').textContent = 'Một hoặc nhiều địa chỉ email trong danh sách không gắn với bất cứ tài khoản quản lý nào, nhưng sẽ có thể quản lý phòng này khi có tài khoản được tạo với địa chỉ email đó: ' + n.data.join(', ') + '.';
+				$('#mgrMsg').textContent = 'Một hoặc nhiều địa chỉ email trong danh sách (' + n.data.length + ' email) không gắn với bất cứ tài khoản quản lý nào, nhưng sẽ có thể quản lý phòng này khi có tài khoản được tạo với địa chỉ email đó.';
 			}
 			list();
 		};
