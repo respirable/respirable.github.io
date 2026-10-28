@@ -7,7 +7,9 @@
  *   OlympiaAuth.requireManager()       control / lobby: a permanent account or back to the lobby
  *   OlympiaAuth.signIn(login, pw)      login = email or username
  *   OlympiaAuth.signInWithGoogle()     only works for emails the site owner already allowed
- *   OlympiaAuth.isManager(session)
+ *   OlympiaAuth.isManager(session)        a permanent (not anonymous) account - a first look only
+ *   OlympiaAuth.confirmManager(session)   asks the database (is_manager, migrations/0011): only an
+ *                                      e-mail the site owner allowed is a manager
  */
 (function () {
 	var cfg = window.OlympiaConfig;
@@ -15,6 +17,16 @@
 
 	function isManager(session) {
 		return !!(session && session.user && !session.user.is_anonymous);
+	}
+
+	/* the database decides (0011): an e-mail the site owner allowed. A failed call does not lock
+	 * anyone out here - every right is checked again by the database anyway. */
+	async function confirmManager(session) {
+		if (!isManager(session) || !client) { return false; }
+		try {
+			var r = await client.rpc('is_manager');
+			return r.error ? true : r.data === true;
+		} catch (e) { return true; }
 	}
 
 	async function currentSession() {
@@ -44,6 +56,7 @@
 	window.OlympiaAuth = {
 		client: client,
 		isManager: isManager,
+		confirmManager: confirmManager,
 		currentSession: currentSession,
 		lobbyUrl: lobbyUrl,
 		messageFor: messageFor,
@@ -59,7 +72,7 @@
 
 		requireManager: async function () {
 			var s = await currentSession();
-			if (isManager(s)) { return s; }
+			if (await confirmManager(s)) { return s; }
 			location.replace(lobbyUrl(location.pathname.split('/').pop() + location.search));
 			return new Promise(function () { /* navigating away */ });
 		},
@@ -74,7 +87,10 @@
 			}
 			var r = await client.auth.signInWithPassword({ email: email, password: password });
 			if (r.error) { throw new Error(messageFor(r.error)); }
-			if (!isManager(r.data.session)) { throw new Error('Tài khoản này không phải tài khoản quản lý.'); }
+			if (!(await confirmManager(r.data.session))) {
+				await client.auth.signOut();
+				throw new Error('Tài khoản này chưa được chủ sở hữu trang web cấp quyền quản lý.');
+			}
 			return r.data.session;
 		},
 

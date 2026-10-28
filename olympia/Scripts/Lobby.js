@@ -216,7 +216,7 @@
 			emails = emails.filter(function (e) { return e !== account.email.toLowerCase(); });
 			if (!emails.length) { return; }
 			var r = await db.from('room_managers').upsert(emails.map(function (e) { return { room_id: room.id, email: e }; }), { onConflict: 'room_id,email', ignoreDuplicates: true });
-			$('#mgrMsg').textContent = r.error ? ('Không mời được: ' + r.error.message) : ('Đã mời ' + emails.length + ' email.');
+			$('#mgrMsg').textContent = r.error ? ('Không mời được: ' + r.error.message) : ('Đã mời ' + emails.length + ' email. Người được mời phải đã có tài khoản quản lý do chủ sở hữu trang web cấp.');
 			if (!r.error) { $('#mgrAdd').value = ''; }
 			list();
 		};
@@ -418,7 +418,12 @@
 
 	async function route() {
 		var s = await auth.currentSession();
-		var manager = auth.isManager(s);
+		var manager = await auth.confirmManager(s);
+		/* a permanent account the site owner never allowed (e.g. one made through an old invitation) */
+		if (!manager && auth.isManager(s)) {
+			await auth.signOut();
+			$('#loginError').textContent = 'Tài khoản ' + (s.user.email || '') + ' chưa được chủ sở hữu trang web cấp quyền quản lý - hãy gửi "Yêu cầu một tài khoản".';
+		}
 		show($('#betaBar'), !manager);
 		show($('#loginCard'), !manager);
 		show($('#roomsView'), manager);
