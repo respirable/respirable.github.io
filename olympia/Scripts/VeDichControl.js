@@ -10,10 +10,16 @@
  *                  text follows with setVeDichQuestion(). Zoom 600 ms from its top-left; exit instant.
  * .vdScoreBox      "CÂU N ĐIỂM" + the on-stage contestant's score; zooms once the group has landed.
  * video.vdStar     the Ngôi sao hy vọng (star.webm, VP9 with alpha) looping above the seat-4 tab.
+ * img.vdStarImg    the same star as an animated WebP, shown instead on Safari / iPad / iPhone:
+ *                  WebKit plays VP9 but drops its alpha, so the clip comes out on a black square.
+ *                  The video keeps its "on" class there (PanelStateControl.js reads it), unseen.
  */
 
 var VE_DICH_ASSETS = 'O24/Finish Line/';
 var VE_DICH_STAR_VIDEO = VE_DICH_ASSETS + 'star.webm';
+var VE_DICH_STAR_IMAGE = VE_DICH_ASSETS + 'star.webp';
+/* every browser on iOS / iPadOS is WebKit; on a Mac, Safari is the WebKit one without "Chrome/" */
+var VE_DICH_NO_VIDEO_ALPHA = /AppleWebKit/.test(navigator.userAgent) && !/Chrome\/|Chromium\/|Edg\/|Firefox\//.test(navigator.userAgent);
 var VE_DICH_TIMER_WIDTH = 1173;   /* px - keep in step with .vdTimerDiv in olympia.css */
 var VD_CHOOSE_ZOOM_MS = 680;      /* stage 1 - keep equal to the .vdChooseInner transition */
 var VD_CHOOSE_PAUSE_MS = 210;     /* pause between the inner zoom and the outer grow */
@@ -72,9 +78,18 @@ function renderVeDich() {
 	try {
 		fetch(VE_DICH_STAR_VIDEO, { method: 'HEAD' }).then(function (r) {
 			window.GameVariables.IsStarClipAvailable = !!(r && r.ok);
-			if (window.GameVariables.IsStarClipAvailable) { star.src = VE_DICH_STAR_VIDEO; star.load(); }
+			if (window.GameVariables.IsStarClipAvailable && !VE_DICH_NO_VIDEO_ALPHA) { star.src = VE_DICH_STAR_VIDEO; star.load(); }
 		}).catch(function () { window.GameVariables.IsStarClipAvailable = false; });
 	} catch (e) { window.GameVariables.IsStarClipAvailable = false; }
+	/* Safari: the animated WebP, when it is served (else the video, black square and all) */
+	if (VE_DICH_NO_VIDEO_ALPHA) {
+		try {
+			fetch(VE_DICH_STAR_IMAGE, { method: 'HEAD' }).then(function (r) {
+				if (r && r.ok) { star.classList.add('useImage'); new Image().src = VE_DICH_STAR_IMAGE; }   /* warm the cache */
+				else { star.src = VE_DICH_STAR_VIDEO; star.load(); }
+			}).catch(function () { star.src = VE_DICH_STAR_VIDEO; star.load(); });
+		} catch (e) { /* the video stays */ }
+	}
 
 	window.GameVariables.IsVeDichBuilt = true;
 }
@@ -217,6 +232,16 @@ function setVeDichStar(on) {
 	if (!on) { stopVeDichStar(); return; }
 	var star = veDichElement('video.vdStar');
 	if (!window.GameVariables.IsStarClipAvailable || star.classList.contains('on')) { return; }
+	if (star.classList.contains('useImage')) {
+		star.classList.add('on');
+		/* a fresh <img> starts the animation from its first frame (the file is cached) */
+		var img = document.createElement('img');
+		img.className = 'vdStarImg on';
+		img.alt = '';
+		img.src = VE_DICH_STAR_IMAGE;
+		star.parentNode.insertBefore(img, star);
+		return;
+	}
 	try {
 		star.classList.add('on');
 		star.currentTime = 0;
@@ -230,6 +255,7 @@ function stopVeDichStar() {
 	var star = veDichElement('video.vdStar');
 	try { star.pause(); } catch (e) { /* ignore */ }
 	star.classList.remove('on');
+	document.querySelectorAll('.vdDiv img.vdStarImg').forEach(function (img) { img.remove(); });
 }
 
 function hideVeDichQuestionGroup() {

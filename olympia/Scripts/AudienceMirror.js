@@ -309,7 +309,7 @@
 	var soundOn = false;
 	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'stopAllSounds',
 		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'];
-	function fileOf(a) { try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
+	function fileOf(a) { if (a.__file) { return a.__file; } try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
 	function wantsSound() { return !!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both'); }
 	function refreshSoundButton() {
 		var b = $('#aSound');
@@ -331,7 +331,14 @@
 	 * Without one (page just opened) only when the browser lets this page play sound already. */
 	function enableSound(ev) {
 		if (soundOn) { return; }
-		if (ev) { playSilence().catch(function () {}); soundReady(); return; }
+		/* iOS 17+: play like a media player (not muted with the ringer, not ducked) */
+		try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; } } catch (e) { /* not supported */ }
+		if (ev) {
+			playSilence().catch(function () {});
+			if (typeof unlockAudioPool === 'function') { unlockAudioPool(16, SILENCE); }   /* AudioControl.js: Safari plays only elements a tap started */
+			soundReady();
+			return;
+		}
 		var policy = null;
 		try { if (navigator.getAutoplayPolicy) { policy = navigator.getAutoplayPolicy('mediaelement'); } } catch (e) { /* not supported */ }
 		if (policy === 'allowed') { soundReady(); return; }
