@@ -24,14 +24,54 @@
  * window is not the active one).
  */
 
+/* ---------- iPad / iPhone (Safari) ----------
+ * Safari plays an <audio> element only once a tap has started THAT element: a fresh new Audio()
+ * played later from a network message stays silent. A screen that replays the engine's sounds
+ * (AudienceMirror.js) unlocks a pool of elements inside the tap that turns its sound on
+ * (unlockAudioPool), and every sound reuses a free one of them. Safari's Ogg support is patchy
+ * too: an .ogg / .oga file plays its .mp3 twin (same name, in Sounds/) where Ogg cannot play. */
+var AUDIO_POOL = [];
+var OGG_PLAYABLE = (function () { try { return !!new Audio().canPlayType('audio/ogg; codecs="vorbis"'); } catch (e) { return true; } })();
+
+function soundUrl(filename) {
+	return 'Sounds/' + (!OGG_PLAYABLE && /\.og[ga]$/i.test(filename) ? filename.replace(/\.og[ga]$/i, '.mp3') : filename);
+}
+
+/* inside a tap: play `silence` on n elements, so each may play again later without one */
+function unlockAudioPool(n, silence) {
+	function unlock(a) {
+		try {
+			var p = a.play();
+			if (p && p.then) { p.then(function () { a.pause(); }, function () { /* not unlocked - still usable as a plain element */ }); }
+			else { a.pause(); }
+		} catch (e) { /* ignore */ }
+	}
+	while (AUDIO_POOL.length < n) { var a = new Audio(silence); AUDIO_POOL.push(a); unlock(a); }
+}
+
+/* a free unlocked element (not held by a channel, not playing), else a new one */
+function newSoundElement(src) {
+	var held = window.GameVariables.AudioChannels.map(function (c) { return window.GameVariables[c]; });
+	for (var i = 0; i < AUDIO_POOL.length; i++) {
+		var a = AUDIO_POOL[i];
+		if (held.indexOf(a) === -1 && (a.paused || a.ended)) {
+			a.onended = null; a.volume = 1; a.muted = false; a.loop = false;
+			a.src = src;
+			return a;
+		}
+	}
+	return new Audio(src);
+}
+
 /* ---------- the core: one channel ---------- */
 
 function startSound(channel, filename, overlap, onEnded) {
 	try {
 		if (!overlap) { stopSound(channel); }
-		var a = new Audio('Sounds/' + filename);
+		var a = newSoundElement(soundUrl(filename));
+		a.__file = filename;   /* the name the engine uses, whatever file actually plays */
 		if (window.GameVariables.SoundAt === 'stage') { a.muted = true; }   /* the stage / audience screens play it instead */
-		if (onEnded) { a.addEventListener('ended', onEnded); }
+		a.onended = onEnded || null;   /* a property, not a listener: pool elements are reused */
 		if (!overlap) { window.GameVariables[channel] = a; }
 		var p = a.play();
 		if (p && p.catch) { p.catch(function (err) { console.warn('[Audio] play blocked/failed', filename, err && err.message); }); }
@@ -228,7 +268,7 @@ function fadeOutLongPassiveSound(ms) {
 	function channelAudios() {
 		return gv.AudioChannels.map(function (c) { return { ch: c, a: gv[c] }; }).filter(function (x) { return !!x.a; });
 	}
-	function fileOf(a) { try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
+	function fileOf(a) { if (a.__file) { return a.__file; } try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
 
 	/* what is playing now, for screens that start hearing mid-sound (a new choice, a screen just opened) */
 	function sendCurrent() {
