@@ -161,6 +161,7 @@ function buildSceneForPublic() {
 		tree = {
 			layout: isTT ? 'right' : '',
 			showTime: isTT,
+			instant: !!g.IsAnswerTreeInstant,   /* brought back (Tăng tốc B): the screens skip the entrance too */
 			entries: entries,
 			wrong: Array.prototype.map.call(document.querySelectorAll('.vcnvTreeDiv .treeBranch.wrong'), function (b) { return Number(b.getAttribute('data-seat')); })
 		};

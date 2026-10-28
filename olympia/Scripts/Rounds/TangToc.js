@@ -178,8 +178,7 @@ function tangTocToggleReview() {
 		return;
 	}
 	hideTangTocQuestionStill();
-	showAnswerTree(tangTocTreeEntries(), null, { layout: 'right', showTime: true });
-	completeAnswerTreeNow();
+	showAnswerTree(tangTocTreeEntries(), null, { layout: 'right', showTime: true, instant: true });   /* the same tree again: no entrance */
 	if (window.GameVariables.TangTocSequenceCounter == 5) { gradeAnswerTree(window.GameVariables.TangTocCorrectSeats); }
 	window.GameVariables.IsTangTocReviewing = false;
 }
