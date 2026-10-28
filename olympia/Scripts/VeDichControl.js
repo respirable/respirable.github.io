@@ -159,6 +159,7 @@ function showVeDichQuestionGroup(o) {
 	groupGlare.classList.remove('on');
 	scoreGlare.classList.remove('on');
 	if (window.GameVariables.QuestionGroupTimeout) { clearTimeout(window.GameVariables.QuestionGroupTimeout); }
+	/* o.delay: the audience / stage screens pass 0 - the engine's own pause is already over when they hear of it */
 	window.GameVariables.QuestionGroupTimeout = setTimeout(function () {
 		group.classList.add('on');
 		requestAnimationFrame(function () { requestAnimationFrame(function () {
@@ -174,7 +175,7 @@ function showVeDichQuestionGroup(o) {
 				scoreGlare.classList.add('on');
 			}); });
 		}, VD_GROUP_ZOOM_MS);
-	}, VD_GROUP_DELAY_MS);
+	}, typeof o.delay === 'number' ? o.delay : VD_GROUP_DELAY_MS);
 }
 
 /* tabs are fixed by seat; the contestant on stage gets the on-stage tab and name only, the

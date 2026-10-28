@@ -222,7 +222,7 @@
 		if (d.choose && !w.choose) { showChooseScreen(d.values); }
 		else if (d.choose) { setChooseScreen(d.values); }
 		else if (!d.choose && w.choose) { hideChooseScreen(); }
-		if (d.group && !w.group) { showVeDichQuestionGroup({ seat: d.onStage, value: value }); }
+		if (d.group && !w.group) { showVeDichQuestionGroup({ seat: d.onStage, value: value, delay: 0 }); }
 		else if (!d.group && w.group) { hideVeDichQuestionGroup(); }
 		if (d.group) {
 			setVeDichTabs(d.onStage);

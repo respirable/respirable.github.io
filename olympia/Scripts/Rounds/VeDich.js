@@ -226,11 +226,23 @@ function veDichStartTimer(from) {
 	window.GameVariables.VeDichSequenceCounter = 6;
 }
 
-function veDichStopTimer() {
+/* a correct answer: the clock and its music stop, the bar stays where it stopped until the
+ * question closes (veDichCloseQuestion -> veDichStopTimer) */
+function veDichFreezeTimer() {
 	if (window.GameVariables.IsVeDichTimerRunning) {
+		pauseClock();
+		stopShortPassiveSound();
+		window.GameVariables.IsVeDichTimerFrozen = true;
+	}
+	window.GameVariables.IsVeDichTimerRunning = false;
+}
+
+function veDichStopTimer() {
+	if (window.GameVariables.IsVeDichTimerRunning || window.GameVariables.IsVeDichTimerFrozen) {
 		stopClock();
 		stopShortPassiveSound();
 	}
+	window.GameVariables.IsVeDichTimerFrozen = false;
 	window.GameVariables.IsVeDichTimerRunning = false;
 	window.GameVariables.IsVeDichTimerDone = false;
 	window.GameVariables.VeDichTimerKind = null;
@@ -238,7 +250,7 @@ function veDichStopTimer() {
 }
 
 function veDichAnswerCorrect() {
-	veDichStopTimer();
+	veDichFreezeTimer();
 	addScore(window.GameVariables.VeDichSeat, window.GameVariables.VeDichValue * (veDichStarred() ? 2 : 1));
 	veDichRefreshScores();
 	startLongActiveSound('vd_correct.ogg', true);
