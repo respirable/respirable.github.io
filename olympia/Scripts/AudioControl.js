@@ -125,6 +125,20 @@ function seekShortPassiveSound(sec) {
 	if (a.readyState >= 1) { go(); } else { a.addEventListener('loadedmetadata', go, { once: true }); }
 }
 function stopShortPassiveSound() { stopSound('TimerSound'); }
+/* hold the clock music still / go on (Câu hỏi phụ: a buzz while the 15 s run). Functions, not a
+ * bare TimerSound.pause(), so the screens that play the sound are told too (relayed below);
+ * `at` = where the music stood here, so a screen picks up at the same point */
+function pauseShortPassiveSound() {
+	var a = window.GameVariables.TimerSound;
+	if (a) { try { a.pause(); } catch (e) { /* ignore */ } }
+}
+function resumeShortPassiveSound(at) {
+	var a = window.GameVariables.TimerSound;
+	if (!a) { return; }
+	if (typeof at === 'number' && isFinite(at)) { try { a.currentTime = at; } catch (e) { /* not seekable */ } }
+	var p = a.play();
+	if (p && p.catch) { p.catch(function () {}); }
+}
 
 function startLifelineActiveSound(filename) { startSound('StarSound', filename, true); }
 function startLifelinePassiveSound(filename) { startSound('AmbientSound', filename, false); }
@@ -254,7 +268,7 @@ function fadeOutLongPassiveSound(ms) {
 		var plain = Array.prototype.slice.call(args).filter(function (a) { return typeof a !== 'function'; });
 		gv.Sync.sendPublic({ type: 'sound', op: op, args: plain, at: Date.now() });
 	}
-	['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'stopAllSounds',
+	['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'pauseShortPassiveSound', 'resumeShortPassiveSound', 'stopAllSounds',
 		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'].forEach(function (name) {
 		var orig = window[name];
 		window[name] = function () {

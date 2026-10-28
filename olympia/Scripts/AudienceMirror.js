@@ -307,7 +307,7 @@
 	 * sees which screens have sound on. */
 	var stageView = params.get('view') === 'stage';
 	var soundOn = false;
-	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'stopAllSounds',
+	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'pauseShortPassiveSound', 'resumeShortPassiveSound', 'stopAllSounds',
 		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'];
 	function fileOf(a) { if (a.__file) { return a.__file; } try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
 	function wantsSound() { return !!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both'); }

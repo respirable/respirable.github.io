@@ -66,7 +66,7 @@ function tieBreakPauseTimer() {
 	var g = window.GameVariables;
 	if (!g.IsTieBreakTimerRunning || g.IsTieBreakTimerPaused) { return; }
 	pauseClock();
-	if (g.TimerSound) { try { g.TimerSound.pause(); } catch (e) { /* ignore */ } }
+	pauseShortPassiveSound();   /* AudioControl.js: the screens' music stops too */
 	g.IsTieBreakTimerPaused = true;
 }
 
@@ -76,7 +76,7 @@ function tieBreakResumeTimer() {
 	if (!g.IsTieBreakTimerPaused) { return; }
 	g.IsTieBreakTimerPaused = false;
 	resumeClock();
-	if (g.TimerSound) { var p = g.TimerSound.play(); if (p && p.catch) { p.catch(function () {}); } }
+	resumeShortPassiveSound(g.TimerSound ? g.TimerSound.currentTime : undefined);   /* the screens go on from the same point */
 }
 
 /* ---------- steps ---------- */
