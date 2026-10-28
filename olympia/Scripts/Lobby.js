@@ -216,8 +216,15 @@
 			emails = emails.filter(function (e) { return e !== account.email.toLowerCase(); });
 			if (!emails.length) { return; }
 			var r = await db.from('room_managers').upsert(emails.map(function (e) { return { room_id: room.id, email: e }; }), { onConflict: 'room_id,email', ignoreDuplicates: true });
-			$('#mgrMsg').textContent = r.error ? ('Không mời được: ' + r.error.message) : ('Đã mời ' + emails.length + ' email. Người được mời phải đã có tài khoản quản lý do chủ sở hữu trang web cấp.');
-			if (!r.error) { $('#mgrAdd').value = ''; }
+			if (r.error) { $('#mgrMsg').textContent = 'Không mời được: ' + r.error.message; list(); return; }
+			$('#mgrAdd').value = '';
+			$('#mgrMsg').textContent = 'Đã mời ' + emails.length + ' email.';
+			/* the invitation is kept either way: an e-mail with no manager account yet runs the
+			 * room once the site owner gives it one (migrations/0011, 0012) */
+			var n = await db.rpc('invited_emails_without_account', { p_room: room.id, p_emails: emails.slice(0, 50) });
+			if (!n.error && (n.data || []).length) {
+				$('#mgrMsg').textContent = 'Một hoặc nhiều địa chỉ email trong danh sách không gắn với bất cứ tài khoản quản lý nào, nhưng sẽ có thể quản lý phòng này khi có tài khoản được tạo với địa chỉ email đó: ' + n.data.join(', ') + '.';
+			}
 			list();
 		};
 		await list();
