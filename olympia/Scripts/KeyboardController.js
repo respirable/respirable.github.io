@@ -90,7 +90,7 @@ function handleRoundKey(key, round) {
 		else if (round == 'tb') {
 			if (tb == 0) { tieBreakReady(); }
 			else if (tb == 1) { tieBreakOpenQuestionBar(); }
-			else if (tb == 5) { tieBreakFinish(); }                         /* only once somebody won */
+			else if (tb == 5) { tieBreakFinish(); }                         /* somebody won, or no question left */
 			return true;
 		}
 	}

@@ -108,11 +108,21 @@
 		gv.Players.forEach(function (p) { setContestantBarScore(p.seat, p.score); });
 	}
 
+	var barsRevealId = null;   /* the stage's last one-by-one entrance this screen has played */
+	var barsRevealUntil = 0;   /* ...and when ours is over (ScoreboardControl.js: 300 + seat * 190 ms) */
 	function applyBars(scene, was) {
 		var shown = (scene.bars && scene.bars.shown) || [];
-		var before = (was && was.bars && was.bars.shown) || [];
-		if (shown.length && !before.length && shown.length === gv.Players.length) { revealContestantBars(); return; }   /* the one-by-one entrance */
+		var revealId = (scene.bars && scene.bars.revealId) || 0;
+		/* the stage started an entrance: run it here too, at once (a screen just opened only syncs) */
+		if (barsRevealId !== null && revealId !== barsRevealId) {
+			barsRevealId = revealId;
+			revealContestantBars();
+			barsRevealUntil = Date.now() + 300 + gv.Players.length * 190 + 100;
+			return;
+		}
+		barsRevealId = revealId;
 		if (!shown.length) { hideContestantBars(); return; }
+		if (Date.now() < barsRevealUntil) { return; }   /* our own entrance is still running */
 		gv.Players.forEach(function (p) {
 			var bar = getContestantBar(p.seat);
 			if (bar) { bar.classList.toggle('shown', shown.indexOf(p.seat) !== -1); }
@@ -285,6 +295,13 @@
 		var scene = snap && snap.scene, t = snap && snap.timer;
 		if (!scene || !t || !t.duration) { return; }
 		var e = timerElapsed();
+		/* Khởi động 3 s: the number from the clock's start, not the stage's text (it changes
+		 * every second there without a new state, so it reached the screens late or never) */
+		if (t.label === 'kd_think' && scene.questionBar && scene.questionBar.clock && (t.running || t.paused) && e !== null) {
+			var n = String(Math.max(1, Math.ceil(t.duration - e - 0.0001)));
+			var clockEl = $('.questionBarDiv .questionClockP');
+			if (clockEl.textContent !== n) { clockEl.textContent = n; }
+		}
 		var f = (t.running || t.paused) ? (e === null ? 0 : e / t.duration) : (t.finished ? 1 : null);
 		if (f === null) { return; }
 		f = Math.max(0, Math.min(1, f));
@@ -307,7 +324,7 @@
 	 * sees which screens have sound on. */
 	var stageView = params.get('view') === 'stage';
 	var soundOn = false;
-	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'stopAllSounds',
+	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'pauseShortPassiveSound', 'resumeShortPassiveSound', 'stopAllSounds',
 		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'];
 	function fileOf(a) { if (a.__file) { return a.__file; } try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
 	function wantsSound() { return !!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both'); }

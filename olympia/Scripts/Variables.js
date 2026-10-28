@@ -354,6 +354,7 @@
 	gameVariables.BedWatchInterval = null;
 	gameVariables.FadeIntervals = {};
 	gameVariables.ContestantBarRevealTimeouts = [];
+	gameVariables.BarsRevealId = 0;                  /* +1 per one-by-one entrance, for the screens */
 	gameVariables.AnswerTreeTimeouts = [];
 	gameVariables.AnswerTreeAnimationFrame = null;
 	gameVariables.AnswerTreeOptions = {};
