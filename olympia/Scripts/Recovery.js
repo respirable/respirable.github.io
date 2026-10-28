@@ -168,7 +168,7 @@ function restoreVeDich(a) {
 	veDichLoadQuestion(q);
 	g.IsVeDichQuestionRevealed = false;
 	showVeDichQuestionGroup({ seat: seat, value: g.VeDichValue });
-	if (g.VeDichStar === q) { setTimeout(function () { setVeDichStar(true); }, 2100); }   /* once the group has landed */
+	if (g.VeDichStar === q) { setTimeout(function () { setVeDichStar(true); g.changed(); }, 2100); }   /* once the group has landed; changed(): the screens see it now, not at the next heartbeat */
 	g.VeDichSequenceCounter = 4;                  /* ready: Right shows question q */
 }
 
