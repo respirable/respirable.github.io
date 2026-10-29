@@ -226,6 +226,7 @@
 	gameVariables.IsVeDichBuilt = false;
 	gameVariables.IsStarClipAvailable = false;
 	gameVariables.IsAnswerTreeShowing = false;
+	gameVariables.IsAnswerTreeInstant = false;      /* the tree on screen came back complete (no entrance) */
 
 	/* ==================================================================================== */
 	/* Number Variables                                                                     */

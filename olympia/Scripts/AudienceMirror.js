@@ -183,8 +183,8 @@
 		var sig = tree.layout + '|' + tree.entries.map(function (e) { return e.seat + '=' + e.answer + '@' + e.time; }).join(',');
 		if (!isAnswerTreeShowing() || sig !== treeSig) {
 			var first = !isAnswerTreeShowing();
-			showAnswerTree(tree.entries, null, { layout: tree.layout || undefined, showTime: !!tree.showTime });
-			if (!first) { completeAnswerTreeNow(); }   /* an answer changed under an open tree: no second entrance */
+			/* no entrance: an answer changed under an open tree, or the stage brought the tree back (B) */
+			showAnswerTree(tree.entries, null, { layout: tree.layout || undefined, showTime: !!tree.showTime, instant: !first || !!tree.instant });
 			treeSig = sig;
 		}
 		if ((tree.wrong || []).length) {

@@ -7,14 +7,14 @@
 	<title>Olympia Controller — Sảnh</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261028e">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js"></script>
-	<script src="Scripts/Auth.js"></script>
+	<script src="Scripts/Config.js?v=20261028e"></script>
+	<script src="Scripts/Auth.js?v=20261028e"></script>
 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
-	<script src="Scripts/QrCode.js"></script>
-	<script src="Scripts/Lobby.js" defer></script>
-	<script src="Scripts/LobbyPublic.js" defer></script>
+	<script src="Scripts/QrCode.js?v=20261028e"></script>
+	<script src="Scripts/Lobby.js?v=20261028e" defer></script>
+	<script src="Scripts/LobbyPublic.js?v=20261028e" defer></script>
 </head>
 
 <body>
@@ -250,9 +250,9 @@
 	<dialog class="lobbyDialog" id="managersDialog">
 		<div class="dlgHead"><b>Người cùng quản lý · <span data-d="code"></span></b><button type="button" class="btn sm"
 				data-close>Đóng</button></div>
-		<p class="meta">Những email dưới đây đăng nhập sảnh sẽ thấy phòng này và mở được bàn điều khiển của phòng (kể cả
-			khi
-			chủ sở hữu trang web chưa cấp tài khoản cho email đó). Chỉ bạn xoá phòng, mời ra thí sinh, đổi bộ đề và danh sách này.</p>
+		<p class="meta">Những email dưới đây đăng nhập sảnh sẽ thấy phòng này và mở được bàn điều khiển của phòng. Họ phải
+			đã có tài khoản quản lý do chủ sở hữu trang web cấp: lời mời không tạo ra tài khoản. Chỉ bạn xoá phòng, mời ra thí
+			sinh, đổi bộ đề và danh sách này.</p>
 		<div class="mgrList" id="mgrList"></div>
 		<label>Thêm email (mỗi dòng hoặc cách nhau bằng dấu phẩy)
 			<textarea id="mgrAdd" rows="3" placeholder="tro.ly@example.com, giam.khao@example.com"></textarea>

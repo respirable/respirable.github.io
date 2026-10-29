@@ -144,11 +144,17 @@ function showAnswerTree(entries, onDone, options) {
 	cancelAnswerTree();
 	window.GameVariables.AnswerTreeOptions = options || {};
 	root.classList.toggle('layoutRight', window.GameVariables.AnswerTreeOptions.layout === 'right');
+	/* options.instant: the tree comes back complete (no entrance) - Tăng tốc B, and the screens
+	 * copying that (AudienceMirror.js reads it from the scene) */
+	var instant = !!window.GameVariables.AnswerTreeOptions.instant;
+	root.classList.toggle('instant', instant);
+	window.GameVariables.IsAnswerTreeInstant = instant;
 	buildAnswerTree(root, entries || []);
 	root.classList.remove('offstage');
 	var sig = document.querySelector('.vcnvTreeSignalsDiv');
 	if (sig) { sig.classList.remove('offstage'); }
 	window.GameVariables.IsAnswerTreeShowing = true;
+	if (instant) { completeAnswerTreeNow(); if (onDone) { onDone(); } return; }
 	runAnswerTreeSequence(onDone);
 }
 

@@ -216,8 +216,15 @@
 			emails = emails.filter(function (e) { return e !== account.email.toLowerCase(); });
 			if (!emails.length) { return; }
 			var r = await db.from('room_managers').upsert(emails.map(function (e) { return { room_id: room.id, email: e }; }), { onConflict: 'room_id,email', ignoreDuplicates: true });
-			$('#mgrMsg').textContent = r.error ? ('Không mời được: ' + r.error.message) : ('Đã mời ' + emails.length + ' email.');
-			if (!r.error) { $('#mgrAdd').value = ''; }
+			if (r.error) { $('#mgrMsg').textContent = 'Không mời được: ' + r.error.message; list(); return; }
+			$('#mgrAdd').value = '';
+			$('#mgrMsg').textContent = 'Đã mời ' + emails.length + ' email.';
+			/* the invitation is kept either way: an e-mail with no manager account yet runs the
+			 * room once the site owner gives it one (migrations/0011, 0012) */
+			var n = await db.rpc('invited_emails_without_account', { p_room: room.id, p_emails: emails.slice(0, 50) });
+			if (!n.error && (n.data || []).length) {
+				$('#mgrMsg').textContent = 'Một hoặc nhiều địa chỉ email trong danh sách (' + n.data.length + ' email) không gắn với bất cứ tài khoản quản lý nào, nhưng sẽ có thể quản lý phòng này khi có tài khoản được tạo với địa chỉ email đó.';
+			}
 			list();
 		};
 		await list();
@@ -418,7 +425,12 @@
 
 	async function route() {
 		var s = await auth.currentSession();
-		var manager = auth.isManager(s);
+		var manager = await auth.confirmManager(s);
+		/* a permanent account the site owner never allowed (e.g. one made through an old invitation) */
+		if (!manager && auth.isManager(s)) {
+			await auth.signOut();
+			$('#loginError').textContent = 'Tài khoản ' + (s.user.email || '') + ' chưa được chủ sở hữu trang web cấp quyền quản lý - hãy gửi "Yêu cầu một tài khoản".';
+		}
 		show($('#betaBar'), !manager);
 		show($('#loginCard'), !manager);
 		show($('#roomsView'), manager);

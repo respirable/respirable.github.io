@@ -770,6 +770,13 @@ body {
 	display: none;
 }
 
+/* the same tree brought back (Tăng tốc B): drawn complete at once, no transition anywhere */
+.vcnvTreeDiv.instant,
+.vcnvTreeDiv.instant * {
+	transition: none !important;
+	animation: none !important;
+}
+
 .treeAxis {
 	position: absolute;
 	left: 952px;
@@ -1082,7 +1089,7 @@ body {
 .treeBranch.right .treeAnswerP.withTime,
 .treeBranch.left .treeAnswerP.withTime {
 	width: 330px;   /* +10% (was 300): the time is right-aligned, so it still clears it */
-	font-size: 56px;
+	font-size: 52.64px;   /* 56 px -6 % */
 }
 
 .treeTimeP {
@@ -1096,7 +1103,7 @@ body {
 	justify-content: flex-end;
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight: 700;
-	font-size: 50px;
+	font-size: 47px;   /* 50 px -6 % */
 	line-height: 1;
 	color: white;
 	font-variant-numeric: tabular-nums;
