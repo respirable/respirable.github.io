@@ -7,12 +7,12 @@
 	<title>Olympia Controller — Quản lý câu hỏi</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261029d">
-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261029d">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261029e">
+	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261029e">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261029d"></script>
-	<script src="Scripts/Auth.js?v=20261029d"></script>
-	<script src="Scripts/QuestionEditor.js?v=20261029d" defer></script>
+	<script src="Scripts/Config.js?v=20261029e"></script>
+	<script src="Scripts/Auth.js?v=20261029e"></script>
+	<script src="Scripts/QuestionEditor.js?v=20261029e" defer></script>
 </head>
 
 <body>
@@ -63,6 +63,15 @@
 
 		<!-- ============ the editor ============ -->
 		<section class="card hidden" id="editor">
+			<!-- which rules the forms follow (Scripts/QuestionEditor.js, Scripts/Rules.js); the files hold both -->
+			<div class="rulesBar">
+				<span class="rulesName" id="qeRulesName">Soạn theo luật</span>
+				<div class="seg" id="qeRules" role="radiogroup" aria-labelledby="qeRulesName">
+					<label><input type="radio" name="qeRules" value="o24" checked>Olympia 24 + 26</label>
+					<label><input type="radio" name="qeRules" value="o23">Olympia 23</label>
+				</div>
+				<p class="meta" id="qeRulesNote"></p>
+			</div>
 			<div class="tabs" id="tabs">
 				<button type="button" class="tab" data-t="players">Thí sinh</button>
 				<button type="button" class="tab" data-t="kd">Khởi động</button>
@@ -120,6 +129,9 @@
 				<p>Tên hiển thị trên đồ hoạ là 2 từ cuối của họ tên ("Văn An").</p>
 
 				<h3>3. khoidong.xml — 6 câu lượt riêng mỗi ghế, 12 câu lượt chung</h3>
+				<p>Luật <b>Olympia 23</b>: không có lượt riêng; <code>&lt;common&gt;</code> chứa <b>36 câu</b> cho 3 lượt chung liền
+					nhau: câu 1–8 là lượt 1, câu 9–20 là lượt 2, câu 21–36 là lượt 3. Phòng chơi luật Olympia 24 + 26 chỉ dùng
+					12 câu đầu, nên một file đủ 6 câu mỗi ghế + 36 câu chung dùng được cho cả hai luật.</p>
 				<pre>&lt;khoidong&gt;
   &lt;individual seat="1"&gt;
     &lt;question&gt;&lt;text&gt;Câu hỏi 1 của ghế 1?&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
@@ -155,6 +167,7 @@
   &lt;/question&gt;
   ... câu 2 (20 giây), câu 3, 4 (30 giây); video: &lt;media type="video"&gt;tt4.mp4&lt;/media&gt;
 &lt;/tangtoc&gt;</pre>
+				<p>Luật <b>Olympia 23</b> luôn dùng 10 / 20 / 30 / 40 giây, không đọc <code>seconds</code>.</p>
 
 				<h3>6. vedich.xml — mỗi ghế 3 câu 20 điểm + 3 câu 30 điểm</h3>
 				<pre>&lt;vedich&gt;

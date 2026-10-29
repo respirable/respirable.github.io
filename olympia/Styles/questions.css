@@ -13,6 +13,11 @@ input[type="file"] { height: auto; padding: 8px 0; }
 .setInfo { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .setActions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+.rulesBar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.rulesName { font-size: 13px; font-weight: 700; color: var(--muted); }
+.rulesBar .meta { margin: 0; }
+.rulesBar .seg label { padding: 0 16px; }
+input:disabled { color: var(--muted); opacity: 1; cursor: default; }
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
 .tab { height: 38px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel-2); color: var(--muted); font-weight: 800; cursor: pointer; }
 .tab.on { color: #fff; background: #0d2342; border-color: #1f4f8f; }
