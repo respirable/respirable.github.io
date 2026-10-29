@@ -53,7 +53,7 @@
 
 	/* ---------- the account (password, other sessions, deleting it) ---------- */
 
-	var account = { name: '', email: '', hasPassword: false, uid: '' };
+	var account = { name: '', email: '', hasPassword: false, hasUsername: false, uid: '' };
 	var DELETE_SENTENCE = 'Tôi hiểu rằng việc xoá tài khoản là không thể hoàn tác, đồng thời xác nhận việc xoá tài khoản hoàn toàn là quyết định của tôi, và tôi sẽ không yêu cầu một tài khoản mới với lý do tài khoản cũ của tôi đã bị xoá.';
 
 	function same(a, b) {
@@ -91,6 +91,8 @@
 	function openAccount() {
 		$('#accName').textContent = account.name;
 		$('#delNameHint').textContent = account.name;
+		/* no username: the account's name is its e-mail (delete_my_account checks the same, 0007) */
+		$('#delNameLabel').textContent = account.hasUsername ? 'Gõ tên người dùng của bạn:' : 'Gõ email của bạn:';
 		show($('#pwCurrentLabel'), account.hasPassword);
 		$('#pwCurrent').required = account.hasPassword;
 		['#pwCurrent', '#pwNew', '#pwNew2', '#delName', '#delConfirm'].forEach(function (s) { $(s).value = ''; });
@@ -452,6 +454,7 @@
 		account.uid = s.user.id;
 		account.email = s.user.email || '';
 		account.name = (p.data && p.data.username) || account.email;
+		account.hasUsername = !!(p.data && p.data.username);
 		account.hasPassword = ((s.user.app_metadata && s.user.app_metadata.providers) || []).indexOf('email') !== -1 ||
 			(s.user.identities || []).some(function (i) { return i.provider === 'email'; });
 		loadRooms();
