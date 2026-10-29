@@ -124,7 +124,7 @@ function tieBreakNextQuestion() {
 	hideQuestionTimer();
 	clearBuzzers();
 	g.TieBreakQuestionIndex = index;
-	g.TieBreakCurrentQuestion = q ? q.text : ('(thiếu câu hỏi phụ ' + index + ')');
+	g.TieBreakCurrentQuestion = q && q.text ? q.text : g.MissingQuestionText;
 	g.TieBreakCurrentAnswer = q ? (q.answer || '') : '';
 	g.TieBreakBuzzSeat = null;
 	g.IsTieBreakBuzzEarly = false;

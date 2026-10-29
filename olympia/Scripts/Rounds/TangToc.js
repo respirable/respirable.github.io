@@ -69,7 +69,9 @@ function tangTocShowTitle() {
 }
 
 function tangTocShowQuestion(index) {
-	var q = tangTocQuestions()[index - 1] || { text: '(thiếu câu ' + index + ')', media: { type: 'image', src: '' }, answer: '', seconds: window.GameVariables.Timings.TANG_TOC[index - 1] || 20 };
+	var q = tangTocQuestions()[index - 1] || { text: '', media: { type: 'image', src: '' }, answer: '', seconds: window.GameVariables.Timings.TANG_TOC[index - 1] || 20 };
+	/* nothing to show (no text, no picture / video): never written, or its file is broken */
+	if (!q.text && !(q.media && q.media.src)) { q = Object.assign({}, q, { text: window.GameVariables.MissingQuestionText }); }
 	window.GameVariables.TangTocIndex = index;
 	window.GameVariables.TangTocSeconds = q.seconds;
 	window.GameVariables.TangTocQuestion = q.text;

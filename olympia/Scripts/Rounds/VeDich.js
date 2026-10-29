@@ -138,7 +138,7 @@ function veDichQuestionAt(index) {
 	var k = 0;
 	for (var i = 0; i < index; i++) { if (window.GameVariables.VeDichValues[i] === v) { k += 1; } }
 	var q = veDichPackage(window.GameVariables.VeDichSeat)[v][k - 1];
-	return { value: v, text: q ? q.text : ('(thiếu câu ' + v + ' điểm #' + k + ' của ghế ' + window.GameVariables.VeDichSeat + ')'), answer: q ? q.answer : '' };
+	return { value: v, text: q && q.text ? q.text : window.GameVariables.MissingQuestionText, answer: q ? q.answer : '' };
 }
 
 /* loads question `index` (host sees it on the panel) */

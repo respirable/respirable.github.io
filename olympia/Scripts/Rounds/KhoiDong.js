@@ -69,9 +69,7 @@ function khoiDongResetQuestionState() {
 function khoiDongShowQuestion(index) {
 	var q = khoiDongQuestionList()[index - 1];
 	window.GameVariables.KhoiDongQuestionIndex = index;
-	window.GameVariables.KhoiDongCurrentQuestion = q ? q.text : (window.GameVariables.Rules === 'o23'
-		? '(thiếu câu ' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + index) + ' trong <common> - lượt ' + window.GameVariables.KhoiDongTurn + ' cần câu ' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + 1) + '-' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + window.GameVariables.KhoiDongQuestionCount) + ')'
-		: '(thiếu câu ' + index + (window.GameVariables.KhoiDongMode == 'common' ? ' lượt chung' : ' cho ghế ' + window.GameVariables.KhoiDongSeat) + ')');
+	window.GameVariables.KhoiDongCurrentQuestion = q && q.text ? q.text : window.GameVariables.MissingQuestionText;
 	window.GameVariables.KhoiDongCurrentAnswer = q ? (q.answer || '') : '';
 	window.GameVariables.KhoiDongLastResult = null;
 	window.GameVariables.KhoiDongBuzzSeat = null;

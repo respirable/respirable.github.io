@@ -154,7 +154,7 @@ function vcnvUnselectRow() {
 /* (2) Right: the question itself, instant */
 function vcnvRevealQuestion() {
 	var n = window.GameVariables.VcnvCurrentRow;
-	window.GameVariables.VcnvCurrentQuestion = vcnvQuestionFor(n).text || (n == VCNV_CENTER ? '(thiếu câu ô trung tâm)' : '(thiếu câu hàng ' + n + ')');
+	window.GameVariables.VcnvCurrentQuestion = vcnvQuestionFor(n).text || window.GameVariables.MissingQuestionText;
 	setObstacleQuestion(window.GameVariables.VcnvCurrentQuestion);
 	startGeneralSound('vcnv_open_question.mp3');
 	window.GameVariables.VcnvSequenceCounter = 4;

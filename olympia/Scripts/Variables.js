@@ -47,6 +47,11 @@
 		TIEBREAK_MAX_QUESTIONS: 3               /* Câu hỏi phụ: questions in a set (more in the file are ignored) */
 	};
 
+	/* What a question shows when it was never written, or its set / file is broken (Init.js,
+	 * QuestionSet.js; every round: a missing or empty question). */
+	gameVariables.MissingQuestionText = 'Bạn / BTC chưa thiết lập bộ câu hỏi/câu hỏi này, hoặc bộ câu hỏi/câu hỏi này đang bị lỗi. Nếu là BTC, hãy vào phần Quản lý câu hỏi để kiểm tra lại ngay.';
+	gameVariables.QuestionsUnset = false;   /* a room with no set chosen / a broken one: no file is read (QuestionSet.js) */
+
 	/* Data files (XML, edited by hand - see the comment at the top of each file) */
 	gameVariables.DataFiles = {
 		players: 'Questions/players.xml',

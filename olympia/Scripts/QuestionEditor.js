@@ -592,13 +592,31 @@
 	function renderSetInfo() {
 		show($('#setInfo'), !!set);
 		show($('#useForRoom'), !!(room && set));
+		renderRoomSet();
 		if (!set) { return; }
 		var using = room && room.question_set_id === set.id;
 		$('#setMeta').textContent = (set.files || []).length + ' file · tạo lúc ' + fmtTime(set.created_at) +
-			(room ? (using ? ' · đang dùng cho phòng ' + room.code : ' · phòng ' + room.code + ' đang dùng ' + (room.question_set_id ? 'bộ đề khác' : 'bộ đề trên máy sân khấu / mẫu')) : '');
+			(room ? (using ? ' · đang dùng cho phòng ' + room.code : ' · phòng ' + room.code + ' đang dùng ' + roomSetName()) : '');
 		if (!room) { return; }   /* opened without a room: no "use for room" */
 		$('#useForRoom').disabled = using;
 		$('#useForRoom').textContent = using ? 'Đang dùng cho phòng ' + room.code : 'Dùng cho phòng ' + room.code;
+	}
+
+	/* what the room plays: a set of the manager's, the test set (Demo/, migrations/0016), or nothing */
+	function roomSetName() {
+		if (room.question_set_id) {
+			var s = sets.filter(function (x) { return x.id === room.question_set_id; })[0];
+			return s ? 'bộ đề "' + (s.name || '(không tên)') + '"' : 'bộ đề khác';
+		}
+		return room.demo_set ? 'bộ đề thử nghiệm' : 'chưa có bộ đề nào - mọi câu hỏi sẽ báo "chưa thiết lập"';
+	}
+
+	function renderRoomSet() {
+		show($('#demoBar'), !!room);
+		if (!room) { return; }
+		$('#roomSetLine').textContent = 'Phòng ' + room.code + ' đang dùng: ' + roomSetName() + '.';
+		$('#useDemo').disabled = !!room.demo_set && !room.question_set_id;
+		$('#useDemo').textContent = $('#useDemo').disabled ? 'Đang dùng bộ đề thử nghiệm' : 'Dùng bộ đề thử nghiệm';
 	}
 
 	async function loadSets(selectId) {
@@ -703,7 +721,8 @@
 		$('#whoName').textContent = s.user.email || '';
 		var code = (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();
 		if (/^[A-Z0-9]{4,12}$/.test(code)) {
-			var r = await db.from('rooms').select('code, name, question_set_id, rules').eq('code', code).maybeSingle();
+			var r = await db.from('rooms').select('code, name, question_set_id, rules, demo_set').eq('code', code).maybeSingle();
+			if (r.error) { r = await db.from('rooms').select('code, name, question_set_id, rules').eq('code', code).maybeSingle(); }   /* before 0016 */
 			if (r.error) { r = await db.from('rooms').select('code, name, question_set_id').eq('code', code).maybeSingle(); }   /* before 0013 */
 			if (r.data) { room = r.data; }
 		}
@@ -735,8 +754,20 @@
 			var r = await db.rpc('set_room_question_set', { p_code: room.code, p_set: set.id });
 			if (r.error || r.data === false) { setError('Không đổi được bộ đề của phòng: ' + (r.error ? r.error.message : 'không có quyền')); return; }
 			room.question_set_id = set.id;
+			room.demo_set = false;
 			renderSetList(); renderSetInfo();
 			progress('Phòng ' + room.code + ' sẽ dùng bộ đề "' + (set.name || '') + '" - tải lại màn sân khấu để áp dụng.');
+		});
+		$('#useDemo').addEventListener('click', async function () {
+			if (!room) { return; }
+			setError('');
+			var r = await db.rpc('set_room_demo_set', { p_code: room.code });
+			if (r.error && r.error.code === 'PGRST202') { setError('Chưa dùng được bộ đề thử nghiệm: hãy chạy supabase/migrations/0016_demo_question_set.sql trong SQL Editor.'); return; }
+			if (r.error || r.data === false) { setError('Không đổi được bộ đề của phòng: ' + (r.error ? r.error.message : 'chỉ chủ phòng mới đổi được')); return; }
+			room.question_set_id = null;
+			room.demo_set = true;
+			renderSetList(); renderSetInfo();
+			progress('Phòng ' + room.code + ' sẽ dùng bộ đề thử nghiệm - tải lại màn sân khấu để áp dụng.');
 		});
 		$('#renameSet').addEventListener('click', async function () {
 			if (!set) { return; }
@@ -747,7 +778,7 @@
 			renderSetList();
 		});
 		$('#deleteSet').addEventListener('click', async function () {
-			if (!set || !confirm('Xoá hẳn bộ đề "' + (set.name || '') + '" và mọi file của nó? Phòng đang dùng bộ đề này sẽ quay về bộ đề trên máy sân khấu.')) { return; }
+			if (!set || !confirm('Xoá hẳn bộ đề "' + (set.name || '') + '" và mọi file của nó? Phòng đang dùng bộ đề này sẽ không còn bộ đề nào (mọi câu hỏi báo "chưa thiết lập").')) { return; }
 			var paths = (set.files || []).map(function (f) { return path(f.key); });
 			if (paths.length) { var rm = await db.storage.from('sets').remove(paths); if (rm.error) { setError(rm.error.message); return; } }
 			var r = await db.from('question_sets').delete().eq('id', set.id);
