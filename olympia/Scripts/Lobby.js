@@ -418,7 +418,7 @@
 		var pw = $('#roomPassword').value;
 		if (pw.length < 4 || pw.length > 20) { $('#createError').textContent = 'Mật khẩu thí sinh phải có từ 4 đến 20 ký tự.'; return; }
 		$('#createBtn').disabled = true;
-		var rules = $('#roomRules').value === 'o23' ? 'o23' : 'o24';
+		var rules = $('#roomRules input:checked') && $('#roomRules input:checked').value === 'o23' ? 'o23' : 'o24';
 		var args = { p_name: $('#roomName').value, p_password: pw };
 		if (rules === 'o23') { args.p_rules = 'o23'; }   /* O24 rooms work without migrations/0013 too */
 		var r = await db.rpc('create_room', args);
@@ -427,7 +427,7 @@
 			$('#createError').textContent = 'Không tạo được phòng: ' + (r.error.code === 'PGRST202' && rules === 'o23' ? 'cần chạy supabase/migrations/0013_room_rules_and_announcements.sql trước khi tạo phòng luật Olympia 23.' : r.error.message);
 			return;
 		}
-		$('#roomName').value = ''; $('#roomPassword').value = ''; $('#roomRules').value = 'o24';
+		$('#roomName').value = ''; $('#roomPassword').value = ''; $('#roomRules input[value="o24"]').checked = true;
 		loadRooms();
 	}
 
