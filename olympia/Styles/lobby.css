@@ -310,3 +310,20 @@ table.scoreTable tr.out td { opacity: .5; }
 .newsBody { white-space: pre-wrap; word-break: break-word; font-size: 14px; line-height: 1.5; }
 .newsActions { display: flex; gap: 8px; }
 .newsItem.scheduled { opacity: .7; }
+.newsTools { display: flex; flex-wrap: wrap; gap: 6px; }
+.newsMedia { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 1px dashed var(--line-2); border-radius: 8px; }
+.newsMedia input[type="file"] { height: auto; padding: 6px; }
+.newsPreview { border-top: 1px dashed var(--line-2); padding-top: 8px; }
+.newsPreview .newsBody:empty::before { content: '(trống)'; color: var(--muted); }
+/* formatted news (News.js renderNews) */
+.newsBody { white-space: normal; }
+.newsBody p { margin: 0 0 8px; white-space: pre-wrap; }
+.newsBody h3 { margin: 10px 0 6px; font-size: 16px; }
+.newsBody ul { margin: 0 0 8px; padding-left: 22px; }
+.newsBody a { color: var(--blue-2); }
+.newsBody img, .newsBody video { display: block; max-width: 100%; max-height: 420px; border-radius: 8px; margin: 6px 0 10px; background: #000; }
+.newsBody iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; margin: 6px 0 10px; }
+/* the editor and the list scroll together in the dialog; a long preview scrolls on its own */
+.newsDialog { overflow-y: auto; }
+.newsDialog .newsEditor, .newsDialog .newsList { flex: none; overflow: visible; }
+.newsPreview .newsBody { max-height: 320px; overflow: auto; }

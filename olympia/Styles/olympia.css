@@ -130,11 +130,11 @@ body {
 }
 
 /* Olympia 23 Khởi động: "Lượt N: x/y" - the Về đích name tag (307x71) scaled to 306x62, sitting
-   on the bar's top edge at its left end (QuestionControl.js setKdTurnLabel) */
+   on the bar's top edge at its left end, raised 20 px above it (QuestionControl.js setKdTurnLabel) */
 .kdTurnTab {
 	position: absolute;
 	left: 0;
-	top: -54px;
+	top: -74px;
 	width: 306px;
 	height: 62px;
 	display: none;

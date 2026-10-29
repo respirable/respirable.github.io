@@ -31,7 +31,8 @@
  *     Left    (1) turn 1: kd_ready             Left (5) the next turn: kd_ready (no title)
  *     Left    (2) bars + plain question bar + the "Lượt N" label (Về đích name tag) + kd_open_question
  *     Right / 1-4 / Space / Up / Down / Backspace   exactly as in the common turn
- *     Right       after the turn's last question: graphics off, kd_complete -> (5), or (6) after turn 3
+ *     Right       after the turn's last question: graphics off, kd_complete 2 s later -> (5), or (6) after turn 3
+ *     Left    (5) the next turn: kd_ready
  *
  * KhoiDongSequenceCounter (table in Variables.js):
  *   0 idle   1 title   2 ready   3 set   4 question   5 done (next contestant / O23: next turn waiting)   6 finished
@@ -94,7 +95,8 @@ function khoiDongNextQuestion() {
 	else { khoiDongCompleteTurn(); }
 }
 
-/* Both turns: graphics off now, completion sting a moment later. */
+/* Both turns: graphics off now, completion sting a moment later (Olympia 23: 2 s after the Right
+ * that ended the turn; then Left gets the next turn ready). */
 function khoiDongHideGraphicsThenComplete() {
 	hideThinkClock();
 	clearQuestionBar();
@@ -103,7 +105,7 @@ function khoiDongHideGraphicsThenComplete() {
 	hideContestantBars();
 	showRoundGraphics();   /* hidden with ',' (green screen): back to normal once the graphics are gone */
 	clearBuzzers();
-	setTimeout(function () { startGeneralSound('kd_complete.ogg'); }, 1000);
+	setTimeout(function () { startGeneralSound('kd_complete.ogg'); }, window.GameVariables.Rules === 'o23' ? 2000 : 1000);
 }
 
 /* Graphics off at once, no sound (control-panel resets). */
