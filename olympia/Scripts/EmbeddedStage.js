@@ -25,6 +25,7 @@
 	function engineUrl() {
 		var q = new URLSearchParams();
 		if (gv.Sync.room) { q.set('room', gv.Sync.room); }
+		else if (new URLSearchParams(location.search).get('rules')) { q.set('rules', new URLSearchParams(location.search).get('rules')); }   /* trying O23 without a room */
 		q.set('embedded', '1');
 		return 'default.html?' + q.toString();
 	}

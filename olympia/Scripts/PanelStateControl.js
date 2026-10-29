@@ -64,6 +64,7 @@ function buildRoundStateForPublic() {
 			seat: g.KhoiDongSeat,
 			questionIndex: g.KhoiDongQuestionIndex,
 			questionCount: g.KhoiDongQuestionCount,
+			turn: g.KhoiDongTurn || 0,                    /* Olympia 23: turn 1-3 */
 			currentQuestion: g.KhoiDongCurrentQuestion,
 			buzzSeat: g.KhoiDongBuzzSeat,
 			resolved: g.IsKhoiDongQuestionResolved
@@ -175,6 +176,7 @@ function buildSceneForPublic() {
 			variant: barImg && /without/.test(barImg.getAttribute('src') || '') ? 'plain' : 'timer',
 			text: txt('.questionBarDiv .questionTextP'),
 			clock: has('.questionBarDiv .questionClockP.visible') ? txt('.questionBarDiv .questionClockP') : '',
+			turnLabel: (typeof kdTurnLabelText === 'function') ? kdTurnLabelText() : '',   /* Olympia 23: "Lượt N: x/y" */
 			timer: has('.questionBarDiv .questionTimerDiv.visible')
 		},
 		bars: {
@@ -240,6 +242,7 @@ function buildRoundStateForPanel() {
 			seat: g.KhoiDongSeat,
 			questionIndex: g.KhoiDongQuestionIndex,
 			questionCount: g.KhoiDongQuestionCount,
+			turn: g.KhoiDongTurn || 0,                    /* Olympia 23: turn 1-3 */
 			currentQuestion: g.KhoiDongCurrentQuestion,
 			currentAnswer: g.KhoiDongCurrentAnswer,
 			lastResult: g.KhoiDongLastResult,

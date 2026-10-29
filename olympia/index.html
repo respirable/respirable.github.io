@@ -7,14 +7,15 @@
 	<title>Olympia Controller — Sảnh</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261028e">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261029c">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261028e"></script>
-	<script src="Scripts/Auth.js?v=20261028e"></script>
+	<script src="Scripts/Config.js?v=20261029c"></script>
+	<script src="Scripts/Auth.js?v=20261029c"></script>
 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
-	<script src="Scripts/QrCode.js?v=20261028e"></script>
-	<script src="Scripts/Lobby.js?v=20261028e" defer></script>
-	<script src="Scripts/LobbyPublic.js?v=20261028e" defer></script>
+	<script src="Scripts/QrCode.js?v=20261029c"></script>
+	<script src="Scripts/Lobby.js?v=20261029c" defer></script>
+	<script src="Scripts/LobbyPublic.js?v=20261029c" defer></script>
+	<script src="Scripts/News.js?v=20261029c" defer></script>
 </head>
 
 <body>
@@ -27,10 +28,14 @@
 				<p class="eyebrow">Olympia Controller</p>
 				<h1>Sảnh quản lý</h1>
 			</div>
-			<div class="who hidden" id="who">
-				<span id="whoName"></span>
-				<button type="button" class="btn" id="accountOpen">Tài khoản</button>
-				<button type="button" class="btn" id="signOut">Đăng xuất</button>
+			<div class="topRight">
+				<!-- "Thông báo & cập nhật" (Scripts/News.js, migrations/0013): for everyone, signed in or not -->
+				<button type="button" class="btn newsBtn" id="newsOpen">Thông báo &amp; cập nhật<i class="newsDot hidden" id="newsDot" title="Có tin mới"></i></button>
+				<div class="who hidden" id="who">
+					<span id="whoName"></span>
+					<button type="button" class="btn" id="accountOpen">Tài khoản</button>
+					<button type="button" class="btn" id="signOut">Đăng xuất</button>
+				</div>
 			</div>
 		</header>
 
@@ -71,6 +76,12 @@
 					<label>Mật khẩu cho thí sinh (4–20 ký tự)
 						<input type="text" id="roomPassword" minlength="4" maxlength="20" required autocomplete="off">
 					</label>
+					<label>Luật chơi
+						<select id="roomRules">
+							<option value="o24" selected>Olympia 24 + 26</option>
+							<option value="o23">Olympia 23</option>
+						</select>
+					</label>
 					<button type="submit" class="btn primary" id="createBtn">Tạo phòng</button>
 				</form>
 				<p class="error" id="createError" role="alert"></p>
@@ -95,6 +106,7 @@
 				<div class="grow">
 					<p class="roomName" data-f="name"></p>
 					<p class="meta" data-f="created"></p>
+					<p class="meta rulesTag" data-f="rules"></p>
 					<p class="meta expiry" data-f="expiry"></p>
 					<p class="role hidden" data-f="role">Được mời cùng quản lý</p>
 				</div>
@@ -234,7 +246,7 @@
 			<p class="meta">Xoá vĩnh viễn tài khoản cùng mọi phòng, bộ đề, ảnh / video và bản lưu của nó. Email sẽ bị gỡ
 				khỏi
 				danh sách được phép của chủ sở hữu trang web.</p>
-			<label>Gõ tên người dùng của bạn: <b id="delNameHint"></b>
+			<label><span id="delNameLabel">Gõ tên người dùng của bạn:</span> <b id="delNameHint"></b>
 				<input type="text" id="delName" autocomplete="off" autocapitalize="off" spellcheck="false">
 			</label>
 			<label>Gõ lại chính xác câu dưới đây (không sao chép được)
@@ -244,6 +256,71 @@
 			<button type="button" class="btn danger" id="delBtn" disabled>Xoá tài khoản vĩnh viễn</button>
 			<p class="meta" id="delMsg"></p>
 		</section>
+	</dialog>
+
+	<!-- "Thông báo & cập nhật" (Scripts/News.js) -->
+	<dialog class="lobbyDialog newsDialog" id="newsDialog">
+		<div class="dlgHead"><b>Thông báo &amp; cập nhật</b><button type="button" class="btn sm" data-close>Đóng</button></div>
+		<!-- the site owner's editor (site_admins) -->
+		<form class="newsEditor hidden" id="newsEditor">
+			<div class="row">
+				<label>Loại
+					<select id="newsKind">
+						<option value="notice">Thông báo</option>
+						<option value="update">Cập nhật</option>
+						<option value="fix">Sửa lỗi</option>
+					</select>
+				</label>
+				<label class="grow">Tiêu đề
+					<input type="text" id="newsTitle" maxlength="120" required>
+				</label>
+			</div>
+			<div class="newsTools" id="newsTools" role="toolbar" aria-label="Định dạng">
+				<button type="button" class="btn sm" data-fmt="bold" title="Đậm (Ctrl+B)"><b>B</b></button>
+				<button type="button" class="btn sm" data-fmt="italic" title="Nghiêng (Ctrl+I)"><i>I</i></button>
+				<button type="button" class="btn sm" data-fmt="underline" title="Gạch chân (Ctrl+U)"><u>U</u></button>
+				<button type="button" class="btn sm" data-fmt="strike" title="Gạch ngang"><s>S</s></button>
+				<button type="button" class="btn sm" data-fmt="heading" title="Tiêu đề">Tiêu đề</button>
+				<button type="button" class="btn sm" data-fmt="list" title="Danh sách">• Danh sách</button>
+				<button type="button" class="btn sm" data-fmt="link" title="Liên kết">Liên kết</button>
+				<button type="button" class="btn sm" data-media="image">Chèn ảnh</button>
+				<button type="button" class="btn sm" data-media="video">Chèn video</button>
+			</div>
+			<!-- picture / video: an https address, or a file uploaded to the "news" bucket (migrations/0014) -->
+			<div class="newsMedia hidden" id="newsMedia">
+				<b id="newsMediaTitle">Chèn ảnh</b>
+				<label>Địa chỉ (https://…)<span class="meta" id="newsMediaHint"></span>
+					<input type="url" id="newsMediaUrl" placeholder="https://">
+				</label>
+				<label>hoặc tải file lên
+					<input type="file" id="newsMediaFile">
+				</label>
+				<label id="newsMediaAltBox">Mô tả ảnh (tuỳ chọn)
+					<input type="text" id="newsMediaAlt" maxlength="120">
+				</label>
+				<div class="dlgFoot">
+					<span class="meta" id="newsMediaMsg"></span>
+					<button type="button" class="btn" id="newsMediaCancel">Huỷ</button>
+					<button type="button" class="btn primary" id="newsMediaInsert">Chèn</button>
+				</div>
+			</div>
+			<label>Nội dung
+				<textarea id="newsBody" rows="7" maxlength="8000"></textarea>
+			</label>
+			<p class="meta">**đậm** · *nghiêng* · __gạch chân__ · ~~gạch ngang~~ · # tiêu đề · - danh sách ·
+				[chữ](https://…) · ![mô tả](https://…ảnh) · !video(https://…)</p>
+			<div class="newsPreview" id="newsPreviewBox">
+				<p class="eyebrow">Xem trước</p>
+				<div class="newsBody" id="newsPreview"></div>
+			</div>
+			<div class="dlgFoot">
+				<span class="meta" id="newsMsg"></span>
+				<button type="button" class="btn hidden" id="newsCancel">Huỷ sửa</button>
+				<button type="submit" class="btn primary" id="newsSave">Đăng tin</button>
+			</div>
+		</form>
+		<p class="meta" id="newsEmpty">Chưa có thông báo nào.</p>
+		<div class="newsList" id="newsList"></div>
 	</dialog>
 
 	<!-- co-managers of one room (migrations/0008) -->

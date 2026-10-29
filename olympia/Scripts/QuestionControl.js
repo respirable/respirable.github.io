@@ -89,7 +89,29 @@ function setQuestionText(text) {
 
 function clearQuestionBar() {
 	setQuestionText('');
+	setKdTurnLabel('');
 	hideThinkClock();
+}
+
+/* Olympia 23 Khởi động: "Lượt N: x/y" on a Về đích name tag above the bar's top-left corner.
+ * Inside the bar, so it zooms in and leaves with it. '' hides it. */
+var KD_TURN_TAB_IMAGE = 'O24/Finish Line/contestant_name_and_score_bar_idle.png';
+function setKdTurnLabel(text) {
+	var root = document.querySelector('.questionBarDiv');
+	if (!root) { return; }
+	var tab = root.querySelector('.kdTurnTab');
+	if (!text) { if (tab) { tab.classList.remove('on'); } return; }
+	if (!tab) {
+		tab = newElement('div', 'kdTurnTab', root);
+		newImage(KD_TURN_TAB_IMAGE, 'kdTurnTabImg', tab);
+		newElement('p', 'kdTurnTabP', tab);
+	}
+	tab.querySelector('.kdTurnTabP').textContent = text;
+	tab.classList.add('on');
+}
+function kdTurnLabelText() {
+	var p = document.querySelector('.questionBarDiv .kdTurnTab.on .kdTurnTabP');
+	return p ? p.textContent : '';
 }
 
 /* 3 -> 2 -> 1, then hides. The bed keeps playing. */

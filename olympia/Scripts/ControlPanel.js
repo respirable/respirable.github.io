@@ -54,6 +54,16 @@
 	/* ---------------- phase texts ---------------- */
 
 	var kdPhaseText = {
+		/* Olympia 23 rules (Rules.js): three common turns, 8 / 12 / 16 questions */
+		o23: {
+			idle: 'Chờ — ← hiện thẻ KHỞI ĐỘNG',
+			title: 'Đang hiện thẻ KHỞI ĐỘNG — ← vào lượt 1 (âm chuẩn bị)',
+			ready: 'Lượt đã sẵn sàng — ← hiện đồ hoạ',
+			set: 'Đồ hoạ đã hiện — → hiện câu 1',
+			question: 'Đang thi — → câu kế · 1-4 chuông · Space đồng hồ · ↑ đúng · ↓ sai',
+			done: 'Xong lượt — ← vào lượt tiếp theo (âm chuẩn bị)',
+			finished: 'Hết 3 lượt Khởi động — ← sang Vượt chướng ngại vật'
+		},
 		individual: {
 			idle: 'Chờ — ← hiện thẻ KHỞI ĐỘNG',
 			title: 'Đang hiện thẻ KHỞI ĐỘNG — ← chọn thí sinh',
@@ -212,7 +222,7 @@
 	}
 
 	var barLabels = {
-		kdLeft: { individual: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Mở lượt chung' }, common: { idle: 'Âm chuẩn bị', ready: 'Hiện đồ hoạ', finished: 'Sang Vượt chướng ngại vật' } },
+		kdLeft: { o23: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Vào lượt 1 (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Vào lượt tiếp theo', finished: 'Sang Vượt chướng ngại vật' }, individual: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Mở lượt chung' }, common: { idle: 'Âm chuẩn bị', ready: 'Hiện đồ hoạ', finished: 'Sang Vượt chướng ngại vật' } },
 		vcnvRight: { board: 'Cửa sổ 15 s cuối', rowSelected: 'Hiện câu hỏi', rowQuestion: 'Bật 15 s', rowTimer: 'Cây đáp án', rowAnswers: 'Chấm hàng', rowGraded: 'Cất cây, về bảng', rowBack: 'Mở góc ảnh', finalWindow: 'Mở hết' },
 		ttRight: { question: 'Bật đồng hồ', timer: 'Cây đáp án', answers: 'Cộng điểm', graded: 'Cất cây', blank: 'Câu kế' },
 		vdLeft: { idle: 'Hiện thẻ VỀ ĐÍCH', title: 'Gọi lên sân khấu', stageCall: 'Màn chọn gói', choose: 'Khung câu hỏi', blank: 'Gọi thí sinh kế', finished: 'Ẩn đồ hoạ' },
@@ -261,16 +271,18 @@
 
 		if (round === 'kd' && kd) {
 			var common = kd.mode === 'common';
+			var kdKind = snap.rules === 'o23' ? 'o23' : (kd.mode || 'individual');
+			var turnText = snap.rules === 'o23' && kd.turn ? 'Lượt ' + kd.turn + '/3' : '';
 			var live = kdKeys(kd);
 			setDeck({
 				who: common ? (kd.buzzSeat ? ('Chuông: ' + nameOf(kd.buzzSeat) + (kd.resolved ? ' · đã chấm' : '')) : 'Lượt chung — chờ chuông') : (kd.seat ? nameOf(kd.seat) : 'Chưa chọn thí sinh'),
 				pts: (kd.questionIndex ? ('Câu ' + kd.questionIndex + ' / ' + kd.questionCount) : 'Chưa vào câu') + (common ? ' · đúng +10 / sai −5' : ' · đúng +10'),
-				status: (kdPhaseText[kd.mode || 'individual'] || {})[kd.phase] || kd.phase,
+				status: (kdPhaseText[kdKind] || {})[kd.phase] || kd.phase,
 				statusKind: kd.phase === 'question' ? 'hot' : statusKind(kd.phase),
 				question: kd.currentQuestion, answer: kd.currentAnswer,
-				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', common ? 'Chung' : 'Riêng'], ['Kết quả câu cuối', kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult] || '—'], ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]
+				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult] || '—'], ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]
 			});
-			els.kdLeftLabel.textContent = (barLabels.kdLeft[kd.mode || 'individual'] || {})[kd.phase] || 'Bắt đầu · Chọn thí sinh · Hiện đồ hoạ';
+			els.kdLeftLabel.textContent = (barLabels.kdLeft[kdKind] || {})[kd.phase] || 'Bắt đầu · Chọn thí sinh · Hiện đồ hoạ';
 			$$('.bars[data-round="kd"] .seatName').forEach(function (s) { s.textContent = 'Chuông ' + nameOf(parseInt(s.getAttribute('data-seat'), 10)); });
 			setBars('kd', live, live.filter(function (k) { return k === 'ArrowLeft' || k === 'ArrowRight'; }));
 		}
@@ -591,8 +603,9 @@
 		if (!kd) { els.kdPhase.textContent = '—'; return; }
 		var mode = kd.mode || 'individual';
 		var common = mode === 'common';
-		els.kdMode.textContent = common ? 'lượt chung · 12 câu' : 'lượt riêng · 6 câu / thí sinh';
-		els.kdPhase.textContent = (kdPhaseText[mode] || {})[kd.phase] || kd.phase;
+		var o23 = snap.rules === 'o23';
+		els.kdMode.textContent = o23 ? ('luật O23 · ' + (kd.turn ? 'lượt ' + kd.turn + '/3 · ' + kd.questionCount + ' câu' : '3 lượt 8 · 12 · 16 câu')) : (common ? 'lượt chung · 12 câu' : 'lượt riêng · 6 câu / thí sinh');
+		els.kdPhase.textContent = (kdPhaseText[o23 ? 'o23' : mode] || {})[kd.phase] || kd.phase;
 		els.kdSeat.textContent = common ? '—' : nameOf(kd.seat);
 		els.kdBuzz.textContent = common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) + (kd.resolved ? ' (đã chấm)' : '') : 'chưa ai bấm') : '—';
 		els.kdBuzz.className = (common && kd.buzzSeat && !kd.resolved) ? 'buzzed' : '';
@@ -604,6 +617,7 @@
 		els.kdResult.className = kd.lastResult || '';
 		els.kdClearBuzz.disabled = !common;
 		els.kdResetCommon.disabled = !(common || kd.phase === 'finished');
+		els.kdResetCommon.textContent = o23 ? 'Chạy lại lượt này từ câu 1' : 'Chạy lại lượt chung từ câu 1';
 	}
 
 	/* ---------------- clock / bed / connection (200 ms) ---------------- */

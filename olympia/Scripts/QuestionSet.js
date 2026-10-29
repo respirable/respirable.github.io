@@ -45,6 +45,9 @@
 		try {
 			await auth.ensureAnonymous();
 			if (!(await takeRoom(db, code))) { return false; }   /* another engine runs the room: it has the set */
+			/* the room's rules (Rules.js, migrations/0013) - before any question is read */
+			var rr = await db.rpc('room_rules', { p_code: code });
+			if (!rr.error && rr.data && gv.applyRules) { gv.applyRules(rr.data); console.log('[QuestionSet] rules: ' + rr.data); }
 			var r = await db.rpc('room_question_set', { p_code: code });
 			if (r.error) {
 				if (r.error.code !== 'PGRST202') { console.warn('[QuestionSet] room_question_set failed', r.error.message); }

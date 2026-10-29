@@ -25,12 +25,25 @@
  *     Right       next question ... after question 12: graphics off, kd_complete 1 s later
  *     Left        (finished) switch to Vượt chướng ngại vật (same as F2)
  *
+ *   OLYMPIA 23 RULES (Rules.js, gv.Rules 'o23') - no individual turn: three common turns of 8, 12
+ *   and 16 questions, taken in order from <common> (questions 1-8, 9-20, 21-36), no time limit
+ *     Left    (0) title card + kd_start
+ *     Left    (1) turn 1: kd_ready             Left (5) the next turn: kd_ready (no title)
+ *     Left    (2) bars + plain question bar + the "Lượt N" label (Về đích name tag) + kd_open_question
+ *     Right / 1-4 / Space / Up / Down / Backspace   exactly as in the common turn
+ *     Right       after the turn's last question: graphics off, kd_complete 2 s later -> (5), or (6) after turn 3
+ *     Left    (5) the next turn: kd_ready
+ *
  * KhoiDongSequenceCounter (table in Variables.js):
- *   0 idle   1 title   2 ready   3 set   4 question   5 done (next contestant waiting)   6 finished
+ *   0 idle   1 title   2 ready   3 set   4 question   5 done (next contestant / O23: next turn waiting)   6 finished
  */
 
 function khoiDongQuestionList() {
 	var kd = window.GameVariables.KhoiDongQuestions || {};
+	if (window.GameVariables.Rules === 'o23') {   /* this turn's slice of <common> */
+		var off = window.GameVariables.KhoiDongQuestionOffset || 0;
+		return (kd.common || []).slice(off, off + window.GameVariables.KhoiDongQuestionCount);
+	}
 	if (window.GameVariables.KhoiDongMode == 'common') { return kd.common || []; }
 	return (kd.individual && kd.individual[window.GameVariables.KhoiDongSeat]) || [];
 }
@@ -56,7 +69,9 @@ function khoiDongResetQuestionState() {
 function khoiDongShowQuestion(index) {
 	var q = khoiDongQuestionList()[index - 1];
 	window.GameVariables.KhoiDongQuestionIndex = index;
-	window.GameVariables.KhoiDongCurrentQuestion = q ? q.text : ('(thiếu câu ' + index + (window.GameVariables.KhoiDongMode == 'common' ? ' lượt chung' : ' cho ghế ' + window.GameVariables.KhoiDongSeat) + ')');
+	window.GameVariables.KhoiDongCurrentQuestion = q ? q.text : (window.GameVariables.Rules === 'o23'
+		? '(thiếu câu ' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + index) + ' trong <common> - lượt ' + window.GameVariables.KhoiDongTurn + ' cần câu ' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + 1) + '-' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + window.GameVariables.KhoiDongQuestionCount) + ')'
+		: '(thiếu câu ' + index + (window.GameVariables.KhoiDongMode == 'common' ? ' lượt chung' : ' cho ghế ' + window.GameVariables.KhoiDongSeat) + ')');
 	window.GameVariables.KhoiDongCurrentAnswer = q ? (q.answer || '') : '';
 	window.GameVariables.KhoiDongLastResult = null;
 	window.GameVariables.KhoiDongBuzzSeat = null;
@@ -64,6 +79,7 @@ function khoiDongShowQuestion(index) {
 	hideThinkClock();
 	clearBuzzers();
 	setQuestionText(window.GameVariables.KhoiDongCurrentQuestion);
+	khoiDongO23Label();
 
 	if (index == 1) { startLongPassiveSound('kd_60s.mp3'); }
 	if (index == window.GameVariables.KhoiDongQuestionCount) { releaseLongPassiveSound(); }   /* last question: let the outro play */
@@ -79,7 +95,8 @@ function khoiDongNextQuestion() {
 	else { khoiDongCompleteTurn(); }
 }
 
-/* Both turns: graphics off now, completion sting a moment later. */
+/* Both turns: graphics off now, completion sting a moment later (Olympia 23: 2 s after the Right
+ * that ended the turn; then Left gets the next turn ready). */
 function khoiDongHideGraphicsThenComplete() {
 	hideThinkClock();
 	clearQuestionBar();
@@ -88,7 +105,7 @@ function khoiDongHideGraphicsThenComplete() {
 	hideContestantBars();
 	showRoundGraphics();   /* hidden with ',' (green screen): back to normal once the graphics are gone */
 	clearBuzzers();
-	setTimeout(function () { startGeneralSound('kd_complete.ogg'); }, 1000);
+	setTimeout(function () { startGeneralSound('kd_complete.ogg'); }, window.GameVariables.Rules === 'o23' ? 2000 : 1000);
 }
 
 /* Graphics off at once, no sound (control-panel resets). */
@@ -185,6 +202,7 @@ function khoiDongCommonReady() {
 function khoiDongCommonOpenQuestionBar() {
 	setQuestionBarVariant('plain');
 	clearQuestionBar();
+	khoiDongO23Label();
 	showRoundGraphics();
 	showQuestionBar();
 	revealContestantBars();
@@ -195,8 +213,39 @@ function khoiDongCommonOpenQuestionBar() {
 function khoiDongCommonComplete() {
 	khoiDongHideGraphicsThenComplete();
 	khoiDongResetQuestionState();
+	if (window.GameVariables.Rules === 'o23' && window.GameVariables.KhoiDongTurn < window.GameVariables.RulesO23.KD_TURNS.length) {
+		window.GameVariables.KhoiDongSequenceCounter = 5;   /* Left: the next turn */
+		console.log('[KD] turn ' + window.GameVariables.KhoiDongTurn + ' finished - Left opens turn ' + (window.GameVariables.KhoiDongTurn + 1));
+		return;
+	}
 	window.GameVariables.KhoiDongSequenceCounter = 6;
 	console.log('[KD] common turn finished - Khởi động over');
+}
+
+/* ---------- Olympia 23 rules: three common turns (8, 12, 16 questions) ---------- */
+
+/* Left on the title (turn 1) or after a turn (the next one): the turn's questions + kd_ready */
+function khoiDongO23Ready(turn) {
+	var g = window.GameVariables, sizes = g.RulesO23.KD_TURNS;
+	turn = Math.max(1, Math.min(sizes.length, turn || 1));
+	hideTitleCard();
+	g.KhoiDongTurn = turn;
+	g.KhoiDongQuestionOffset = sizes.slice(0, turn - 1).reduce(function (a, b) { return a + b; }, 0);
+	g.Players.forEach(function (p) { p.kdDone = true; });   /* no individual turn under these rules */
+	g.KhoiDongMode = 'common';
+	g.KhoiDongSeat = null;
+	g.KhoiDongQuestionCount = sizes[turn - 1];
+	khoiDongResetQuestionState();
+	setContestantOnStage(null);
+	clearBuzzers();
+	khoiDongCommonReady();
+}
+
+/* "Lượt N: x/y" on the question bar (Olympia 23 only; '' hides it) */
+function khoiDongO23Label() {
+	var g = window.GameVariables;
+	if (g.Rules !== 'o23' || g.KhoiDongMode !== 'common' || !g.KhoiDongTurn) { setKdTurnLabel(''); return; }
+	setKdTurnLabel('Lượt ' + g.KhoiDongTurn + (g.KhoiDongQuestionIndex ? ': ' + g.KhoiDongQuestionIndex + '/' + g.KhoiDongQuestionCount : ''));   /* no question yet: just the turn */
 }
 
 /* 1-4 in the common turn: the first press locks the question */
@@ -240,8 +289,9 @@ function khoiDongJudgeCommonWrong() {
 
 /* ---------- resets (control panel) - scores untouched ---------- */
 
-/* Restart from the individual turn (seat given: only un-mark that seat). */
+/* Restart from the individual turn (seat given: only un-mark that seat). Olympia 23: from turn 1. */
 function khoiDongReset(seat) {
+	if (window.GameVariables.Rules === 'o23') { khoiDongResetO23(1); return; }
 	window.GameVariables.Players.forEach(function (p) { if (seat === null || p.seat === seat) { p.kdDone = false; } });
 	khoiDongHideGraphicsNow();
 	setQuestionBarVariant('timer');
@@ -252,8 +302,25 @@ function khoiDongReset(seat) {
 	window.GameVariables.KhoiDongSequenceCounter = 0;
 }
 
-/* Restart only the common turn (question 1 again on the next Left/Right). */
+/* Olympia 23: back to the start of `turn` (1: the title again) */
+function khoiDongResetO23(turn) {
+	var g = window.GameVariables;
+	khoiDongHideGraphicsNow();
+	setQuestionBarVariant('plain');
+	setKdTurnLabel('');
+	g.KhoiDongMode = 'common';
+	g.KhoiDongSeat = null;
+	g.KhoiDongTurn = Math.max(1, turn || 1);
+	g.KhoiDongQuestionOffset = g.RulesO23.KD_TURNS.slice(0, g.KhoiDongTurn - 1).reduce(function (a, b) { return a + b; }, 0);
+	g.KhoiDongQuestionCount = g.RulesO23.KD_TURNS[g.KhoiDongTurn - 1];
+	khoiDongResetQuestionState();
+	g.KhoiDongSequenceCounter = g.KhoiDongTurn === 1 ? 0 : 5;   /* turn 1: title first; later turns: Left = kd_ready */
+	if (g.KhoiDongTurn > 1) { g.KhoiDongTurn -= 1; }             /* (5) opens "the next turn" */
+}
+
+/* Restart only the common turn (question 1 again on the next Left/Right). Olympia 23: this turn. */
 function khoiDongResetCommon() {
+	if (window.GameVariables.Rules === 'o23') { khoiDongResetO23(window.GameVariables.KhoiDongTurn || 1); return; }
 	khoiDongHideGraphicsNow();
 	setQuestionBarVariant('plain');
 	window.GameVariables.KhoiDongMode = 'common';

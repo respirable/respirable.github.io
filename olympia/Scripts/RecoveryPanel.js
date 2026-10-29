@@ -79,6 +79,13 @@
 		var t = gv.Timings || {};
 		options($('#rcKdQ'), range(t.KD_QUESTIONS_PER_PLAYER || 6));
 		options($('#rcKdCommonQ'), range(t.KD_COMMON_QUESTIONS || 12));
+		/* Olympia 23 (Rules.js): which of the three common turns - shown only under those rules */
+		var turnLabel = el('label', 'rcO23Turn hidden', 'Lượt: ');
+		var turnSel = el('select'); turnSel.id = 'rcKdTurn';
+		options(turnSel, gv.RulesO23.KD_TURNS.map(function (n, i) { return [i + 1, 'Lượt ' + (i + 1) + ' (' + n + ' câu)']; }));
+		turnLabel.appendChild(turnSel);
+		var commonRow = $('#rcKdCommonQ').closest('.rcRow');
+		commonRow.insertBefore(turnLabel, commonRow.firstChild);
 		options($('#rcTtQ'), range((snap.roundState && snap.roundState.tt && snap.roundState.tt.count) || 4));
 		options($('#rcTbQ'), range((snap.roundState && snap.roundState.tb && snap.roundState.tb.questionCount) || (t.TIEBREAK_MAX_QUESTIONS || 3)));
 		seatSelects();
@@ -106,6 +113,17 @@
 	function showPanes() {
 		var r = picked('rcRound');
 		$$('.recovery .rcPane').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-r') === r); });
+		/* Olympia 23: no individual turn - the common sub-pane with the turn picker */
+		var o23 = gv.Rules === 'o23';
+		var kdModes = $('.recovery .rcPane[data-r="kd"] > .rcChoice');
+		if (kdModes) { kdModes.classList.toggle('hidden', o23); }
+		$('.rcO23Turn').classList.toggle('hidden', !o23);
+		if (o23) {
+			var common = document.querySelector('input[name="rcKdMode"][value="common"]');
+			if (common && !common.checked) { common.checked = true; }
+			var n = gv.RulesO23.KD_TURNS[Number(val('#rcKdTurn')) - 1] || 8, q = $('#rcKdCommonQ'), keep = q.value;
+			if (q.options.length !== n) { options(q, range(n)); if (Number(keep) <= n) { q.value = keep; } }
+		}
 		var m = picked('rcKdMode');
 		$$('.recovery .rcPane[data-r="kd"] .rcSub').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-m') === m); });
 		$('#rcVdMidBox').classList.toggle('on', checked('rcVdMid'));
@@ -123,7 +141,8 @@
 		}
 		if (args.round === 'kd') {
 			var mode = picked('rcKdMode');
-			if (mode === 'common') { args.kd = { mode: 'common', question: Number(val('#rcKdCommonQ')) }; }
+			if (gv.Rules === 'o23') { args.kd = { mode: 'common', turn: Number(val('#rcKdTurn')), question: Number(val('#rcKdCommonQ')) }; }
+			else if (mode === 'common') { args.kd = { mode: 'common', question: Number(val('#rcKdCommonQ')) }; }
 			else {
 				var done = SEATS.filter(function (s) { return checked('rcKdDone' + s); });
 				if (done.length === 4) { return { error: 'Cả 4 thí sinh đã thi xong lượt riêng - hãy chọn "Lượt chung".' }; }
