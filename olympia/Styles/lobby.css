@@ -292,3 +292,21 @@ table.scoreTable tr.out td { opacity: .5; }
 .lobbyDialog .sub select { width: auto; }
 .lobbyDialog .sub.off { display: none; }
 .lobbyDialog .lbl { display: block; }
+
+/* ---------- "Thông báo & cập nhật" (News.js) ---------- */
+.topRight { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.newsBtn { position: relative; }
+.newsDot { position: absolute; top: -4px; right: -4px; width: 12px; height: 12px; border-radius: 50%; background: #f85149; box-shadow: 0 0 0 2px var(--bg); }
+.newsDialog { width: min(760px, calc(100vw - 32px)); }
+.newsEditor { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--panel-2); }
+.newsList { display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+.newsItem { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); display: flex; flex-direction: column; gap: 6px; }
+.newsItem.unread { border-color: var(--blue); }
+.newsItemHead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.newsItemHead b { font-size: 15px; }
+.newsKind { font: 700 11px "Roboto Mono", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--muted); }
+.newsKind.update { color: var(--blue-2); border-color: var(--blue); }
+.newsKind.fix { color: #3fb950; border-color: #238636; }
+.newsBody { white-space: pre-wrap; word-break: break-word; font-size: 14px; line-height: 1.5; }
+.newsActions { display: flex; gap: 8px; }
+.newsItem.scheduled { opacity: .7; }

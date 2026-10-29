@@ -129,6 +129,49 @@ body {
 	opacity: 0;
 }
 
+/* Olympia 23 Khởi động: "Lượt N: x/y" - the Về đích name tag (307x71) scaled to 306x62, sitting
+   on the bar's top edge at its left end (QuestionControl.js setKdTurnLabel) */
+.kdTurnTab {
+	position: absolute;
+	left: 0;
+	top: -54px;
+	width: 306px;
+	height: 62px;
+	display: none;
+	z-index: 2;
+}
+
+.kdTurnTab.on {
+	display: block;
+}
+
+.kdTurnTabImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 306px;
+	height: 62px;
+}
+
+.kdTurnTabP {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 270px;
+	height: 62px;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: 'Olympia', 'Myriad Pro', Arial, sans-serif;   /* the question's own type */
+	font-weight: bold;
+	font-size: 38px;
+	line-height: 1;
+	color: white;
+	white-space: nowrap;
+	user-select: none;
+}
+
 
 .questionBarDiv.noTransition {
 	transition: none;

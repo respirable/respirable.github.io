@@ -221,7 +221,8 @@ async function getTangTocQuestions() {
 			media: { type: (m && m.getAttribute('type')) || 'image', src: window.GameVariables.resolveMedia(xmlText(m) || '') },
 			answerMedia: (am && xmlText(am)) ? { type: am.getAttribute('type') || 'image', src: window.GameVariables.resolveMedia(xmlText(am)) } : null,
 			answer: xmlText(q, 'answer') || '',
-			seconds: (secs > 0) ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
+			/* Olympia 23 rules: 10/20/30/40 whatever the file says (Rules.js) */
+			seconds: (secs > 0 && window.GameVariables.Rules !== 'o23') ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
 		};
 	});
 }

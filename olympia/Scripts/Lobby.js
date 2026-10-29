@@ -334,6 +334,7 @@
 		f('code').textContent = room.code;
 		f('name').textContent = room.name || '(chưa đặt tên)';
 		f('created').textContent = 'Tạo lúc ' + fmtTime(room.created_at);
+		f('rules').textContent = room.rules === 'o23' ? 'Luật Olympia 23' : (room.rules ? 'Luật Olympia 24 + 26' : '');
 		expiryNodes.push({ room: room, el: f('expiry'), card: node });
 		/* a room someone shared with this account: open its screens, but not the owner's actions */
 		var mine = !room.owner_id || room.owner_id === account.uid;
@@ -388,7 +389,8 @@
 
 	async function loadRooms() {
 		await db.rpc('purge_expired_rooms').then(function () {}, function () {});   /* rooms past their 4 hours go (0008) */
-		var r = await db.from('rooms').select('id, code, name, owner_id, stage_uid, stage_seen_at, created_at, expires_at, question_set_id').order('created_at', { ascending: false });
+		var r = await db.from('rooms').select('id, code, name, owner_id, stage_uid, stage_seen_at, created_at, expires_at, question_set_id, rules').order('created_at', { ascending: false });
+		if (r.error) { r = await db.from('rooms').select('id, code, name, owner_id, stage_uid, stage_seen_at, created_at, expires_at, question_set_id').order('created_at', { ascending: false }); }   /* before 0013 */
 		if (r.error) { r = await db.from('rooms').select('id, code, name, owner_id, stage_uid, stage_seen_at, created_at, question_set_id').order('created_at', { ascending: false }); }   /* before 0008 */
 		if (r.error) { r = await db.from('rooms').select('id, code, name, stage_uid, stage_seen_at, created_at').order('created_at', { ascending: false }); }   /* before 0006 */
 		expiryNodes = [];
@@ -414,10 +416,16 @@
 		var pw = $('#roomPassword').value;
 		if (pw.length < 4 || pw.length > 20) { $('#createError').textContent = 'Mật khẩu thí sinh phải có từ 4 đến 20 ký tự.'; return; }
 		$('#createBtn').disabled = true;
-		var r = await db.rpc('create_room', { p_name: $('#roomName').value, p_password: pw });
+		var rules = $('#roomRules').value === 'o23' ? 'o23' : 'o24';
+		var args = { p_name: $('#roomName').value, p_password: pw };
+		if (rules === 'o23') { args.p_rules = 'o23'; }   /* O24 rooms work without migrations/0013 too */
+		var r = await db.rpc('create_room', args);
 		$('#createBtn').disabled = false;
-		if (r.error) { $('#createError').textContent = 'Không tạo được phòng: ' + r.error.message; return; }
-		$('#roomName').value = ''; $('#roomPassword').value = '';
+		if (r.error) {
+			$('#createError').textContent = 'Không tạo được phòng: ' + (r.error.code === 'PGRST202' && rules === 'o23' ? 'cần chạy supabase/migrations/0013_room_rules_and_announcements.sql trước khi tạo phòng luật Olympia 23.' : r.error.message);
+			return;
+		}
+		$('#roomName').value = ''; $('#roomPassword').value = ''; $('#roomRules').value = 'o24';
 		loadRooms();
 	}
 

@@ -78,6 +78,14 @@ function restoreTieBreak(a) {
 /* kd: { mode: 'individual'|'common', done: [seats], seat, question } */
 function restoreKhoiDong(a) {
 	var g = window.GameVariables;
+	if (g.Rules === 'o23') {                       /* Olympia 23: turn a.turn (1-3), from question a.question */
+		var turn = recoveryInt(a.turn, 1, g.RulesO23.KD_TURNS.length, 1);
+		khoiDongResetO23(turn);
+		khoiDongO23Ready(turn);                   /* the turn's questions; plays kd_ready */
+		g.KhoiDongStartIndex = recoveryInt(a.question, 1, g.KhoiDongQuestionCount, 1);
+		g.KhoiDongSequenceCounter = 2;            /* Left: plain bar + label + bars; Right: question N */
+		return;
+	}
 	khoiDongReset(null);
 	if (a.mode === 'common') {
 		g.Players.forEach(function (p) { p.kdDone = true; });

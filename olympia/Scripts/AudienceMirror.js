@@ -134,6 +134,7 @@
 	function applyQuestionBar(qb, was) {
 		setQuestionBarVariant(qb.variant);
 		setQuestionText(qb.text);
+		setKdTurnLabel(qb.turnLabel || '');   /* Olympia 23 */
 		var clock = $('.questionBarDiv .questionClockP');
 		clock.textContent = qb.clock || '';
 		clock.classList.toggle('visible', !!qb.clock);
@@ -387,6 +388,7 @@
 
 	function onState(s, info) {
 		snap = s;
+		if (s && s.rules && s.rules !== gv.Rules && gv.applyRules) { gv.applyRules(s.rules); }   /* Rules.js */
 		refreshSoundButton();
 		if (!info || !info.saved) { everHeard = true; }
 		try { apply(s); } catch (e) { console.error('[Audience] could not draw the state', e); }

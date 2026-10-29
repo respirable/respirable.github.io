@@ -5,7 +5,7 @@
  *   F3 / Left after VCNV   title card + tt_start
  *   Left     (title)       question 1: question bar + contents frame (picture / video, not yet
  *                          playing) + tt_open_question
- *   Right    (question)    timer N s (20/20/30/30) + tt_20s/tt_30s; a video starts playing now
+ *   Right    (question)    timer N s (20/20/30/30; Olympia 23: 10/20/30/40) + tt_<N>s; a video starts playing now
  *   (host)                 types the four answers and times on the control panel
  *   Right    (timer)       timer/music/video stopped; question graphics off; the ANSWER TREE
  *                          (all branches right, sorted by time) + tt_open_answers
@@ -91,6 +91,18 @@ function tangTocShowFirstQuestion() {
 	tangTocShowQuestion(1);
 }
 
+/* the clock music: tt_<N>s.mp3 for an N s clock. tt_10s / tt_40s (Olympia 23 rules) are used once
+ * they are in Sounds/ (checked once here); until then the nearest one plays (10 -> 20 s, 40 -> 30 s). */
+var TANG_TOC_CLOCK_FILES = {};
+['tt_10s.mp3', 'tt_40s.mp3'].forEach(function (f) {
+	try { fetch('Sounds/' + f, { method: 'HEAD' }).then(function (r) { TANG_TOC_CLOCK_FILES[f] = !!(r && r.ok); }).catch(function () {}); } catch (e) { /* offline */ }
+});
+function tangTocClockSound(dur) {
+	var own = 'tt_' + dur + 's.mp3';
+	if (dur === 20 || dur === 30 || TANG_TOC_CLOCK_FILES[own]) { return own; }
+	return dur >= 30 ? 'tt_30s.mp3' : 'tt_20s.mp3';
+}
+
 /* from: seconds already gone (a clock resumed after a crash: the clip and the music jump there too) */
 function tangTocStartTimer(from) {
 	var dur = window.GameVariables.TangTocSeconds || 20;
@@ -100,7 +112,7 @@ function tangTocStartTimer(from) {
 	var video = from > 0 && document.querySelector('.ttDiv .ttMediaVideo.on');
 	if (video) { try { video.currentTime = from; } catch (e) { /* not seekable yet */ } }
 	playTangTocVideo();
-	startShortPassiveSound(dur >= 30 ? 'tt_30s.mp3' : 'tt_20s.mp3');
+	startShortPassiveSound(tangTocClockSound(dur));
 	seekShortPassiveSound(from);
 	startClock({
 		mode: 'down', duration: dur, label: 'tt_q' + window.GameVariables.TangTocIndex, startAt: from,

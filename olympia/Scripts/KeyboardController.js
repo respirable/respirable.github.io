@@ -53,7 +53,14 @@ function handleRoundKey(key, round) {
 	if (key == 'ArrowLeft') // key 'left arrow' for starting a round and stepping between contestants / screens
 	{
 		if (round == 'kd') {
-			if (common) {
+			if (window.GameVariables.Rules === 'o23') {                     /* Olympia 23: three common turns */
+				if (kd == 0) { khoiDongShowTitle(); }
+				else if (kd == 1) { khoiDongO23Ready(1); }
+				else if (kd == 2) { khoiDongCommonOpenQuestionBar(); }
+				else if (kd == 5) { khoiDongO23Ready((window.GameVariables.KhoiDongTurn || 0) + 1); }
+				else if (kd == 6) { switchRound('vcnv'); }
+			}
+			else if (common) {
 				if (kd == 0) { khoiDongCommonReady(); }
 				else if (kd == 2) { khoiDongCommonOpenQuestionBar(); }
 				else if (kd == 6) { switchRound('vcnv'); }                 /* on to Vượt chướng ngại vật */

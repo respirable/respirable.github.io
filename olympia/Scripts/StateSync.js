@@ -103,6 +103,7 @@
 			matchLog: gv.matchLogForPanel ? gv.matchLogForPanel() : null,   /* MatchLog.js: undo + the last log lines */
 			questionSet: gv.QuestionSetName || '',                      /* QuestionSet.js: '' = this machine's set */
 			soundAt: gv.SoundAt || 'here',                              /* AudioControl.js: here | stage | both */
+			rules: gv.Rules || 'o24',                                   /* Rules.js: the panel follows the engine's rules */
 			source: instanceId,          /* which engine sent it (a panel follows only one) */
 			embedded: embeddedEngine
 		};
@@ -120,6 +121,7 @@
 			isScoreboardShowing: gv.IsScoreboardShowing,
 			answerReceipts: gv.AnswerReceipts || {},   /* PlayerActions.js: { seat: { nonce, ok } } */
 			soundAt: gv.SoundAt || 'here',             /* stage screens show their "sound on" button when not 'here' */
+			rules: gv.Rules || 'o24',                  /* Rules.js: Olympia 24/26 or 23 graphics */
 			matchId: matchId(),                        /* AudiencePlay.js: a new match forgets the last one's answers */
 			timer: publicTimer()
 		};
@@ -193,6 +195,7 @@
 				if (!msg.snapshot || !takeState(msg.snapshot)) { return; }   /* another engine than the one followed */
 				/* the stage's wall clock may differ from ours: timers are drawn from its timestamps */
 				if (msg.snapshot && msg.snapshot.at) { gv.Sync.clockOffset = Date.now() - msg.snapshot.at; }
+				if (msg.snapshot.rules && msg.snapshot.rules !== gv.Rules && gv.applyRules) { gv.applyRules(msg.snapshot.rules); }
 				gv.Sync.lastSnapshot = msg.snapshot;
 				emit('state', msg.snapshot);
 			}

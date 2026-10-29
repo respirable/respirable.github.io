@@ -33,7 +33,7 @@
 			matchId: gv.Sync.matchId ? gv.Sync.matchId() : (gv.MatchId || null),
 			round: gv.CurrentRound,
 			players: gv.Players.map(function (p) { return { seat: p.seat, fullName: p.fullName, score: p.score, kdDone: !!p.kdDone }; }),
-			kd: { counter: gv.KhoiDongSequenceCounter, mode: gv.KhoiDongMode, seat: gv.KhoiDongSeat, index: gv.KhoiDongQuestionIndex },
+			kd: { counter: gv.KhoiDongSequenceCounter, mode: gv.KhoiDongMode, seat: gv.KhoiDongSeat, index: gv.KhoiDongQuestionIndex, turn: gv.KhoiDongTurn || 0 },
 			vcnv: {
 				counter: gv.VcnvSequenceCounter,
 				rows: (gv.VcnvRows || []).map(function (r) { return { status: r.status, correctSeats: (r.correctSeats || []).slice(), answers: Object.assign({}, r.answers || {}) }; }),
@@ -64,7 +64,7 @@
 	var ROUND_NAMES = { kd: 'Khởi động', vcnv: 'Vượt chướng ngại vật', tt: 'Tăng tốc', vd: 'Về đích', tb: 'Câu hỏi phụ' };
 	function describe(s) {
 		var where = ROUND_NAMES[s.round] || s.round;
-		if (s.round === 'kd') { where += s.kd.mode === 'common' ? ' · lượt chung, câu ' + (s.kd.index || 1) : (s.kd.seat ? ' · lượt riêng ghế ' + s.kd.seat + ', câu ' + (s.kd.index || 1) : ' · lượt riêng'); }
+		if (s.round === 'kd') { where += s.kd.turn ? ' · lượt ' + s.kd.turn + ', câu ' + (s.kd.index || 1) : (s.kd.mode === 'common' ? ' · lượt chung, câu ' + (s.kd.index || 1) : (s.kd.seat ? ' · lượt riêng ghế ' + s.kd.seat + ', câu ' + (s.kd.index || 1) : ' · lượt riêng')); }
 		if (s.round === 'vcnv') { where += ' · ' + s.vcnv.rows.slice(0, 4).filter(function (r) { return r.status === 'correct' || r.status === 'wrong'; }).length + ' hàng đã chấm' + (s.vcnv.solved ? ' · đã giải' : ''); }
 		if (s.round === 'tt') { where += ' · câu ' + (s.tt.index || 1); }
 		if (s.round === 'vd') { where += ' · ' + s.vd.done.length + ' / 4 đã thi' + (s.vd.seat ? ', đang thi ghế ' + s.vd.seat : ''); }
@@ -208,6 +208,13 @@
 
 	function restoreKdFromSave(kd, players) {
 		var g = gv;
+		if (g.Rules === 'o23') {                   /* Olympia 23: the turn it was in (a finished turn: the next one) */
+			var turn = kd.turn || 1, sizes = g.RulesO23.KD_TURNS;
+			if (kd.counter == 6) { khoiDongResetO23(sizes.length); g.KhoiDongSequenceCounter = 6; return; }   /* all done: Left -> VCNV */
+			if (kd.counter == 5 || kd.counter <= 1) { khoiDongResetO23(kd.counter == 5 ? turn + 1 : 1); return; }
+			restoreKhoiDong({ turn: turn, question: kd.counter == 4 ? kd.index : 1 });
+			return;
+		}
 		if (kd.mode === 'common') {
 			restoreKhoiDong({ mode: 'common', question: kd.counter == 4 ? kd.index : Math.max(1, kd.index + (kd.counter >= 5 ? 1 : 0)) });
 			if (kd.counter == 6) { g.KhoiDongStartIndex = null; g.KhoiDongSequenceCounter = 6; }   /* common turn over: Left -> VCNV */

@@ -237,6 +237,8 @@
 	gameVariables.KhoiDongSeat = null;               /* individual turn: the contestant playing */
 	gameVariables.KhoiDongQuestionIndex = 0;
 	gameVariables.KhoiDongQuestionCount = 6;
+	gameVariables.KhoiDongTurn = 0;                  /* Olympia 23 (Rules.js): turn 1-3 of the common turns */
+	gameVariables.KhoiDongQuestionOffset = 0;        /* Olympia 23: <common> questions used by the earlier turns */
 	gameVariables.KhoiDongBuzzSeat = null;           /* common turn: seat that locked the buzzer */
 
 	gameVariables.VcnvCurrentRow = null;             /* 1..4 while a row is open, 5 = centre */
