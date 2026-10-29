@@ -124,6 +124,16 @@ input:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color
 .roomFixed { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 8px 8px 14px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--panel-2); color: var(--muted); font-weight: 700; }
 .roomFixed #codeText { margin-left: 4px; color: var(--text); font: 500 18px/1 "Roboto Mono", Consolas, monospace; letter-spacing: .08em; }
 .seatPick label:has(input:checked) { border-color: var(--blue); background: #0d2a52; }
+
+/* rules of a new room: a two-way switch in the same style as the inputs */
+.rulesPick { border: 0; margin: 0; padding: 0; min-width: 0; }
+.rulesPick legend { padding: 0; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.seg { display: flex; height: 40px; padding: 3px; gap: 3px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--input); }
+.seg label { flex: 1 1 auto; flex-direction: row; align-items: center; justify-content: center; padding: 0 14px; position: relative; border-radius: 6px; color: var(--muted); font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: background .12s, color .12s; }
+.seg label:hover { color: var(--text); }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.seg label:has(input:checked) { background: #0d2a52; color: var(--blue-2); box-shadow: inset 0 0 0 1px var(--blue); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--blue); outline-offset: 1px; }
 .big { font: 800 44px/1.1 Nunito, sans-serif; }
 
 /* ---------- player screen ----------
