@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  BỘ ĐỀ DEMO - Vượt chướng ngại vật. Mọi câu hỏi / đáp án dưới đây là YẾU TỐ MẪU, không phải đề thật.
-  Định dạng giống Questions/vcnv.xml (xem chú thích ở file đó).
+  Vượt chướng ngại vật.
+  <keyword>   chữ chướng ngại vật; số vòng tròn / "CÓ N CHỮ CÁI" = số ký tự KHÔNG tính dấu cách.
+  <image>     ảnh gốc nằm sau 5 miếng che (1 file, không cần cắt). Đường dẫn tương đối từ gốc web.
+  <row>       4 hàng ngang theo thứ tự 1..4; <answer> quyết định số vòng tròn của hàng đó.
+  <center>    câu hỏi ô trung tâm (hàng thứ 5, không có dải vòng tròn).
+  Mỗi <text> hiện trên đồ hoạ, <answer> chỉ hiện cho host ở màn quản lý. Không dùng HTML.
 -->
 <vcnv>
-  <keyword><text>CHƯỚNG NGẠI VẬT</text></keyword>
+  <keyword><text>CLAUDE FABLE 5</text></keyword>
   <image>O24/VCNV Image.png</image>
 
-  <row><text>Câu hỏi hàng ngang 1 (mẫu)</text><answer>HÀNGNGANG1</answer></row>
-  <row><text>Câu hỏi hàng ngang 2 (mẫu)</text><answer>HÀNGNGANG2</answer></row>
-  <row><text>Câu hỏi hàng ngang 3 (mẫu)</text><answer>HÀNGNGANG3</answer></row>
-  <row><text>Câu hỏi hàng ngang 4 (mẫu)</text><answer>HÀNGNGANG4</answer></row>
+  <row><text>"... là triệu phú" là một gameshow trên VTV3 với giải thưởng tối đa lên tới 500 triệu đồng.</text><answer>AI</answer></row>
+  <row><text>Bức thư gửi thế hệ mai sau ở Nhà máy Thuỷ điện Hoà Bình sẽ được mở vào ngày 1 tháng 1 năm P. Tính P/2.</text><answer>1050</answer></row>
+  <row><text>"Cấu trúc của ti thể và lục lạp phù hợp với chức năng của chúng như thế nào?" là một câu hỏi sặc mùi môn học nào nhất?</text><answer>SINH HỌC</answer></row>
+  <row><text>Hai môn học bạn không thể tránh khỏi ở bất cứ trường đại học công nghệ nào chính là "Nhập môn ..." và "... nâng cao".</text><answer>LẬP TRÌNH</answer></row>
 
-  <center><text>Câu hỏi ô trung tâm (mẫu)</text><answer>TRUNGTÂM</answer></center>
+  <center><text>Dimensional Barrier là một Cạm bẫy rất mạnh trong Yu-Gi-Oh, ngăn chặn người chơi khỏi triệu hồi 1 loại quái thú nhất định (Ritual, Synchro, Fusion, ...). Từ barrier trong ngữ cảnh này khi dịch sang tiếng Việt nghĩa là gì?</text><answer>RÀO CHẮN</answer></center>
 </vcnv>

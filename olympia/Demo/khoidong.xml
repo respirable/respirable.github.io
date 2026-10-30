@@ -2,7 +2,8 @@
 <!--
   Khởi động.
   <individual seat="N">  6 câu lượt riêng của thí sinh ghế N (thứ tự = thứ tự hỏi).
-  <common>               12 câu lượt chung (dùng ở bước sau).
+  <common>               lượt chung: Olympia 24 + 26 dùng 12 câu đầu; Olympia 23 dùng 36 câu
+                         (câu 1-8 lượt 1, 9-20 lượt 2, 21-36 lượt 3).
   Mỗi <question> có <text> (hiện trên đồ hoạ) và <answer> (chỉ hiện cho host ở màn quản lý).
   Không dùng HTML trong nội dung; xuống dòng bằng ký tự xuống dòng thường.
 -->
@@ -57,6 +58,32 @@
     <question><text>Kể từ ngày 01/07/2025, thông tin nào được sử dụng để làm mã số thuế dành cho hộ gia đình, hộ kinh doanh, cá nhân? (Theo quy định tại Thông tư 86/2024/TT-BTC)</text><answer>Số CCCD</answer></question>
     <question><text>Ngọc lan là cây thân gỗ, thân leo, hay thân thảo?</text><answer>Thân gỗ</answer></question>
     <question><text>In which district of Ho Chi Minh City is the Notre Dame Cathedral located?</text><answer>District One</answer></question>
+
+    <!-- 13-36: chỉ luật Olympia 23 dùng (3 lượt chung 8 + 12 + 16 câu); cùng nội dung 24 câu lượt riêng ở trên, theo thứ tự ghế 1 -> 4 -->
+    <question><text>Để biểu diễn orbital nguyên tử (AO), người ta thường dùng ô vuông, gọi là ô lượng tử, nếu ở mỗi ô, AO chứa đủ hai electron thì các electron đó gọi là gì?</text><answer>Electron ghép đôi</answer></question>
+    <question><text>TP. Hồ Chí Minh giáp với các tỉnh: Long An, Tây Ninh, Bình Dương, Bà Rịa - Vũng Tàu và những tỉnh nào nữa?</text><answer>Đồng Nai và Tiền Giang</answer></question>
+    <question><text>Loài nào sau đây hay kiếm ăn vào ban đêm: Sếu, gà, vịt?</text><answer>Vịt</answer></question>
+    <question><text>Đâu là tên một level Insane Demon tạo bởi Andromeda trong Geometry Dash: "Polargeist" hay "Poltergeist"?</text><answer>Poltergeist</answer></question>
+    <question><text>How many liters are in 1 cube decimeter?</text><answer>1</answer></question>
+    <question><text>Trong bài thơ "Mưa" của Trần Đăng Khoa, ai là người "Đội sấm/ Đội chớp/ Đội cả trời mưa"?</text><answer>Bố</answer></question>
+    <question><text>Số tự nhiên nhỏ nhất có 3 chữ số thỏa mãn tích các chữ số của nó là một số nguyên tố bằng bao nhiêu?</text><answer>112</answer></question>
+    <question><text>Ở nam giới, khi đến tuổi dậy thì, các tế bào sinh tinh (2n) trải qua hình thức phân bào nào để tạo ra tinh trùng (n)?</text><answer>Giảm phân</answer></question>
+    <question><text>Kể từ ngày 01/01/2025, người dùng các ứng dụng ngân hàng trên điện thoại thông minh bắt buộc phải có thông tin sinh trắc học khi chuyển từ bao nhiêu tiền trở lên?</text><answer>Mọi giao dịch</answer></question>
+    <question><text>Thuỷ ngân dễ bay hơi và rất độc. Nếu chẳng may nhiệt kế thuỷ ngân bị vỡ thì dùng chất nào trong các chất sau để khử độc thuỷ ngân: Bột sắt, bột lưu huỳnh, bột than, hay nước?</text><answer>Bột lưu huỳnh</answer></question>
+    <question><text>Nếu hàm y = f(x) mô tả vị trí của một vật theo thời gian, thì đạo hàm y' chính là ... của vật, còn đạo hàm cấp hai y" là ... của vật đó.</text><answer>Vận tốc, gia tốc</answer></question>
+    <question><text>Thung lũng ... là một khu vực ở California nổi tiếng với sự phát triển mạnh mẽ của ngành công nghệ và được xem là trung tâm đổi mới và khởi nghiệp toàn cầu.</text><answer>Thung lũng Silicon</answer></question>
+    <question><text>Người ta thường dùng vỏ trứng làm phân bón cho cây trồng do nó có cấu tạo chủ yếu từ hợp chất chứa nguyên tố kim loại nào?</text><answer>Canxi</answer></question>
+    <question><text>Nước cường toan là hỗn hợp HNO3 đặc và HCl đặc có tỉ lệ thể tích là ...</text><answer>1:3</answer></question>
+    <question><text>"Vừa khi cờ nghĩa dấy lên/ Chính lúc quân thù đương mạnh", "Tướng sĩ một lòng phụ tử, hòa nước sông chén rượu ngọt ngào." Những câu trên đang nhắc đến cuộc khởi nghĩa nào trong lịch sử nước ta?</text><answer>Khởi nghĩa Lam Sơn</answer></question>
+    <question><text>Cơ chế phát ra âm thanh của guitar điện và cơ chế phát sáng của dynamo xe đạp đều dựa trên ứng dụng của hiện tượng vật lí nào?</text><answer>Cảm ứng điện từ</answer></question>
+    <question><text>Khu di tích A Sào (Thái Bình) là nơi thờ nhân vật lịch sử nào cùng hai tướng Yết Kiêu và Dã Tượng?</text><answer>Trần Hưng Đạo</answer></question>
+    <question><text>"Nửa đêm qua huyện Nghi Xuân/ Bâng khuâng nhớ Cụ, thương thân nàng Kiều", "Cụ" mà nhà thơ Tố Hữu đang nhắc đến ở đây là ai?</text><answer>Nguyễn Du</answer></question>
+    <question><text>Loại đường đa nào là thành phần chính cấu tạo nên thành tế bào của thực vật?</text><answer>Cellulose</answer></question>
+    <question><text>Từ điển trực tuyến Cambridge đã lựa chọn từ nào là từ của năm 2024?</text><answer>Manifest</answer></question>
+    <question><text>Sách "Địa chí Lạng Sơn" (NXB Chính trị quốc gia - 1999) viết về dòng sông nào như sau: "Sông ... là sông lớn nhất của Lạng Sơn"?</text><answer>Sông Kỳ Cùng</answer></question>
+    <question><text>Khi nén và làm lạnh khí CO2 đến nhiệt độ -78,5 độ C, nó sẽ chuyển từ dạng khí sang dạng rắn và trở thành sản phẩm gì?</text><answer>Nước đá khô/Tuyết carbonic</answer></question>
+    <question><text>Nữ ca sĩ nào đại diện Việt Nam tranh tài trong cuộc thi âm nhạc Sing! Asia 2025?</text><answer>Phương Mỹ Chi</answer></question>
+    <question><text>Giải thưởng "Nhà sáng tạo Kim cương" của YouTube được trao tặng cho chủ sở hữu các kênh có từ bao nhiêu lượt theo dõi trở lên?</text><answer>10 triệu</answer></question>
   </common>
 
 </khoidong>

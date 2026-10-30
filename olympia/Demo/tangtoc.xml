@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  BỘ ĐỀ DEMO - Tăng tốc. Mọi câu hỏi / đáp án dưới đây là YẾU TỐ MẪU, không phải đề thật,
-  và không kèm ảnh / video. Định dạng giống Questions/tangtoc.xml (xem chú thích ở file đó).
+  Tăng tốc - 4 câu, theo thứ tự.
+  seconds   thời gian trả lời; bỏ trống thì lấy Timings.TANG_TOC (20, 20, 30, 30).
+  <text>    câu hỏi, hiện ở khung trên.
+  <media type="image|video">đường dẫn</media>   ảnh PNG/JPG hoặc video MP4, hiện vừa khung nội dung.
+  <answer>  đáp án cho host (màn quản lý).
+  <answerMedia type="image">đường dẫn</answerMedia>   (tuỳ chọn) ảnh đáp án - hiện trong khung khi host
+            nhấn B lúc cây đáp án đang hiện; không có thì hiện lại ảnh/video câu hỏi.
 -->
 <tangtoc>
   <question seconds="20">
-    <text>Câu hỏi tăng tốc 1 (mẫu)</text>
-    <answer>TĂNGTỐC1</answer>
+    <text>Ô đối diện ô trong hình là ô bao nhiêu điểm?</text>
+    <media type="image">Demo/tt1.webp</media>
+    <answer>700</answer>
   </question>
   <question seconds="20">
-    <text>Câu hỏi tăng tốc 2 (mẫu)</text>
-    <answer>TĂNGTỐC2</answer>
+    <text>Cho các biểu thức trong hình. Tính I+J.</text>
+    <media type="image">Demo/tt2.png</media>
+    <answer>IZSCHOOL</answer>
   </question>
   <question seconds="30">
-    <text>Câu hỏi tăng tốc 3 (mẫu)</text>
-    <answer>TĂNGTỐC3</answer>
+    <text>Hình ảnh minh hoạ sau đây tượng trưng cho trò chơi nào?</text>
+    <media type="image">Demo/tt3.webp</media>
+    <answer>Geometry Dash</answer>
   </question>
   <question seconds="30">
-    <text>Câu hỏi tăng tốc 4 (mẫu)</text>
-    <answer>TĂNGTỐC4</answer>
+    <text>Xem video sau.</text>
+    <media type="video">Demo/tt4.mp4</media>
+    <answer>Dancing Line</answer>
   </question>
 </tangtoc>
