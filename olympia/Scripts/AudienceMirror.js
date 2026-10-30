@@ -298,8 +298,8 @@
 		var e = timerElapsed();
 		/* Khởi động 3 s: the number from the clock's start, not the stage's text (it changes
 		 * every second there without a new state, so it reached the screens late or never) */
-		if ((t.label === 'kd_think' || t.label === 'kd_turn') && scene.questionBar && scene.questionBar.clock && (t.running || t.paused) && e !== null) {
-			var n = String(Math.max(t.label === 'kd_turn' ? 0 : 1, Math.ceil(t.duration - e - 0.0001)));   /* kd_turn: Luật rừng's 60 s */
+		if (t.label === 'kd_think' && scene.questionBar && scene.questionBar.clock && (t.running || t.paused) && e !== null) {
+			var n = String(Math.max(1, Math.ceil(t.duration - e - 0.0001)));
 			var clockEl = $('.questionBarDiv .questionClockP');
 			if (clockEl.textContent !== n) { clockEl.textContent = n; }
 		}

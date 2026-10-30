@@ -521,7 +521,7 @@
 	function renderRules() {
 		document.querySelectorAll('#qeRules input').forEach(function (i) { i.checked = i.value === rules; });
 		var note = '';
-		if (room && room.rules) { note = 'Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' ? 'luật rừng (EXPERIMENTAL)' : 'luật ' + (RULE_NAMES[room.rules] || RULE_NAMES.o24)) + '.'; }
+		if (room && room.rules) { note = 'Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' ? 'luật rừng (BETA)' : 'luật ' + (RULE_NAMES[room.rules] || RULE_NAMES.o24)) + '.'; }
 		if (rules !== 'o24' && model) {
 			var k = kdMissing(model, rules);
 			if (k.miss) { note += (note ? ' ' : '') + 'Khởi động còn thiếu ' + k.miss + ' / ' + k.of + ' câu' + (rules === 'jungle' ? ' (không tính câu bổ sung)' : '') + '.'; }

@@ -193,7 +193,7 @@ function handleRoundKey(key, round) {
 	else if (key == ' ') // key 'space' for the Khởi động 3 s think clock
 	{
 		if (round == 'kd') {
-			if (kd == 4 && !khoiDongJungleOwn()) { startThinkClock(window.GameVariables.Timings.KD_THINK); }   /* Luật rừng: the slot holds the 60 s */
+			if (kd == 4 && !khoiDongJungleOwn()) { startThinkClock(window.GameVariables.Timings.KD_THINK); }   /* Luật rừng: the 60 s bar is the clock */
 			return true;
 		}
 		else if (round == 'vcnv' || round == 'tt' || round == 'vd' || round == 'tb') { return true; }   /* not used in these rounds */

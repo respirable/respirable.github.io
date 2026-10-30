@@ -35,7 +35,7 @@
  *     Left    (5) the next turn: kd_ready
  *
  *   LUẬT RỪNG (Rules.js, gv.Rules 'jungle') - the individual turn as above, but against a 60 s
- *   clock (shown in the question bar's clock, started with question 1; the bed plays straight):
+ *   clock (the question bar's timer bar, started with question 1; the bed plays straight):
  *   up to 12 questions, and one bonus question (13-16 of the seat's list) for every 3 right in a
  *   row, asked only while time is left. Up +10; Down: the 1st wrong is free, then -5 each. Space
  *   does nothing. Time up: the question on screen is still judged, Right ends the turn.
@@ -82,7 +82,7 @@ function khoiDongShowQuestion(index) {
 	window.GameVariables.KhoiDongLastResult = null;
 	window.GameVariables.KhoiDongBuzzSeat = null;
 	window.GameVariables.IsKhoiDongQuestionResolved = false;
-	if (!khoiDongJungleOwn()) { hideThinkClock(); }   /* Luật rừng: the clock slot holds the 60 s */
+	if (!khoiDongJungleOwn()) { hideThinkClock(); }   /* it stops the running clock - Luật rừng: the turn's 60 s */
 	clearBuzzers();
 	setQuestionText(window.GameVariables.KhoiDongCurrentQuestion);
 	khoiDongO23Label();
@@ -366,26 +366,21 @@ function khoiDongJungleResetOwn() {
 	g.KdOwnClockStarted = false;
 }
 
-/* the turn's 60 s in the question bar's clock (the same slot as the 3-2-1); the screens draw it
- * from the clock (AudienceMirror.js, label kd_turn) */
+/* the turn's 60 s on the question bar's timer bar - the same bar as VCNV / Tăng tốc / Về đích (and
+ * Câu hỏi phụ); the screens move it from the clock like any other (AudienceMirror.js) */
 function khoiDongJungleStartClock() {
 	var g = window.GameVariables, secs = g.RulesJungle.KD_OWN.seconds;
 	var startAt = g.KdOwnResumeAt || 0;   /* a recovery / a resumed save: where the clock was */
 	g.KdOwnResumeAt = 0;
-	var clock = document.querySelector('.questionBarDiv .questionClockP');
-	var shown = null;
 	g.KdOwnClockStarted = true;
 	g.IsKdOwnTimeUp = false;
 	startLongPassiveSound('kd_60s.mp3', true);   /* straight through: no loop under a fixed 60 s */
-	if (clock) { clock.classList.add('visible'); }
+	startQuestionTimer();
 	startClock({
 		mode: 'down', duration: secs, label: 'kd_turn', startAt: startAt,
-		onTick: function (remaining) {
-			var n = Math.max(0, Math.ceil(remaining - 0.0001));
-			if (n !== shown && clock) { shown = n; clock.textContent = String(n); }
-		},
+		onTick: function (remaining) { setQuestionTimer(1 - remaining / secs); },
 		onDone: function () {
-			if (clock) { clock.textContent = '0'; }
+			setQuestionTimer(1);
 			g.IsKdOwnTimeUp = true;
 			console.log('[KD] time up - judge the question on screen, Right ends the turn');
 			g.changed();
@@ -397,8 +392,7 @@ function khoiDongJungleStopClock() {
 	var g = window.GameVariables;
 	if (g.KdOwnClockStarted && isClockRunning()) { stopClock(); }
 	g.KdOwnClockStarted = false;
-	var clock = document.querySelector('.questionBarDiv .questionClockP');
-	if (clock) { clock.classList.remove('visible'); clock.textContent = ''; }
+	hideQuestionTimer();
 }
 
 /* Up / Down in the individual turn: one verdict per question */

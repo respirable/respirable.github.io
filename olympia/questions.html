@@ -7,12 +7,12 @@
 	<title>Olympia Controller — Quản lý câu hỏi</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030b">
-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261030b">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030c">
+	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261030c">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261030b"></script>
-	<script src="Scripts/Auth.js?v=20261030b"></script>
-	<script src="Scripts/QuestionEditor.js?v=20261030b" defer></script>
+	<script src="Scripts/Config.js?v=20261030c"></script>
+	<script src="Scripts/Auth.js?v=20261030c"></script>
+	<script src="Scripts/QuestionEditor.js?v=20261030c" defer></script>
 </head>
 
 <body>
@@ -74,7 +74,7 @@
 				<div class="seg" id="qeRules" role="radiogroup" aria-labelledby="qeRulesName">
 					<label><input type="radio" name="qeRules" value="o24" checked>Olympia 24 + 26</label>
 					<label><input type="radio" name="qeRules" value="o23">Olympia 23</label>
-					<label><input type="radio" name="qeRules" value="jungle">Luật rừng <small>EXPERIMENTAL</small></label>
+					<label><input type="radio" name="qeRules" value="jungle">Luật rừng <small>BETA</small></label>
 				</div>
 				<p class="meta" id="qeRulesNote"></p>
 			</div>
@@ -139,7 +139,7 @@
 				<p>Luật <b>Olympia 23</b>: không có lượt riêng; <code>&lt;common&gt;</code> chứa <b>36 câu</b> cho 3 lượt chung liền
 					nhau: câu 1–8 là lượt 1, câu 9–20 là lượt 2, câu 21–36 là lượt 3. Phòng chơi luật Olympia 24 + 26 chỉ dùng
 					12 câu đầu, nên một file đủ 6 câu mỗi ghế + 36 câu chung dùng được cho cả hai luật.</p>
-				<p><b>Luật rừng (EXPERIMENTAL)</b>: mỗi <code>&lt;individual&gt;</code> có <b>12 câu</b> (thí sinh có 60 giây), cộng
+				<p><b>Luật rừng (BETA)</b>: mỗi <code>&lt;individual&gt;</code> có <b>12 câu</b> (thí sinh có 60 giây), cộng
 					tối đa <b>4 câu bổ sung</b> là câu 13–16 (chỉ hỏi khi thí sinh giành được: cứ 3 câu đúng liên tiếp được 1 câu).
 					<code>&lt;common&gt;</code> dùng <b>24 câu</b>: câu 1–8 là lượt đối kháng 1, câu 9–24 là lượt 2. Luật Olympia 24 + 26
 					chỉ đọc 6 câu riêng đầu và 12 câu chung đầu.</p>

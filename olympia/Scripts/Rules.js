@@ -6,7 +6,7 @@
  *   'o23'  Olympia 23: Khởi động is three common turns of 8, 12 and 16 questions (taken in order
  *          from <common> in khoidong.xml), obstacle 50-40-30-20 (10 after the centre), Tăng tốc
  *          clocks 10/20/30/40 whatever tangtoc.xml says
- *   'jungle' "Luật rừng" (EXPERIMENTAL) - scores may go below 0:
+ *   'jungle' "Luật rừng" (BETA) - scores may go below 0:
  *          Khởi động: 4 individual turns of 60 s (up to 12 questions + a bonus one at the end for
  *          every 3 right in a row, at most 4; 1st wrong free, then -5 each), then two common turns
  *          of 8 and 16 questions (the n-th wrong of a seat in a turn costs 5*(n-1));
@@ -44,7 +44,7 @@
 		KD_TURN_WRONG: -5,                 /* common turns: the n-th wrong of a seat costs (n-1) x this */
 		KD_TURNS: [8, 16]
 	};
-	var NAMES = { o24: 'Olympia 24 + 26', o23: 'Olympia 23', jungle: 'Luật rừng (EXPERIMENTAL)' };
+	var NAMES = { o24: 'Olympia 24 + 26', o23: 'Olympia 23', jungle: 'Luật rừng (BETA)' };
 
 	gv.Rules = 'o24';
 	gv.RulesO23 = O23;

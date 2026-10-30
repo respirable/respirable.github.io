@@ -336,7 +336,7 @@
 		f('code').textContent = room.code;
 		f('name').textContent = room.name || '(chưa đặt tên)';
 		f('created').textContent = 'Tạo lúc ' + fmtTime(room.created_at);
-		f('rules').textContent = room.rules === 'o23' ? 'Luật Olympia 23' : room.rules === 'jungle' ? 'Luật rừng (EXPERIMENTAL)' : (room.rules ? 'Luật Olympia 24 + 26' : '');
+		f('rules').textContent = room.rules === 'o23' ? 'Luật Olympia 23' : room.rules === 'jungle' ? 'Luật rừng (BETA)' : (room.rules ? 'Luật Olympia 24 + 26' : '');
 		expiryNodes.push({ room: room, el: f('expiry'), card: node });
 		/* a room someone shared with this account: open its screens, but not the owner's actions */
 		var mine = !room.owner_id || room.owner_id === account.uid;

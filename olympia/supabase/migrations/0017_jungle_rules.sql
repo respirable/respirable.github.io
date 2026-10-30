@@ -1,5 +1,5 @@
 -- =====================================================================================
--- Olympia Controller - "Luật rừng (EXPERIMENTAL)" as a room's rules (Scripts/Rules.js). Run AFTER
+-- Olympia Controller - "Luật rừng (BETA)" as a room's rules (Scripts/Rules.js). Run AFTER
 -- 0013. Safe to re-run. rooms.rules may now be 'o24', 'o23' or 'jungle'; create_room takes it.
 -- =====================================================================================
 
