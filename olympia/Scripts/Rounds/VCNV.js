@@ -235,6 +235,11 @@ function vcnvGradeRow() {
 	if (!r) { return; }
 	var pts = n == VCNV_CENTER ? window.GameVariables.Points.VCNV_CENTER : window.GameVariables.Points.VCNV_ROW;
 	r.correctSeats.forEach(function (seat) { addScore(seat, pts); });
+	if (window.GameVariables.isJungle()) {   /* Luật rừng: every seat still in that missed the row */
+		window.GameVariables.Players.forEach(function (p) {
+			if (r.correctSeats.indexOf(p.seat) === -1 && !vcnvIsEliminated(p.seat)) { addScore(p.seat, window.GameVariables.RulesJungle.VCNV_ROW_MISS); }
+		});
+	}
 	if (r.correctSeats.length) {
 		r.status = 'correct';
 		setObstacleRowState(n, 'correct');

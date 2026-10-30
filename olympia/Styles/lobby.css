@@ -134,6 +134,8 @@ input:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color
 .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .seg label:has(input:checked) { background: #0d2a52; color: var(--blue-2); box-shadow: inset 0 0 0 1px var(--blue); }
 .seg label:has(input:focus-visible) { outline: 2px solid var(--blue); outline-offset: 1px; }
+.seg small { margin-left: 6px; padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--amber-2); border: 1px solid #5a4a18; }
+@media (max-width: 560px) { .rulesPick { width: 100%; } .rulesPick .seg { height: auto; flex-wrap: wrap; } .rulesPick .seg label { height: 34px; } }
 .big { font: 800 44px/1.1 Nunito, sans-serif; }
 
 /* ---------- player screen ----------

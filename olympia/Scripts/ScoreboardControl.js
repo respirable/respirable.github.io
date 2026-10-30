@@ -71,7 +71,7 @@ function setContestantBarScore(seat, value) {
 function addScore(seat, delta) {
 	var p = window.GameVariables.getPlayer(seat);
 	if (!p) { return; }
-	p.score = Math.max(0, p.score + delta);
+	p.score = window.GameVariables.Points.NEGATIVE ? p.score + delta : Math.max(0, p.score + delta);   /* Luật rừng: below 0 too */
 	setContestantBarScore(seat, p.score);
 	window.GameVariables.changed();
 }
@@ -80,7 +80,8 @@ function addScore(seat, delta) {
 function setScore(seat, value) {
 	var p = window.GameVariables.getPlayer(seat);
 	if (!p) { return; }
-	p.score = Math.max(0, Math.round(Number(value) || 0));
+	p.score = Math.round(Number(value) || 0);
+	if (!window.GameVariables.Points.NEGATIVE) { p.score = Math.max(0, p.score); }
 	setContestantBarScore(seat, p.score);
 	window.GameVariables.changed();
 }

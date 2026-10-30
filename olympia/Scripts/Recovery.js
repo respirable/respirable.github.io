@@ -75,11 +75,13 @@ function restoreTieBreak(a) {
 	tieBreakRefreshBars();
 }
 
-/* kd: { mode: 'individual'|'common', done: [seats], seat, question } */
+/* kd: { mode: 'individual'|'common', done: [seats], seat, question, turn (O23 / Luật rừng common
+ * turns), own: { wrong, streak, bonus, gone } (Luật rừng individual turn) } */
 function restoreKhoiDong(a) {
 	var g = window.GameVariables;
-	if (g.Rules === 'o23') {                       /* Olympia 23: turn a.turn (1-3), from question a.question */
-		var turn = recoveryInt(a.turn, 1, g.RulesO23.KD_TURNS.length, 1);
+	var turns = g.kdCommonTurns();
+	if (turns && (g.Rules === 'o23' || a.mode === 'common')) {   /* O23 / Luật rừng: common turn a.turn, from question a.question */
+		var turn = recoveryInt(a.turn, 1, turns.length, 1);
 		khoiDongResetO23(turn);
 		khoiDongO23Ready(turn);                   /* the turn's questions; plays kd_ready */
 		g.KhoiDongStartIndex = recoveryInt(a.question, 1, g.KhoiDongQuestionCount, 1);
@@ -108,6 +110,15 @@ function restoreKhoiDong(a) {
 	g.KhoiDongMode = 'individual';
 	g.KhoiDongSeat = seat;
 	g.KhoiDongQuestionCount = g.Timings.KD_QUESTIONS_PER_PLAYER;
+	if (g.isJungle()) {                           /* Luật rừng: 12 + the bonus questions won, the clock where it was */
+		khoiDongJungleResetOwn();
+		var own = a.own || {};
+		g.KdOwnWrong = recoveryInt(own.wrong, 0, 99, 0);
+		g.KdOwnStreak = recoveryInt(own.streak, 0, g.RulesJungle.KD_OWN.streak - 1, 0);
+		g.KdOwnBonus = recoveryInt(own.bonus, 0, g.RulesJungle.KD_OWN.bonusMax, 0);
+		g.KhoiDongQuestionCount = g.RulesJungle.KD_OWN.questions + g.KdOwnBonus;
+		g.KdOwnResumeAt = Math.max(0, Math.min(g.RulesJungle.KD_OWN.seconds - 1, Number(own.gone) || 0));
+	}
 	g.KhoiDongStartIndex = recoveryInt(a.question, 1, g.KhoiDongQuestionCount, 1);
 	khoiDongResetQuestionState();
 	setContestantOnStage(seat);

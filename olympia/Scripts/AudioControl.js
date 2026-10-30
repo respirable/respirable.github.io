@@ -186,11 +186,13 @@ function stopBedWatch() {
 	}
 }
 
-/* Plays a bed with the loop points from BedLoops (a file without an entry plays straight through). */
-function startLongPassiveSound(filename) {
+/* Plays a bed with the loop points from BedLoops (a file without an entry plays straight through).
+ * straight: ignore the loop points (Luật rừng's 60 s individual turn - KhoiDong.js). */
+function startLongPassiveSound(filename, straight) {
 	stopLongPassiveSound();
-	var def = window.GameVariables.BedLoops[filename];
-	if (!def) { console.warn('[Audio] no loop points for', filename, '- playing straight through'); }
+	var def = straight ? null : window.GameVariables.BedLoops[filename];
+	if (!def && !straight) { console.warn('[Audio] no loop points for', filename, '- playing straight through'); }
+	window.GameVariables.IsBedStraight = !!straight;
 	window.GameVariables.BedFile = filename;
 	window.GameVariables.BedLoopStart = def ? def.loopStart : 0;
 	window.GameVariables.BedLoopEnd = def ? def.loopEnd : 0;
@@ -290,7 +292,7 @@ function fadeOutLongPassiveSound(ms) {
 			if (x.a.paused || x.a.ended) { return; }
 			var file = fileOf(x.a);
 			if (!file) { return; }
-			if (x.ch === 'RoundBedSound') { gv.Sync.sendPublic({ type: 'sound', op: 'startLongPassiveSound', args: [file], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
+			if (x.ch === 'RoundBedSound') { gv.Sync.sendPublic({ type: 'sound', op: 'startLongPassiveSound', args: gv.IsBedStraight ? [file, true] : [file], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
 			else { gv.Sync.sendPublic({ type: 'sound', op: 'startSound', args: [x.ch, file, false], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
 		});
 	}

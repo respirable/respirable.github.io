@@ -60,6 +60,18 @@ function handleRoundKey(key, round) {
 				else if (kd == 5) { khoiDongO23Ready((window.GameVariables.KhoiDongTurn || 0) + 1); }
 				else if (kd == 6) { switchRound('vcnv'); }
 			}
+			else if (window.GameVariables.isJungle()) {                     /* Luật rừng: 4 individual turns, then two common ones */
+				if (common) {
+					if (kd == 0) { khoiDongO23Ready(1); }                      /* after a reset to turn 1 */
+					else if (kd == 2) { khoiDongCommonOpenQuestionBar(); }
+					else if (kd == 5) { khoiDongO23Ready((window.GameVariables.KhoiDongTurn || 0) + 1); }
+					else if (kd == 6) { switchRound('vcnv'); }
+				}
+				else if (kd == 0) { khoiDongShowTitle(); }
+				else if (kd == 1 || kd == 5) { khoiDongCallNextContestant(); }
+				else if (kd == 2) { khoiDongOpenQuestionBar(); }
+				else if (kd == 6) { khoiDongO23Ready(1); }
+			}
 			else if (common) {
 				if (kd == 0) { khoiDongCommonReady(); }
 				else if (kd == 2) { khoiDongCommonOpenQuestionBar(); }
@@ -109,7 +121,7 @@ function handleRoundKey(key, round) {
 				var first = window.GameVariables.KhoiDongStartIndex || 1;
 				window.GameVariables.KhoiDongStartIndex = null;
 				khoiDongShowQuestion(first);
-				if (first > 1) { startLongPassiveSound('kd_60s.mp3'); }   /* khoiDongShowQuestion starts the bed on question 1 only */
+				if (first > 1 && !khoiDongJungleOwn()) { startLongPassiveSound('kd_60s.mp3'); }   /* khoiDongShowQuestion starts the bed on question 1 only (Luật rừng: with its clock) */
 			}
 			else if (kd == 4) { khoiDongNextQuestion(); }
 			return true;
@@ -181,7 +193,7 @@ function handleRoundKey(key, round) {
 	else if (key == ' ') // key 'space' for the Khởi động 3 s think clock
 	{
 		if (round == 'kd') {
-			if (kd == 4) { startThinkClock(window.GameVariables.Timings.KD_THINK); }
+			if (kd == 4 && !khoiDongJungleOwn()) { startThinkClock(window.GameVariables.Timings.KD_THINK); }   /* Luật rừng: the slot holds the 60 s */
 			return true;
 		}
 		else if (round == 'vcnv' || round == 'tt' || round == 'vd' || round == 'tb') { return true; }   /* not used in these rounds */

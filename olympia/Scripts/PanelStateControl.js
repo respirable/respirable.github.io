@@ -247,7 +247,9 @@ function buildRoundStateForPanel() {
 			currentAnswer: g.KhoiDongCurrentAnswer,
 			lastResult: g.KhoiDongLastResult,
 			buzzSeat: g.KhoiDongBuzzSeat,
-			resolved: g.IsKhoiDongQuestionResolved
+			resolved: g.IsKhoiDongQuestionResolved,
+			own: { wrong: g.KdOwnWrong || 0, streak: g.KdOwnStreak || 0, bonus: g.KdOwnBonus || 0, timeUp: !!g.IsKdOwnTimeUp },   /* Luật rừng */
+			turnWrong: g.KdTurnWrong || {}
 		},
 		vcnv: {
 			phase: g.VcnvPhaseNames[g.VcnvSequenceCounter],

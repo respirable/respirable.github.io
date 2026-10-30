@@ -7,15 +7,15 @@
 	<title>Olympia Controller — Sảnh</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030a">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030b">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261030a"></script>
-	<script src="Scripts/Auth.js?v=20261030a"></script>
+	<script src="Scripts/Config.js?v=20261030b"></script>
+	<script src="Scripts/Auth.js?v=20261030b"></script>
 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
-	<script src="Scripts/QrCode.js?v=20261030a"></script>
-	<script src="Scripts/Lobby.js?v=20261030a" defer></script>
-	<script src="Scripts/LobbyPublic.js?v=20261030a" defer></script>
-	<script src="Scripts/News.js?v=20261030a" defer></script>
+	<script src="Scripts/QrCode.js?v=20261030b"></script>
+	<script src="Scripts/Lobby.js?v=20261030b" defer></script>
+	<script src="Scripts/LobbyPublic.js?v=20261030b" defer></script>
+	<script src="Scripts/News.js?v=20261030b" defer></script>
 </head>
 
 <body>
@@ -81,6 +81,7 @@
 						<div class="seg" id="roomRules">
 							<label><input type="radio" name="roomRules" value="o24" checked>Olympia 24 + 26</label>
 							<label><input type="radio" name="roomRules" value="o23">Olympia 23</label>
+							<label title="Luật thử nghiệm: điểm có thể âm"><input type="radio" name="roomRules" value="jungle">Luật rừng <small>EXPERIMENTAL</small></label>
 						</div>
 					</fieldset>
 					<button type="submit" class="btn primary" id="createBtn">Tạo phòng</button>

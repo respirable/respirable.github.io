@@ -174,6 +174,11 @@ function tangTocMarkCorrect(seat) {
 
 function tangTocGradeQuestion() {
 	var pts = window.GameVariables.ttRankPoints(window.GameVariables.TangTocTimes, window.GameVariables.TangTocCorrectSeats);
+	if (window.GameVariables.isJungle()) {   /* Luật rừng: a wrong / no answer costs TANG_TOC_MISS */
+		window.GameVariables.Players.forEach(function (p) {
+			if (window.GameVariables.TangTocCorrectSeats.indexOf(p.seat) === -1) { pts[p.seat] = window.GameVariables.RulesJungle.TANG_TOC_MISS; }
+		});
+	}
 	window.GameVariables.TangTocAwarded = pts;
 	Object.keys(pts).forEach(function (seat) { addScore(parseInt(seat, 10), pts[seat]); });
 	gradeAnswerTree(window.GameVariables.TangTocCorrectSeats);

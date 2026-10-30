@@ -73,6 +73,24 @@
 			done: 'Xong lượt — ← cho thí sinh tiếp theo',
 			finished: 'Hết lượt riêng của cả 4 thí sinh — ← mở lượt chung'
 		},
+		/* Luật rừng (Rules.js): 4 individual turns of 60 s, then two common turns of 8 / 16 */
+		jungleOwn: {
+			idle: 'Chờ — ← hiện thẻ KHỞI ĐỘNG',
+			title: 'Đang hiện thẻ KHỞI ĐỘNG — ← chọn thí sinh',
+			ready: 'Thí sinh đã chọn — ← hiện đồ hoạ',
+			set: 'Đồ hoạ đã hiện — → hiện câu 1 (bật 60 giây)',
+			question: 'Đang thi 60 giây — ↑ đúng · ↓ sai · → câu kế',
+			done: 'Xong lượt — ← cho thí sinh tiếp theo',
+			finished: 'Hết lượt riêng của cả 4 thí sinh — ← vào lượt đối kháng 1'
+		},
+		jungleCommon: {
+			idle: 'Lượt đối kháng — ← vào lượt 1 (âm chuẩn bị)',
+			ready: 'Lượt đã sẵn sàng — ← hiện đồ hoạ',
+			set: 'Đồ hoạ đã hiện — → hiện câu 1',
+			question: 'Đang thi — → câu kế · 1-4 chuông · Space đồng hồ · ↑ đúng · ↓ sai',
+			done: 'Xong lượt — ← vào lượt đối kháng 2 (âm chuẩn bị)',
+			finished: 'Hết phần Khởi động — ← sang Vượt chướng ngại vật'
+		},
 		common: {
 			idle: 'Lượt chung — ← (âm chuẩn bị)',
 			ready: 'Đã báo chuẩn bị — ← hiện đồ hoạ',
@@ -142,8 +160,21 @@
 
 	/* ---------------- which action bars are live in which phase ---------------- */
 
+	/* which text set describes the Khởi động step: o23 / jungleOwn / jungleCommon / individual / common */
+	function kdKindOf(kd) {
+		if (snap.rules === 'o23') { return 'o23'; }
+		if (snap.rules === 'jungle') { return kd.mode === 'common' ? 'jungleCommon' : 'jungleOwn'; }
+		return kd.mode || 'individual';
+	}
+
 	function kdKeys(kd) {
 		var common = kd.mode === 'common', ph = kd.phase, k = [];
+		if (snap.rules === 'jungle' && !common) {   /* Luật rừng individual: no Space, one verdict per question */
+			if (ph === 'idle' || ph === 'title' || ph === 'ready' || ph === 'done' || ph === 'finished') { k.push('ArrowLeft'); }
+			if (ph === 'set' || ph === 'question') { k.push('ArrowRight'); }
+			if (ph === 'question' && !kd.resolved) { k.push('ArrowUp', 'ArrowDown'); }
+			return k;
+		}
 		if (ph === 'idle' || ph === 'title' || ph === 'ready' || ph === 'done' || ph === 'finished') { k.push('ArrowLeft'); }
 		if (ph === 'set' || ph === 'question') { k.push('ArrowRight'); }
 		if (ph === 'question') {
@@ -222,7 +253,7 @@
 	}
 
 	var barLabels = {
-		kdLeft: { o23: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Vào lượt 1 (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Vào lượt tiếp theo', finished: 'Sang Vượt chướng ngại vật' }, individual: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Mở lượt chung' }, common: { idle: 'Âm chuẩn bị', ready: 'Hiện đồ hoạ', finished: 'Sang Vượt chướng ngại vật' } },
+		kdLeft: { jungleOwn: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Vào lượt đối kháng 1' }, jungleCommon: { idle: 'Vào lượt 1 (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Vào lượt 2', finished: 'Sang Vượt chướng ngại vật' }, o23: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Vào lượt 1 (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Vào lượt tiếp theo', finished: 'Sang Vượt chướng ngại vật' }, individual: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Mở lượt chung' }, common: { idle: 'Âm chuẩn bị', ready: 'Hiện đồ hoạ', finished: 'Sang Vượt chướng ngại vật' } },
 		vcnvRight: { board: 'Cửa sổ 15 s cuối', rowSelected: 'Hiện câu hỏi', rowQuestion: 'Bật 15 s', rowTimer: 'Cây đáp án', rowAnswers: 'Chấm hàng', rowGraded: 'Cất cây, về bảng', rowBack: 'Mở góc ảnh', finalWindow: 'Mở hết' },
 		ttRight: { question: 'Bật đồng hồ', timer: 'Cây đáp án', answers: 'Cộng điểm', graded: 'Cất cây', blank: 'Câu kế' },
 		vdLeft: { idle: 'Hiện thẻ VỀ ĐÍCH', title: 'Gọi lên sân khấu', stageCall: 'Màn chọn gói', choose: 'Khung câu hỏi', blank: 'Gọi thí sinh kế', finished: 'Ẩn đồ hoạ' },
@@ -271,16 +302,22 @@
 
 		if (round === 'kd' && kd) {
 			var common = kd.mode === 'common';
-			var kdKind = snap.rules === 'o23' ? 'o23' : (kd.mode || 'individual');
-			var turnText = snap.rules === 'o23' && kd.turn ? 'Lượt ' + kd.turn + '/3' : '';
+			var kdKind = kdKindOf(kd), jungle = snap.rules === 'jungle', own = kd.own || {};
+			var turns = snap.rules === 'o23' ? 3 : (jungle ? 2 : 0);
+			var turnText = turns && common && kd.turn ? 'Lượt ' + kd.turn + '/' + turns : '';
 			var live = kdKeys(kd);
+			var nextWrong = common && kd.buzzSeat ? ((kd.turnWrong || {})[kd.buzzSeat] || 0) : 0;
+			var ptsText = !jungle ? (common ? ' · đúng +10 / sai −5' : ' · đúng +10')
+				: (common ? ' · đúng +10 / sai lần n: −5·(n−1)' + (kd.buzzSeat && !kd.resolved ? ' (lần này ' + (nextWrong ? '−' + 5 * nextWrong : '0') + ')' : '')
+					: ' · đúng +10 / sai ' + (own.wrong ? '−5' : 'lần đầu 0') + (own.timeUp ? ' · HẾT GIỜ — → kết thúc lượt' : ''));
 			setDeck({
 				who: common ? (kd.buzzSeat ? ('Chuông: ' + nameOf(kd.buzzSeat) + (kd.resolved ? ' · đã chấm' : '')) : 'Lượt chung — chờ chuông') : (kd.seat ? nameOf(kd.seat) : 'Chưa chọn thí sinh'),
-				pts: (kd.questionIndex ? ('Câu ' + kd.questionIndex + ' / ' + kd.questionCount) : 'Chưa vào câu') + (common ? ' · đúng +10 / sai −5' : ' · đúng +10'),
+				pts: (kd.questionIndex ? ('Câu ' + kd.questionIndex + ' / ' + kd.questionCount + (jungle && !common && kd.questionIndex > 12 ? ' (bổ sung)' : '')) : 'Chưa vào câu') + ptsText,
 				status: (kdPhaseText[kdKind] || {})[kd.phase] || kd.phase,
 				statusKind: kd.phase === 'question' ? 'hot' : statusKind(kd.phase),
 				question: kd.currentQuestion, answer: kd.currentAnswer,
-				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult] || '—'], ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]
+				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', (jungle && kd.lastResult === 'wrong' ? 'SAI' : kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult]) || '—'],
+					jungle && !common ? ['Chuỗi đúng · câu bổ sung · lần sai', own.streak + '/3 · ' + own.bonus + '/4 · ' + own.wrong] : ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]
 			});
 			els.kdLeftLabel.textContent = (barLabels.kdLeft[kdKind] || {})[kd.phase] || 'Bắt đầu · Chọn thí sinh · Hiện đồ hoạ';
 			$$('.bars[data-round="kd"] .seatName').forEach(function (s) { s.textContent = 'Chuông ' + nameOf(parseInt(s.getAttribute('data-seat'), 10)); });
@@ -292,7 +329,7 @@
 			var prize = v.centerOpened ? gv.Points.VCNV_AFTER_CENTER : gv.Points.VCNV_OBSTACLE[n];
 			setDeck({
 				who: v.queue && v.queue.length ? ('Xin trả lời CNV: ' + names(v.queue)) : (v.currentRow ? (v.currentRow === 5 ? 'Câu ô trung tâm' : 'Hàng ' + v.currentRow) : 'Bảng chướng ngại vật'),
-				pts: (v.openedCount || 0) + ' hàng đã mở · CNV = ' + prize + ' điểm' + (v.solved ? ' · ĐÃ GIẢI' : ''),
+				pts: (v.openedCount || 0) + ' hàng đã mở · CNV = ' + prize + ' điểm' + (snap.rules === 'jungle' ? ' · không đúng hàng −5' : '') + (v.solved ? ' · ĐÃ GIẢI' : ''),
 				status: vcnvPhaseText[v.phase] || v.phase, statusKind: statusKind(v.phase),
 				question: v.currentQuestion, answer: v.currentAnswer || (v.keyword ? ('CNV: ' + v.keyword) : ''),
 				stats: [['Chướng ngại vật', v.keyword || '—'], ['Các hàng', (v.rows || []).slice(0, 4).map(function (r) { return vcnvRowText[r.status] || r.status; }).join(' · ') || '—'], ['Ô trung tâm', v.centerOpened ? 'đã mở' : ((v.rows || [])[4] ? vcnvRowText[v.rows[4].status] : '—')], ['Bị loại', names(v.eliminated) || 'không']]
@@ -321,7 +358,7 @@
 			var live3 = ttKeys(t);
 			setDeck({
 				who: t.index ? ('Câu ' + t.index + ' / ' + t.count + ' · ' + t.seconds + ' s') : 'Chưa vào câu',
-				pts: '40 · 30 · 20 · 10 theo thời gian' + (t.correctSeats && t.correctSeats.length ? ' · đúng: ' + t.correctSeats.join(', ') : ''),
+				pts: gv.Points.TANG_TOC_RANK.join(' · ') + ' theo thời gian' + (snap.rules === 'jungle' ? ' · sai / không trả lời ' + gv.RulesJungle.TANG_TOC_MISS : '') + (t.correctSeats && t.correctSeats.length ? ' · đúng: ' + t.correctSeats.join(', ') : ''),
 				status: (ttPhaseText[t.phase] || t.phase) + (t.reviewing ? ' — ĐANG XEM LẠI KHUNG (B về cây)' : ''), statusKind: statusKind(t.phase),
 				question: t.question, answer: t.answer,
 				stats: [['Số câu', (t.index || 0) + ' / ' + t.count], ['Thời gian', t.seconds ? t.seconds + ' s' : '—'], ['Media', t.mediaType || '—'], ['Đã đánh dấu đúng', names(t.correctSeats) || '—']]
@@ -347,7 +384,7 @@
 			var vals = d.values || [];
 			setDeck({
 				who: d.seat ? (nameOf(d.seat, true) + ' · lượt ' + d.turn + ' / 4') : 'Chưa gọi thí sinh',
-				pts: d.qIndex ? ('Câu ' + d.qIndex + ' / 3 · ' + d.value + ' điểm · ' + d.seconds + ' s' + (d.star === d.qIndex ? ' · ★' : '')) : (vals.length ? 'Gói: ' + vals.join(' – ') : 'Chưa chọn gói'),
+				pts: d.qIndex ? ('Câu ' + d.qIndex + ' / 3 · ' + d.value + ' điểm · ' + d.seconds + ' s' + (d.star === d.qIndex ? ' · ★' : '') + (snap.rules === 'jungle' ? ' · sai −' + d.value * (d.star === d.qIndex ? 2 : 1) + ', bị cướp thêm −' + d.value : '')) : (vals.length ? 'Gói: ' + vals.join(' – ') : 'Chưa chọn gói'),
 				status: vdPhaseText[d.phase] || d.phase, statusKind: statusKind(d.phase),
 				question: d.question, answer: d.answer,
 				stats: [['Số câu trong lượt', (d.qIndex || 0) + ' / 3'], ['Gói câu hỏi', vals.length ? vals.join(' – ') : '—'], ['Ngôi sao hy vọng', d.star ? ('★ câu ' + d.star) : (d.starUsed ? 'đã dùng' : 'chưa đặt')], ['Giành quyền', d.stealSeat ? (nameOf(d.stealSeat) + (d.stealResult ? (d.stealResult === 'correct' ? ' — đúng' : ' — sai') : '')) : (d.phase === 'steal' ? 'đang chờ 5 s' : '—')]]
@@ -603,9 +640,11 @@
 		if (!kd) { els.kdPhase.textContent = '—'; return; }
 		var mode = kd.mode || 'individual';
 		var common = mode === 'common';
-		var o23 = snap.rules === 'o23';
-		els.kdMode.textContent = o23 ? ('luật O23 · ' + (kd.turn ? 'lượt ' + kd.turn + '/3 · ' + kd.questionCount + ' câu' : '3 lượt 8 · 12 · 16 câu')) : (common ? 'lượt chung · 12 câu' : 'lượt riêng · 6 câu / thí sinh');
-		els.kdPhase.textContent = (kdPhaseText[o23 ? 'o23' : mode] || {})[kd.phase] || kd.phase;
+		var o23 = snap.rules === 'o23', jungleRules = snap.rules === 'jungle';
+		els.kdMode.textContent = o23 ? ('luật O23 · ' + (kd.turn ? 'lượt ' + kd.turn + '/3 · ' + kd.questionCount + ' câu' : '3 lượt 8 · 12 · 16 câu'))
+			: jungleRules ? ('luật rừng · ' + (common ? (kd.turn ? 'đối kháng ' + kd.turn + '/2 · ' + kd.questionCount + ' câu' : 'đối kháng 8 · 16 câu') : 'lượt riêng 60 giây · 12 câu + bổ sung'))
+			: (common ? 'lượt chung · 12 câu' : 'lượt riêng · 6 câu / thí sinh');
+		els.kdPhase.textContent = (kdPhaseText[kdKindOf(kd)] || {})[kd.phase] || kd.phase;
 		els.kdSeat.textContent = common ? '—' : nameOf(kd.seat);
 		els.kdBuzz.textContent = common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) + (kd.resolved ? ' (đã chấm)' : '') : 'chưa ai bấm') : '—';
 		els.kdBuzz.className = (common && kd.buzzSeat && !kd.resolved) ? 'buzzed' : '';
@@ -617,7 +656,7 @@
 		els.kdResult.className = kd.lastResult || '';
 		els.kdClearBuzz.disabled = !common;
 		els.kdResetCommon.disabled = !(common || kd.phase === 'finished');
-		els.kdResetCommon.textContent = o23 ? 'Chạy lại lượt này từ câu 1' : 'Chạy lại lượt chung từ câu 1';
+		els.kdResetCommon.textContent = o23 || jungleRules ? 'Chạy lại lượt này từ câu 1' : 'Chạy lại lượt chung từ câu 1';
 	}
 
 	/* ---------------- clock / bed / connection (200 ms) ---------------- */
