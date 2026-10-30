@@ -69,7 +69,9 @@ function tangTocShowTitle() {
 }
 
 function tangTocShowQuestion(index) {
-	var q = tangTocQuestions()[index - 1] || { text: '(thiếu câu ' + index + ')', media: { type: 'image', src: '' }, answer: '', seconds: window.GameVariables.Timings.TANG_TOC[index - 1] || 20 };
+	var q = tangTocQuestions()[index - 1] || { text: '', media: { type: 'image', src: '' }, answer: '', seconds: window.GameVariables.Timings.TANG_TOC[index - 1] || 20 };
+	/* nothing to show (no text, no picture / video): never written, or its file is broken */
+	if (!q.text && !(q.media && q.media.src)) { q = Object.assign({}, q, { text: window.GameVariables.MissingQuestionText }); }
 	window.GameVariables.TangTocIndex = index;
 	window.GameVariables.TangTocSeconds = q.seconds;
 	window.GameVariables.TangTocQuestion = q.text;
@@ -172,6 +174,11 @@ function tangTocMarkCorrect(seat) {
 
 function tangTocGradeQuestion() {
 	var pts = window.GameVariables.ttRankPoints(window.GameVariables.TangTocTimes, window.GameVariables.TangTocCorrectSeats);
+	if (window.GameVariables.isJungle()) {   /* Luật rừng: a wrong / no answer costs TANG_TOC_MISS */
+		window.GameVariables.Players.forEach(function (p) {
+			if (window.GameVariables.TangTocCorrectSeats.indexOf(p.seat) === -1) { pts[p.seat] = window.GameVariables.RulesJungle.TANG_TOC_MISS; }
+		});
+	}
 	window.GameVariables.TangTocAwarded = pts;
 	Object.keys(pts).forEach(function (seat) { addScore(parseInt(seat, 10), pts[seat]); });
 	gradeAnswerTree(window.GameVariables.TangTocCorrectSeats);

@@ -47,6 +47,11 @@
 		TIEBREAK_MAX_QUESTIONS: 3               /* Câu hỏi phụ: questions in a set (more in the file are ignored) */
 	};
 
+	/* What a question shows when it was never written, or its set / file is broken (Init.js,
+	 * QuestionSet.js; every round: a missing or empty question). */
+	gameVariables.MissingQuestionText = 'Bạn / BTC chưa thiết lập bộ câu hỏi/câu hỏi này, hoặc bộ câu hỏi/câu hỏi này đang bị lỗi. Nếu là BTC, hãy vào phần Quản lý câu hỏi để kiểm tra lại ngay.';
+	gameVariables.QuestionsUnset = false;   /* a room with no set chosen / a broken one: no file is read (QuestionSet.js) */
+
 	/* Data files (XML, edited by hand - see the comment at the top of each file) */
 	gameVariables.DataFiles = {
 		players: 'Questions/players.xml',
@@ -240,6 +245,12 @@
 	gameVariables.KhoiDongTurn = 0;                  /* Olympia 23 (Rules.js): turn 1-3 of the common turns */
 	gameVariables.KhoiDongQuestionOffset = 0;        /* Olympia 23: <common> questions used by the earlier turns */
 	gameVariables.KhoiDongBuzzSeat = null;           /* common turn: seat that locked the buzzer */
+	gameVariables.KdOwnWrong = 0;                    /* Luật rừng individual turn: wrongs so far (1st free, then -5) */
+	gameVariables.KdOwnStreak = 0;                   /* Luật rừng: rights in a row (3 = one bonus question) */
+	gameVariables.KdOwnBonus = 0;                    /* Luật rừng: bonus questions won (at most 4) */
+	gameVariables.IsKdOwnTimeUp = false;             /* Luật rừng: the 60 s ran out */
+	gameVariables.KdOwnClockStarted = false;         /* Luật rừng: the 60 s clock is this turn's */
+	gameVariables.KdTurnWrong = {};                  /* Luật rừng common turns: seat -> wrongs in this turn */
 
 	gameVariables.VcnvCurrentRow = null;             /* 1..4 while a row is open, 5 = centre */
 	gameVariables.VcnvOpenedCount = 0;               /* rows put to the contestants so far - sets the CNV prize */

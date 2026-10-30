@@ -80,9 +80,8 @@
 		options($('#rcKdQ'), range(t.KD_QUESTIONS_PER_PLAYER || 6));
 		options($('#rcKdCommonQ'), range(t.KD_COMMON_QUESTIONS || 12));
 		/* Olympia 23 (Rules.js): which of the three common turns - shown only under those rules */
-		var turnLabel = el('label', 'rcO23Turn hidden', 'Lượt: ');
+		var turnLabel = el('label', 'rcO23Turn hidden', 'Lượt: ');   /* also Luật rừng's two common turns */
 		var turnSel = el('select'); turnSel.id = 'rcKdTurn';
-		options(turnSel, gv.RulesO23.KD_TURNS.map(function (n, i) { return [i + 1, 'Lượt ' + (i + 1) + ' (' + n + ' câu)']; }));
 		turnLabel.appendChild(turnSel);
 		var commonRow = $('#rcKdCommonQ').closest('.rcRow');
 		commonRow.insertBefore(turnLabel, commonRow.firstChild);
@@ -113,17 +112,23 @@
 	function showPanes() {
 		var r = picked('rcRound');
 		$$('.recovery .rcPane').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-r') === r); });
-		/* Olympia 23: no individual turn - the common sub-pane with the turn picker */
-		var o23 = gv.Rules === 'o23';
+		/* Olympia 23: no individual turn - the common sub-pane with the turn picker; Luật rừng: both,
+		 * the common one with its two turns */
+		var o23 = gv.Rules === 'o23', turns = gv.kdCommonTurns();
 		var kdModes = $('.recovery .rcPane[data-r="kd"] > .rcChoice');
 		if (kdModes) { kdModes.classList.toggle('hidden', o23); }
-		$('.rcO23Turn').classList.toggle('hidden', !o23);
+		$('.rcO23Turn').classList.toggle('hidden', !turns);
 		if (o23) {
 			var common = document.querySelector('input[name="rcKdMode"][value="common"]');
 			if (common && !common.checked) { common.checked = true; }
-			var n = gv.RulesO23.KD_TURNS[Number(val('#rcKdTurn')) - 1] || 8, q = $('#rcKdCommonQ'), keep = q.value;
-			if (q.options.length !== n) { options(q, range(n)); if (Number(keep) <= n) { q.value = keep; } }
 		}
+		var turnSel = $('#rcKdTurn');
+		if (turns && turnSel.options.length !== turns.length) { var keepT = turnSel.value; options(turnSel, turns.map(function (n, i) { return [i + 1, 'Lượt ' + (i + 1) + ' (' + n + ' câu)']; })); if (Number(keepT) <= turns.length) { turnSel.value = keepT; } }
+		var n = turns ? (turns[Number(val('#rcKdTurn')) - 1] || turns[0]) : ((gv.Timings || {}).KD_COMMON_QUESTIONS || 12), q = $('#rcKdCommonQ'), keep = q.value;
+		if (q.options.length !== n) { options(q, range(n)); if (Number(keep) <= n) { q.value = keep; } }
+		/* Luật rừng: up to 12 + 4 bonus questions in the individual turn */
+		var ownN = gv.isJungle() ? gv.RulesJungle.KD_OWN.questions + gv.RulesJungle.KD_OWN.bonusMax : ((gv.Timings || {}).KD_QUESTIONS_PER_PLAYER || 6), oq = $('#rcKdQ'), keepO = oq.value;
+		if (oq.options.length !== ownN) { options(oq, range(ownN)); if (Number(keepO) <= ownN) { oq.value = keepO; } }
 		var m = picked('rcKdMode');
 		$$('.recovery .rcPane[data-r="kd"] .rcSub').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-m') === m); });
 		$('#rcVdMidBox').classList.toggle('on', checked('rcVdMid'));
@@ -136,13 +141,13 @@
 		var args = { round: picked('rcRound'), scores: {} };
 		for (var i = 0; i < SEATS.length; i++) {
 			var s = SEATS[i], v = Number(val('#rcScore' + s));
-			if (!isFinite(v) || v < 0 || val('#rcScore' + s) === '') { return { error: 'Điểm của ' + nameOf(s) + ' chưa hợp lệ.' }; }
+			if (!isFinite(v) || (v < 0 && !gv.Points.NEGATIVE) || val('#rcScore' + s) === '') {   /* Luật rừng: below 0 too */ return { error: 'Điểm của ' + nameOf(s) + ' chưa hợp lệ.' }; }
 			args.scores[s] = Math.round(v);
 		}
 		if (args.round === 'kd') {
 			var mode = picked('rcKdMode');
 			if (gv.Rules === 'o23') { args.kd = { mode: 'common', turn: Number(val('#rcKdTurn')), question: Number(val('#rcKdCommonQ')) }; }
-			else if (mode === 'common') { args.kd = { mode: 'common', question: Number(val('#rcKdCommonQ')) }; }
+			else if (mode === 'common') { args.kd = { mode: 'common', turn: gv.kdCommonTurns() ? Number(val('#rcKdTurn')) : undefined, question: Number(val('#rcKdCommonQ')) }; }
 			else {
 				var done = SEATS.filter(function (s) { return checked('rcKdDone' + s); });
 				if (done.length === 4) { return { error: 'Cả 4 thí sinh đã thi xong lượt riêng - hãy chọn "Lượt chung".' }; }

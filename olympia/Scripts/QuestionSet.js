@@ -6,7 +6,9 @@
  * per tab, so taking it twice is harmless), asks which set the room uses, and points DataFiles
  * at short-lived signed links of its XML files. Pictures / videos named in the XML are looked up
  * by file name in the set (resolveMedia); anything else (e.g. "O24/VCNV Image.png") stays a
- * path of this site. No set, no room, or any failure: the set on this machine / the sample.
+ * path of this site. The room's owner may instead pick the test set in Demo/ (migrations/0016).
+ * In a room with neither, or when the set cannot be read, nothing is read: every question shows
+ * "Bạn / BTC chưa thiết lập..." (noSet). Without a room: the set on this machine / the sample.
  *
  * File names are stored as "keys" without accents or spaces (setFileKey - the lobby uses the
  * same rule), and looked up the same way, so "Hình 1.png" in the XML finds the uploaded file.
@@ -37,7 +39,26 @@
 		return !r.error && r.data === 'ok';
 	}
 
-	/* true when the room's set is in use (DataFiles now point at it) */
+	/* the room plays nothing (no set chosen, or it is broken): no file is read and every question
+	 * shows MissingQuestionText (Variables.js) - never the sample in Demo/ */
+	function noSet(why) {
+		console.warn('[QuestionSet] ' + why + ' - questions show "' + gv.MissingQuestionText + '"');
+		gv.QuestionsUnset = true;
+		Object.keys(XML_FILES).forEach(function (k) { gv.DataFiles[k] = null; });
+		gv.QuestionSetName = 'Chưa thiết lập bộ câu hỏi';
+		return true;
+	}
+
+	/* the test set that ships with the site ("Dùng bộ đề thử nghiệm", migrations/0016) */
+	function demoSet() {
+		Object.keys(XML_FILES).forEach(function (k) { gv.DataFiles[k] = 'Demo/' + XML_FILES[k]; });
+		gv.QuestionSetName = 'Bộ đề thử nghiệm';
+		console.log('[QuestionSet] using the test set (Demo/)');
+		return true;
+	}
+
+	/* true when the room decided what is played (its set, the test set, or nothing - see noSet);
+	 * false outside a room, or when another engine holds the room (that one has the questions) */
 	gv.useRoomQuestionSet = async function () {
 		var code = (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();
 		var auth = window.OlympiaAuth, db = auth && auth.client;
@@ -49,22 +70,19 @@
 			var rr = await db.rpc('room_rules', { p_code: code });
 			if (!rr.error && rr.data && gv.applyRules) { gv.applyRules(rr.data); console.log('[QuestionSet] rules: ' + rr.data); }
 			var r = await db.rpc('room_question_set', { p_code: code });
-			if (r.error) {
-				if (r.error.code !== 'PGRST202') { console.warn('[QuestionSet] room_question_set failed', r.error.message); }
-				return false;   /* PGRST202: migration 0006 not run yet */
-			}
+			if (r.error) { return noSet('room_question_set failed: ' + r.error.message); }
 			var set = r.data;
-			if (!set || !set.id) { return false; }
+			if (set && set.demo) { return demoSet(); }
+			if (!set || !set.id) { return noSet('the room has no question set'); }
 			var files = (set.files || []).filter(function (f) { return f && f.key; });
 			var paths = files.map(function (f) { return set.owner + '/' + set.id + '/' + f.key; });
-			if (!paths.length) { console.warn('[QuestionSet] set "' + set.name + '" has no files'); return false; }
+			if (!paths.length) { return noSet('set "' + set.name + '" has no files'); }
 			var s = await db.storage.from('sets').createSignedUrls(paths, LINK_SECONDS);
-			if (s.error) { console.warn('[QuestionSet] could not sign the files', s.error.message); return false; }
+			if (s.error) { return noSet('could not sign the files: ' + s.error.message); }
 			var media = {};
 			(s.data || []).forEach(function (row, i) { if (row && row.signedUrl) { media[files[i].key] = row.signedUrl; } });
 			Object.keys(XML_FILES).forEach(function (k) {
-				var link = media[XML_FILES[k]];
-				gv.DataFiles[k] = link || ('Questions/__missing_' + XML_FILES[k]);   /* missing: the loader reports it */
+				gv.DataFiles[k] = media[XML_FILES[k]] || null;   /* missing: that round's questions show MissingQuestionText */
 			});
 			gv.QuestionSetMedia = media;
 			gv.QuestionSetName = set.name || '(bộ đề không tên)';
@@ -72,8 +90,7 @@
 			return true;
 		}
 		catch (e) {
-			console.warn('[QuestionSet] falling back to this machine\'s set', e);
-			return false;
+			return noSet('reading the room\'s set failed: ' + (e && e.message));
 		}
 	};
 })(window.GameVariables);

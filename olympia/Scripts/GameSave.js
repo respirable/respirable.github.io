@@ -33,7 +33,11 @@
 			matchId: gv.Sync.matchId ? gv.Sync.matchId() : (gv.MatchId || null),
 			round: gv.CurrentRound,
 			players: gv.Players.map(function (p) { return { seat: p.seat, fullName: p.fullName, score: p.score, kdDone: !!p.kdDone }; }),
-			kd: { counter: gv.KhoiDongSequenceCounter, mode: gv.KhoiDongMode, seat: gv.KhoiDongSeat, index: gv.KhoiDongQuestionIndex, turn: gv.KhoiDongTurn || 0 },
+			kd: {
+				counter: gv.KhoiDongSequenceCounter, mode: gv.KhoiDongMode, seat: gv.KhoiDongSeat, index: gv.KhoiDongQuestionIndex, turn: gv.KhoiDongTurn || 0,
+				own: { wrong: gv.KdOwnWrong || 0, streak: gv.KdOwnStreak || 0, bonus: gv.KdOwnBonus || 0 },   /* Luật rừng */
+				turnWrong: Object.assign({}, gv.KdTurnWrong || {})
+			},
 			vcnv: {
 				counter: gv.VcnvSequenceCounter,
 				rows: (gv.VcnvRows || []).map(function (r) { return { status: r.status, correctSeats: (r.correctSeats || []).slice(), answers: Object.assign({}, r.answers || {}) }; }),
@@ -194,7 +198,7 @@
 			g.IsVcnvSolved = s.vcnv.solved; g.VcnvSolvedBy = s.vcnv.solvedBy;
 		}
 
-		if (round === 'kd') { restoreKdFromSave(s.kd, s.players); }
+		if (round === 'kd') { restoreKdFromSave(s.kd, s.players, s.clock); }
 		else if (round === 'vcnv') { restoreVcnvFromSave(s.vcnv); }
 		else if (round === 'tt') { restoreTtFromSave(s.tt); }
 		else if (round === 'vd') { restoreVdFromSave(s.vd); }
@@ -206,13 +210,14 @@
 		console.log('[GameSave] resumed from the save: ' + describe(s));
 	}
 
-	function restoreKdFromSave(kd, players) {
-		var g = gv;
-		if (g.Rules === 'o23') {                   /* Olympia 23: the turn it was in (a finished turn: the next one) */
-			var turn = kd.turn || 1, sizes = g.RulesO23.KD_TURNS;
+	function restoreKdFromSave(kd, players, clock) {
+		var g = gv, sizes = g.kdCommonTurns();
+		if (sizes && (g.Rules === 'o23' || kd.mode === 'common')) {   /* O23 / Luật rừng: the common turn it was in (a finished turn: the next one) */
+			var turn = kd.turn || 1;
 			if (kd.counter == 6) { khoiDongResetO23(sizes.length); g.KhoiDongSequenceCounter = 6; return; }   /* all done: Left -> VCNV */
 			if (kd.counter == 5 || kd.counter <= 1) { khoiDongResetO23(kd.counter == 5 ? turn + 1 : 1); return; }
-			restoreKhoiDong({ turn: turn, question: kd.counter == 4 ? kd.index : 1 });
+			restoreKhoiDong({ mode: 'common', turn: turn, question: kd.counter == 4 ? kd.index : 1 });
+			if (kd.turnWrong) { g.KdTurnWrong = Object.assign({}, kd.turnWrong); }   /* Luật rừng: wrongs so far in this turn */
 			return;
 		}
 		if (kd.mode === 'common') {
@@ -222,7 +227,9 @@
 		}
 		var done = players.filter(function (p) { return p.kdDone; }).map(function (p) { return p.seat; });
 		var playing = (kd.counter >= 2 && kd.counter <= 4) ? kd.seat : null;
-		restoreKhoiDong({ mode: 'individual', done: done, seat: playing, question: kd.counter == 4 ? kd.index : 1 });
+		/* Luật rừng: the playing contestant's wrongs / streak / bonus and the clock (a finished turn: the next one starts clean) */
+		var own = playing ? Object.assign({}, kd.own || {}, { gone: clock && clock.label === 'kd_turn' && kd.counter == 4 ? clock.gone : 0 }) : {};
+		restoreKhoiDong({ mode: 'individual', done: done, seat: playing, question: kd.counter == 4 ? kd.index : 1, own: own });
 	}
 
 	function restoreVcnvFromSave(v) {

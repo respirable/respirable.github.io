@@ -7,12 +7,12 @@
 	<title>Olympia Controller — Quản lý câu hỏi</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261029e">
-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261029e">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030c">
+	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261030c">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261029e"></script>
-	<script src="Scripts/Auth.js?v=20261029e"></script>
-	<script src="Scripts/QuestionEditor.js?v=20261029e" defer></script>
+	<script src="Scripts/Config.js?v=20261030c"></script>
+	<script src="Scripts/Auth.js?v=20261030c"></script>
+	<script src="Scripts/QuestionEditor.js?v=20261030c" defer></script>
 </head>
 
 <body>
@@ -39,6 +39,11 @@
 				</label>
 				<button type="button" class="btn" id="newBlank">Bộ đề mới (trống)</button>
 				<button type="button" class="btn" id="showUpload">Tải lên thư mục…</button>
+			</div>
+			<!-- only with a room: play the site's test set (Demo/) instead of a set of one's own -->
+			<div class="demoBar hidden" id="demoBar">
+				<p class="meta" id="roomSetLine"></p>
+				<button type="button" class="btn sm" id="useDemo">Dùng bộ đề thử nghiệm</button>
 			</div>
 			<div class="setInfo" id="setInfo">
 				<p class="meta" id="setMeta">—</p>
@@ -69,6 +74,7 @@
 				<div class="seg" id="qeRules" role="radiogroup" aria-labelledby="qeRulesName">
 					<label><input type="radio" name="qeRules" value="o24" checked>Olympia 24 + 26</label>
 					<label><input type="radio" name="qeRules" value="o23">Olympia 23</label>
+					<label><input type="radio" name="qeRules" value="jungle">Luật rừng <small>BETA</small></label>
 				</div>
 				<p class="meta" id="qeRulesNote"></p>
 			</div>
@@ -96,7 +102,8 @@
 			<div class="gBody">
 				<p>Có thể soạn bộ đề ngay trên trang này. Nếu muốn soạn bằng tay (Notepad, VS Code...), hãy tạo một thư mục
 					theo mẫu dưới đây rồi bấm <b>Tải lên thư mục…</b>. Cùng thư mục này cũng chép được vào <code>Questions/</code>
-					trên máy sân khấu (phòng không chọn bộ đề sẽ đọc từ đó).</p>
+					trên máy sân khấu khi chạy không qua phòng. Phòng phải chọn một bộ đề (hoặc <b>Dùng bộ đề thử nghiệm</b>);
+					chưa chọn thì mọi câu hỏi sẽ báo "chưa thiết lập".</p>
 
 				<h3>1. Cấu trúc thư mục</h3>
 				<pre>Tuan3/
@@ -132,6 +139,10 @@
 				<p>Luật <b>Olympia 23</b>: không có lượt riêng; <code>&lt;common&gt;</code> chứa <b>36 câu</b> cho 3 lượt chung liền
 					nhau: câu 1–8 là lượt 1, câu 9–20 là lượt 2, câu 21–36 là lượt 3. Phòng chơi luật Olympia 24 + 26 chỉ dùng
 					12 câu đầu, nên một file đủ 6 câu mỗi ghế + 36 câu chung dùng được cho cả hai luật.</p>
+				<p><b>Luật rừng (BETA)</b>: mỗi <code>&lt;individual&gt;</code> có <b>12 câu</b> (thí sinh có 60 giây), cộng
+					tối đa <b>4 câu bổ sung</b> là câu 13–16 (chỉ hỏi khi thí sinh giành được: cứ 3 câu đúng liên tiếp được 1 câu).
+					<code>&lt;common&gt;</code> dùng <b>24 câu</b>: câu 1–8 là lượt đối kháng 1, câu 9–24 là lượt 2. Luật Olympia 24 + 26
+					chỉ đọc 6 câu riêng đầu và 12 câu chung đầu.</p>
 				<pre>&lt;khoidong&gt;
   &lt;individual seat="1"&gt;
     &lt;question&gt;&lt;text&gt;Câu hỏi 1 của ghế 1?&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
@@ -167,7 +178,7 @@
   &lt;/question&gt;
   ... câu 2 (20 giây), câu 3, 4 (30 giây); video: &lt;media type="video"&gt;tt4.mp4&lt;/media&gt;
 &lt;/tangtoc&gt;</pre>
-				<p>Luật <b>Olympia 23</b> luôn dùng 10 / 20 / 30 / 40 giây, không đọc <code>seconds</code>.</p>
+				<p>Luật <b>Olympia 23</b> luôn dùng 10 / 20 / 30 / 40 giây, luật rừng luôn 30 giây; cả hai không đọc <code>seconds</code>.</p>
 
 				<h3>6. vedich.xml — mỗi ghế 3 câu 20 điểm + 3 câu 30 điểm</h3>
 				<pre>&lt;vedich&gt;

@@ -154,7 +154,7 @@ function vcnvUnselectRow() {
 /* (2) Right: the question itself, instant */
 function vcnvRevealQuestion() {
 	var n = window.GameVariables.VcnvCurrentRow;
-	window.GameVariables.VcnvCurrentQuestion = vcnvQuestionFor(n).text || (n == VCNV_CENTER ? '(thiếu câu ô trung tâm)' : '(thiếu câu hàng ' + n + ')');
+	window.GameVariables.VcnvCurrentQuestion = vcnvQuestionFor(n).text || window.GameVariables.MissingQuestionText;
 	setObstacleQuestion(window.GameVariables.VcnvCurrentQuestion);
 	startGeneralSound('vcnv_open_question.mp3');
 	window.GameVariables.VcnvSequenceCounter = 4;
@@ -235,6 +235,11 @@ function vcnvGradeRow() {
 	if (!r) { return; }
 	var pts = n == VCNV_CENTER ? window.GameVariables.Points.VCNV_CENTER : window.GameVariables.Points.VCNV_ROW;
 	r.correctSeats.forEach(function (seat) { addScore(seat, pts); });
+	if (window.GameVariables.isJungle()) {   /* Luật rừng: every seat still in that missed the row */
+		window.GameVariables.Players.forEach(function (p) {
+			if (r.correctSeats.indexOf(p.seat) === -1 && !vcnvIsEliminated(p.seat)) { addScore(p.seat, window.GameVariables.RulesJungle.VCNV_ROW_MISS); }
+		});
+	}
 	if (r.correctSeats.length) {
 		r.status = 'correct';
 		setObstacleRowState(n, 'correct');

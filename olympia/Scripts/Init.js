@@ -25,8 +25,9 @@ async function init() {
 	}
 
 	/* 0. the real set lives in Questions/ (kept out of git); without it - e.g. the published
-	 *    site - the sample set in Demo/ is used */
-	/* in a room that uses a set from the lobby (QuestionSet.js) that set comes first */
+	 *    site - the sample set in Demo/ is used. A room plays only what its owner chose
+	 *    (QuestionSet.js): a set from the lobby, the test set (Demo/), or - nothing chosen /
+	 *    broken - no file at all, every question showing MissingQuestionText. */
 	if (!(await window.GameVariables.useRoomQuestionSet())) { await useDemoQuestionsIfMissing(); }
 
 	/* 1. contestants */
@@ -120,6 +121,7 @@ async function useDemoQuestionsIfMissing() {
 }
 
 async function loadXml(path) {
+	if (!path) { throw new Error('no question set'); }   /* QuestionSet.js: the room has none */
 	var res = await fetch(path, { cache: 'no-store' });
 	if (!res.ok) { throw new Error('HTTP ' + res.status + ' loading ' + path); }
 	var doc = new DOMParser().parseFromString(await res.text(), 'application/xml');
@@ -221,8 +223,8 @@ async function getTangTocQuestions() {
 			media: { type: (m && m.getAttribute('type')) || 'image', src: window.GameVariables.resolveMedia(xmlText(m) || '') },
 			answerMedia: (am && xmlText(am)) ? { type: am.getAttribute('type') || 'image', src: window.GameVariables.resolveMedia(xmlText(am)) } : null,
 			answer: xmlText(q, 'answer') || '',
-			/* Olympia 23 rules: 10/20/30/40 whatever the file says (Rules.js) */
-			seconds: (secs > 0 && window.GameVariables.Rules !== 'o23') ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
+			/* Olympia 23 (10/20/30/40) and Luật rừng (30 each): whatever the file says (Rules.js) */
+			seconds: (secs > 0 && !window.GameVariables.fixedTangTocClocks()) ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
 		};
 	});
 }
@@ -251,7 +253,7 @@ async function getTieBreakQuestions() {
 	var path = window.GameVariables.DataFiles.tiebreak, doc;
 	try { doc = await loadXml(path); }
 	catch (e) {
-		if (path === 'Demo/cauhoiphu.xml') { throw e; }
+		if (path === 'Demo/cauhoiphu.xml' || window.GameVariables.QuestionsUnset) { throw e; }   /* no set at all: no sample either */
 		console.warn('[Init] cauhoiphu.xml missing - using the sample tie-break questions in Demo/');
 		doc = await loadXml('Demo/cauhoiphu.xml');
 	}

@@ -1,0 +1,1772 @@
+diff --git a/olympia/Scripts/AudioControl.js b/olympia/Scripts/AudioControl.js
+index 846b23d..d980f1c 100644
+--- a/olympia/Scripts/AudioControl.js
++++ b/olympia/Scripts/AudioControl.js
+@@ -186,11 +186,13 @@ function stopBedWatch() {
+ 	}
+ }
+ 
+-/* Plays a bed with the loop points from BedLoops (a file without an entry plays straight through). */
+-function startLongPassiveSound(filename) {
++/* Plays a bed with the loop points from BedLoops (a file without an entry plays straight through).
++ * straight: ignore the loop points (Luật rừng's 60 s individual turn - KhoiDong.js). */
++function startLongPassiveSound(filename, straight) {
+ 	stopLongPassiveSound();
+-	var def = window.GameVariables.BedLoops[filename];
+-	if (!def) { console.warn('[Audio] no loop points for', filename, '- playing straight through'); }
++	var def = straight ? null : window.GameVariables.BedLoops[filename];
++	if (!def && !straight) { console.warn('[Audio] no loop points for', filename, '- playing straight through'); }
++	window.GameVariables.IsBedStraight = !!straight;
+ 	window.GameVariables.BedFile = filename;
+ 	window.GameVariables.BedLoopStart = def ? def.loopStart : 0;
+ 	window.GameVariables.BedLoopEnd = def ? def.loopEnd : 0;
+@@ -290,7 +292,7 @@ function fadeOutLongPassiveSound(ms) {
+ 			if (x.a.paused || x.a.ended) { return; }
+ 			var file = fileOf(x.a);
+ 			if (!file) { return; }
+-			if (x.ch === 'RoundBedSound') { gv.Sync.sendPublic({ type: 'sound', op: 'startLongPassiveSound', args: [file], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
++			if (x.ch === 'RoundBedSound') { gv.Sync.sendPublic({ type: 'sound', op: 'startLongPassiveSound', args: gv.IsBedStraight ? [file, true] : [file], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
+ 			else { gv.Sync.sendPublic({ type: 'sound', op: 'startSound', args: [x.ch, file, false], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
+ 		});
+ 	}
+diff --git a/olympia/Scripts/ControlPanel.js b/olympia/Scripts/ControlPanel.js
+index adadba9..2e25575 100644
+--- a/olympia/Scripts/ControlPanel.js
++++ b/olympia/Scripts/ControlPanel.js
+@@ -73,6 +73,24 @@
+ 			done: 'Xong lượt — ← cho thí sinh tiếp theo',
+ 			finished: 'Hết lượt riêng của cả 4 thí sinh — ← mở lượt chung'
+ 		},
++		/* Luật rừng (Rules.js): 4 individual turns of 60 s, then two common turns of 8 / 16 */
++		jungleOwn: {
++			idle: 'Chờ — ← hiện thẻ KHỞI ĐỘNG',
++			title: 'Đang hiện thẻ KHỞI ĐỘNG — ← chọn thí sinh',
++			ready: 'Thí sinh đã chọn — ← hiện đồ hoạ',
++			set: 'Đồ hoạ đã hiện — → hiện câu 1 (bật 60 giây)',
++			question: 'Đang thi 60 giây — ↑ đúng · ↓ sai · → câu kế',
++			done: 'Xong lượt — ← cho thí sinh tiếp theo',
++			finished: 'Hết lượt riêng của cả 4 thí sinh — ← vào lượt đối kháng 1'
++		},
++		jungleCommon: {
++			idle: 'Lượt đối kháng — ← vào lượt 1 (âm chuẩn bị)',
++			ready: 'Lượt đã sẵn sàng — ← hiện đồ hoạ',
++			set: 'Đồ hoạ đã hiện — → hiện câu 1',
++			question: 'Đang thi — → câu kế · 1-4 chuông · Space đồng hồ · ↑ đúng · ↓ sai',
++			done: 'Xong lượt — ← vào lượt đối kháng 2 (âm chuẩn bị)',
++			finished: 'Hết phần Khởi động — ← sang Vượt chướng ngại vật'
++		},
+ 		common: {
+ 			idle: 'Lượt chung — ← (âm chuẩn bị)',
+ 			ready: 'Đã báo chuẩn bị — ← hiện đồ hoạ',
+@@ -142,8 +160,21 @@
+ 
+ 	/* ---------------- which action bars are live in which phase ---------------- */
+ 
++	/* which text set describes the Khởi động step: o23 / jungleOwn / jungleCommon / individual / common */
++	function kdKindOf(kd) {
++		if (snap.rules === 'o23') { return 'o23'; }
++		if (snap.rules === 'jungle') { return kd.mode === 'common' ? 'jungleCommon' : 'jungleOwn'; }
++		return kd.mode || 'individual';
++	}
++
+ 	function kdKeys(kd) {
+ 		var common = kd.mode === 'common', ph = kd.phase, k = [];
++		if (snap.rules === 'jungle' && !common) {   /* Luật rừng individual: no Space, one verdict per question */
++			if (ph === 'idle' || ph === 'title' || ph === 'ready' || ph === 'done' || ph === 'finished') { k.push('ArrowLeft'); }
++			if (ph === 'set' || ph === 'question') { k.push('ArrowRight'); }
++			if (ph === 'question' && !kd.resolved) { k.push('ArrowUp', 'ArrowDown'); }
++			return k;
++		}
+ 		if (ph === 'idle' || ph === 'title' || ph === 'ready' || ph === 'done' || ph === 'finished') { k.push('ArrowLeft'); }
+ 		if (ph === 'set' || ph === 'question') { k.push('ArrowRight'); }
+ 		if (ph === 'question') {
+@@ -222,7 +253,7 @@
+ 	}
+ 
+ 	var barLabels = {
+-		kdLeft: { o23: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Vào lượt 1 (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Vào lượt tiếp theo', finished: 'Sang Vượt chướng ngại vật' }, individual: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Mở lượt chung' }, common: { idle: 'Âm chuẩn bị', ready: 'Hiện đồ hoạ', finished: 'Sang Vượt chướng ngại vật' } },
++		kdLeft: { jungleOwn: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Vào lượt đối kháng 1' }, jungleCommon: { idle: 'Vào lượt 1 (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Vào lượt 2', finished: 'Sang Vượt chướng ngại vật' }, o23: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Vào lượt 1 (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Vào lượt tiếp theo', finished: 'Sang Vượt chướng ngại vật' }, individual: { idle: 'Hiện thẻ KHỞI ĐỘNG', title: 'Chọn thí sinh (âm chuẩn bị)', ready: 'Hiện đồ hoạ', done: 'Thí sinh tiếp theo', finished: 'Mở lượt chung' }, common: { idle: 'Âm chuẩn bị', ready: 'Hiện đồ hoạ', finished: 'Sang Vượt chướng ngại vật' } },
+ 		vcnvRight: { board: 'Cửa sổ 15 s cuối', rowSelected: 'Hiện câu hỏi', rowQuestion: 'Bật 15 s', rowTimer: 'Cây đáp án', rowAnswers: 'Chấm hàng', rowGraded: 'Cất cây, về bảng', rowBack: 'Mở góc ảnh', finalWindow: 'Mở hết' },
+ 		ttRight: { question: 'Bật đồng hồ', timer: 'Cây đáp án', answers: 'Cộng điểm', graded: 'Cất cây', blank: 'Câu kế' },
+ 		vdLeft: { idle: 'Hiện thẻ VỀ ĐÍCH', title: 'Gọi lên sân khấu', stageCall: 'Màn chọn gói', choose: 'Khung câu hỏi', blank: 'Gọi thí sinh kế', finished: 'Ẩn đồ hoạ' },
+@@ -271,16 +302,22 @@
+ 
+ 		if (round === 'kd' && kd) {
+ 			var common = kd.mode === 'common';
+-			var kdKind = snap.rules === 'o23' ? 'o23' : (kd.mode || 'individual');
+-			var turnText = snap.rules === 'o23' && kd.turn ? 'Lượt ' + kd.turn + '/3' : '';
++			var kdKind = kdKindOf(kd), jungle = snap.rules === 'jungle', own = kd.own || {};
++			var turns = snap.rules === 'o23' ? 3 : (jungle ? 2 : 0);
++			var turnText = turns && common && kd.turn ? 'Lượt ' + kd.turn + '/' + turns : '';
+ 			var live = kdKeys(kd);
++			var nextWrong = common && kd.buzzSeat ? ((kd.turnWrong || {})[kd.buzzSeat] || 0) : 0;
++			var ptsText = !jungle ? (common ? ' · đúng +10 / sai −5' : ' · đúng +10')
++				: (common ? ' · đúng +10 / sai lần n: −5·(n−1)' + (kd.buzzSeat && !kd.resolved ? ' (lần này ' + (nextWrong ? '−' + 5 * nextWrong : '0') + ')' : '')
++					: ' · đúng +10 / sai ' + (own.wrong ? '−5' : 'lần đầu 0') + (own.timeUp ? ' · HẾT GIỜ — → kết thúc lượt' : ''));
+ 			setDeck({
+ 				who: common ? (kd.buzzSeat ? ('Chuông: ' + nameOf(kd.buzzSeat) + (kd.resolved ? ' · đã chấm' : '')) : 'Lượt chung — chờ chuông') : (kd.seat ? nameOf(kd.seat) : 'Chưa chọn thí sinh'),
+-				pts: (kd.questionIndex ? ('Câu ' + kd.questionIndex + ' / ' + kd.questionCount) : 'Chưa vào câu') + (common ? ' · đúng +10 / sai −5' : ' · đúng +10'),
++				pts: (kd.questionIndex ? ('Câu ' + kd.questionIndex + ' / ' + kd.questionCount + (jungle && !common && kd.questionIndex > 12 ? ' (bổ sung)' : '')) : 'Chưa vào câu') + ptsText,
+ 				status: (kdPhaseText[kdKind] || {})[kd.phase] || kd.phase,
+ 				statusKind: kd.phase === 'question' ? 'hot' : statusKind(kd.phase),
+ 				question: kd.currentQuestion, answer: kd.currentAnswer,
+-				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult] || '—'], ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]
++				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', (jungle && kd.lastResult === 'wrong' ? 'SAI' : kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult]) || '—'],
++					jungle && !common ? ['Chuỗi đúng · câu bổ sung · lần sai', own.streak + '/3 · ' + own.bonus + '/4 · ' + own.wrong] : ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]
+ 			});
+ 			els.kdLeftLabel.textContent = (barLabels.kdLeft[kdKind] || {})[kd.phase] || 'Bắt đầu · Chọn thí sinh · Hiện đồ hoạ';
+ 			$$('.bars[data-round="kd"] .seatName').forEach(function (s) { s.textContent = 'Chuông ' + nameOf(parseInt(s.getAttribute('data-seat'), 10)); });
+@@ -292,7 +329,7 @@
+ 			var prize = v.centerOpened ? gv.Points.VCNV_AFTER_CENTER : gv.Points.VCNV_OBSTACLE[n];
+ 			setDeck({
+ 				who: v.queue && v.queue.length ? ('Xin trả lời CNV: ' + names(v.queue)) : (v.currentRow ? (v.currentRow === 5 ? 'Câu ô trung tâm' : 'Hàng ' + v.currentRow) : 'Bảng chướng ngại vật'),
+-				pts: (v.openedCount || 0) + ' hàng đã mở · CNV = ' + prize + ' điểm' + (v.solved ? ' · ĐÃ GIẢI' : ''),
++				pts: (v.openedCount || 0) + ' hàng đã mở · CNV = ' + prize + ' điểm' + (snap.rules === 'jungle' ? ' · không đúng hàng −5' : '') + (v.solved ? ' · ĐÃ GIẢI' : ''),
+ 				status: vcnvPhaseText[v.phase] || v.phase, statusKind: statusKind(v.phase),
+ 				question: v.currentQuestion, answer: v.currentAnswer || (v.keyword ? ('CNV: ' + v.keyword) : ''),
+ 				stats: [['Chướng ngại vật', v.keyword || '—'], ['Các hàng', (v.rows || []).slice(0, 4).map(function (r) { return vcnvRowText[r.status] || r.status; }).join(' · ') || '—'], ['Ô trung tâm', v.centerOpened ? 'đã mở' : ((v.rows || [])[4] ? vcnvRowText[v.rows[4].status] : '—')], ['Bị loại', names(v.eliminated) || 'không']]
+@@ -321,7 +358,7 @@
+ 			var live3 = ttKeys(t);
+ 			setDeck({
+ 				who: t.index ? ('Câu ' + t.index + ' / ' + t.count + ' · ' + t.seconds + ' s') : 'Chưa vào câu',
+-				pts: '40 · 30 · 20 · 10 theo thời gian' + (t.correctSeats && t.correctSeats.length ? ' · đúng: ' + t.correctSeats.join(', ') : ''),
++				pts: gv.Points.TANG_TOC_RANK.join(' · ') + ' theo thời gian' + (snap.rules === 'jungle' ? ' · sai / không trả lời ' + gv.RulesJungle.TANG_TOC_MISS : '') + (t.correctSeats && t.correctSeats.length ? ' · đúng: ' + t.correctSeats.join(', ') : ''),
+ 				status: (ttPhaseText[t.phase] || t.phase) + (t.reviewing ? ' — ĐANG XEM LẠI KHUNG (B về cây)' : ''), statusKind: statusKind(t.phase),
+ 				question: t.question, answer: t.answer,
+ 				stats: [['Số câu', (t.index || 0) + ' / ' + t.count], ['Thời gian', t.seconds ? t.seconds + ' s' : '—'], ['Media', t.mediaType || '—'], ['Đã đánh dấu đúng', names(t.correctSeats) || '—']]
+@@ -347,7 +384,7 @@
+ 			var vals = d.values || [];
+ 			setDeck({
+ 				who: d.seat ? (nameOf(d.seat, true) + ' · lượt ' + d.turn + ' / 4') : 'Chưa gọi thí sinh',
+-				pts: d.qIndex ? ('Câu ' + d.qIndex + ' / 3 · ' + d.value + ' điểm · ' + d.seconds + ' s' + (d.star === d.qIndex ? ' · ★' : '')) : (vals.length ? 'Gói: ' + vals.join(' – ') : 'Chưa chọn gói'),
++				pts: d.qIndex ? ('Câu ' + d.qIndex + ' / 3 · ' + d.value + ' điểm · ' + d.seconds + ' s' + (d.star === d.qIndex ? ' · ★' : '') + (snap.rules === 'jungle' ? ' · sai −' + d.value * (d.star === d.qIndex ? 2 : 1) + ', bị cướp thêm −' + d.value : '')) : (vals.length ? 'Gói: ' + vals.join(' – ') : 'Chưa chọn gói'),
+ 				status: vdPhaseText[d.phase] || d.phase, statusKind: statusKind(d.phase),
+ 				question: d.question, answer: d.answer,
+ 				stats: [['Số câu trong lượt', (d.qIndex || 0) + ' / 3'], ['Gói câu hỏi', vals.length ? vals.join(' – ') : '—'], ['Ngôi sao hy vọng', d.star ? ('★ câu ' + d.star) : (d.starUsed ? 'đã dùng' : 'chưa đặt')], ['Giành quyền', d.stealSeat ? (nameOf(d.stealSeat) + (d.stealResult ? (d.stealResult === 'correct' ? ' — đúng' : ' — sai') : '')) : (d.phase === 'steal' ? 'đang chờ 5 s' : '—')]]
+@@ -603,9 +640,11 @@
+ 		if (!kd) { els.kdPhase.textContent = '—'; return; }
+ 		var mode = kd.mode || 'individual';
+ 		var common = mode === 'common';
+-		var o23 = snap.rules === 'o23';
+-		els.kdMode.textContent = o23 ? ('luật O23 · ' + (kd.turn ? 'lượt ' + kd.turn + '/3 · ' + kd.questionCount + ' câu' : '3 lượt 8 · 12 · 16 câu')) : (common ? 'lượt chung · 12 câu' : 'lượt riêng · 6 câu / thí sinh');
+-		els.kdPhase.textContent = (kdPhaseText[o23 ? 'o23' : mode] || {})[kd.phase] || kd.phase;
++		var o23 = snap.rules === 'o23', jungleRules = snap.rules === 'jungle';
++		els.kdMode.textContent = o23 ? ('luật O23 · ' + (kd.turn ? 'lượt ' + kd.turn + '/3 · ' + kd.questionCount + ' câu' : '3 lượt 8 · 12 · 16 câu'))
++			: jungleRules ? ('luật rừng · ' + (common ? (kd.turn ? 'đối kháng ' + kd.turn + '/2 · ' + kd.questionCount + ' câu' : 'đối kháng 8 · 16 câu') : 'lượt riêng 60 giây · 12 câu + bổ sung'))
++			: (common ? 'lượt chung · 12 câu' : 'lượt riêng · 6 câu / thí sinh');
++		els.kdPhase.textContent = (kdPhaseText[kdKindOf(kd)] || {})[kd.phase] || kd.phase;
+ 		els.kdSeat.textContent = common ? '—' : nameOf(kd.seat);
+ 		els.kdBuzz.textContent = common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) + (kd.resolved ? ' (đã chấm)' : '') : 'chưa ai bấm') : '—';
+ 		els.kdBuzz.className = (common && kd.buzzSeat && !kd.resolved) ? 'buzzed' : '';
+@@ -617,7 +656,7 @@
+ 		els.kdResult.className = kd.lastResult || '';
+ 		els.kdClearBuzz.disabled = !common;
+ 		els.kdResetCommon.disabled = !(common || kd.phase === 'finished');
+-		els.kdResetCommon.textContent = o23 ? 'Chạy lại lượt này từ câu 1' : 'Chạy lại lượt chung từ câu 1';
++		els.kdResetCommon.textContent = o23 || jungleRules ? 'Chạy lại lượt này từ câu 1' : 'Chạy lại lượt chung từ câu 1';
+ 	}
+ 
+ 	/* ---------------- clock / bed / connection (200 ms) ---------------- */
+diff --git a/olympia/Scripts/GameSave.js b/olympia/Scripts/GameSave.js
+index 3ae1c45..9283a40 100644
+--- a/olympia/Scripts/GameSave.js
++++ b/olympia/Scripts/GameSave.js
+@@ -33,7 +33,11 @@
+ 			matchId: gv.Sync.matchId ? gv.Sync.matchId() : (gv.MatchId || null),
+ 			round: gv.CurrentRound,
+ 			players: gv.Players.map(function (p) { return { seat: p.seat, fullName: p.fullName, score: p.score, kdDone: !!p.kdDone }; }),
+-			kd: { counter: gv.KhoiDongSequenceCounter, mode: gv.KhoiDongMode, seat: gv.KhoiDongSeat, index: gv.KhoiDongQuestionIndex, turn: gv.KhoiDongTurn || 0 },
++			kd: {
++				counter: gv.KhoiDongSequenceCounter, mode: gv.KhoiDongMode, seat: gv.KhoiDongSeat, index: gv.KhoiDongQuestionIndex, turn: gv.KhoiDongTurn || 0,
++				own: { wrong: gv.KdOwnWrong || 0, streak: gv.KdOwnStreak || 0, bonus: gv.KdOwnBonus || 0 },   /* Luật rừng */
++				turnWrong: Object.assign({}, gv.KdTurnWrong || {})
++			},
+ 			vcnv: {
+ 				counter: gv.VcnvSequenceCounter,
+ 				rows: (gv.VcnvRows || []).map(function (r) { return { status: r.status, correctSeats: (r.correctSeats || []).slice(), answers: Object.assign({}, r.answers || {}) }; }),
+@@ -194,7 +198,7 @@
+ 			g.IsVcnvSolved = s.vcnv.solved; g.VcnvSolvedBy = s.vcnv.solvedBy;
+ 		}
+ 
+-		if (round === 'kd') { restoreKdFromSave(s.kd, s.players); }
++		if (round === 'kd') { restoreKdFromSave(s.kd, s.players, s.clock); }
+ 		else if (round === 'vcnv') { restoreVcnvFromSave(s.vcnv); }
+ 		else if (round === 'tt') { restoreTtFromSave(s.tt); }
+ 		else if (round === 'vd') { restoreVdFromSave(s.vd); }
+@@ -206,13 +210,14 @@
+ 		console.log('[GameSave] resumed from the save: ' + describe(s));
+ 	}
+ 
+-	function restoreKdFromSave(kd, players) {
+-		var g = gv;
+-		if (g.Rules === 'o23') {                   /* Olympia 23: the turn it was in (a finished turn: the next one) */
+-			var turn = kd.turn || 1, sizes = g.RulesO23.KD_TURNS;
++	function restoreKdFromSave(kd, players, clock) {
++		var g = gv, sizes = g.kdCommonTurns();
++		if (sizes && (g.Rules === 'o23' || kd.mode === 'common')) {   /* O23 / Luật rừng: the common turn it was in (a finished turn: the next one) */
++			var turn = kd.turn || 1;
+ 			if (kd.counter == 6) { khoiDongResetO23(sizes.length); g.KhoiDongSequenceCounter = 6; return; }   /* all done: Left -> VCNV */
+ 			if (kd.counter == 5 || kd.counter <= 1) { khoiDongResetO23(kd.counter == 5 ? turn + 1 : 1); return; }
+-			restoreKhoiDong({ turn: turn, question: kd.counter == 4 ? kd.index : 1 });
++			restoreKhoiDong({ mode: 'common', turn: turn, question: kd.counter == 4 ? kd.index : 1 });
++			if (kd.turnWrong) { g.KdTurnWrong = Object.assign({}, kd.turnWrong); }   /* Luật rừng: wrongs so far in this turn */
+ 			return;
+ 		}
+ 		if (kd.mode === 'common') {
+@@ -222,7 +227,9 @@
+ 		}
+ 		var done = players.filter(function (p) { return p.kdDone; }).map(function (p) { return p.seat; });
+ 		var playing = (kd.counter >= 2 && kd.counter <= 4) ? kd.seat : null;
+-		restoreKhoiDong({ mode: 'individual', done: done, seat: playing, question: kd.counter == 4 ? kd.index : 1 });
++		/* Luật rừng: the playing contestant's wrongs / streak / bonus and the clock (a finished turn: the next one starts clean) */
++		var own = playing ? Object.assign({}, kd.own || {}, { gone: clock && clock.label === 'kd_turn' && kd.counter == 4 ? clock.gone : 0 }) : {};
++		restoreKhoiDong({ mode: 'individual', done: done, seat: playing, question: kd.counter == 4 ? kd.index : 1, own: own });
+ 	}
+ 
+ 	function restoreVcnvFromSave(v) {
+diff --git a/olympia/Scripts/Init.js b/olympia/Scripts/Init.js
+index bde25e7..da6334c 100644
+--- a/olympia/Scripts/Init.js
++++ b/olympia/Scripts/Init.js
+@@ -25,8 +25,9 @@ async function init() {
+ 	}
+ 
+ 	/* 0. the real set lives in Questions/ (kept out of git); without it - e.g. the published
+-	 *    site - the sample set in Demo/ is used */
+-	/* in a room that uses a set from the lobby (QuestionSet.js) that set comes first */
++	 *    site - the sample set in Demo/ is used. A room plays only what its owner chose
++	 *    (QuestionSet.js): a set from the lobby, the test set (Demo/), or - nothing chosen /
++	 *    broken - no file at all, every question showing MissingQuestionText. */
+ 	if (!(await window.GameVariables.useRoomQuestionSet())) { await useDemoQuestionsIfMissing(); }
+ 
+ 	/* 1. contestants */
+@@ -120,6 +121,7 @@ async function useDemoQuestionsIfMissing() {
+ }
+ 
+ async function loadXml(path) {
++	if (!path) { throw new Error('no question set'); }   /* QuestionSet.js: the room has none */
+ 	var res = await fetch(path, { cache: 'no-store' });
+ 	if (!res.ok) { throw new Error('HTTP ' + res.status + ' loading ' + path); }
+ 	var doc = new DOMParser().parseFromString(await res.text(), 'application/xml');
+@@ -221,8 +223,8 @@ async function getTangTocQuestions() {
+ 			media: { type: (m && m.getAttribute('type')) || 'image', src: window.GameVariables.resolveMedia(xmlText(m) || '') },
+ 			answerMedia: (am && xmlText(am)) ? { type: am.getAttribute('type') || 'image', src: window.GameVariables.resolveMedia(xmlText(am)) } : null,
+ 			answer: xmlText(q, 'answer') || '',
+-			/* Olympia 23 rules: 10/20/30/40 whatever the file says (Rules.js) */
+-			seconds: (secs > 0 && window.GameVariables.Rules !== 'o23') ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
++			/* Olympia 23 (10/20/30/40) and Luật rừng (30 each): whatever the file says (Rules.js) */
++			seconds: (secs > 0 && !window.GameVariables.fixedTangTocClocks()) ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
+ 		};
+ 	});
+ }
+@@ -251,7 +253,7 @@ async function getTieBreakQuestions() {
+ 	var path = window.GameVariables.DataFiles.tiebreak, doc;
+ 	try { doc = await loadXml(path); }
+ 	catch (e) {
+-		if (path === 'Demo/cauhoiphu.xml') { throw e; }
++		if (path === 'Demo/cauhoiphu.xml' || window.GameVariables.QuestionsUnset) { throw e; }   /* no set at all: no sample either */
+ 		console.warn('[Init] cauhoiphu.xml missing - using the sample tie-break questions in Demo/');
+ 		doc = await loadXml('Demo/cauhoiphu.xml');
+ 	}
+diff --git a/olympia/Scripts/KeyboardController.js b/olympia/Scripts/KeyboardController.js
+index 33bfa68..6df6089 100644
+--- a/olympia/Scripts/KeyboardController.js
++++ b/olympia/Scripts/KeyboardController.js
+@@ -60,6 +60,18 @@ function handleRoundKey(key, round) {
+ 				else if (kd == 5) { khoiDongO23Ready((window.GameVariables.KhoiDongTurn || 0) + 1); }
+ 				else if (kd == 6) { switchRound('vcnv'); }
+ 			}
++			else if (window.GameVariables.isJungle()) {                     /* Luật rừng: 4 individual turns, then two common ones */
++				if (common) {
++					if (kd == 0) { khoiDongO23Ready(1); }                      /* after a reset to turn 1 */
++					else if (kd == 2) { khoiDongCommonOpenQuestionBar(); }
++					else if (kd == 5) { khoiDongO23Ready((window.GameVariables.KhoiDongTurn || 0) + 1); }
++					else if (kd == 6) { switchRound('vcnv'); }
++				}
++				else if (kd == 0) { khoiDongShowTitle(); }
++				else if (kd == 1 || kd == 5) { khoiDongCallNextContestant(); }
++				else if (kd == 2) { khoiDongOpenQuestionBar(); }
++				else if (kd == 6) { khoiDongO23Ready(1); }
++			}
+ 			else if (common) {
+ 				if (kd == 0) { khoiDongCommonReady(); }
+ 				else if (kd == 2) { khoiDongCommonOpenQuestionBar(); }
+@@ -109,7 +121,7 @@ function handleRoundKey(key, round) {
+ 				var first = window.GameVariables.KhoiDongStartIndex || 1;
+ 				window.GameVariables.KhoiDongStartIndex = null;
+ 				khoiDongShowQuestion(first);
+-				if (first > 1) { startLongPassiveSound('kd_60s.mp3'); }   /* khoiDongShowQuestion starts the bed on question 1 only */
++				if (first > 1 && !khoiDongJungleOwn()) { startLongPassiveSound('kd_60s.mp3'); }   /* khoiDongShowQuestion starts the bed on question 1 only (Luật rừng: with its clock) */
+ 			}
+ 			else if (kd == 4) { khoiDongNextQuestion(); }
+ 			return true;
+@@ -181,7 +193,7 @@ function handleRoundKey(key, round) {
+ 	else if (key == ' ') // key 'space' for the Khởi động 3 s think clock
+ 	{
+ 		if (round == 'kd') {
+-			if (kd == 4) { startThinkClock(window.GameVariables.Timings.KD_THINK); }
++			if (kd == 4 && !khoiDongJungleOwn()) { startThinkClock(window.GameVariables.Timings.KD_THINK); }   /* Luật rừng: the 60 s bar is the clock */
+ 			return true;
+ 		}
+ 		else if (round == 'vcnv' || round == 'tt' || round == 'vd' || round == 'tb') { return true; }   /* not used in these rounds */
+diff --git a/olympia/Scripts/Lobby.js b/olympia/Scripts/Lobby.js
+index 1e1a400..7b71c91 100644
+--- a/olympia/Scripts/Lobby.js
++++ b/olympia/Scripts/Lobby.js
+@@ -336,7 +336,7 @@
+ 		f('code').textContent = room.code;
+ 		f('name').textContent = room.name || '(chưa đặt tên)';
+ 		f('created').textContent = 'Tạo lúc ' + fmtTime(room.created_at);
+-		f('rules').textContent = room.rules === 'o23' ? 'Luật Olympia 23' : (room.rules ? 'Luật Olympia 24 + 26' : '');
++		f('rules').textContent = room.rules === 'o23' ? 'Luật Olympia 23' : room.rules === 'jungle' ? 'Luật rừng (BETA)' : (room.rules ? 'Luật Olympia 24 + 26' : '');
+ 		expiryNodes.push({ room: room, el: f('expiry'), card: node });
+ 		/* a room someone shared with this account: open its screens, but not the owner's actions */
+ 		var mine = !room.owner_id || room.owner_id === account.uid;
+@@ -418,13 +418,14 @@
+ 		var pw = $('#roomPassword').value;
+ 		if (pw.length < 4 || pw.length > 20) { $('#createError').textContent = 'Mật khẩu thí sinh phải có từ 4 đến 20 ký tự.'; return; }
+ 		$('#createBtn').disabled = true;
+-		var rules = $('#roomRules input:checked') && $('#roomRules input:checked').value === 'o23' ? 'o23' : 'o24';
++		var picked = $('#roomRules input:checked'), rules = picked && (picked.value === 'o23' || picked.value === 'jungle') ? picked.value : 'o24';
+ 		var args = { p_name: $('#roomName').value, p_password: pw };
+-		if (rules === 'o23') { args.p_rules = 'o23'; }   /* O24 rooms work without migrations/0013 too */
++		if (rules !== 'o24') { args.p_rules = rules; }   /* O24 rooms work without migrations/0013 too */
+ 		var r = await db.rpc('create_room', args);
+ 		$('#createBtn').disabled = false;
+ 		if (r.error) {
+-			$('#createError').textContent = 'Không tạo được phòng: ' + (r.error.code === 'PGRST202' && rules === 'o23' ? 'cần chạy supabase/migrations/0013_room_rules_and_announcements.sql trước khi tạo phòng luật Olympia 23.' : r.error.message);
++			$('#createError').textContent = 'Không tạo được phòng: ' + (r.error.code === 'PGRST202' && rules !== 'o24' ? 'cần chạy supabase/migrations/0013_room_rules_and_announcements.sql trước khi tạo phòng luật Olympia 23 / luật rừng.'
++				: rules === 'jungle' && /bad_rules|rooms_rules_check/.test(r.error.message || '') ? 'cần chạy supabase/migrations/0017_jungle_rules.sql trước khi tạo phòng luật rừng.' : r.error.message);
+ 			return;
+ 		}
+ 		$('#roomName').value = ''; $('#roomPassword').value = ''; $('#roomRules input[value="o24"]').checked = true;
+diff --git a/olympia/Scripts/PanelStateControl.js b/olympia/Scripts/PanelStateControl.js
+index 94c4dd6..a8d8ec8 100644
+--- a/olympia/Scripts/PanelStateControl.js
++++ b/olympia/Scripts/PanelStateControl.js
+@@ -247,7 +247,9 @@ function buildRoundStateForPanel() {
+ 			currentAnswer: g.KhoiDongCurrentAnswer,
+ 			lastResult: g.KhoiDongLastResult,
+ 			buzzSeat: g.KhoiDongBuzzSeat,
+-			resolved: g.IsKhoiDongQuestionResolved
++			resolved: g.IsKhoiDongQuestionResolved,
++			own: { wrong: g.KdOwnWrong || 0, streak: g.KdOwnStreak || 0, bonus: g.KdOwnBonus || 0, timeUp: !!g.IsKdOwnTimeUp },   /* Luật rừng */
++			turnWrong: g.KdTurnWrong || {}
+ 		},
+ 		vcnv: {
+ 			phase: g.VcnvPhaseNames[g.VcnvSequenceCounter],
+diff --git a/olympia/Scripts/QuestionEditor.js b/olympia/Scripts/QuestionEditor.js
+index 12cf18d..fd8218c 100644
+--- a/olympia/Scripts/QuestionEditor.js
++++ b/olympia/Scripts/QuestionEditor.js
+@@ -26,6 +26,10 @@
+ 	 * clocks fixed. The model always holds both layouts; `rules` only picks the forms shown. */
+ 	var O23 = { kdTurns: [8, 12, 16], ttSeconds: [10, 20, 30, 40] };
+ 	var KD_COMMON_MAX = O23.kdTurns.reduce(function (a, b) { return a + b; }, 0);
++	/* Luật rừng (Rules.js): 12 individual questions + 4 bonus ones per seat, two common turns of 8 / 16 */
++	var JUNGLE = { own: 12, bonus: 4, kdTurns: [8, 16], ttSeconds: [30, 30, 30, 30] };
++	var KD_OWN_MAX = JUNGLE.own + JUNGLE.bonus;
++	var RULE_NAMES = { o24: 'Olympia 24 + 26', o23: 'Olympia 23', jungle: 'luật rừng' };
+ 	var VCNV_MAX = 10;
+ 	var DEFAULT_VCNV_IMAGE = 'O24/VCNV Image.png';
+ 
+@@ -70,7 +74,7 @@
+ 		d = docs.kd;
+ 		[1, 2, 3, 4].forEach(function (s) {
+ 			var b = d && d.querySelector('individual[seat="' + s + '"]');
+-			m.kd.individual[s] = fill(b ? Array.prototype.map.call(b.querySelectorAll('question'), qOf) : [], COUNTS.kdOwn);
++			m.kd.individual[s] = fill(b ? Array.prototype.map.call(b.querySelectorAll('question'), qOf) : [], KD_OWN_MAX);
+ 		});
+ 		var c = d && d.querySelector('common');
+ 		m.kd.common = fill(c ? Array.prototype.map.call(c.querySelectorAll('question'), qOf) : [], KD_COMMON_MAX);
+@@ -120,13 +124,15 @@
+ 		var last = 0;
+ 		m.kd.common.forEach(function (x, i) { if (filled(x)) { last = i + 1; } });
+ 		var common = m.kd.common.slice(0, Math.max(COUNTS.kdCommon, last));
+-		out.kd = head('Khởi động. <individual seat="N">: 6 câu lượt riêng của ghế N. <common>: lượt chung - Olympia 24 + 26 dùng 12 câu đầu; Olympia 23 dùng 36 câu: 1-8 lượt 1, 9-20 lượt 2, 21-36 lượt 3.') + '<khoidong>\n' +
+-			[1, 2, 3, 4].map(function (s) { return '  <individual seat="' + s + '">\n' + m.kd.individual[s].map(function (x) { return '    ' + qXml(x, 'question') + '\n'; }).join('') + '  </individual>\n'; }).join('') +
++		/* <individual>: at least the 6 of Olympia 24 + 26, up to the last question written (Luật rừng: 12 + 4 bonus) */
++		function own(s) { var n = 0; m.kd.individual[s].forEach(function (x, i) { if (filled(x)) { n = i + 1; } }); return m.kd.individual[s].slice(0, Math.max(COUNTS.kdOwn, n)); }
++		out.kd = head('Khởi động. <individual seat="N">: lượt riêng của ghế N - Olympia 24 + 26 dùng 6 câu đầu; luật rừng dùng 12 câu + câu 13-16 là câu bổ sung. <common>: lượt chung - Olympia 24 + 26 dùng 12 câu đầu; Olympia 23 dùng 36 câu: 1-8 lượt 1, 9-20 lượt 2, 21-36 lượt 3; luật rừng dùng 24 câu: 1-8 lượt 1, 9-24 lượt 2.') + '<khoidong>\n' +
++			[1, 2, 3, 4].map(function (s) { return '  <individual seat="' + s + '">\n' + own(s).map(function (x) { return '    ' + qXml(x, 'question') + '\n'; }).join('') + '  </individual>\n'; }).join('') +
+ 			'  <common>\n' + common.map(function (x) { return '    ' + qXml(x, 'question') + '\n'; }).join('') + '  </common>\n</khoidong>\n';
+ 		out.vcnv = head('Vượt chướng ngại vật. <keyword>: chướng ngại vật. <image>: ảnh sau 5 miếng che. 4 <row> + <center>.') + '<vcnv>\n' +
+ 			'  <keyword><text>' + esc(m.vcnv.keyword) + '</text></keyword>\n  <image>' + esc(m.vcnv.image) + '</image>\n' +
+ 			m.vcnv.rows.map(function (x) { return '  ' + qXml(x, 'row') + '\n'; }).join('') + '  ' + qXml(m.vcnv.center, 'center') + '\n</vcnv>\n';
+-		out.tt = head('Tăng tốc. 4 câu; seconds = thời gian (luật Olympia 23 luôn 10/20/30/40 giây); <media> ảnh / video của câu; <answerMedia> ảnh đáp án (tuỳ chọn).') + '<tangtoc>\n' +
++		out.tt = head('Tăng tốc. 4 câu; seconds = thời gian (luật Olympia 23 luôn 10/20/30/40 giây, luật rừng luôn 30 giây); <media> ảnh / video của câu; <answerMedia> ảnh đáp án (tuỳ chọn).') + '<tangtoc>\n' +
+ 			m.tt.map(function (x) {
+ 				return '  <question seconds="' + (Number(x.seconds) || 20) + '">\n    <text>' + esc(x.text) + '</text>\n' +
+ 					(x.media.src ? '    <media type="' + (x.media.type === 'video' ? 'video' : 'image') + '">' + esc(x.media.src) + '</media>\n' : '') +
+@@ -172,7 +178,7 @@
+ 			hint.textContent = n + ' chữ' + (n > VCNV_MAX ? ' - quá ' + VCNV_MAX + ', chỉ hiện ' + VCNV_MAX + ' chữ đầu' : '');
+ 			hint.classList.toggle('warn', n > VCNV_MAX);
+ 		}
+-		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); touched(); if (rules === 'o23') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
++		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); touched(); if (rules !== 'o24') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
+ 		l.appendChild(i);
+ 		if (hint) { l.appendChild(hint); update(); }
+ 		return l;
+@@ -300,29 +306,49 @@
+ 		p.appendChild(b);
+ 	}
+ 
++	/* the common turns of O23 / Luật rừng: Lượt 1 — 8 câu ... (questions in order from <common>) */
++	function commonTurnBlocks(p, sizes) {
++		var from = 0;
++		sizes.forEach(function (n, t) {
++			var b = block('Lượt ' + (t + 1) + ' — ' + n + ' câu', 'Câu ' + (from + 1) + '–' + (from + n) + ' của lượt chung, bấm chuông giành quyền.');
++			model.kd.common.slice(from, from + n).forEach(function (x, i) { b.appendChild(questionRow(String(from + i + 1), x)); });
++			p.appendChild(b);
++			from += n;
++		});
++	}
++
+ 	function renderKd() {
+ 		var p = $('#panekd'); p.textContent = '';
+-		if (rules === 'o23') {
+-			var from = 0;
+-			O23.kdTurns.forEach(function (n, t) {
+-				var b = block('Lượt ' + (t + 1) + ' — ' + n + ' câu', 'Câu ' + (from + 1) + '–' + (from + n) + ' của lượt chung, bấm chuông giành quyền.');
+-				model.kd.common.slice(from, from + n).forEach(function (x, i) { b.appendChild(questionRow(String(from + i + 1), x)); });
++		if (rules === 'jungle') {
++			[1, 2, 3, 4].forEach(function (s) {
++				var b = block('Lượt riêng — ' + playerName(s), JUNGLE.own + ' câu trong 60 giây, hỏi theo thứ tự; mỗi 3 câu đúng liên tiếp được thêm 1 câu bổ sung (tối đa ' + JUNGLE.bonus + ').');
++				model.kd.individual[s].slice(0, JUNGLE.own).forEach(function (x, i) { b.appendChild(questionRow(String(i + 1), x)); });
++				b.appendChild(el('p', 'sub', 'Câu bổ sung (chỉ hỏi khi giành được và còn giờ)'));
++				model.kd.individual[s].slice(JUNGLE.own, KD_OWN_MAX).forEach(function (x, i) { b.appendChild(questionRow('+' + (i + 1), x)); });
+ 				p.appendChild(b);
+-				from += n;
+ 			});
++			commonTurnBlocks(p, JUNGLE.kdTurns);
++			var extra = model.kd.common.slice(24).filter(filled).length;
++			if (extra) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + extra + ' câu lượt chung cho luật Olympia 23 (câu 25–' + KD_COMMON_MAX + ') - luật rừng không dùng.')); }
++			return;
++		}
++		if (rules === 'o23') {
++			commonTurnBlocks(p, O23.kdTurns);
+ 			p.appendChild(el('p', 'meta', 'Luật Olympia 23 không có lượt riêng. Câu lượt riêng đã soạn (nếu có) vẫn được giữ trong bộ đề - chuyển sang "Olympia 24 + 26" ở trên để xem.'));
+ 			return;
+ 		}
+ 		[1, 2, 3, 4].forEach(function (s) {
+ 			var b = block('Lượt riêng — ' + playerName(s), COUNTS.kdOwn + ' câu, hỏi theo thứ tự.');
+-			model.kd.individual[s].forEach(function (x, i) { b.appendChild(questionRow(String(i + 1), x)); });
++			model.kd.individual[s].slice(0, COUNTS.kdOwn).forEach(function (x, i) { b.appendChild(questionRow(String(i + 1), x)); });
+ 			p.appendChild(b);
+ 		});
+ 		var c = block('Lượt chung', COUNTS.kdCommon + ' câu, bấm chuông giành quyền.');
+ 		model.kd.common.slice(0, COUNTS.kdCommon).forEach(function (x, i) { c.appendChild(questionRow(String(i + 1), x)); });
+ 		p.appendChild(c);
+ 		var more = model.kd.common.slice(COUNTS.kdCommon).filter(filled).length;
+-		if (more) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + more + ' câu lượt chung cho luật Olympia 23 (câu 13–' + KD_COMMON_MAX + ') - luật này không dùng, chuyển sang "Olympia 23" ở trên để xem.')); }
++		if (more) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + more + ' câu lượt chung cho luật Olympia 23 / luật rừng (câu 13–' + KD_COMMON_MAX + ') - luật này không dùng, chuyển luật ở trên để xem.')); }
++		var ownMore = [1, 2, 3, 4].reduce(function (n, s) { return n + model.kd.individual[s].slice(COUNTS.kdOwn).filter(filled).length; }, 0);
++		if (ownMore) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + ownMore + ' câu lượt riêng cho luật rừng (câu 7–' + KD_OWN_MAX + ' mỗi ghế) - luật này không dùng, chuyển sang "Luật rừng" ở trên để xem.')); }
+ 	}
+ 
+ 	function renderVcnv() {
+@@ -391,13 +417,14 @@
+ 	function renderTt() {
+ 		var p = $('#panett'); p.textContent = '';
+ 		if (rules === 'o23') { p.appendChild(el('p', 'meta', 'Luật Olympia 23: thời gian 4 câu luôn là 10 / 20 / 30 / 40 giây. Thời gian ghi trong bộ đề chỉ dùng cho luật Olympia 24 + 26.')); }
++		if (rules === 'jungle') { p.appendChild(el('p', 'meta', 'Luật rừng: mỗi câu luôn 30 giây; điểm theo tốc độ 25 / 10 / −5 / −20, sai hoặc không trả lời −20. Thời gian ghi trong bộ đề chỉ dùng cho luật Olympia 24 + 26.')); }
+ 		model.tt.forEach(function (x, i) {
+ 			var b = block('Câu ' + (i + 1));
+ 			var r = el('div', 'grid3');
+-			if (rules === 'o23') {
++			if (rules !== 'o24') {
+ 				var fixed = el('label', 'fld');
+ 				fixed.appendChild(document.createTextNode('Thời gian (giây)'));
+-				var f = el('input'); f.type = 'text'; f.value = O23.ttSeconds[i] + ' (cố định)'; f.disabled = true;
++				var f = el('input'); f.type = 'text'; f.value = (rules === 'o23' ? O23 : JUNGLE).ttSeconds[i] + ' (cố định)'; f.disabled = true;
+ 				fixed.appendChild(f);
+ 				r.appendChild(fixed);
+ 			}
+@@ -471,27 +498,39 @@
+ 
+ 	/* ---------- which rules the forms follow ---------- */
+ 
+-	/* the set: 13+ common questions written and no individual one -> made for Olympia 23 */
++	/* the set: a 7th+ individual question written -> Luật rừng; 13+ common questions and no
++	 * individual one -> Olympia 23 */
+ 	function guessRules(m) {
+ 		var own = [1, 2, 3, 4].some(function (s) { return m.kd.individual[s].some(filled); });
++		if ([1, 2, 3, 4].some(function (s) { return m.kd.individual[s].slice(COUNTS.kdOwn).some(filled); })) { return 'jungle'; }
+ 		return !own && m.kd.common.slice(COUNTS.kdCommon).some(filled) ? 'o23' : 'o24';
+ 	}
+ 
+-	function o23Missing(m) { return m.kd.common.filter(function (x) { return !filled(x); }).length; }
++	/* Khởi động questions the rules need and the set lacks: { miss, of } (bonus questions optional) */
++	function kdMissing(m, r) {
++		function blanks(list) { return list.filter(function (x) { return !filled(x); }).length; }
++		if (r === 'o23') { return { miss: blanks(m.kd.common), of: KD_COMMON_MAX }; }
++		if (r === 'jungle') {
++			var turns = JUNGLE.kdTurns[0] + JUNGLE.kdTurns[1];
++			var miss = blanks(m.kd.common.slice(0, turns)) + [1, 2, 3, 4].reduce(function (n, s) { return n + blanks(m.kd.individual[s].slice(0, JUNGLE.own)); }, 0);
++			return { miss: miss, of: turns + 4 * JUNGLE.own };
++		}
++		return { miss: 0, of: 0 };
++	}
+ 
+ 	function renderRules() {
+ 		document.querySelectorAll('#qeRules input').forEach(function (i) { i.checked = i.value === rules; });
+ 		var note = '';
+-		if (room && room.rules) { note = 'Phòng ' + room.code + ' chơi luật ' + (room.rules === 'o23' ? 'Olympia 23' : 'Olympia 24 + 26') + '.'; }
+-		if (rules === 'o23' && model) {
+-			var miss = o23Missing(model);
+-			if (miss) { note += (note ? ' ' : '') + 'Khởi động còn thiếu ' + miss + ' / ' + KD_COMMON_MAX + ' câu.'; }
++		if (room && room.rules) { note = 'Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' ? 'luật rừng (BETA)' : 'luật ' + (RULE_NAMES[room.rules] || RULE_NAMES.o24)) + '.'; }
++		if (rules !== 'o24' && model) {
++			var k = kdMissing(model, rules);
++			if (k.miss) { note += (note ? ' ' : '') + 'Khởi động còn thiếu ' + k.miss + ' / ' + k.of + ' câu' + (rules === 'jungle' ? ' (không tính câu bổ sung)' : '') + '.'; }
+ 		}
+ 		$('#qeRulesNote').textContent = note;
+ 	}
+ 
+ 	function setRules(r) {
+-		rules = r === 'o23' ? 'o23' : 'o24';
++		rules = RULE_NAMES[r] ? r : 'o24';
+ 		renderRules();
+ 		if (model) { renderKd(); renderTt(); }
+ 	}
+@@ -592,15 +631,33 @@
+ 	function renderSetInfo() {
+ 		show($('#setInfo'), !!set);
+ 		show($('#useForRoom'), !!(room && set));
++		renderRoomSet();
+ 		if (!set) { return; }
+ 		var using = room && room.question_set_id === set.id;
+ 		$('#setMeta').textContent = (set.files || []).length + ' file · tạo lúc ' + fmtTime(set.created_at) +
+-			(room ? (using ? ' · đang dùng cho phòng ' + room.code : ' · phòng ' + room.code + ' đang dùng ' + (room.question_set_id ? 'bộ đề khác' : 'bộ đề trên máy sân khấu / mẫu')) : '');
++			(room ? (using ? ' · đang dùng cho phòng ' + room.code : ' · phòng ' + room.code + ' đang dùng ' + roomSetName()) : '');
+ 		if (!room) { return; }   /* opened without a room: no "use for room" */
+ 		$('#useForRoom').disabled = using;
+ 		$('#useForRoom').textContent = using ? 'Đang dùng cho phòng ' + room.code : 'Dùng cho phòng ' + room.code;
+ 	}
+ 
++	/* what the room plays: a set of the manager's, the test set (Demo/, migrations/0016), or nothing */
++	function roomSetName() {
++		if (room.question_set_id) {
++			var s = sets.filter(function (x) { return x.id === room.question_set_id; })[0];
++			return s ? 'bộ đề "' + (s.name || '(không tên)') + '"' : 'bộ đề khác';
++		}
++		return room.demo_set ? 'bộ đề thử nghiệm' : 'chưa có bộ đề nào - mọi câu hỏi sẽ báo "chưa thiết lập"';
++	}
++
++	function renderRoomSet() {
++		show($('#demoBar'), !!room);
++		if (!room) { return; }
++		$('#roomSetLine').textContent = 'Phòng ' + room.code + ' đang dùng: ' + roomSetName() + '.';
++		$('#useDemo').disabled = !!room.demo_set && !room.question_set_id;
++		$('#useDemo').textContent = $('#useDemo').disabled ? 'Đang dùng bộ đề thử nghiệm' : 'Dùng bộ đề thử nghiệm';
++	}
++
+ 	async function loadSets(selectId) {
+ 		var r = await db.from('question_sets').select('id, name, files, created_at').order('created_at', { ascending: false });
+ 		if (r.error) {
+@@ -625,7 +682,7 @@
+ 		progress('Đang đọc bộ đề...');
+ 		model = modelFrom(await readSetXml(s));
+ 		saved = snapshot();
+-		rules = room && room.rules ? room.rules : guessRules(model);
++		rules = room && RULE_NAMES[room.rules] ? room.rules : guessRules(model);
+ 		progress('');
+ 		renderAll(false);
+ 	}
+@@ -703,7 +760,8 @@
+ 		$('#whoName').textContent = s.user.email || '';
+ 		var code = (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();
+ 		if (/^[A-Z0-9]{4,12}$/.test(code)) {
+-			var r = await db.from('rooms').select('code, name, question_set_id, rules').eq('code', code).maybeSingle();
++			var r = await db.from('rooms').select('code, name, question_set_id, rules, demo_set').eq('code', code).maybeSingle();
++			if (r.error) { r = await db.from('rooms').select('code, name, question_set_id, rules').eq('code', code).maybeSingle(); }   /* before 0016 */
+ 			if (r.error) { r = await db.from('rooms').select('code, name, question_set_id').eq('code', code).maybeSingle(); }   /* before 0013 */
+ 			if (r.data) { room = r.data; }
+ 		}
+@@ -731,13 +789,26 @@
+ 		$('#uploadForm').addEventListener('submit', onUpload);
+ 		$('#useForRoom').addEventListener('click', async function () {
+ 			if (!room || !set) { return; }
+-			if (room.rules === 'o23' && model && o23Missing(model) && !confirm('Phòng ' + room.code + ' chơi luật Olympia 23 nhưng Khởi động của bộ đề này còn thiếu ' + o23Missing(model) + ' / ' + KD_COMMON_MAX + ' câu lượt chung. Vẫn dùng bộ đề này?')) { return; }
++			var lack = model && room.rules && room.rules !== 'o24' ? kdMissing(model, room.rules) : { miss: 0 };
++			if (lack.miss && !confirm('Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' ? 'luật rừng' : 'luật Olympia 23') + ' nhưng Khởi động của bộ đề này còn thiếu ' + lack.miss + ' / ' + lack.of + ' câu. Vẫn dùng bộ đề này?')) { return; }
+ 			var r = await db.rpc('set_room_question_set', { p_code: room.code, p_set: set.id });
+ 			if (r.error || r.data === false) { setError('Không đổi được bộ đề của phòng: ' + (r.error ? r.error.message : 'không có quyền')); return; }
+ 			room.question_set_id = set.id;
++			room.demo_set = false;
+ 			renderSetList(); renderSetInfo();
+ 			progress('Phòng ' + room.code + ' sẽ dùng bộ đề "' + (set.name || '') + '" - tải lại màn sân khấu để áp dụng.');
+ 		});
++		$('#useDemo').addEventListener('click', async function () {
++			if (!room) { return; }
++			setError('');
++			var r = await db.rpc('set_room_demo_set', { p_code: room.code });
++			if (r.error && r.error.code === 'PGRST202') { setError('Chưa dùng được bộ đề thử nghiệm: hãy chạy supabase/migrations/0016_demo_question_set.sql trong SQL Editor.'); return; }
++			if (r.error || r.data === false) { setError('Không đổi được bộ đề của phòng: ' + (r.error ? r.error.message : 'chỉ chủ phòng mới đổi được')); return; }
++			room.question_set_id = null;
++			room.demo_set = true;
++			renderSetList(); renderSetInfo();
++			progress('Phòng ' + room.code + ' sẽ dùng bộ đề thử nghiệm - tải lại màn sân khấu để áp dụng.');
++		});
+ 		$('#renameSet').addEventListener('click', async function () {
+ 			if (!set) { return; }
+ 			var n = askName(set.name); if (n === null) { return; }
+@@ -747,7 +818,7 @@
+ 			renderSetList();
+ 		});
+ 		$('#deleteSet').addEventListener('click', async function () {
+-			if (!set || !confirm('Xoá hẳn bộ đề "' + (set.name || '') + '" và mọi file của nó? Phòng đang dùng bộ đề này sẽ quay về bộ đề trên máy sân khấu.')) { return; }
++			if (!set || !confirm('Xoá hẳn bộ đề "' + (set.name || '') + '" và mọi file của nó? Phòng đang dùng bộ đề này sẽ không còn bộ đề nào (mọi câu hỏi báo "chưa thiết lập").')) { return; }
+ 			var paths = (set.files || []).map(function (f) { return path(f.key); });
+ 			if (paths.length) { var rm = await db.storage.from('sets').remove(paths); if (rm.error) { setError(rm.error.message); return; } }
+ 			var r = await db.from('question_sets').delete().eq('id', set.id);
+diff --git a/olympia/Scripts/QuestionSet.js b/olympia/Scripts/QuestionSet.js
+index 444c93d..583b4ae 100644
+--- a/olympia/Scripts/QuestionSet.js
++++ b/olympia/Scripts/QuestionSet.js
+@@ -6,7 +6,9 @@
+  * per tab, so taking it twice is harmless), asks which set the room uses, and points DataFiles
+  * at short-lived signed links of its XML files. Pictures / videos named in the XML are looked up
+  * by file name in the set (resolveMedia); anything else (e.g. "O24/VCNV Image.png") stays a
+- * path of this site. No set, no room, or any failure: the set on this machine / the sample.
++ * path of this site. The room's owner may instead pick the test set in Demo/ (migrations/0016).
++ * In a room with neither, or when the set cannot be read, nothing is read: every question shows
++ * "Bạn / BTC chưa thiết lập..." (noSet). Without a room: the set on this machine / the sample.
+  *
+  * File names are stored as "keys" without accents or spaces (setFileKey - the lobby uses the
+  * same rule), and looked up the same way, so "Hình 1.png" in the XML finds the uploaded file.
+@@ -37,7 +39,26 @@
+ 		return !r.error && r.data === 'ok';
+ 	}
+ 
+-	/* true when the room's set is in use (DataFiles now point at it) */
++	/* the room plays nothing (no set chosen, or it is broken): no file is read and every question
++	 * shows MissingQuestionText (Variables.js) - never the sample in Demo/ */
++	function noSet(why) {
++		console.warn('[QuestionSet] ' + why + ' - questions show "' + gv.MissingQuestionText + '"');
++		gv.QuestionsUnset = true;
++		Object.keys(XML_FILES).forEach(function (k) { gv.DataFiles[k] = null; });
++		gv.QuestionSetName = 'Chưa thiết lập bộ câu hỏi';
++		return true;
++	}
++
++	/* the test set that ships with the site ("Dùng bộ đề thử nghiệm", migrations/0016) */
++	function demoSet() {
++		Object.keys(XML_FILES).forEach(function (k) { gv.DataFiles[k] = 'Demo/' + XML_FILES[k]; });
++		gv.QuestionSetName = 'Bộ đề thử nghiệm';
++		console.log('[QuestionSet] using the test set (Demo/)');
++		return true;
++	}
++
++	/* true when the room decided what is played (its set, the test set, or nothing - see noSet);
++	 * false outside a room, or when another engine holds the room (that one has the questions) */
+ 	gv.useRoomQuestionSet = async function () {
+ 		var code = (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();
+ 		var auth = window.OlympiaAuth, db = auth && auth.client;
+@@ -49,22 +70,19 @@
+ 			var rr = await db.rpc('room_rules', { p_code: code });
+ 			if (!rr.error && rr.data && gv.applyRules) { gv.applyRules(rr.data); console.log('[QuestionSet] rules: ' + rr.data); }
+ 			var r = await db.rpc('room_question_set', { p_code: code });
+-			if (r.error) {
+-				if (r.error.code !== 'PGRST202') { console.warn('[QuestionSet] room_question_set failed', r.error.message); }
+-				return false;   /* PGRST202: migration 0006 not run yet */
+-			}
++			if (r.error) { return noSet('room_question_set failed: ' + r.error.message); }
+ 			var set = r.data;
+-			if (!set || !set.id) { return false; }
++			if (set && set.demo) { return demoSet(); }
++			if (!set || !set.id) { return noSet('the room has no question set'); }
+ 			var files = (set.files || []).filter(function (f) { return f && f.key; });
+ 			var paths = files.map(function (f) { return set.owner + '/' + set.id + '/' + f.key; });
+-			if (!paths.length) { console.warn('[QuestionSet] set "' + set.name + '" has no files'); return false; }
++			if (!paths.length) { return noSet('set "' + set.name + '" has no files'); }
+ 			var s = await db.storage.from('sets').createSignedUrls(paths, LINK_SECONDS);
+-			if (s.error) { console.warn('[QuestionSet] could not sign the files', s.error.message); return false; }
++			if (s.error) { return noSet('could not sign the files: ' + s.error.message); }
+ 			var media = {};
+ 			(s.data || []).forEach(function (row, i) { if (row && row.signedUrl) { media[files[i].key] = row.signedUrl; } });
+ 			Object.keys(XML_FILES).forEach(function (k) {
+-				var link = media[XML_FILES[k]];
+-				gv.DataFiles[k] = link || ('Questions/__missing_' + XML_FILES[k]);   /* missing: the loader reports it */
++				gv.DataFiles[k] = media[XML_FILES[k]] || null;   /* missing: that round's questions show MissingQuestionText */
+ 			});
+ 			gv.QuestionSetMedia = media;
+ 			gv.QuestionSetName = set.name || '(bộ đề không tên)';
+@@ -72,8 +90,7 @@
+ 			return true;
+ 		}
+ 		catch (e) {
+-			console.warn('[QuestionSet] falling back to this machine\'s set', e);
+-			return false;
++			return noSet('reading the room\'s set failed: ' + (e && e.message));
+ 		}
+ 	};
+ })(window.GameVariables);
+diff --git a/olympia/Scripts/Recovery.js b/olympia/Scripts/Recovery.js
+index 2b80844..7e9487f 100644
+--- a/olympia/Scripts/Recovery.js
++++ b/olympia/Scripts/Recovery.js
+@@ -75,11 +75,13 @@ function restoreTieBreak(a) {
+ 	tieBreakRefreshBars();
+ }
+ 
+-/* kd: { mode: 'individual'|'common', done: [seats], seat, question } */
++/* kd: { mode: 'individual'|'common', done: [seats], seat, question, turn (O23 / Luật rừng common
++ * turns), own: { wrong, streak, bonus, gone } (Luật rừng individual turn) } */
+ function restoreKhoiDong(a) {
+ 	var g = window.GameVariables;
+-	if (g.Rules === 'o23') {                       /* Olympia 23: turn a.turn (1-3), from question a.question */
+-		var turn = recoveryInt(a.turn, 1, g.RulesO23.KD_TURNS.length, 1);
++	var turns = g.kdCommonTurns();
++	if (turns && (g.Rules === 'o23' || a.mode === 'common')) {   /* O23 / Luật rừng: common turn a.turn, from question a.question */
++		var turn = recoveryInt(a.turn, 1, turns.length, 1);
+ 		khoiDongResetO23(turn);
+ 		khoiDongO23Ready(turn);                   /* the turn's questions; plays kd_ready */
+ 		g.KhoiDongStartIndex = recoveryInt(a.question, 1, g.KhoiDongQuestionCount, 1);
+@@ -108,6 +110,15 @@ function restoreKhoiDong(a) {
+ 	g.KhoiDongMode = 'individual';
+ 	g.KhoiDongSeat = seat;
+ 	g.KhoiDongQuestionCount = g.Timings.KD_QUESTIONS_PER_PLAYER;
++	if (g.isJungle()) {                           /* Luật rừng: 12 + the bonus questions won, the clock where it was */
++		khoiDongJungleResetOwn();
++		var own = a.own || {};
++		g.KdOwnWrong = recoveryInt(own.wrong, 0, 99, 0);
++		g.KdOwnStreak = recoveryInt(own.streak, 0, g.RulesJungle.KD_OWN.streak - 1, 0);
++		g.KdOwnBonus = recoveryInt(own.bonus, 0, g.RulesJungle.KD_OWN.bonusMax, 0);
++		g.KhoiDongQuestionCount = g.RulesJungle.KD_OWN.questions + g.KdOwnBonus;
++		g.KdOwnResumeAt = Math.max(0, Math.min(g.RulesJungle.KD_OWN.seconds - 1, Number(own.gone) || 0));
++	}
+ 	g.KhoiDongStartIndex = recoveryInt(a.question, 1, g.KhoiDongQuestionCount, 1);
+ 	khoiDongResetQuestionState();
+ 	setContestantOnStage(seat);
+diff --git a/olympia/Scripts/RecoveryPanel.js b/olympia/Scripts/RecoveryPanel.js
+index 744e96f..61d1b69 100644
+--- a/olympia/Scripts/RecoveryPanel.js
++++ b/olympia/Scripts/RecoveryPanel.js
+@@ -80,9 +80,8 @@
+ 		options($('#rcKdQ'), range(t.KD_QUESTIONS_PER_PLAYER || 6));
+ 		options($('#rcKdCommonQ'), range(t.KD_COMMON_QUESTIONS || 12));
+ 		/* Olympia 23 (Rules.js): which of the three common turns - shown only under those rules */
+-		var turnLabel = el('label', 'rcO23Turn hidden', 'Lượt: ');
++		var turnLabel = el('label', 'rcO23Turn hidden', 'Lượt: ');   /* also Luật rừng's two common turns */
+ 		var turnSel = el('select'); turnSel.id = 'rcKdTurn';
+-		options(turnSel, gv.RulesO23.KD_TURNS.map(function (n, i) { return [i + 1, 'Lượt ' + (i + 1) + ' (' + n + ' câu)']; }));
+ 		turnLabel.appendChild(turnSel);
+ 		var commonRow = $('#rcKdCommonQ').closest('.rcRow');
+ 		commonRow.insertBefore(turnLabel, commonRow.firstChild);
+@@ -113,17 +112,23 @@
+ 	function showPanes() {
+ 		var r = picked('rcRound');
+ 		$$('.recovery .rcPane').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-r') === r); });
+-		/* Olympia 23: no individual turn - the common sub-pane with the turn picker */
+-		var o23 = gv.Rules === 'o23';
++		/* Olympia 23: no individual turn - the common sub-pane with the turn picker; Luật rừng: both,
++		 * the common one with its two turns */
++		var o23 = gv.Rules === 'o23', turns = gv.kdCommonTurns();
+ 		var kdModes = $('.recovery .rcPane[data-r="kd"] > .rcChoice');
+ 		if (kdModes) { kdModes.classList.toggle('hidden', o23); }
+-		$('.rcO23Turn').classList.toggle('hidden', !o23);
++		$('.rcO23Turn').classList.toggle('hidden', !turns);
+ 		if (o23) {
+ 			var common = document.querySelector('input[name="rcKdMode"][value="common"]');
+ 			if (common && !common.checked) { common.checked = true; }
+-			var n = gv.RulesO23.KD_TURNS[Number(val('#rcKdTurn')) - 1] || 8, q = $('#rcKdCommonQ'), keep = q.value;
+-			if (q.options.length !== n) { options(q, range(n)); if (Number(keep) <= n) { q.value = keep; } }
+ 		}
++		var turnSel = $('#rcKdTurn');
++		if (turns && turnSel.options.length !== turns.length) { var keepT = turnSel.value; options(turnSel, turns.map(function (n, i) { return [i + 1, 'Lượt ' + (i + 1) + ' (' + n + ' câu)']; })); if (Number(keepT) <= turns.length) { turnSel.value = keepT; } }
++		var n = turns ? (turns[Number(val('#rcKdTurn')) - 1] || turns[0]) : ((gv.Timings || {}).KD_COMMON_QUESTIONS || 12), q = $('#rcKdCommonQ'), keep = q.value;
++		if (q.options.length !== n) { options(q, range(n)); if (Number(keep) <= n) { q.value = keep; } }
++		/* Luật rừng: up to 12 + 4 bonus questions in the individual turn */
++		var ownN = gv.isJungle() ? gv.RulesJungle.KD_OWN.questions + gv.RulesJungle.KD_OWN.bonusMax : ((gv.Timings || {}).KD_QUESTIONS_PER_PLAYER || 6), oq = $('#rcKdQ'), keepO = oq.value;
++		if (oq.options.length !== ownN) { options(oq, range(ownN)); if (Number(keepO) <= ownN) { oq.value = keepO; } }
+ 		var m = picked('rcKdMode');
+ 		$$('.recovery .rcPane[data-r="kd"] .rcSub').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-m') === m); });
+ 		$('#rcVdMidBox').classList.toggle('on', checked('rcVdMid'));
+@@ -136,13 +141,13 @@
+ 		var args = { round: picked('rcRound'), scores: {} };
+ 		for (var i = 0; i < SEATS.length; i++) {
+ 			var s = SEATS[i], v = Number(val('#rcScore' + s));
+-			if (!isFinite(v) || v < 0 || val('#rcScore' + s) === '') { return { error: 'Điểm của ' + nameOf(s) + ' chưa hợp lệ.' }; }
++			if (!isFinite(v) || (v < 0 && !gv.Points.NEGATIVE) || val('#rcScore' + s) === '') {   /* Luật rừng: below 0 too */ return { error: 'Điểm của ' + nameOf(s) + ' chưa hợp lệ.' }; }
+ 			args.scores[s] = Math.round(v);
+ 		}
+ 		if (args.round === 'kd') {
+ 			var mode = picked('rcKdMode');
+ 			if (gv.Rules === 'o23') { args.kd = { mode: 'common', turn: Number(val('#rcKdTurn')), question: Number(val('#rcKdCommonQ')) }; }
+-			else if (mode === 'common') { args.kd = { mode: 'common', question: Number(val('#rcKdCommonQ')) }; }
++			else if (mode === 'common') { args.kd = { mode: 'common', turn: gv.kdCommonTurns() ? Number(val('#rcKdTurn')) : undefined, question: Number(val('#rcKdCommonQ')) }; }
+ 			else {
+ 				var done = SEATS.filter(function (s) { return checked('rcKdDone' + s); });
+ 				if (done.length === 4) { return { error: 'Cả 4 thí sinh đã thi xong lượt riêng - hãy chọn "Lượt chung".' }; }
+diff --git a/olympia/Scripts/Rounds/KhoiDong.js b/olympia/Scripts/Rounds/KhoiDong.js
+index e202f71..ac3b65d 100644
+--- a/olympia/Scripts/Rounds/KhoiDong.js
++++ b/olympia/Scripts/Rounds/KhoiDong.js
+@@ -34,13 +34,21 @@
+  *     Right       after the turn's last question: graphics off, kd_complete 2 s later -> (5), or (6) after turn 3
+  *     Left    (5) the next turn: kd_ready
+  *
++ *   LUẬT RỪNG (Rules.js, gv.Rules 'jungle') - the individual turn as above, but against a 60 s
++ *   clock (the question bar's timer bar, started with question 1; the bed plays straight):
++ *   up to 12 questions, and one bonus question (13-16 of the seat's list) for every 3 right in a
++ *   row, asked only while time is left. Up +10; Down: the 1st wrong is free, then -5 each. Space
++ *   does nothing. Time up: the question on screen is still judged, Right ends the turn.
++ *   Then two common turns of 8 and 16 questions, as in Olympia 23 (<common> 1-8, 9-24); the n-th
++ *   wrong of a seat in a turn costs 5 x (n-1).
++ *
+  * KhoiDongSequenceCounter (table in Variables.js):
+  *   0 idle   1 title   2 ready   3 set   4 question   5 done (next contestant / O23: next turn waiting)   6 finished
+  */
+ 
+ function khoiDongQuestionList() {
+ 	var kd = window.GameVariables.KhoiDongQuestions || {};
+-	if (window.GameVariables.Rules === 'o23') {   /* this turn's slice of <common> */
++	if (window.GameVariables.kdCommonTurns() && window.GameVariables.KhoiDongMode == 'common') {   /* O23 / Luật rừng: this turn's slice of <common> */
+ 		var off = window.GameVariables.KhoiDongQuestionOffset || 0;
+ 		return (kd.common || []).slice(off, off + window.GameVariables.KhoiDongQuestionCount);
+ 	}
+@@ -69,25 +77,29 @@ function khoiDongResetQuestionState() {
+ function khoiDongShowQuestion(index) {
+ 	var q = khoiDongQuestionList()[index - 1];
+ 	window.GameVariables.KhoiDongQuestionIndex = index;
+-	window.GameVariables.KhoiDongCurrentQuestion = q ? q.text : (window.GameVariables.Rules === 'o23'
+-		? '(thiếu câu ' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + index) + ' trong <common> - lượt ' + window.GameVariables.KhoiDongTurn + ' cần câu ' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + 1) + '-' + ((window.GameVariables.KhoiDongQuestionOffset || 0) + window.GameVariables.KhoiDongQuestionCount) + ')'
+-		: '(thiếu câu ' + index + (window.GameVariables.KhoiDongMode == 'common' ? ' lượt chung' : ' cho ghế ' + window.GameVariables.KhoiDongSeat) + ')');
++	window.GameVariables.KhoiDongCurrentQuestion = q && q.text ? q.text : window.GameVariables.MissingQuestionText;
+ 	window.GameVariables.KhoiDongCurrentAnswer = q ? (q.answer || '') : '';
+ 	window.GameVariables.KhoiDongLastResult = null;
+ 	window.GameVariables.KhoiDongBuzzSeat = null;
+ 	window.GameVariables.IsKhoiDongQuestionResolved = false;
+-	hideThinkClock();
++	if (!khoiDongJungleOwn()) { hideThinkClock(); }   /* it stops the running clock - Luật rừng: the turn's 60 s */
+ 	clearBuzzers();
+ 	setQuestionText(window.GameVariables.KhoiDongCurrentQuestion);
+ 	khoiDongO23Label();
+ 
+-	if (index == 1) { startLongPassiveSound('kd_60s.mp3'); }
+-	if (index == window.GameVariables.KhoiDongQuestionCount) { releaseLongPassiveSound(); }   /* last question: let the outro play */
++	if (khoiDongJungleOwn()) {   /* Luật rừng: the 60 s clock runs from question 1; the bed plays straight */
++		if (index == 1 || !window.GameVariables.KdOwnClockStarted) { khoiDongJungleStartClock(); }
++	}
++	else {
++		if (index == 1) { startLongPassiveSound('kd_60s.mp3'); }
++		if (index == window.GameVariables.KhoiDongQuestionCount) { releaseLongPassiveSound(); }   /* last question: let the outro play */
++	}
+ 	window.GameVariables.KhoiDongSequenceCounter = 4;
+ }
+ 
+ /* Right during a question: the next one, or the end of the turn. */
+ function khoiDongNextQuestion() {
++	if (khoiDongJungleOwn() && window.GameVariables.IsKdOwnTimeUp) { khoiDongCompleteTurn(); return; }   /* Luật rừng: time is up */
+ 	if (window.GameVariables.KhoiDongQuestionIndex < window.GameVariables.KhoiDongQuestionCount) {
+ 		khoiDongShowQuestion(window.GameVariables.KhoiDongQuestionIndex + 1);
+ 	}
+@@ -141,6 +153,7 @@ function khoiDongCallNextContestant() {
+ 	setContestantOnStage(seat);
+ 	window.GameVariables.KhoiDongSeat = seat;
+ 	khoiDongResetQuestionState();
++	if (window.GameVariables.isJungle()) { khoiDongJungleResetOwn(); }
+ 	startGeneralSound('kd_ready.ogg');
+ 	window.GameVariables.KhoiDongSequenceCounter = 2;
+ }
+@@ -157,6 +170,7 @@ function khoiDongOpenQuestionBar() {
+ }
+ 
+ function khoiDongCompleteTurn() {
++	if (khoiDongJungleOwn()) { khoiDongJungleStopClock(); }
+ 	var p = window.GameVariables.getPlayer(window.GameVariables.KhoiDongSeat);
+ 	if (p) { p.kdDone = true; }
+ 	setContestantOnStage(null);
+@@ -167,6 +181,7 @@ function khoiDongCompleteTurn() {
+ 
+ /* Up during an individual turn: +10, kd_correct */
+ function khoiDongJudgeIndividualCorrect() {
++	if (khoiDongJungleOwn()) { khoiDongJungleJudge(true); return; }
+ 	hideThinkClock();
+ 	startLongActiveSound('kd_correct.mp3');
+ 	addScore(window.GameVariables.KhoiDongSeat, window.GameVariables.Points.KD_CORRECT);
+@@ -175,6 +190,7 @@ function khoiDongJudgeIndividualCorrect() {
+ 
+ /* Down during an individual turn: kd_wrong, no deduction (KD_WRONG_INDIVIDUAL) */
+ function khoiDongJudgeIndividualWrong() {
++	if (khoiDongJungleOwn()) { khoiDongJungleJudge(false); return; }
+ 	hideThinkClock();
+ 	startLongActiveSound('kd_wrong.ogg');
+ 	if (window.GameVariables.Points.KD_WRONG_INDIVIDUAL) { addScore(window.GameVariables.KhoiDongSeat, window.GameVariables.Points.KD_WRONG_INDIVIDUAL); }
+@@ -213,7 +229,7 @@ function khoiDongCommonOpenQuestionBar() {
+ function khoiDongCommonComplete() {
+ 	khoiDongHideGraphicsThenComplete();
+ 	khoiDongResetQuestionState();
+-	if (window.GameVariables.Rules === 'o23' && window.GameVariables.KhoiDongTurn < window.GameVariables.RulesO23.KD_TURNS.length) {
++	if (window.GameVariables.kdCommonTurns() && window.GameVariables.KhoiDongTurn < window.GameVariables.kdCommonTurns().length) {
+ 		window.GameVariables.KhoiDongSequenceCounter = 5;   /* Left: the next turn */
+ 		console.log('[KD] turn ' + window.GameVariables.KhoiDongTurn + ' finished - Left opens turn ' + (window.GameVariables.KhoiDongTurn + 1));
+ 		return;
+@@ -226,10 +242,11 @@ function khoiDongCommonComplete() {
+ 
+ /* Left on the title (turn 1) or after a turn (the next one): the turn's questions + kd_ready */
+ function khoiDongO23Ready(turn) {
+-	var g = window.GameVariables, sizes = g.RulesO23.KD_TURNS;
++	var g = window.GameVariables, sizes = g.kdCommonTurns();
+ 	turn = Math.max(1, Math.min(sizes.length, turn || 1));
+ 	hideTitleCard();
+ 	g.KhoiDongTurn = turn;
++	g.KdTurnWrong = {};   /* Luật rừng: wrongs count per turn */
+ 	g.KhoiDongQuestionOffset = sizes.slice(0, turn - 1).reduce(function (a, b) { return a + b; }, 0);
+ 	g.Players.forEach(function (p) { p.kdDone = true; });   /* no individual turn under these rules */
+ 	g.KhoiDongMode = 'common';
+@@ -244,7 +261,7 @@ function khoiDongO23Ready(turn) {
+ /* "Lượt N: x/y" on the question bar (Olympia 23 only; '' hides it) */
+ function khoiDongO23Label() {
+ 	var g = window.GameVariables;
+-	if (g.Rules !== 'o23' || g.KhoiDongMode !== 'common' || !g.KhoiDongTurn) { setKdTurnLabel(''); return; }
++	if (!g.kdCommonTurns() || g.KhoiDongMode !== 'common' || !g.KhoiDongTurn) { setKdTurnLabel(''); return; }
+ 	setKdTurnLabel('Lượt ' + g.KhoiDongTurn + (g.KhoiDongQuestionIndex ? ': ' + g.KhoiDongQuestionIndex + '/' + g.KhoiDongQuestionCount : ''));   /* no question yet: just the turn */
+ }
+ 
+@@ -278,7 +295,8 @@ function khoiDongJudgeCommonWrong() {
+ 	hideThinkClock();
+ 	startLongActiveSound('kd_wrong.ogg');
+ 	if (window.GameVariables.KhoiDongBuzzSeat !== null) {
+-		addScore(window.GameVariables.KhoiDongBuzzSeat, window.GameVariables.Points.KD_WRONG_COMMON);
++		var cost = khoiDongCommonWrongPoints(window.GameVariables.KhoiDongBuzzSeat);
++		if (cost) { addScore(window.GameVariables.KhoiDongBuzzSeat, cost); }
+ 		window.GameVariables.KhoiDongLastResult = 'wrong';
+ 	}
+ 	else {
+@@ -292,6 +310,7 @@ function khoiDongJudgeCommonWrong() {
+ /* Restart from the individual turn (seat given: only un-mark that seat). Olympia 23: from turn 1. */
+ function khoiDongReset(seat) {
+ 	if (window.GameVariables.Rules === 'o23') { khoiDongResetO23(1); return; }
++	if (window.GameVariables.isJungle()) { khoiDongJungleStopClock(); }
+ 	window.GameVariables.Players.forEach(function (p) { if (seat === null || p.seat === seat) { p.kdDone = false; } });
+ 	khoiDongHideGraphicsNow();
+ 	setQuestionBarVariant('timer');
+@@ -311,8 +330,9 @@ function khoiDongResetO23(turn) {
+ 	g.KhoiDongMode = 'common';
+ 	g.KhoiDongSeat = null;
+ 	g.KhoiDongTurn = Math.max(1, turn || 1);
+-	g.KhoiDongQuestionOffset = g.RulesO23.KD_TURNS.slice(0, g.KhoiDongTurn - 1).reduce(function (a, b) { return a + b; }, 0);
+-	g.KhoiDongQuestionCount = g.RulesO23.KD_TURNS[g.KhoiDongTurn - 1];
++	g.KhoiDongQuestionOffset = g.kdCommonTurns().slice(0, g.KhoiDongTurn - 1).reduce(function (a, b) { return a + b; }, 0);
++	g.KhoiDongQuestionCount = g.kdCommonTurns()[g.KhoiDongTurn - 1];
++	g.KdTurnWrong = {};
+ 	khoiDongResetQuestionState();
+ 	g.KhoiDongSequenceCounter = g.KhoiDongTurn === 1 ? 0 : 5;   /* turn 1: title first; later turns: Left = kd_ready */
+ 	if (g.KhoiDongTurn > 1) { g.KhoiDongTurn -= 1; }             /* (5) opens "the next turn" */
+@@ -320,7 +340,7 @@ function khoiDongResetO23(turn) {
+ 
+ /* Restart only the common turn (question 1 again on the next Left/Right). Olympia 23: this turn. */
+ function khoiDongResetCommon() {
+-	if (window.GameVariables.Rules === 'o23') { khoiDongResetO23(window.GameVariables.KhoiDongTurn || 1); return; }
++	if (window.GameVariables.kdCommonTurns()) { khoiDongResetO23(window.GameVariables.KhoiDongTurn || 1); return; }
+ 	khoiDongHideGraphicsNow();
+ 	setQuestionBarVariant('plain');
+ 	window.GameVariables.KhoiDongMode = 'common';
+@@ -329,3 +349,83 @@ function khoiDongResetCommon() {
+ 	khoiDongResetQuestionState();
+ 	window.GameVariables.KhoiDongSequenceCounter = 0;
+ }
++
++/* ---------- Luật rừng (Rules.js, gv.Rules 'jungle') ---------- */
++
++/* the individual turn under Luật rừng (60 s, bonus questions) */
++function khoiDongJungleOwn() { return window.GameVariables.isJungle() && window.GameVariables.KhoiDongMode != 'common'; }
++
++function khoiDongJungleResetOwn() {
++	var g = window.GameVariables;
++	khoiDongJungleStopClock();
++	g.KhoiDongQuestionCount = g.RulesJungle.KD_OWN.questions;
++	g.KdOwnWrong = 0;
++	g.KdOwnStreak = 0;
++	g.KdOwnBonus = 0;
++	g.IsKdOwnTimeUp = false;
++	g.KdOwnClockStarted = false;
++}
++
++/* the turn's 60 s on the question bar's timer bar - the same bar as VCNV / Tăng tốc / Về đích (and
++ * Câu hỏi phụ); the screens move it from the clock like any other (AudienceMirror.js) */
++function khoiDongJungleStartClock() {
++	var g = window.GameVariables, secs = g.RulesJungle.KD_OWN.seconds;
++	var startAt = g.KdOwnResumeAt || 0;   /* a recovery / a resumed save: where the clock was */
++	g.KdOwnResumeAt = 0;
++	g.KdOwnClockStarted = true;
++	g.IsKdOwnTimeUp = false;
++	startLongPassiveSound('kd_60s.mp3', true);   /* straight through: no loop under a fixed 60 s */
++	startQuestionTimer();
++	startClock({
++		mode: 'down', duration: secs, label: 'kd_turn', startAt: startAt,
++		onTick: function (remaining) { setQuestionTimer(1 - remaining / secs); },
++		onDone: function () {
++			setQuestionTimer(1);
++			g.IsKdOwnTimeUp = true;
++			console.log('[KD] time up - judge the question on screen, Right ends the turn');
++			g.changed();
++		}
++	});
++}
++
++function khoiDongJungleStopClock() {
++	var g = window.GameVariables;
++	if (g.KdOwnClockStarted && isClockRunning()) { stopClock(); }
++	g.KdOwnClockStarted = false;
++	hideQuestionTimer();
++}
++
++/* Up / Down in the individual turn: one verdict per question */
++function khoiDongJungleJudge(right) {
++	var g = window.GameVariables, own = g.RulesJungle.KD_OWN, seat = g.KhoiDongSeat;
++	if (g.IsKhoiDongQuestionResolved || !g.KhoiDongQuestionIndex) { return; }
++	g.IsKhoiDongQuestionResolved = true;
++	if (right) {
++		startLongActiveSound('kd_correct.mp3');
++		addScore(seat, g.Points.KD_CORRECT);
++		g.KdOwnStreak += 1;
++		if (g.KdOwnStreak >= own.streak) {   /* 3 in a row: one more question at the end (at most 4) */
++			g.KdOwnStreak = 0;
++			if (g.KdOwnBonus < own.bonusMax) { g.KdOwnBonus += 1; g.KhoiDongQuestionCount = own.questions + g.KdOwnBonus; }
++		}
++		g.KhoiDongLastResult = 'correct';
++	}
++	else {
++		startLongActiveSound('kd_wrong.ogg');
++		g.KdOwnWrong += 1;
++		g.KdOwnStreak = 0;
++		if (g.KdOwnWrong >= 2) { addScore(seat, own.wrong); }   /* the first wrong is free */
++		g.KhoiDongLastResult = 'wrong';
++	}
++	g.changed();
++}
++
++/* a wrong buzz in the common turn: -5 (O24 / O23); Luật rừng: the seat's n-th wrong of this turn
++ * costs 5 x (n-1) */
++function khoiDongCommonWrongPoints(seat) {
++	var g = window.GameVariables;
++	if (!g.isJungle()) { return g.Points.KD_WRONG_COMMON; }
++	g.KdTurnWrong = g.KdTurnWrong || {};
++	g.KdTurnWrong[seat] = (g.KdTurnWrong[seat] || 0) + 1;
++	return g.RulesJungle.KD_TURN_WRONG * (g.KdTurnWrong[seat] - 1) || 0;   /* no -0 */
++}
+diff --git a/olympia/Scripts/Rounds/TangToc.js b/olympia/Scripts/Rounds/TangToc.js
+index 7922fd1..1bd02b1 100644
+--- a/olympia/Scripts/Rounds/TangToc.js
++++ b/olympia/Scripts/Rounds/TangToc.js
+@@ -69,7 +69,9 @@ function tangTocShowTitle() {
+ }
+ 
+ function tangTocShowQuestion(index) {
+-	var q = tangTocQuestions()[index - 1] || { text: '(thiếu câu ' + index + ')', media: { type: 'image', src: '' }, answer: '', seconds: window.GameVariables.Timings.TANG_TOC[index - 1] || 20 };
++	var q = tangTocQuestions()[index - 1] || { text: '', media: { type: 'image', src: '' }, answer: '', seconds: window.GameVariables.Timings.TANG_TOC[index - 1] || 20 };
++	/* nothing to show (no text, no picture / video): never written, or its file is broken */
++	if (!q.text && !(q.media && q.media.src)) { q = Object.assign({}, q, { text: window.GameVariables.MissingQuestionText }); }
+ 	window.GameVariables.TangTocIndex = index;
+ 	window.GameVariables.TangTocSeconds = q.seconds;
+ 	window.GameVariables.TangTocQuestion = q.text;
+@@ -172,6 +174,11 @@ function tangTocMarkCorrect(seat) {
+ 
+ function tangTocGradeQuestion() {
+ 	var pts = window.GameVariables.ttRankPoints(window.GameVariables.TangTocTimes, window.GameVariables.TangTocCorrectSeats);
++	if (window.GameVariables.isJungle()) {   /* Luật rừng: a wrong / no answer costs TANG_TOC_MISS */
++		window.GameVariables.Players.forEach(function (p) {
++			if (window.GameVariables.TangTocCorrectSeats.indexOf(p.seat) === -1) { pts[p.seat] = window.GameVariables.RulesJungle.TANG_TOC_MISS; }
++		});
++	}
+ 	window.GameVariables.TangTocAwarded = pts;
+ 	Object.keys(pts).forEach(function (seat) { addScore(parseInt(seat, 10), pts[seat]); });
+ 	gradeAnswerTree(window.GameVariables.TangTocCorrectSeats);
+diff --git a/olympia/Scripts/Rounds/TieBreak.js b/olympia/Scripts/Rounds/TieBreak.js
+index 27c9df7..72ef297 100644
+--- a/olympia/Scripts/Rounds/TieBreak.js
++++ b/olympia/Scripts/Rounds/TieBreak.js
+@@ -124,7 +124,7 @@ function tieBreakNextQuestion() {
+ 	hideQuestionTimer();
+ 	clearBuzzers();
+ 	g.TieBreakQuestionIndex = index;
+-	g.TieBreakCurrentQuestion = q ? q.text : ('(thiếu câu hỏi phụ ' + index + ')');
++	g.TieBreakCurrentQuestion = q && q.text ? q.text : g.MissingQuestionText;
+ 	g.TieBreakCurrentAnswer = q ? (q.answer || '') : '';
+ 	g.TieBreakBuzzSeat = null;
+ 	g.IsTieBreakBuzzEarly = false;
+diff --git a/olympia/Scripts/Rounds/VCNV.js b/olympia/Scripts/Rounds/VCNV.js
+index 00d6c93..17c710f 100644
+--- a/olympia/Scripts/Rounds/VCNV.js
++++ b/olympia/Scripts/Rounds/VCNV.js
+@@ -154,7 +154,7 @@ function vcnvUnselectRow() {
+ /* (2) Right: the question itself, instant */
+ function vcnvRevealQuestion() {
+ 	var n = window.GameVariables.VcnvCurrentRow;
+-	window.GameVariables.VcnvCurrentQuestion = vcnvQuestionFor(n).text || (n == VCNV_CENTER ? '(thiếu câu ô trung tâm)' : '(thiếu câu hàng ' + n + ')');
++	window.GameVariables.VcnvCurrentQuestion = vcnvQuestionFor(n).text || window.GameVariables.MissingQuestionText;
+ 	setObstacleQuestion(window.GameVariables.VcnvCurrentQuestion);
+ 	startGeneralSound('vcnv_open_question.mp3');
+ 	window.GameVariables.VcnvSequenceCounter = 4;
+@@ -235,6 +235,11 @@ function vcnvGradeRow() {
+ 	if (!r) { return; }
+ 	var pts = n == VCNV_CENTER ? window.GameVariables.Points.VCNV_CENTER : window.GameVariables.Points.VCNV_ROW;
+ 	r.correctSeats.forEach(function (seat) { addScore(seat, pts); });
++	if (window.GameVariables.isJungle()) {   /* Luật rừng: every seat still in that missed the row */
++		window.GameVariables.Players.forEach(function (p) {
++			if (r.correctSeats.indexOf(p.seat) === -1 && !vcnvIsEliminated(p.seat)) { addScore(p.seat, window.GameVariables.RulesJungle.VCNV_ROW_MISS); }
++		});
++	}
+ 	if (r.correctSeats.length) {
+ 		r.status = 'correct';
+ 		setObstacleRowState(n, 'correct');
+diff --git a/olympia/Scripts/Rounds/VeDich.js b/olympia/Scripts/Rounds/VeDich.js
+index 5f956fb..8b9f077 100644
+--- a/olympia/Scripts/Rounds/VeDich.js
++++ b/olympia/Scripts/Rounds/VeDich.js
+@@ -18,6 +18,8 @@
+  *                        music keeps running
+  *   Up / Down (stealAnswer)  stealer right: + value to them, - value to the contestant on stage
+  *                        (not with the star) / stealer wrong: - half the value
++ *   LUẬT RỪNG (Rules.js): a wrong answer costs - value (x2 with the star); a right steal takes the
++ *                        value from the contestant on stage with the star too
+  *   S        (answered / steal with nobody)  the star on the NEXT question
+  *   Right    (answered / steal with nobody)  next question at once ... after the THIRD question:
+  *                        question bar + score box off, vd_turn_complete -> blank
+@@ -138,7 +140,7 @@ function veDichQuestionAt(index) {
+ 	var k = 0;
+ 	for (var i = 0; i < index; i++) { if (window.GameVariables.VeDichValues[i] === v) { k += 1; } }
+ 	var q = veDichPackage(window.GameVariables.VeDichSeat)[v][k - 1];
+-	return { value: v, text: q ? q.text : ('(thiếu câu ' + v + ' điểm #' + k + ' của ghế ' + window.GameVariables.VeDichSeat + ')'), answer: q ? q.answer : '' };
++	return { value: v, text: q && q.text ? q.text : window.GameVariables.MissingQuestionText, answer: q ? q.answer : '' };
+ }
+ 
+ /* loads question `index` (host sees it on the panel) */
+@@ -260,7 +262,11 @@ function veDichAnswerCorrect() {
+ 
+ function veDichAnswerWrong() {
+ 	veDichStopTimer();
+-	if (veDichStarred()) {
++	if (window.GameVariables.isJungle()) {   /* Luật rừng: the value, twice with the star */
++		addScore(window.GameVariables.VeDichSeat, -window.GameVariables.VeDichValue * (veDichStarred() ? 2 : 1));
++		veDichRefreshScores();
++	}
++	else if (veDichStarred()) {
+ 		addScore(window.GameVariables.VeDichSeat, -window.GameVariables.VeDichValue);
+ 		veDichRefreshScores();
+ 	}
+@@ -281,7 +287,7 @@ function veDichStealBuzz(seat) {
+ 
+ function veDichStealCorrect() {
+ 	addScore(window.GameVariables.VeDichStealSeat, window.GameVariables.VeDichValue);
+-	if (!veDichStarred()) { addScore(window.GameVariables.VeDichSeat, -window.GameVariables.VeDichValue); }
++	if (!veDichStarred() || window.GameVariables.isJungle()) { addScore(window.GameVariables.VeDichSeat, -window.GameVariables.VeDichValue); }   /* Luật rừng: star or not */
+ 	veDichRefreshScores();
+ 	startLongActiveSound('vd_correct.ogg', true);
+ 	window.GameVariables.VeDichStealResult = 'correct';
+diff --git a/olympia/Scripts/Rules.js b/olympia/Scripts/Rules.js
+index 60119b3..7e6570c 100644
+--- a/olympia/Scripts/Rules.js
++++ b/olympia/Scripts/Rules.js
+@@ -6,6 +6,14 @@
+  *   'o23'  Olympia 23: Khởi động is three common turns of 8, 12 and 16 questions (taken in order
+  *          from <common> in khoidong.xml), obstacle 50-40-30-20 (10 after the centre), Tăng tốc
+  *          clocks 10/20/30/40 whatever tangtoc.xml says
++ *   'jungle' "Luật rừng" (BETA) - scores may go below 0:
++ *          Khởi động: 4 individual turns of 60 s (up to 12 questions + a bonus one at the end for
++ *          every 3 right in a row, at most 4; 1st wrong free, then -5 each), then two common turns
++ *          of 8 and 16 questions (the n-th wrong of a seat in a turn costs 5*(n-1));
++ *          obstacle 100-75-50-25 (10 after the centre), -5 to every seat still in that misses a row;
++ *          Tăng tốc 30 s each, 25/10/-5/-20 by speed, -20 for a wrong / no answer;
++ *          Về đích: a wrong answer costs the value (x2 with the star), a right steal always takes
++ *          the value from the contestant on stage
+  *
+  * Where the rules come from: the engine in a room asks the database (QuestionSet.js, room_rules
+  * - migrations/0013) before it reads the questions; without a room, ?rules=o23 in the address
+@@ -16,7 +24,8 @@
+ 	var BASE = {
+ 		VCNV_OBSTACLE: Object.assign({}, gv.Points.VCNV_OBSTACLE),
+ 		VCNV_AFTER_CENTER: gv.Points.VCNV_AFTER_CENTER,
+-		TANG_TOC: gv.Timings.TANG_TOC.slice()
++		TANG_TOC: gv.Timings.TANG_TOC.slice(),
++		TANG_TOC_RANK: gv.Points.TANG_TOC_RANK.slice()
+ 	};
+ 	var O23 = {
+ 		VCNV_OBSTACLE: { 1: 50, 2: 40, 3: 30, 4: 20 },
+@@ -24,25 +33,49 @@
+ 		TANG_TOC: [10, 20, 30, 40],
+ 		KD_TURNS: [8, 12, 16]
+ 	};
++	var JUNGLE = {
++		VCNV_OBSTACLE: { 1: 100, 2: 75, 3: 50, 4: 25 },
++		VCNV_AFTER_CENTER: 10,
++		VCNV_ROW_MISS: -5,                 /* every seat still in that does not get the row right */
++		TANG_TOC: [30, 30, 30, 30],
++		TANG_TOC_RANK: [25, 10, -5, -20],
++		TANG_TOC_MISS: -20,                /* a wrong / no answer */
++		KD_OWN: { questions: 12, bonusMax: 4, streak: 3, seconds: 60, wrong: -5 },   /* the individual turn */
++		KD_TURN_WRONG: -5,                 /* common turns: the n-th wrong of a seat costs (n-1) x this */
++		KD_TURNS: [8, 16]
++	};
++	var NAMES = { o24: 'Olympia 24 + 26', o23: 'Olympia 23', jungle: 'Luật rừng (BETA)' };
+ 
+ 	gv.Rules = 'o24';
+ 	gv.RulesO23 = O23;
++	gv.RulesJungle = JUNGLE;
++	gv.RulesNames = NAMES;
+ 
+-	/* name: 'o24' | 'o23' (anything else: 'o24') */
++	/* name: 'o24' | 'o23' | 'jungle' (anything else: 'o24') */
+ 	gv.applyRules = function (name) {
+-		var r = name === 'o23' ? 'o23' : 'o24';
+-		var src = r === 'o23' ? O23 : BASE;
++		var r = NAMES[name] ? name : 'o24';
++		var src = r === 'o23' ? O23 : (r === 'jungle' ? JUNGLE : BASE);
+ 		gv.Rules = r;
+ 		gv.Points.VCNV_OBSTACLE = Object.assign({}, src.VCNV_OBSTACLE);
+ 		gv.Points.VCNV_AFTER_CENTER = src.VCNV_AFTER_CENTER;
++		gv.Points.TANG_TOC_RANK = (src.TANG_TOC_RANK || BASE.TANG_TOC_RANK).slice();
++		gv.Points.NEGATIVE = r === 'jungle';
+ 		gv.Timings.TANG_TOC = src.TANG_TOC.slice();
+-		if (document.body) { document.body.classList.toggle('rulesO23', r === 'o23'); }
+-		else { document.addEventListener('DOMContentLoaded', function () { document.body.classList.toggle('rulesO23', gv.Rules === 'o23'); }); }
++		function mark() {
++			document.body.classList.toggle('rulesO23', gv.Rules === 'o23');
++			document.body.classList.toggle('rulesJungle', gv.Rules === 'jungle');
++		}
++		if (document.body) { mark(); } else { document.addEventListener('DOMContentLoaded', mark); }
+ 		return r;
+ 	};
+ 	gv.isO23 = function () { return gv.Rules === 'o23'; };
++	gv.isJungle = function () { return gv.Rules === 'jungle'; };
++	/* Khởi động's common turns in the Olympia 23 style (sizes), or null (one 12-question turn, O24) */
++	gv.kdCommonTurns = function () { return gv.Rules === 'o23' ? O23.KD_TURNS : (gv.Rules === 'jungle' ? JUNGLE.KD_TURNS : null); };
++	/* Tăng tốc clocks fixed by the rules (tangtoc.xml's seconds ignored) */
++	gv.fixedTangTocClocks = function () { return gv.Rules === 'o23' || gv.Rules === 'jungle'; };
+ 
+-	/* without a room: ?rules=o23 (trying it out on one machine) */
++	/* without a room: ?rules=o23 / ?rules=jungle (trying it out on one machine) */
+ 	var p = new URLSearchParams(location.search);
+ 	if (!p.get('room') && p.get('rules')) { gv.applyRules(p.get('rules')); }
+ })(window.GameVariables);
+diff --git a/olympia/Scripts/ScoreboardControl.js b/olympia/Scripts/ScoreboardControl.js
+index 7763600..5deecf3 100644
+--- a/olympia/Scripts/ScoreboardControl.js
++++ b/olympia/Scripts/ScoreboardControl.js
+@@ -71,7 +71,7 @@ function setContestantBarScore(seat, value) {
+ function addScore(seat, delta) {
+ 	var p = window.GameVariables.getPlayer(seat);
+ 	if (!p) { return; }
+-	p.score = Math.max(0, p.score + delta);
++	p.score = window.GameVariables.Points.NEGATIVE ? p.score + delta : Math.max(0, p.score + delta);   /* Luật rừng: below 0 too */
+ 	setContestantBarScore(seat, p.score);
+ 	window.GameVariables.changed();
+ }
+@@ -80,7 +80,8 @@ function addScore(seat, delta) {
+ function setScore(seat, value) {
+ 	var p = window.GameVariables.getPlayer(seat);
+ 	if (!p) { return; }
+-	p.score = Math.max(0, Math.round(Number(value) || 0));
++	p.score = Math.round(Number(value) || 0);
++	if (!window.GameVariables.Points.NEGATIVE) { p.score = Math.max(0, p.score); }
+ 	setContestantBarScore(seat, p.score);
+ 	window.GameVariables.changed();
+ }
+diff --git a/olympia/Scripts/Variables.js b/olympia/Scripts/Variables.js
+index 8762ce8..ebd8dd9 100644
+--- a/olympia/Scripts/Variables.js
++++ b/olympia/Scripts/Variables.js
+@@ -47,6 +47,11 @@
+ 		TIEBREAK_MAX_QUESTIONS: 3               /* Câu hỏi phụ: questions in a set (more in the file are ignored) */
+ 	};
+ 
++	/* What a question shows when it was never written, or its set / file is broken (Init.js,
++	 * QuestionSet.js; every round: a missing or empty question). */
++	gameVariables.MissingQuestionText = 'Bạn / BTC chưa thiết lập bộ câu hỏi/câu hỏi này, hoặc bộ câu hỏi/câu hỏi này đang bị lỗi. Nếu là BTC, hãy vào phần Quản lý câu hỏi để kiểm tra lại ngay.';
++	gameVariables.QuestionsUnset = false;   /* a room with no set chosen / a broken one: no file is read (QuestionSet.js) */
++
+ 	/* Data files (XML, edited by hand - see the comment at the top of each file) */
+ 	gameVariables.DataFiles = {
+ 		players: 'Questions/players.xml',
+@@ -240,6 +245,12 @@
+ 	gameVariables.KhoiDongTurn = 0;                  /* Olympia 23 (Rules.js): turn 1-3 of the common turns */
+ 	gameVariables.KhoiDongQuestionOffset = 0;        /* Olympia 23: <common> questions used by the earlier turns */
+ 	gameVariables.KhoiDongBuzzSeat = null;           /* common turn: seat that locked the buzzer */
++	gameVariables.KdOwnWrong = 0;                    /* Luật rừng individual turn: wrongs so far (1st free, then -5) */
++	gameVariables.KdOwnStreak = 0;                   /* Luật rừng: rights in a row (3 = one bonus question) */
++	gameVariables.KdOwnBonus = 0;                    /* Luật rừng: bonus questions won (at most 4) */
++	gameVariables.IsKdOwnTimeUp = false;             /* Luật rừng: the 60 s ran out */
++	gameVariables.KdOwnClockStarted = false;         /* Luật rừng: the 60 s clock is this turn's */
++	gameVariables.KdTurnWrong = {};                  /* Luật rừng common turns: seat -> wrongs in this turn */
+ 
+ 	gameVariables.VcnvCurrentRow = null;             /* 1..4 while a row is open, 5 = centre */
+ 	gameVariables.VcnvOpenedCount = 0;               /* rows put to the contestants so far - sets the CNV prize */
+diff --git a/olympia/Styles/lobby.css b/olympia/Styles/lobby.css
+index 00fc94f..6ab06e3 100644
+--- a/olympia/Styles/lobby.css
++++ b/olympia/Styles/lobby.css
+@@ -134,6 +134,8 @@ input:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color
+ .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+ .seg label:has(input:checked) { background: #0d2a52; color: var(--blue-2); box-shadow: inset 0 0 0 1px var(--blue); }
+ .seg label:has(input:focus-visible) { outline: 2px solid var(--blue); outline-offset: 1px; }
++.seg small { margin-left: 6px; padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--amber-2); border: 1px solid #5a4a18; }
++@media (max-width: 560px) { .rulesPick { width: 100%; } .rulesPick .seg { height: auto; flex-wrap: wrap; } .rulesPick .seg label { height: 34px; } }
+ .big { font: 800 44px/1.1 Nunito, sans-serif; }
+ 
+ /* ---------- player screen ----------
+diff --git a/olympia/Styles/olympia.css b/olympia/Styles/olympia.css
+index 3e81ad3..7585352 100644
+--- a/olympia/Styles/olympia.css
++++ b/olympia/Styles/olympia.css
+@@ -155,14 +155,14 @@ body {
+ 
+ .kdTurnTabP {
+ 	position: absolute;
+-	left: 0;
++	left: 22px;   /* left-aligned, clear of the tag's edge */
+ 	top: 0;
+-	width: 270px;
++	width: 248px;
+ 	height: 62px;
+ 	margin: 0;
+ 	display: flex;
+ 	align-items: center;
+-	justify-content: center;
++	justify-content: flex-start;
+ 	font-family: 'Olympia', 'Myriad Pro', Arial, sans-serif;   /* the question's own type */
+ 	font-weight: bold;
+ 	font-size: 38px;
+diff --git a/olympia/Styles/questions.css b/olympia/Styles/questions.css
+index 437d9a0..3d6217a 100644
+--- a/olympia/Styles/questions.css
++++ b/olympia/Styles/questions.css
+@@ -18,6 +18,8 @@ input[type="file"] { height: auto; padding: 8px 0; }
+ .rulesBar .meta { margin: 0; }
+ .rulesBar .seg label { padding: 0 16px; }
+ input:disabled { color: var(--muted); opacity: 1; cursor: default; }
++.demoBar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--line); }
++.demoBar .meta { margin: 0; }
+ .tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+ .tab { height: 38px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel-2); color: var(--muted); font-weight: 800; cursor: pointer; }
+ .tab.on { color: #fff; background: #0d2342; border-color: #1f4f8f; }
+diff --git a/olympia/audience.html b/olympia/audience.html
+index e64ee55..7312e5b 100644
+--- a/olympia/audience.html
++++ b/olympia/audience.html
+@@ -5,28 +5,28 @@
+ 	<meta charset="utf-8">
+ 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ 	<title>Olympia — Khán giả</title>
+-	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261029e">
+-	<link rel="stylesheet" type="text/css" href="Styles/audience.css?v=20261029e">
++	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261030c">
++	<link rel="stylesheet" type="text/css" href="Styles/audience.css?v=20261030c">
+ 
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261029e"></script>
+-	<script src="Scripts/Auth.js?v=20261029e"></script>
+-	<script src="Scripts/PublicRoom.js?v=20261029e"></script>
++	<script src="Scripts/Config.js?v=20261030c"></script>
++	<script src="Scripts/Auth.js?v=20261030c"></script>
++	<script src="Scripts/PublicRoom.js?v=20261030c"></script>
+ 	<!-- the stage's own graphics modules - drawn from the public state, no game logic, no sound -->
+-	<script src="Scripts/Variables.js?v=20261029e"></script>
+-	<script src="Scripts/Rules.js?v=20261029e"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+-	<script src="Scripts/AudioControl.js?v=20261029e"></script> <!-- stage screens: replays the sound the engine relays -->
+-	<script src="Scripts/StageControl.js?v=20261029e"></script>
+-	<script src="Scripts/TimerControl.js?v=20261029e"></script>
+-	<script src="Scripts/QuestionControl.js?v=20261029e"></script>
+-	<script src="Scripts/ScoreboardControl.js?v=20261029e"></script>
+-	<script src="Scripts/ScoreBoardScreenControl.js?v=20261029e"></script>
+-	<script src="Scripts/VcnvControl.js?v=20261029e"></script>
+-	<script src="Scripts/VcnvTreeControl.js?v=20261029e"></script>
+-	<script src="Scripts/TangTocControl.js?v=20261029e"></script>
+-	<script src="Scripts/VeDichControl.js?v=20261029e"></script>
+-	<script src="Scripts/AudienceMirror.js?v=20261029e" defer></script>
+-	<script src="Scripts/AudiencePlay.js?v=20261029e" defer></script>
++	<script src="Scripts/Variables.js?v=20261030c"></script>
++	<script src="Scripts/Rules.js?v=20261030c"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
++	<script src="Scripts/AudioControl.js?v=20261030c"></script> <!-- stage screens: replays the sound the engine relays -->
++	<script src="Scripts/StageControl.js?v=20261030c"></script>
++	<script src="Scripts/TimerControl.js?v=20261030c"></script>
++	<script src="Scripts/QuestionControl.js?v=20261030c"></script>
++	<script src="Scripts/ScoreboardControl.js?v=20261030c"></script>
++	<script src="Scripts/ScoreBoardScreenControl.js?v=20261030c"></script>
++	<script src="Scripts/VcnvControl.js?v=20261030c"></script>
++	<script src="Scripts/VcnvTreeControl.js?v=20261030c"></script>
++	<script src="Scripts/TangTocControl.js?v=20261030c"></script>
++	<script src="Scripts/VeDichControl.js?v=20261030c"></script>
++	<script src="Scripts/AudienceMirror.js?v=20261030c" defer></script>
++	<script src="Scripts/AudiencePlay.js?v=20261030c" defer></script>
+ </head>
+ 
+ <body class="audience">
+diff --git a/olympia/control.html b/olympia/control.html
+index f499757..881cf5e 100644
+--- a/olympia/control.html
++++ b/olympia/control.html
+@@ -6,25 +6,25 @@
+ 	<title>Olympia Controller — Quản lý</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/control.css?v=20261029e">
++	<link rel="stylesheet" type="text/css" href="Styles/control.css?v=20261030c">
+ 	<!-- NO AudioControl.js here: only the graphics page plays sound. -->
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
+ 		integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"
+ 		crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261029e"></script>
+-	<script src="Scripts/Auth.js?v=20261029e"></script>
+-	<script src="Scripts/Variables.js?v=20261029e"></script>
+-	<script src="Scripts/Rules.js?v=20261029e"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+-	<script src="Scripts/StateSync.js?v=20261029e"></script>
+-	<script src="Scripts/KeyboardController.js?v=20261029e"></script>
+-	<script src="Scripts/ControlPanel.js?v=20261029e"></script>
+-	<script src="Scripts/RecoveryPanel.js?v=20261029e"></script>
+-	<script src="Scripts/EmbeddedStage.js?v=20261029e"></script>
++	<script src="Scripts/Config.js?v=20261030c"></script>
++	<script src="Scripts/Auth.js?v=20261030c"></script>
++	<script src="Scripts/Variables.js?v=20261030c"></script>
++	<script src="Scripts/Rules.js?v=20261030c"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
++	<script src="Scripts/StateSync.js?v=20261030c"></script>
++	<script src="Scripts/KeyboardController.js?v=20261030c"></script>
++	<script src="Scripts/ControlPanel.js?v=20261030c"></script>
++	<script src="Scripts/RecoveryPanel.js?v=20261030c"></script>
++	<script src="Scripts/EmbeddedStage.js?v=20261030c"></script>
+ 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"
+ 		integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k"
+ 		crossorigin="anonymous"></script>
+-	<script src="Scripts/QrCode.js?v=20261029e"></script>
+-	<script src="Scripts/RoomPresence.js?v=20261029e"></script>
++	<script src="Scripts/QrCode.js?v=20261030c"></script>
++	<script src="Scripts/RoomPresence.js?v=20261030c"></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/default.html b/olympia/default.html
+index 8034ea2..26100ac 100644
+--- a/olympia/default.html
++++ b/olympia/default.html
+@@ -4,42 +4,42 @@
+ <head>
+ 	<meta charset="utf-8">
+ 	<title>Olympia</title>
+-	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261029e">
++	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261030c">
+ 
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script> <!-- only used with ?room= -->
+-	<script src="Scripts/Config.js?v=20261029e"></script> <!-- Supabase URL + public anon key -->
+-	<script src="Scripts/Auth.js?v=20261029e"></script> <!-- sign-in (anonymous here) -->
+-	<script src="Scripts/Variables.js?v=20261029e"></script> <!-- settings + all game state -->
+-	<script src="Scripts/Rules.js?v=20261029e"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+-	<script src="Scripts/StateSync.js?v=20261029e"></script> <!-- two-screen sync: this browser, or a room (?room=CODE) -->
+-	<script src="Scripts/AudioControl.js?v=20261029e"></script> <!-- sound - graphics page ONLY -->
+-	<script src="Scripts/TimerControl.js?v=20261029e"></script> <!-- the clock behind every timer bar -->
+-	<script src="Scripts/QuestionLoader.js?v=20261029e"></script> <!-- (empty - moved into Init.js) -->
+-	<script src="Scripts/StageControl.js?v=20261029e"></script> <!-- background, title card, DOM helpers -->
+-	<script src="Scripts/ScoreboardControl.js?v=20261029e"></script> <!-- contestant bars + scores -->
+-	<script src="Scripts/ScoreSummaryControl.js?v=20261029e"></script><!-- key M -->
+-	<script src="Scripts/ScoreBoardScreenControl.js?v=20261029e"></script><!-- key F6 -->
+-	<script src="Scripts/VcnvControl.js?v=20261029e"></script> <!-- VCNV board / picture / question bar -->
+-	<script src="Scripts/VcnvTreeControl.js?v=20261029e"></script> <!-- answer tree (VCNV + Tăng tốc) -->
+-	<script src="Scripts/TangTocControl.js?v=20261029e"></script> <!-- Tăng tốc frame -->
+-	<script src="Scripts/VeDichControl.js?v=20261029e"></script> <!-- Về đích screens -->
+-	<script src="Scripts/QuestionControl.js?v=20261029e"></script> <!-- Khởi động question bar -->
+-	<script src="Scripts/GeneralControl.js?v=20261029e"></script> <!-- switching rounds -->
+-	<script src="Scripts/Rounds/KhoiDong.js?v=20261029e"></script> <!-- step functions of each round -->
+-	<script src="Scripts/Rounds/VCNV.js?v=20261029e"></script>
+-	<script src="Scripts/Rounds/TangToc.js?v=20261029e"></script>
+-	<script src="Scripts/Rounds/VeDich.js?v=20261029e"></script>
+-	<script src="Scripts/Rounds/TieBreak.js?v=20261029e"></script>
+-	<script src="Scripts/KeyboardController.js?v=20261029e"></script> <!-- EVERY key: which step it calls -->
+-	<script src="Scripts/PanelStateControl.js?v=20261029e"></script> <!-- what the control panel is told -->
+-	<script src="Scripts/PanelCommands.js?v=20261029e"></script> <!-- what the control panel can ask -->
+-	<script src="Scripts/PlayerActions.js?v=20261029e"></script> <!-- players' own devices (room mode) -->
+-	<script src="Scripts/Recovery.js?v=20261029e"></script> <!-- emergency progress recovery (control panel) -->
+-	<script src="Scripts/GameSave.js?v=20261029e"></script> <!-- automatic save of the game + resuming from it -->
+-	<script src="Scripts/MatchLog.js?v=20261029e"></script> <!-- match log + undo of the last action's points -->
+-	<script src="Scripts/VcnvPublicImage.js?v=20261029e"></script> <!-- the VCNV picture players / audience may see -->
+-	<script src="Scripts/QuestionSet.js?v=20261029e"></script> <!-- a room's question set from Supabase Storage -->
+-	<script src="Scripts/Init.js?v=20261029e"></script>
++	<script src="Scripts/Config.js?v=20261030c"></script> <!-- Supabase URL + public anon key -->
++	<script src="Scripts/Auth.js?v=20261030c"></script> <!-- sign-in (anonymous here) -->
++	<script src="Scripts/Variables.js?v=20261030c"></script> <!-- settings + all game state -->
++	<script src="Scripts/Rules.js?v=20261030c"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
++	<script src="Scripts/StateSync.js?v=20261030c"></script> <!-- two-screen sync: this browser, or a room (?room=CODE) -->
++	<script src="Scripts/AudioControl.js?v=20261030c"></script> <!-- sound - graphics page ONLY -->
++	<script src="Scripts/TimerControl.js?v=20261030c"></script> <!-- the clock behind every timer bar -->
++	<script src="Scripts/QuestionLoader.js?v=20261030c"></script> <!-- (empty - moved into Init.js) -->
++	<script src="Scripts/StageControl.js?v=20261030c"></script> <!-- background, title card, DOM helpers -->
++	<script src="Scripts/ScoreboardControl.js?v=20261030c"></script> <!-- contestant bars + scores -->
++	<script src="Scripts/ScoreSummaryControl.js?v=20261030c"></script><!-- key M -->
++	<script src="Scripts/ScoreBoardScreenControl.js?v=20261030c"></script><!-- key F6 -->
++	<script src="Scripts/VcnvControl.js?v=20261030c"></script> <!-- VCNV board / picture / question bar -->
++	<script src="Scripts/VcnvTreeControl.js?v=20261030c"></script> <!-- answer tree (VCNV + Tăng tốc) -->
++	<script src="Scripts/TangTocControl.js?v=20261030c"></script> <!-- Tăng tốc frame -->
++	<script src="Scripts/VeDichControl.js?v=20261030c"></script> <!-- Về đích screens -->
++	<script src="Scripts/QuestionControl.js?v=20261030c"></script> <!-- Khởi động question bar -->
++	<script src="Scripts/GeneralControl.js?v=20261030c"></script> <!-- switching rounds -->
++	<script src="Scripts/Rounds/KhoiDong.js?v=20261030c"></script> <!-- step functions of each round -->
++	<script src="Scripts/Rounds/VCNV.js?v=20261030c"></script>
++	<script src="Scripts/Rounds/TangToc.js?v=20261030c"></script>
++	<script src="Scripts/Rounds/VeDich.js?v=20261030c"></script>
++	<script src="Scripts/Rounds/TieBreak.js?v=20261030c"></script>
++	<script src="Scripts/KeyboardController.js?v=20261030c"></script> <!-- EVERY key: which step it calls -->
++	<script src="Scripts/PanelStateControl.js?v=20261030c"></script> <!-- what the control panel is told -->
++	<script src="Scripts/PanelCommands.js?v=20261030c"></script> <!-- what the control panel can ask -->
++	<script src="Scripts/PlayerActions.js?v=20261030c"></script> <!-- players' own devices (room mode) -->
++	<script src="Scripts/Recovery.js?v=20261030c"></script> <!-- emergency progress recovery (control panel) -->
++	<script src="Scripts/GameSave.js?v=20261030c"></script> <!-- automatic save of the game + resuming from it -->
++	<script src="Scripts/MatchLog.js?v=20261030c"></script> <!-- match log + undo of the last action's points -->
++	<script src="Scripts/VcnvPublicImage.js?v=20261030c"></script> <!-- the VCNV picture players / audience may see -->
++	<script src="Scripts/QuestionSet.js?v=20261030c"></script> <!-- a room's question set from Supabase Storage -->
++	<script src="Scripts/Init.js?v=20261030c"></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/index.html b/olympia/index.html
+index b595cc7..97f57f7 100644
+--- a/olympia/index.html
++++ b/olympia/index.html
+@@ -7,15 +7,15 @@
+ 	<title>Olympia Controller — Sảnh</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261029e">
++	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030c">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261029e"></script>
+-	<script src="Scripts/Auth.js?v=20261029e"></script>
++	<script src="Scripts/Config.js?v=20261030c"></script>
++	<script src="Scripts/Auth.js?v=20261030c"></script>
+ 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
+-	<script src="Scripts/QrCode.js?v=20261029e"></script>
+-	<script src="Scripts/Lobby.js?v=20261029e" defer></script>
+-	<script src="Scripts/LobbyPublic.js?v=20261029e" defer></script>
+-	<script src="Scripts/News.js?v=20261029e" defer></script>
++	<script src="Scripts/QrCode.js?v=20261030c"></script>
++	<script src="Scripts/Lobby.js?v=20261030c" defer></script>
++	<script src="Scripts/LobbyPublic.js?v=20261030c" defer></script>
++	<script src="Scripts/News.js?v=20261030c" defer></script>
+ </head>
+ 
+ <body>
+@@ -81,6 +81,7 @@
+ 						<div class="seg" id="roomRules">
+ 							<label><input type="radio" name="roomRules" value="o24" checked>Olympia 24 + 26</label>
+ 							<label><input type="radio" name="roomRules" value="o23">Olympia 23</label>
++							<label title="Luật thử nghiệm: điểm có thể âm"><input type="radio" name="roomRules" value="jungle">Luật rừng <small>BETA</small></label>
+ 						</div>
+ 					</fieldset>
+ 					<button type="submit" class="btn primary" id="createBtn">Tạo phòng</button>
+diff --git a/olympia/player.html b/olympia/player.html
+index 34829fa..95401be 100644
+--- a/olympia/player.html
++++ b/olympia/player.html
+@@ -7,13 +7,13 @@
+ 	<title>Olympia — Thí sinh</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261029e">
++	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030c">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261029e"></script>
+-	<script src="Scripts/Auth.js?v=20261029e"></script>
+-	<script src="Scripts/PublicRoom.js?v=20261029e"></script>
+-	<script src="Scripts/PlayerPanel.js?v=20261029e" defer></script>
+-	<script src="Scripts/PlayerJoin.js?v=20261029e" defer></script>
++	<script src="Scripts/Config.js?v=20261030c"></script>
++	<script src="Scripts/Auth.js?v=20261030c"></script>
++	<script src="Scripts/PublicRoom.js?v=20261030c"></script>
++	<script src="Scripts/PlayerPanel.js?v=20261030c" defer></script>
++	<script src="Scripts/PlayerJoin.js?v=20261030c" defer></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/podium.html b/olympia/podium.html
+index 17296c9..948abb1 100644
+--- a/olympia/podium.html
++++ b/olympia/podium.html
+@@ -5,12 +5,12 @@
+ 	<meta charset="utf-8">
+ 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ 	<title>Olympia — Bảng điểm</title>
+-	<link rel="stylesheet" type="text/css" href="Styles/podium.css?v=20261029e">
++	<link rel="stylesheet" type="text/css" href="Styles/podium.css?v=20261030c">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261029e"></script>
+-	<script src="Scripts/Auth.js?v=20261029e"></script>
+-	<script src="Scripts/PublicRoom.js?v=20261029e"></script>
+-	<script src="Scripts/Podium.js?v=20261029e" defer></script>
++	<script src="Scripts/Config.js?v=20261030c"></script>
++	<script src="Scripts/Auth.js?v=20261030c"></script>
++	<script src="Scripts/PublicRoom.js?v=20261030c"></script>
++	<script src="Scripts/Podium.js?v=20261030c" defer></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/questions.html b/olympia/questions.html
+index 0294bd6..d6d4eda 100644
+--- a/olympia/questions.html
++++ b/olympia/questions.html
+@@ -7,12 +7,12 @@
+ 	<title>Olympia Controller — Quản lý câu hỏi</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261029e">
+-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261029e">
++	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261030c">
++	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261030c">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261029e"></script>
+-	<script src="Scripts/Auth.js?v=20261029e"></script>
+-	<script src="Scripts/QuestionEditor.js?v=20261029e" defer></script>
++	<script src="Scripts/Config.js?v=20261030c"></script>
++	<script src="Scripts/Auth.js?v=20261030c"></script>
++	<script src="Scripts/QuestionEditor.js?v=20261030c" defer></script>
+ </head>
+ 
+ <body>
+@@ -40,6 +40,11 @@
+ 				<button type="button" class="btn" id="newBlank">Bộ đề mới (trống)</button>
+ 				<button type="button" class="btn" id="showUpload">Tải lên thư mục…</button>
+ 			</div>
++			<!-- only with a room: play the site's test set (Demo/) instead of a set of one's own -->
++			<div class="demoBar hidden" id="demoBar">
++				<p class="meta" id="roomSetLine"></p>
++				<button type="button" class="btn sm" id="useDemo">Dùng bộ đề thử nghiệm</button>
++			</div>
+ 			<div class="setInfo" id="setInfo">
+ 				<p class="meta" id="setMeta">—</p>
+ 				<div class="setActions">
+@@ -69,6 +74,7 @@
+ 				<div class="seg" id="qeRules" role="radiogroup" aria-labelledby="qeRulesName">
+ 					<label><input type="radio" name="qeRules" value="o24" checked>Olympia 24 + 26</label>
+ 					<label><input type="radio" name="qeRules" value="o23">Olympia 23</label>
++					<label><input type="radio" name="qeRules" value="jungle">Luật rừng <small>BETA</small></label>
+ 				</div>
+ 				<p class="meta" id="qeRulesNote"></p>
+ 			</div>
+@@ -96,7 +102,8 @@
+ 			<div class="gBody">
+ 				<p>Có thể soạn bộ đề ngay trên trang này. Nếu muốn soạn bằng tay (Notepad, VS Code...), hãy tạo một thư mục
+ 					theo mẫu dưới đây rồi bấm <b>Tải lên thư mục…</b>. Cùng thư mục này cũng chép được vào <code>Questions/</code>
+-					trên máy sân khấu (phòng không chọn bộ đề sẽ đọc từ đó).</p>
++					trên máy sân khấu khi chạy không qua phòng. Phòng phải chọn một bộ đề (hoặc <b>Dùng bộ đề thử nghiệm</b>);
++					chưa chọn thì mọi câu hỏi sẽ báo "chưa thiết lập".</p>
+ 
+ 				<h3>1. Cấu trúc thư mục</h3>
+ 				<pre>Tuan3/
+@@ -132,6 +139,10 @@
+ 				<p>Luật <b>Olympia 23</b>: không có lượt riêng; <code>&lt;common&gt;</code> chứa <b>36 câu</b> cho 3 lượt chung liền
+ 					nhau: câu 1–8 là lượt 1, câu 9–20 là lượt 2, câu 21–36 là lượt 3. Phòng chơi luật Olympia 24 + 26 chỉ dùng
+ 					12 câu đầu, nên một file đủ 6 câu mỗi ghế + 36 câu chung dùng được cho cả hai luật.</p>
++				<p><b>Luật rừng (BETA)</b>: mỗi <code>&lt;individual&gt;</code> có <b>12 câu</b> (thí sinh có 60 giây), cộng
++					tối đa <b>4 câu bổ sung</b> là câu 13–16 (chỉ hỏi khi thí sinh giành được: cứ 3 câu đúng liên tiếp được 1 câu).
++					<code>&lt;common&gt;</code> dùng <b>24 câu</b>: câu 1–8 là lượt đối kháng 1, câu 9–24 là lượt 2. Luật Olympia 24 + 26
++					chỉ đọc 6 câu riêng đầu và 12 câu chung đầu.</p>
+ 				<pre>&lt;khoidong&gt;
+   &lt;individual seat="1"&gt;
+     &lt;question&gt;&lt;text&gt;Câu hỏi 1 của ghế 1?&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
+@@ -167,7 +178,7 @@
+   &lt;/question&gt;
+   ... câu 2 (20 giây), câu 3, 4 (30 giây); video: &lt;media type="video"&gt;tt4.mp4&lt;/media&gt;
+ &lt;/tangtoc&gt;</pre>
+-				<p>Luật <b>Olympia 23</b> luôn dùng 10 / 20 / 30 / 40 giây, không đọc <code>seconds</code>.</p>
++				<p>Luật <b>Olympia 23</b> luôn dùng 10 / 20 / 30 / 40 giây, luật rừng luôn 30 giây; cả hai không đọc <code>seconds</code>.</p>
+ 
+ 				<h3>6. vedich.xml — mỗi ghế 3 câu 20 điểm + 3 câu 30 điểm</h3>
+ 				<pre>&lt;vedich&gt;
+diff --git a/olympia/supabase/migrations/0016_demo_question_set.sql b/olympia/supabase/migrations/0016_demo_question_set.sql
+new file mode 100644
+index 0000000..70e1873
+--- /dev/null
++++ b/olympia/supabase/migrations/0016_demo_question_set.sql
+@@ -0,0 +1,52 @@
++-- =====================================================================================
++-- Olympia Controller - "Dùng bộ đề thử nghiệm" (questions.html). Run AFTER 0006. Safe to re-run.
++--
++-- Until now a room without a question set fell back to the sample set in Demo/ by itself. Now a
++-- room plays only what its owner chose:
++--   - a set of their own (set_room_question_set, 0006), or
++--   - the test set that ships with the site, Demo/ (set_room_demo_set below, rooms.demo_set).
++-- Neither chosen (or the set is broken): every question shows "Bạn / BTC chưa thiết lập bộ câu
++-- hỏi..." (Scripts/QuestionSet.js, Init.js).
++-- =====================================================================================
++
++alter table public.rooms add column if not exists demo_set boolean not null default false;
++grant select (demo_set) on public.rooms to authenticated;
++
++-- choosing a set of one's own drops the test set
++create or replace function public.set_room_question_set(p_code text, p_set uuid) returns boolean
++language plpgsql security definer set search_path = '' as $$
++begin
++	if p_set is not null and not exists (select 1 from public.question_sets q where q.id = p_set and q.owner_id = auth.uid()) then
++		return false;
++	end if;
++	update public.rooms set question_set_id = p_set, demo_set = false
++		where code = upper(trim(coalesce(p_code, ''))) and owner_id = auth.uid();
++	return found;
++end $$;
++revoke execute on function public.set_room_question_set(text, uuid) from public, anon;
++grant  execute on function public.set_room_question_set(text, uuid) to authenticated;
++
++-- the room plays the test set (Demo/); the room's owner only, like set_room_question_set
++create or replace function public.set_room_demo_set(p_code text) returns boolean
++language plpgsql security definer set search_path = '' as $$
++begin
++	update public.rooms set question_set_id = null, demo_set = true
++		where code = upper(trim(coalesce(p_code, ''))) and owner_id = auth.uid();
++	return found;
++end $$;
++revoke execute on function public.set_room_demo_set(text) from public, anon;
++grant  execute on function public.set_room_demo_set(text) to authenticated;
++
++-- what the room plays: { id, owner, name, files } (a set), { demo: true } (the test set), or null
++-- (nothing chosen) - for the owner and the room's stage only
++create or replace function public.room_question_set(p_code text) returns jsonb
++language sql stable security definer set search_path = '' as $$
++	select case
++		when q.id is not null then jsonb_build_object('id', q.id, 'owner', q.owner_id, 'name', q.name, 'files', q.files)
++		when r.demo_set then jsonb_build_object('demo', true)
++	end
++		from public.rooms r left join public.question_sets q on q.id = r.question_set_id
++		where r.code = upper(trim(coalesce(p_code, ''))) and public.is_room_owner_or_stage(r)
++$$;
++revoke execute on function public.room_question_set(text) from public, anon;
++grant  execute on function public.room_question_set(text) to authenticated;
+diff --git a/olympia/supabase/migrations/0017_jungle_rules.sql b/olympia/supabase/migrations/0017_jungle_rules.sql
+new file mode 100644
+index 0000000..1e1aa27
+--- /dev/null
++++ b/olympia/supabase/migrations/0017_jungle_rules.sql
+@@ -0,0 +1,36 @@
++-- =====================================================================================
++-- Olympia Controller - "Luật rừng (BETA)" as a room's rules (Scripts/Rules.js). Run AFTER
++-- 0013. Safe to re-run. rooms.rules may now be 'o24', 'o23' or 'jungle'; create_room takes it.
++-- =====================================================================================
++
++alter table public.rooms drop constraint if exists rooms_rules_check;
++alter table public.rooms add constraint rooms_rules_check check (rules in ('o24', 'o23', 'jungle'));
++
++create or replace function public.create_room(p_name text, p_password text, p_rules text default 'o24') returns text
++language plpgsql security definer set search_path = '' as $$
++declare
++	alphabet constant text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
++	v_rules text := coalesce(nullif(p_rules, ''), 'o24');
++	v_code text;
++	i      int;
++begin
++	if not public.is_manager() then raise exception 'not_manager' using errcode = '42501'; end if;
++	if char_length(coalesce(p_password, '')) not between 4 and 20 then raise exception 'bad_password_length'; end if;
++	if v_rules not in ('o24', 'o23', 'jungle') then raise exception 'bad_rules'; end if;
++	loop
++		v_code := '';
++		for i in 1..6 loop
++			v_code := v_code || substr(alphabet, 1 + get_byte(extensions.gen_random_bytes(1), 0) % 32, 1);
++		end loop;
++		begin
++			insert into public.rooms (code, name, owner_id, player_password_hash, rules)
++				values (v_code, left(trim(coalesce(p_name, '')), 80), auth.uid(),
++					extensions.crypt(p_password, extensions.gen_salt('bf')), v_rules);
++			return v_code;
++		exception when unique_violation then
++			-- code already used: draw another
++		end;
++	end loop;
++end $$;
++revoke execute on function public.create_room(text, text, text) from public, anon;
++grant  execute on function public.create_room(text, text, text) to authenticated;
