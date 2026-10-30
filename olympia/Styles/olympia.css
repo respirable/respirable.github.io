@@ -155,14 +155,14 @@ body {
 
 .kdTurnTabP {
 	position: absolute;
-	left: 0;
+	left: 22px;   /* left-aligned, clear of the tag's edge */
 	top: 0;
-	width: 270px;
+	width: 248px;
 	height: 62px;
 	margin: 0;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	font-family: 'Olympia', 'Myriad Pro', Arial, sans-serif;   /* the question's own type */
 	font-weight: bold;
 	font-size: 38px;
