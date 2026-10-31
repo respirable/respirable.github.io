@@ -71,6 +71,8 @@ function buildRoundStateForPublic() {
 		},
 		vcnv: {
 			phase: g.VcnvPhaseNames[vcnvPhase],
+			/* someone signalled for the obstacle: the row step it interrupted (players may still answer the row) */
+			rowPhase: vcnvPhase === 9 && g.VcnvPhaseBeforeGuess != null ? g.VcnvPhaseNames[g.VcnvPhaseBeforeGuess] : null,
 			currentRow: g.VcnvCurrentRow,
 			openedCount: g.VcnvOpenedCount,
 			rows: (g.VcnvRows || []).map(function (r, i) {

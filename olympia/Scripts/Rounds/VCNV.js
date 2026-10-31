@@ -24,7 +24,8 @@
  *   OBSTACLE - the first signal LOCKS the row flow at once; everyone who signals answers aloud
  *   together, then the host declares the outcome.
  *   Q W E R   (any row step, >=1 row opened) seat 1-4 signals: joins the queue, name tab under the
- *             question bar, vcnv_signal -> guessing (a running 15 s bar keeps running)
+ *             question bar, vcnv_signal -> guessing (a running 15 s bar keeps running, and every
+ *             seat still in may still send its row answer until it runs out)
  *   Q W E R / 1-4 (guessing, seat in the queue)  THAT seat was right: prize by rows opened
  *             (1:60 2:50 3:40 4:30, 20 after the centre), everything revealed, vcnv_solved
  *   Backspace (guessing)  remove the last signal; queue empty -> back to the paused row step

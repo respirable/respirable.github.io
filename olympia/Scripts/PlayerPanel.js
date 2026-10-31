@@ -104,7 +104,8 @@
 		if (round() === 'vcnv') {
 			var v = rs('vcnv');
 			if (!v.currentRow || (v.eliminated || []).indexOf(seat) !== -1) { return null; }
-			if (v.phase === 'rowQuestion' || (v.phase === 'rowTimer' && stillTime())) {
+			var ph = v.phase === 'guessing' ? v.rowPhase : v.phase;   /* a signal for the obstacle does not close the row */
+			if (ph === 'rowQuestion' || (ph === 'rowTimer' && stillTime())) {
 				return { key: 'vcnv:' + v.currentRow, label: v.currentRow === 5 ? 'Đáp án ô trung tâm' : 'Đáp án hàng ngang ' + v.currentRow, payload: { row: v.currentRow } };
 			}
 		}

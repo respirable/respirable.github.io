@@ -96,6 +96,7 @@
 			var accepted = false;
 			if (round === 'vcnv') {
 				var c = gv.VcnvSequenceCounter;
+				if (c == 9) { c = gv.VcnvPhaseBeforeGuess; }   /* someone signalled for the obstacle: the row is still open */
 				if (Number(p.row) === gv.VcnvCurrentRow && !vcnvIsEliminated(seat) &&
 					(c == 4 || ((c == 5 || c == 6) && beforeTimeUp(row, 'vcnv_row')))) {
 					one[seat] = answerText(p);
