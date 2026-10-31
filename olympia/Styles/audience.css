@@ -167,7 +167,7 @@ body > .aPlay .aChip span { padding: 3px 8px; }
 	}
 }
 
-/* a stage page showing a game that runs elsewhere (Init.js -> ?view=stage): picture only */
+/* the stage screen of a game run from the control panel (Init.js -> ?view=stage): picture and sound */
 body.stageView { cursor: none; background: #000; }
 body.stageView .aViewport::after { display: none; }
 body.stageView .aStatus { top: auto; bottom: 12px; }
@@ -188,3 +188,16 @@ body.stageView .aStatus { top: auto; bottom: 12px; }
 	cursor: pointer;
 }
 .aSound.hidden { display: none; }
+/* stage screen: until the browser allows sound, the whole screen is the button (once) */
+.aSound.full {
+	inset: 0;
+	top: 0;
+	transform: none;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	border-radius: 0;
+	background: rgba(0, 0, 0, 0.72);
+	font-size: 40px;
+	cursor: pointer;
+}

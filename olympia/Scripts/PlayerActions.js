@@ -2,10 +2,14 @@
  * Olympia Controller - what the players' own devices do to the game (stage page, room mode only).
  *
  * Players call player_action() (supabase/migrations/0002); the row - with the seat looked up by
- * the database and a database timestamp - arrives here through postgres_changes. Rows are held
- * for BUFFER_MS so presses that cross on the network are applied in the order they were made,
- * then each one goes to the SAME round functions the keyboard uses, after checking the round
- * is at a step where that action is allowed:
+ * the database and a database timestamp - arrives here through postgres_changes. A buzz / CNV
+ * signal ALSO comes the fast way: the player's page sends it straight here on the Realtime topic
+ * btn:CODE:SEAT (migrations/0018 - only that seat's player may send there, and the seat is read
+ * from the topic), skipping the HTTP call and the database round; the row that follows is
+ * dropped as a duplicate (same nonce). Presses are held for a short window (FAST_BUFFER_MS when
+ * they came the fast way, BUFFER_MS when only the row came) so presses that cross on the network
+ * are applied in the order they were made, then each one goes to the SAME round functions the
+ * keyboard uses, after checking the round is at a step where that action is allowed:
  *
  *   buzz    KĐ lượt chung -> khoiDongBuzz(seat)      VĐ 5 s giành quyền -> veDichStealBuzz(seat)
  *           Câu hỏi phụ -> tieBreakBuzz(seat, { early, inTime }) by the press time
@@ -20,10 +24,12 @@
 	/* long enough for the earlier press to arrive even when its device's upload is slower
 	 * (measured spread between two players: up to ~300 ms) */
 	var BUFFER_MS = 400;
+	/* a press sent straight on Realtime: arrival spread between devices is far smaller */
+	var FAST_BUFFER_MS = 120;
 	var MAX_ANSWER = 100;
 
-	var client = null, code = null, channel = null;
-	var buffer = [], flushTimer = null;
+	var client = null, code = null, channel = null, fastChannels = [];
+	var buffer = [], flushTimer = null, flushDue = 0, seen = {};
 	var serverOffset = 0;        /* database ms - this page's ms */
 	var bestRtt = Infinity;      /* round trip of the sample serverOffset came from */
 	var clockTimer = null;
@@ -125,7 +131,9 @@
 	function pressedAt(row) {
 		var arrived = Date.parse(row.created_at);
 		var claimed = Number(row.payload && row.payload.at);
-		var ok = isFinite(claimed) && claimed <= arrived + 300 && claimed >= arrived - NETWORK_SLACK_S * 1000;
+		var ok = row.fast
+			? isFinite(claimed) && claimed <= arrived + 100 && claimed >= arrived - 600   /* the fast way: a short trip */
+			: isFinite(claimed) && claimed <= arrived + 300 && claimed >= arrived - NETWORK_SLACK_S * 1000;
 		return ok ? claimed : arrived;
 	}
 
@@ -141,19 +149,60 @@
 	}
 
 	function flush() {
-		flushTimer = null;
-		var rows = buffer.sort(function (a, b) { return pressedAt(a) - pressedAt(b) || a.id - b.id; });
+		flushTimer = null; flushDue = 0;
+		var rows = buffer.sort(function (a, b) { return pressedAt(a) - pressedAt(b) || String(a.id).localeCompare(String(b.id)); });
 		buffer = [];
+		var first = rows.filter(function (r) { return r.kind === 'buzz' || r.kind === 'cnv'; })[0];
 		rows.forEach(function (row) {
 			try { apply(row); } catch (e) { console.error('[PlayerActions] failed on', row, e); }
 		});
+		if (first) { measure(first); }   /* the earliest press of the window - the one that counts */
 		gv.changed();
 	}
 
+	/* timers that keep their pace when the panel's tab is in the background (Ticker.js) */
+	function later(fn, ms) { return window.OlympiaTicker ? window.OlympiaTicker.setTimeout(fn, ms) : setTimeout(fn, ms); }
+	function cancel(h) { if (window.OlympiaTicker) { window.OlympiaTicker.clear(h); } else { clearTimeout(h); } }
+
 	function receive(row) {
 		if (!row || madeAt(row) < startedAt - 5000) { return; }   /* only what happens while this page runs the room */
+		var nonce = row.payload && typeof row.payload.nonce === 'string' ? row.payload.nonce : '';
+		if (nonce) {
+			if (seen[nonce]) { return; }   /* the same press, the other way */
+			seen[nonce] = Date.now();
+		}
+		row.recvAt = performance.now();
 		buffer.push(row);
-		if (!flushTimer) { flushTimer = setTimeout(flush, BUFFER_MS); }
+		/* the window closes BUFFER_MS / FAST_BUFFER_MS after the first press in it (never later) */
+		var due = Date.now() + (row.fast ? FAST_BUFFER_MS : BUFFER_MS);
+		if (flushTimer && due >= flushDue) { return; }
+		if (flushTimer) { cancel(flushTimer); }
+		flushDue = due;
+		flushTimer = later(flush, due - Date.now());
+	}
+
+	/* a press sent straight on btn:CODE:SEAT (the seat comes from the topic, never the message) */
+	function receiveFast(seat, p) {
+		if (!p || (p.kind !== 'buzz' && p.kind !== 'cnv') || typeof p.nonce !== 'string') { return; }
+		var at = Number(p.at);
+		receive({
+			id: 'f' + p.nonce, fast: true, seat: seat, kind: p.kind,
+			payload: { at: isFinite(at) ? at : undefined, nonce: p.nonce.slice(0, 32) },
+			created_at: new Date(Date.now() + serverOffset).toISOString()   /* arrival, as database time */
+		});
+	}
+
+	/* how long the last press took (the control panel shows it): pressed -> here, here -> applied */
+	function measure(row) {
+		var arrived = Date.parse(row.created_at), at = Number(row.payload && row.payload.at);
+		gv.LastBuzzLatency = {
+			seat: row.seat, kind: row.kind, fast: !!row.fast,
+			toEngine: isFinite(at) ? Math.max(0, Math.round(arrived - at)) : null,
+			wait: Math.round(performance.now() - row.recvAt),
+			when: Date.now()
+		};
+		var old = Date.now() - 60000;
+		Object.keys(seen).forEach(function (k) { if (seen[k] < old) { delete seen[k]; } });
 	}
 
 	window.OlympiaPlayerActions = {
@@ -169,12 +218,21 @@
 					if (status === 'SUBSCRIBED') { console.log('[PlayerActions] listening for players in ' + code); }
 					else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { console.warn('[PlayerActions] ' + status, err || ''); }
 				});
+			/* the fast way for buzzes (migrations/0018; refused before it is run - the rows still come) */
+			fastChannels = [1, 2, 3, 4].map(function (s) {
+				return client.channel('btn:' + code + ':' + s, { config: { private: true } })
+					.on('broadcast', { event: 'press' }, function (ev) { receiveFast(s, ev.payload); })
+					.subscribe(function (status) {
+						if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { console.warn('[PlayerActions] fast buzz for seat ' + s + ': ' + status + ' (run migrations/0018_fast_buzz.sql)'); }
+					});
+			});
 		},
 		stop: function () {
 			if (channel && client) { client.removeChannel(channel); }
+			fastChannels.forEach(function (ch) { if (client) { client.removeChannel(ch); } });
 			if (clockTimer) { clearInterval(clockTimer); }
-			if (flushTimer) { clearTimeout(flushTimer); flushTimer = null; }
-			channel = null; clockTimer = null; buffer = [];
+			if (flushTimer) { cancel(flushTimer); flushTimer = null; }
+			channel = null; fastChannels = []; clockTimer = null; buffer = []; seen = {};
 		},
 		/* for tests / the console */
 		serverOffset: function () { return serverOffset; },

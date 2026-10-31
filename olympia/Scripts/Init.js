@@ -82,7 +82,7 @@ async function init() {
 	window.GameVariables.Sync.on('status', function (st) {
 		var sync = window.GameVariables.Sync, code = sync.room;
 		if (st === 'taken') {
-			showStageWarning('Phòng ' + code + ' đang được chạy ở nơi khác (màn sân khấu khác hoặc máy điều khiển). Nếu sau 35 giây vẫn vậy, màn này sẽ chỉ chiếu đồ hoạ của trận đó.');
+			showStageWarning('Phòng ' + code + ' đang được chạy ở nơi khác (màn sân khấu khác hoặc máy điều khiển). Nếu sau 35 giây vẫn vậy, màn này sẽ chuyển sang chiếu trận đó (hình và âm thanh).');
 			if (!embedded && !takenTimer) {
 				takenTimer = setTimeout(function () {
 					if (window.GameVariables.Sync.status === 'taken') { location.replace('audience.html?room=' + encodeURIComponent(code) + '&view=stage'); }

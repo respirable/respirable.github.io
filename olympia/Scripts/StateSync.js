@@ -97,6 +97,7 @@
 			roundGraphicsHidden: !!gv.IsRoundGraphicsHidden,
 			timer: gv.TimerState || null,   /* set by TimerControl */
 			bed: gv.BedState || null,       /* set by AudioControl */
+			buzzLatency: gv.LastBuzzLatency || null,   /* PlayerActions.js: how long the last buzz took */
 			recoveryAllowed: (typeof recoveryAllowed === 'function') ? recoveryAllowed() : false,   /* Recovery.js */
 			progressRestored: !!gv.IsProgressRestored,
 			savedGame: gv.savedGameInfo ? gv.savedGameInfo() : null,   /* GameSave.js: { at, text } */
@@ -202,6 +203,12 @@
 		}
 	}
 
+	/* timers that keep their pace when the panel's tab is in the background (Ticker.js); a page
+	 * without that file: the page's own */
+	function ticker() {
+		return window.OlympiaTicker || { setTimeout: function (f, ms) { return setTimeout(f, ms); }, setInterval: function (f, ms) { return setInterval(f, ms); } };
+	}
+
 	function startHeartbeat() {
 		function beat() { writeJson(gv.SyncAuthorityKey, { id: instanceId, ts: Date.now() }); }
 		beat();
@@ -302,11 +309,11 @@
 					if (!gv.AuthorityConflict) { gv.AuthorityConflict = true; emit('conflict', true); }
 				}
 			}
-			setTimeout(claim, STAGE_HEARTBEAT_MS);
+			ticker().setTimeout(claim, STAGE_HEARTBEAT_MS);   /* on time in a background tab too (Ticker.js) */
 		}
 		/* the panels' heartbeat needs only ops:CODE - a screen channel (pub) that is slow to join
 		 * must not make the control panel think the game stopped (sends on it wait in its queue) */
-		setInterval(function () { if (connected && room.ready.ops) { gv.Sync.publish(); } }, STATE_HEARTBEAT_MS);
+		ticker().setInterval(function () { if (connected && room.ready.ops) { gv.Sync.publish(); } }, STATE_HEARTBEAT_MS);
 		await claim();
 	}
 
@@ -374,7 +381,7 @@
 				if (gv.AuthorityConflict) { emit('conflict', true); }
 				startHeartbeat();
 				/* panels tell a live engine from a closed one by its states, as in a room */
-				setInterval(function () { gv.Sync.publish(); }, STATE_HEARTBEAT_MS);
+				ticker().setInterval(function () { gv.Sync.publish(); }, STATE_HEARTBEAT_MS);
 				window.addEventListener('beforeunload', function () {
 					clearInterval(heartbeatTimer);
 					try { var cur = readJson(gv.SyncAuthorityKey); if (cur && cur.id === instanceId) { localStorage.removeItem(gv.SyncAuthorityKey); } } catch (e) { /* ignore */ }
@@ -421,7 +428,7 @@
 				gv.Sync.send({ type: 'state', snapshot: snap });
 				emit('state', snap);
 			};
-			setTimeout(flush, 0);
+			Promise.resolve().then(flush);   /* right after the current step - a timer is slowed in a background tab */
 		},
 
 		snapshot: buildSnapshot,

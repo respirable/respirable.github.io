@@ -26,6 +26,7 @@
 	};
 
 	var room = null, code = '', seat = 0, snap = null, uiTimer = null;
+	var fast = null, fastReady = false, lastPressAt = 0;   /* btn:CODE:SEAT - the buzz's fast way (migrations/0018) */
 	var assets = {};   /* the VCNV picture as players may see it (key -> data URL) */
 	var sent = { key: '', text: '', elapsed: null, pending: false };   /* my last answer, per question */
 
@@ -470,11 +471,33 @@
 		return true;
 	}
 
+	/* A buzz / CNV signal goes two ways at once: straight to the engine on Realtime (fast) and as a
+	 * row through player_action (the record, and the way in when the fast one is not open); the
+	 * engine keeps the first and drops the other by the nonce. */
 	async function press(btn, kind) {
-		if (btn.disabled) { return; }
+		if (btn.disabled || Date.now() - lastPressAt < 400) { return; }   /* a tap gives pointerdown and click */
+		lastPressAt = Date.now();
 		var at = serverNow();   /* the moment of the press, so the stage can order crossing presses */
 		btn.disabled = true;    /* until the next state says otherwise */
-		await send(kind, at === null ? {} : { at: Math.round(at) });
+		btn.classList.add('hit');   /* at once - the stage's answer follows */
+		var payload = { nonce: Math.random().toString(36).slice(2, 12) + Date.now().toString(36) };
+		if (at !== null) { payload.at = Math.round(at); }
+		if (fast && fastReady) {
+			fast.send({ type: 'broadcast', event: 'press', payload: Object.assign({ kind: kind }, payload) }).catch(function () {});
+		}
+		await send(kind, payload);
+	}
+
+	/* the fast way: btn:CODE:SEAT, which only this seat's player may send on */
+	async function openFast() {
+		try {
+			var s = await auth.ensureAnonymous();
+			if (!code || fast) { return; }
+			db.realtime.setAuth(s.access_token);
+			fast = db.channel('btn:' + code + ':' + seat, { config: { private: true, broadcast: { self: false } } });
+			fast.subscribe(function (st) { fastReady = st === 'SUBSCRIBED'; });
+		}
+		catch (e) { fast = null; fastReady = false; }
 	}
 
 	async function onAnswer(ev) {
@@ -529,6 +552,7 @@
 			});
 			uiTimer = setInterval(tick, 100);
 			auth.ensureAnonymous().then(function () { return syncClock(5); });
+			openFast();
 			clockTimer = setInterval(function () { syncClock(3); }, 60000);
 			render();
 		},
@@ -537,14 +561,21 @@
 			if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
 			if (room) { room.close(); }
 			room = null;
+			if (fast) { db.removeChannel(fast); }
+			fast = null; fastReady = false;
 			document.body.classList.remove('playing');
 			var v = $('#ttVideo'); if (v && !v.paused) { v.pause(); }
 		}
 	};
 
 	document.addEventListener('DOMContentLoaded', function () {
-		$('#buzzBtn').addEventListener('click', function () { press($('#buzzBtn'), 'buzz'); });
-		$('#cnvBtn').addEventListener('click', function () { press($('#cnvBtn'), 'cnv'); });
+		/* pointerdown: the moment the finger touches, not when it lifts (click); click still works for
+		 * a keyboard / a screen reader */
+		['buzzBtn', 'cnvBtn'].forEach(function (id) {
+			var kind = id === 'buzzBtn' ? 'buzz' : 'cnv';
+			$('#' + id).addEventListener('pointerdown', function (ev) { if (ev.button === 0) { press($('#' + id), kind); } });
+			$('#' + id).addEventListener('click', function () { press($('#' + id), kind); });
+		});
 		$('#answerForm').addEventListener('submit', onAnswer);
 		document.addEventListener('keydown', onKey);
 	});

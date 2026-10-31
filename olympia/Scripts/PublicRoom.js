@@ -12,6 +12,7 @@
  *        shows who is connected) - role 'podium' | 'player' | 'audience' | 'screen'
  *   room.stageNow()    "now" on the stage machine's clock (timers are stamped there)
  *   room.isStageAlive()
+ *   room.silentFor()     ms since the engine last sent anything
  *   room.track({ ... })  add fields to this screen's presence (a stage screen: sound: true)
  * status: connecting | online | offline | error
  */
@@ -21,7 +22,7 @@
 	window.OlympiaPublicRoom = {
 		connect: function (code, handlers) {
 			var auth = window.OlympiaAuth, client = auth && auth.client;
-			var lastAt = 0, clockOffset = 0, hi = null, hiReady = false, pub = null, closed = false;
+			var lastAt = 0, heardAt = 0, clockOffset = 0, hi = null, hiReady = false, pub = null, closed = false;
 			var h = handlers || {};
 			function status(s, detail) { if (h.onStatus) { h.onStatus(s, detail || ''); } }
 
@@ -56,6 +57,7 @@
 				pub = client.channel('pub:' + code, { config: cfg });
 				pub.on('broadcast', { event: 'msg' }, function (ev) {
 					var msg = ev.payload;
+					if (msg) { heardAt = Date.now(); }   /* anything from the engine: it is there */
 					if (msg && msg.type === 'asset' && msg.key) { if (h.onAsset) { h.onAsset(msg); } return; }
 					if (msg && msg.type === 'sound' && msg.op) { if (h.onSound) { h.onSound(msg); } return; }
 					if (!msg || msg.type !== 'state' || !msg.snapshot) { return; }
@@ -88,7 +90,9 @@
 					pub = hi = null; hiReady = false;
 				},
 				stageNow: function () { return Date.now() - clockOffset; },
-				isStageAlive: function () { return Date.now() - lastAt < STAGE_TIMEOUT_MS; }
+				isStageAlive: function () { return Date.now() - lastAt < STAGE_TIMEOUT_MS; },
+				/* ms since the engine last sent anything (state, sound, picture); Infinity: never */
+				silentFor: function () { return heardAt ? Date.now() - heardAt : Infinity; }
 			};
 		}
 	};
