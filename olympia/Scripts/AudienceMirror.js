@@ -320,15 +320,15 @@
 	}
 
 	/* ---------- sound (stage and audience screens) ----------
-	 * Sound is on by default. A browser that blocks sound until the page is touched gets it on the
-	 * first click / tap / key anywhere; the button only shows while it is still blocked. The panel
-	 * sees which screens have sound on. */
+	 * Sound is on by default; the stage screen ALWAYS plays it. A browser that blocks sound until the
+	 * page is touched gets it on the first click / tap / key anywhere; until then the stage shows a
+	 * full-screen "tap to turn the sound on" (once). The panel sees which screens have sound on. */
 	var stageView = params.get('view') === 'stage';
 	var soundOn = false;
 	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'pauseShortPassiveSound', 'resumeShortPassiveSound', 'stopAllSounds',
 		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'];
 	function fileOf(a) { if (a.__file) { return a.__file; } try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
-	function wantsSound() { return !!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both'); }
+	function wantsSound() { return stageView || (!!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both')); }
 	function refreshSoundButton() {
 		var b = $('#aSound');
 		if (b) { b.classList.toggle('hidden', !(wantsSound() && !soundOn)); }
@@ -380,10 +380,14 @@
 			if (a.readyState >= 1) { go(); } else { a.addEventListener('loadedmetadata', go, { once: true }); }
 		}
 	}
-	/* the engine gone (panel closed): no bed looping on forever */
+	/* the engine gone for good (panel closed): no bed looping on forever. Only after a long silence -
+	 * a panel in a background tab sends its state late (the browser slows its timers), and that must
+	 * never cut a sound that is playing. */
+	var ENGINE_GONE_MS = 30000, silenced = false;
 	setInterval(function () {
-		if (soundOn && room && !room.isStageAlive() && typeof stopAllSounds === 'function') { stopAllSounds(); }
-		if (soundOn && snap && snap.soundAt === 'here' && typeof stopAllSounds === 'function') { stopAllSounds(); }
+		var gone = !!room && room.silentFor() > ENGINE_GONE_MS;
+		if (soundOn && gone && !silenced && typeof stopAllSounds === 'function') { stopAllSounds(); }
+		silenced = gone;
 	}, 2000);
 
 	function onState(s, info) {
@@ -412,7 +416,12 @@
 		window.addEventListener('resize', fit);
 		if (window.ResizeObserver) { new ResizeObserver(fit).observe($('#aViewport')); }
 		if (!/^[A-Z0-9]{4,12}$/.test(code)) { status('Link chưa đúng: cần dạng audience.html?room=MÃPHÒNG'); return; }
-		if (stageView) { document.body.classList.add('stageView'); document.title = 'Olympia — Sân khấu (chỉ chiếu)'; }
+		if (stageView) {
+			document.body.classList.add('stageView');
+			document.title = 'Olympia — Sân khấu';
+			$('#aSound').classList.add('full');
+			$('#aSound').textContent = 'Nhấn vào màn hình để bật âm thanh';
+		}
 		$('#aSound').addEventListener('click', enableSound);
 		['pointerdown', 'touchend', 'keydown'].forEach(function (t) { document.addEventListener(t, enableSound, true); });
 		renderQuestionBar();

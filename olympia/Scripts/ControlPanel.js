@@ -703,6 +703,24 @@
 		els.timerBar.style.width = Math.round(Math.max(0, Math.min(1, frac)) * 100) + '%';
 		var b = snap.bed;
 		els.bed.textContent = (b && b.file) ? (b.file + ' @ ' + fmtSeconds(bedPosition(b)) + ' s' + (b.looping ? ' · loop' : ' · outro')) : '—';
+		renderBuzzLatency(snap.buzzLatency);
+	}
+
+	/* the last buzz / CNV signal from a player's device: pressed -> engine (network), then the
+	 * window that orders crossing presses; "CSDL" = it came the slow way (migrations/0018 not run,
+	 * or the fast channel was not open) */
+	function renderBuzzLatency(l) {
+		var v = $('#buzzLatencyValue');
+		if (!v) {
+			var bed = $('#bedValue');
+			if (!bed || !bed.parentNode) { return; }
+			var label = document.createElement('span'); label.textContent = 'Chuông';
+			v = document.createElement('b'); v.id = 'buzzLatencyValue';
+			bed.parentNode.insertBefore(label, bed.nextSibling);
+			bed.parentNode.insertBefore(v, label.nextSibling);
+		}
+		var text = !l ? '—' : nameOf(l.seat) + ': bấm → máy chạy trận ' + (l.toEngine === null ? '?' : l.toEngine) + ' ms, xếp thứ tự ' + l.wait + ' ms' + (l.fast ? '' : ' (đường CSDL)');
+		if (v.textContent !== text) { v.textContent = text; }
 	}
 
 	/* ---------------- tabs ---------------- */

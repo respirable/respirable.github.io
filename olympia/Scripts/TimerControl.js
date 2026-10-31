@@ -54,11 +54,15 @@ function startClock(opts) {
 }
 
 /* A browser may hold back animation frames (the engine runs in a hidden frame of the control
- * panel; a tab in the background): a timeout makes sure the clock still ends on time. */
+ * panel; a tab in the background): a timeout makes sure the clock still ends on time - from the
+ * worker of Ticker.js, whose timers a background tab does not slow down. */
+function clockTimeout(fn, ms) { return window.OlympiaTicker ? window.OlympiaTicker.setTimeout(fn, ms) : setTimeout(fn, ms); }
+function clearClockTimeout(h) { if (window.OlympiaTicker) { window.OlympiaTicker.clear(h); } else { clearTimeout(h); } }
+
 function armClockEnd(c) {
-	if (c.endTimer) { clearTimeout(c.endTimer); }
+	if (c.endTimer) { clearClockTimeout(c.endTimer); }
 	var left = c.duration - (performance.now() - c.t0) / 1000;
-	c.endTimer = setTimeout(function () {
+	c.endTimer = clockTimeout(function () {
 		if (window.GameVariables.CurrentClock !== c || c.paused) { return; }
 		if (c.raf) { cancelAnimationFrame(c.raf); c.raf = null; }
 		tickClock();
@@ -70,7 +74,7 @@ function pauseClock() {
 	if (!c || c.paused) { return; }
 	if (c.raf) { cancelAnimationFrame(c.raf); c.raf = null; }
 	c.paused = true;
-	if (c.endTimer) { clearTimeout(c.endTimer); c.endTimer = null; }
+	if (c.endTimer) { clearClockTimeout(c.endTimer); c.endTimer = null; }
 	c.pausedElapsed = Math.min(c.duration, (performance.now() - c.t0) / 1000);
 	window.GameVariables.TimerState = Object.assign({}, window.GameVariables.TimerState || {}, { running: false, paused: true, pausedElapsed: c.pausedElapsed });
 	if (window.GameVariables.changed) { window.GameVariables.changed(); }
@@ -91,7 +95,7 @@ function stopClock() {
 	var c = window.GameVariables.CurrentClock;
 	if (c) {
 		if (c.raf) { cancelAnimationFrame(c.raf); }
-		if (c.endTimer) { clearTimeout(c.endTimer); }
+		if (c.endTimer) { clearClockTimeout(c.endTimer); }
 		window.GameVariables.CurrentClock = null;
 		window.GameVariables.TimerState = window.GameVariables.TimerState ? Object.assign({}, window.GameVariables.TimerState, { running: false, paused: false }) : null;
 		if (window.GameVariables.changed) { window.GameVariables.changed(); }
