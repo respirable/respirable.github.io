@@ -326,7 +326,7 @@
 		else if (round === 'vcnv' && v) {
 			var live2 = vcnvKeys(v);
 			var n = Math.max(1, Math.min(4, v.openedCount || 0));
-			var prize = v.centerOpened ? gv.Points.VCNV_AFTER_CENTER : gv.Points.VCNV_OBSTACLE[n];
+			var prize = v.centerAsked || v.centerOpened ? gv.Points.VCNV_AFTER_CENTER : gv.Points.VCNV_OBSTACLE[n];
 			setDeck({
 				who: v.queue && v.queue.length ? ('Xin trả lời CNV: ' + names(v.queue)) : (v.currentRow ? (v.currentRow === 5 ? 'Câu ô trung tâm' : 'Hàng ' + v.currentRow) : 'Bảng chướng ngại vật'),
 				pts: (v.openedCount || 0) + ' hàng đã mở · CNV = ' + prize + ' điểm' + (snap.rules === 'jungle' ? ' · không đúng hàng −5' : '') + (v.solved ? ' · ĐÃ GIẢI' : ''),
@@ -616,8 +616,8 @@
 			els.vcnvAnswer.textContent = vcnv.currentAnswer || '';
 			els.vcnvKeyword.textContent = (vcnv.keyword || '—') + (vcnv.solved ? '  — ĐÃ GIẢI (ghế ' + vcnv.solvedBy + ')' : '');
 			var n = Math.max(1, Math.min(4, vcnv.openedCount || 0));
-			els.vcnvPrize.textContent = vcnv.centerOpened
-				? 'ô trung tâm đã mở · CNV = ' + gv.Points.VCNV_AFTER_CENTER
+			els.vcnvPrize.textContent = vcnv.centerAsked || vcnv.centerOpened
+				? 'đã hỏi ô trung tâm · CNV = ' + gv.Points.VCNV_AFTER_CENTER
 				: (vcnv.openedCount || 0) + ' hàng đã mở · CNV = ' + gv.Points.VCNV_OBSTACLE[n];
 			els.vcnvQueue.textContent = names(vcnv.queue) || 'chưa ai';
 			var guessing = vcnv.phase === 'guessing';

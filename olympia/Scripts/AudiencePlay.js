@@ -221,7 +221,7 @@
 		var text = $('#aKeyInput').value.replace(/\s+/g, ' ').trim();
 		if (!text || store.keyword || v.solved || v.keyword) { return; }
 		if (!confirm('Đoán chướng ngại vật là "' + text.toUpperCase() + '"? Chỉ được đoán một lần.')) { return; }
-		store.keyword = { text: text.toUpperCase(), rows: v.openedCount || 0, center: !!v.centerOpened };
+		store.keyword = { text: text.toUpperCase(), rows: v.openedCount || 0, center: !!(v.centerAsked || v.centerOpened) };
 		save();
 		$('#aKeyInput').value = '';
 		render();

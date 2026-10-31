@@ -29,7 +29,7 @@
 		VCNV_ROW: 10,                           /* VCNV: a row answered right (paid when the row is graded) */
 		VCNV_OBSTACLE: { 1: 60, 2: 50, 3: 40, 4: 30 },   /* VCNV: the obstacle, by the number of rows opened when it is solved */
 		VCNV_CENTER: 10,                        /* VCNV: the centre question */
-		VCNV_AFTER_CENTER: 20,                  /* VCNV: the obstacle once the centre picture is open */
+		VCNV_AFTER_CENTER: 20,                  /* VCNV: the obstacle once the centre question has been asked (right or wrong) */
 		TANG_TOC_RANK: [40, 30, 20, 10],        /* Tăng tốc: fastest right answer first; ties share, no gap */
 		VE_DICH_STEAL_WRONG_RATIO: 0.5          /* Về đích: a wrong steal costs the stealer this share of the question's value */
 	};
@@ -204,7 +204,7 @@
 
 	gameVariables.IsVcnvTimerRunning = false;        /* 15 s bar under the question */
 	gameVariables.IsVcnvTimerDone = false;
-	gameVariables.IsVcnvCenterOpened = false;        /* centre question answered right -> middle cover off, prize drops to VCNV_AFTER_CENTER */
+	gameVariables.IsVcnvCenterOpened = false;        /* centre question answered right -> middle cover off (the prize drops to VCNV_AFTER_CENTER as soon as it is asked) */
 	gameVariables.IsVcnvFinalWindowUsed = false;     /* the last-chance 15 s window has been run */
 	gameVariables.IsVcnvFinalWindowExpired = false;  /* ...and it ran out */
 	gameVariables.IsVcnvSolved = false;
