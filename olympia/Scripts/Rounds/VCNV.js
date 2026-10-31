@@ -24,9 +24,11 @@
  *   OBSTACLE - the first signal LOCKS the row flow at once; everyone who signals answers aloud
  *   together, then the host declares the outcome.
  *   Q W E R   (any row step, >=1 row opened) seat 1-4 signals: joins the queue, name tab under the
- *             question bar, vcnv_signal -> guessing (a running 15 s bar keeps running)
+ *             question bar, vcnv_signal -> guessing (a running 15 s bar keeps running, and every
+ *             seat still in may still send its row answer until it runs out)
  *   Q W E R / 1-4 (guessing, seat in the queue)  THAT seat was right: prize by rows opened
- *             (1:60 2:50 3:40 4:30, 20 after the centre), everything revealed, vcnv_solved
+ *             (1:60 2:50 3:40 4:30; 20 once the centre question has been asked, right or wrong),
+ *             everything revealed, vcnv_solved
  *   Backspace (guessing)  remove the last signal; queue empty -> back to the paused row step
  *   0         (guessing)  everyone in the queue was wrong: all eliminated, vcnv_row_wrong
  *   Left      (finished)  graphics off -> done;  Left (done) -> Tăng tốc
@@ -154,10 +156,22 @@ function vcnvUnselectRow() {
 /* (2) Right: the question itself, instant */
 function vcnvRevealQuestion() {
 	var n = window.GameVariables.VcnvCurrentRow;
-	window.GameVariables.VcnvCurrentQuestion = vcnvQuestionFor(n).text || window.GameVariables.MissingQuestionText;
+	var q = vcnvQuestionFor(n);
+	window.GameVariables.VcnvCurrentQuestion = q.text
+		? q.text + (n == VCNV_CENTER ? vcnvCenterLengthNote(q.answer) : '')   /* the centre has no circles: say how long its answer is */
+		: window.GameVariables.MissingQuestionText;
 	setObstacleQuestion(window.GameVariables.VcnvCurrentQuestion);
 	startGeneralSound('vcnv_open_question.mp3');
 	window.GameVariables.VcnvSequenceCounter = 4;
+}
+
+/* " (7 chữ cái)" / " (4 chữ số)" / " (3 kí tự)" - the centre answer's length, spaces not counted */
+function vcnvCenterLengthNote(answer) {
+	var a = String(answer || '').replace(/\s+/g, '');
+	if (!a) { return ''; }
+	var n = Array.from(a).length;
+	var kind = /^\d+$/.test(a) ? 'chữ số' : (/^\p{L}+$/u.test(a) ? 'chữ cái' : 'kí tự');
+	return ' (' + n + ' ' + kind + ')';
 }
 
 /* (3) Right: 15 s bar - one clock drives the bar, the control panel and the end */
@@ -311,8 +325,12 @@ function vcnvUnsignal() {
 	if (!window.GameVariables.VcnvQueue.length && window.GameVariables.VcnvSequenceCounter == 9) { vcnvResumeAfterGuess(); }
 }
 
+/* the centre question has been asked (right, wrong or still open): the obstacle is worth only
+ * VCNV_AFTER_CENTER from then on - also in the final 15 s window */
+function vcnvCenterAsked() { var c = vcnvRow(VCNV_CENTER); return !!c && c.status !== 'closed'; }
+
 function vcnvObstaclePrize() {
-	if (window.GameVariables.IsVcnvCenterOpened) { return window.GameVariables.Points.VCNV_AFTER_CENTER; }
+	if (window.GameVariables.IsVcnvCenterOpened || vcnvCenterAsked()) { return window.GameVariables.Points.VCNV_AFTER_CENTER; }
 	return window.GameVariables.Points.VCNV_OBSTACLE[Math.max(1, Math.min(4, window.GameVariables.VcnvOpenedCount))];
 }
 

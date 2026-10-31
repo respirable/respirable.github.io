@@ -4,43 +4,43 @@
 <head>
 	<meta charset="utf-8">
 	<title>Olympia</title>
-	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261031a">
+	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261031c">
 
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script> <!-- only used with ?room= -->
-	<script src="Scripts/Config.js?v=20261031a"></script> <!-- Supabase URL + public anon key -->
-	<script src="Scripts/Auth.js?v=20261031a"></script> <!-- sign-in (anonymous here) -->
-	<script src="Scripts/Variables.js?v=20261031a"></script> <!-- settings + all game state -->
-	<script src="Scripts/Rules.js?v=20261031a"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
-	<script src="Scripts/Ticker.js?v=20261031a"></script> <!-- timers a background tab does not slow (heartbeats, clock end, buzz window) -->
-	<script src="Scripts/StateSync.js?v=20261031a"></script> <!-- two-screen sync: this browser, or a room (?room=CODE) -->
-	<script src="Scripts/AudioControl.js?v=20261031a"></script> <!-- sound - graphics page ONLY -->
-	<script src="Scripts/TimerControl.js?v=20261031a"></script> <!-- the clock behind every timer bar -->
-	<script src="Scripts/QuestionLoader.js?v=20261031a"></script> <!-- (empty - moved into Init.js) -->
-	<script src="Scripts/StageControl.js?v=20261031a"></script> <!-- background, title card, DOM helpers -->
-	<script src="Scripts/ScoreboardControl.js?v=20261031a"></script> <!-- contestant bars + scores -->
-	<script src="Scripts/ScoreSummaryControl.js?v=20261031a"></script><!-- key M -->
-	<script src="Scripts/ScoreBoardScreenControl.js?v=20261031a"></script><!-- key F6 -->
-	<script src="Scripts/VcnvControl.js?v=20261031a"></script> <!-- VCNV board / picture / question bar -->
-	<script src="Scripts/VcnvTreeControl.js?v=20261031a"></script> <!-- answer tree (VCNV + Tăng tốc) -->
-	<script src="Scripts/TangTocControl.js?v=20261031a"></script> <!-- Tăng tốc frame -->
-	<script src="Scripts/VeDichControl.js?v=20261031a"></script> <!-- Về đích screens -->
-	<script src="Scripts/QuestionControl.js?v=20261031a"></script> <!-- Khởi động question bar -->
-	<script src="Scripts/GeneralControl.js?v=20261031a"></script> <!-- switching rounds -->
-	<script src="Scripts/Rounds/KhoiDong.js?v=20261031a"></script> <!-- step functions of each round -->
-	<script src="Scripts/Rounds/VCNV.js?v=20261031a"></script>
-	<script src="Scripts/Rounds/TangToc.js?v=20261031a"></script>
-	<script src="Scripts/Rounds/VeDich.js?v=20261031a"></script>
-	<script src="Scripts/Rounds/TieBreak.js?v=20261031a"></script>
-	<script src="Scripts/KeyboardController.js?v=20261031a"></script> <!-- EVERY key: which step it calls -->
-	<script src="Scripts/PanelStateControl.js?v=20261031a"></script> <!-- what the control panel is told -->
-	<script src="Scripts/PanelCommands.js?v=20261031a"></script> <!-- what the control panel can ask -->
-	<script src="Scripts/PlayerActions.js?v=20261031a"></script> <!-- players' own devices (room mode) -->
-	<script src="Scripts/Recovery.js?v=20261031a"></script> <!-- emergency progress recovery (control panel) -->
-	<script src="Scripts/GameSave.js?v=20261031a"></script> <!-- automatic save of the game + resuming from it -->
-	<script src="Scripts/MatchLog.js?v=20261031a"></script> <!-- match log + undo of the last action's points -->
-	<script src="Scripts/VcnvPublicImage.js?v=20261031a"></script> <!-- the VCNV picture players / audience may see -->
-	<script src="Scripts/QuestionSet.js?v=20261031a"></script> <!-- a room's question set from Supabase Storage -->
-	<script src="Scripts/Init.js?v=20261031a"></script>
+	<script src="Scripts/Config.js?v=20261031c"></script> <!-- Supabase URL + public anon key -->
+	<script src="Scripts/Auth.js?v=20261031c"></script> <!-- sign-in (anonymous here) -->
+	<script src="Scripts/Variables.js?v=20261031c"></script> <!-- settings + all game state -->
+	<script src="Scripts/Rules.js?v=20261031c"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+	<script src="Scripts/Ticker.js?v=20261031c"></script> <!-- timers a background tab does not slow (heartbeats, clock end, buzz window) -->
+	<script src="Scripts/StateSync.js?v=20261031c"></script> <!-- two-screen sync: this browser, or a room (?room=CODE) -->
+	<script src="Scripts/AudioControl.js?v=20261031c"></script> <!-- sound - graphics page ONLY -->
+	<script src="Scripts/TimerControl.js?v=20261031c"></script> <!-- the clock behind every timer bar -->
+	<script src="Scripts/QuestionLoader.js?v=20261031c"></script> <!-- (empty - moved into Init.js) -->
+	<script src="Scripts/StageControl.js?v=20261031c"></script> <!-- background, title card, DOM helpers -->
+	<script src="Scripts/ScoreboardControl.js?v=20261031c"></script> <!-- contestant bars + scores -->
+	<script src="Scripts/ScoreSummaryControl.js?v=20261031c"></script><!-- key M -->
+	<script src="Scripts/ScoreBoardScreenControl.js?v=20261031c"></script><!-- key F6 -->
+	<script src="Scripts/VcnvControl.js?v=20261031c"></script> <!-- VCNV board / picture / question bar -->
+	<script src="Scripts/VcnvTreeControl.js?v=20261031c"></script> <!-- answer tree (VCNV + Tăng tốc) -->
+	<script src="Scripts/TangTocControl.js?v=20261031c"></script> <!-- Tăng tốc frame -->
+	<script src="Scripts/VeDichControl.js?v=20261031c"></script> <!-- Về đích screens -->
+	<script src="Scripts/QuestionControl.js?v=20261031c"></script> <!-- Khởi động question bar -->
+	<script src="Scripts/GeneralControl.js?v=20261031c"></script> <!-- switching rounds -->
+	<script src="Scripts/Rounds/KhoiDong.js?v=20261031c"></script> <!-- step functions of each round -->
+	<script src="Scripts/Rounds/VCNV.js?v=20261031c"></script>
+	<script src="Scripts/Rounds/TangToc.js?v=20261031c"></script>
+	<script src="Scripts/Rounds/VeDich.js?v=20261031c"></script>
+	<script src="Scripts/Rounds/TieBreak.js?v=20261031c"></script>
+	<script src="Scripts/KeyboardController.js?v=20261031c"></script> <!-- EVERY key: which step it calls -->
+	<script src="Scripts/PanelStateControl.js?v=20261031c"></script> <!-- what the control panel is told -->
+	<script src="Scripts/PanelCommands.js?v=20261031c"></script> <!-- what the control panel can ask -->
+	<script src="Scripts/PlayerActions.js?v=20261031c"></script> <!-- players' own devices (room mode) -->
+	<script src="Scripts/Recovery.js?v=20261031c"></script> <!-- emergency progress recovery (control panel) -->
+	<script src="Scripts/GameSave.js?v=20261031c"></script> <!-- automatic save of the game + resuming from it -->
+	<script src="Scripts/MatchLog.js?v=20261031c"></script> <!-- match log + undo of the last action's points -->
+	<script src="Scripts/VcnvPublicImage.js?v=20261031c"></script> <!-- the VCNV picture players / audience may see -->
+	<script src="Scripts/QuestionSet.js?v=20261031c"></script> <!-- a room's question set from Supabase Storage -->
+	<script src="Scripts/Init.js?v=20261031c"></script>
 </head>
 
 <body>

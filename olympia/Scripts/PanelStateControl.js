@@ -71,6 +71,8 @@ function buildRoundStateForPublic() {
 		},
 		vcnv: {
 			phase: g.VcnvPhaseNames[vcnvPhase],
+			/* someone signalled for the obstacle: the row step it interrupted (players may still answer the row) */
+			rowPhase: vcnvPhase === 9 && g.VcnvPhaseBeforeGuess != null ? g.VcnvPhaseNames[g.VcnvPhaseBeforeGuess] : null,
 			currentRow: g.VcnvCurrentRow,
 			openedCount: g.VcnvOpenedCount,
 			rows: (g.VcnvRows || []).map(function (r, i) {
@@ -91,6 +93,7 @@ function buildRoundStateForPublic() {
 			treeAnswers: vcnvTreeUp && vcnvCurrent ? vcnvCurrent.answers : null,
 			treeCorrect: vcnvPhase === 7 && vcnvCurrent ? vcnvCurrent.correctSeats : null,
 			centerOpened: g.IsVcnvCenterOpened,
+			centerAsked: typeof vcnvCenterAsked === 'function' ? vcnvCenterAsked() : !!g.IsVcnvCenterOpened,   /* the obstacle's prize is down to VCNV_AFTER_CENTER */
 			queue: g.VcnvQueue,
 			eliminated: g.VcnvEliminated,
 			currentQuestion: g.VcnvCurrentQuestion,
@@ -259,6 +262,7 @@ function buildRoundStateForPanel() {
 			openedCount: g.VcnvOpenedCount,
 			rows: g.VcnvRows,
 			centerOpened: g.IsVcnvCenterOpened,
+			centerAsked: typeof vcnvCenterAsked === 'function' ? vcnvCenterAsked() : !!g.IsVcnvCenterOpened,   /* the obstacle's prize is down to VCNV_AFTER_CENTER */
 			finalUsed: g.IsVcnvFinalWindowUsed,
 			finalExpired: g.IsVcnvFinalWindowExpired,
 			queue: g.VcnvQueue,
