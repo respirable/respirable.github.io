@@ -8,7 +8,7 @@
  *   vd       03  Về đích: header "Name (score)" (blue = on stage, red = stealing), the score box,
  *                three cells under it = the package (20 / 30, the current one red), the timer
  *                strip in the metal groove
- *   choose   04  the package board, two rows (20 / 30) x three questions - as tall as 03 and 52 %
+ *   choose   04  the package board, two rows (20 / 30) x three questions - as tall as 03 and 72 %
  *                of its length, so it can close into the middle and 03 open from there (09)
  *   row      05 / 06  one answer row: name | answer | time (Tăng tốc) or name | answer (VCNV)
  *
@@ -500,7 +500,7 @@ const BUILDERS = {
   summary: o => panelA(o),
   kd: () => panelB(),
   vd: () => panelC(),
-  choose: () => panelD({spec: SPEC.B, width: 520}),   /* the sheet's 400, 15 % longer on each side */
+  choose: () => panelD({spec: SPEC.B, width: 720}),   /* the sheet's 400, 40 % longer on each side */
   row: o => rowSvg(o.cols, o.mode)
 };
 

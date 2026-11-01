@@ -181,11 +181,11 @@ body.rulesO26 .vdStarImg {
 	top: -235px;
 }
 
-/* ---------- 04 the package board: 901 x 307, centred on 03 (so 03 opens where it closes) ---------- */
+/* ---------- 04 the package board: 1242 x 307, centred on 03 (so 03 opens where it closes) ---------- */
 body.rulesO26 .vdChooseDiv > svg.o26Svg {
-	left: 510px;
+	left: 339px;
 	top: 733px;
-	width: 901px;
+	width: 1242px;
 }
 
 body.rulesO26 .vdChooseDiv.o26Closing {
