@@ -20,13 +20,19 @@ body.rulesO26 .stageContainerDiv * {
 	font-family: 'O26', 'ITC Avant Garde Gothic', 'Century Gothic', Arial, sans-serif;
 }
 
-/* ... but the obstacle's "CHƯỚNG NGẠI VẬT CÓ N CHỮ CÁI" and the letters of the rows keep theirs */
+/* ... but the obstacle's "CHƯỚNG NGẠI VẬT CÓ N CHỮ CÁI" and the letters of the rows keep theirs, */
 body.rulesO26 .stageContainerDiv .vcnvBoardTitleP {
 	font-family: 'Olympia', 'Myriad Pro', Arial, sans-serif;
 }
 
 body.rulesO26 .stageContainerDiv .vcnvLetterP {
 	font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ... and the results board (F6) keeps Verdana, as under O23 / O24 */
+body.rulesO26 .stageContainerDiv .boardScreenDiv,
+body.rulesO26 .stageContainerDiv .boardScreenDiv * {
+	font-family: Verdana, Geneva, sans-serif;
 }
 
 svg.o26Svg {
