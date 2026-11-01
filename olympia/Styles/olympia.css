@@ -1338,18 +1338,19 @@ body {
 	display: none;
 }
 
-/* Về đích: a question's picture / video (key B) in the Tăng tốc contents frame; the VĐ graphics
- * hide meanwhile (VeDichControl.js) */
+/* Về đích: a question's picture / video (key B), full screen; the VĐ graphics hide meanwhile
+ * (VeDichControl.js) */
 .vdDiv.mediaOn {
 	visibility: hidden;
 }
 
 .vdMediaDiv {
 	position: absolute;
-	left: 371px;
-	top: 178px;
-	width: 1178px;
-	height: 725px;
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+	background: #000;
 	display: none;
 }
 
@@ -1357,20 +1358,12 @@ body {
 	display: block;
 }
 
-.vdMediaFrameImg {
+.vdMediaBox {
 	position: absolute;
 	left: 0;
 	top: 0;
-	width: 1178px;
-	height: 725px;
-}
-
-.vdMediaBox {
-	position: absolute;
-	left: 83px;
-	top: 19px;
-	width: 1008px;
-	height: 679px;
+	width: 1920px;
+	height: 1080px;
 	overflow: hidden;
 }
 

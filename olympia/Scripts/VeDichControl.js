@@ -10,8 +10,8 @@
  *                  text follows with setVeDichQuestion(). Zoom 600 ms from its top-left; exit instant.
  * .vdScoreBox      "CÂU N ĐIỂM" + the on-stage contestant's score; zooms once the group has landed.
  * video.vdStar     the Ngôi sao hy vọng (star.webm, VP9 with alpha) looping above the seat-4 tab.
- * .vdMediaDiv      a question's picture / video (key B), in the Tăng tốc contents frame; it is a
- *                  sibling of .vdDiv, and while it is up the VĐ graphics are hidden (.vdDiv.mediaOn).
+ * .vdMediaDiv      a question's picture / video (key B), full screen; it is a sibling of .vdDiv, and
+ *                  while it is up the VĐ graphics are hidden (.vdDiv.mediaOn).
  * img.vdStarImg    the same star as an animated WebP, shown instead on Safari / iPad / iPhone:
  *                  WebKit plays VP9 but drops its alpha, so the clip comes out on a black square.
  *                  The video keeps its "on" class there (PanelStateControl.js reads it), unseen.
@@ -313,7 +313,6 @@ function renderVeDichMedia() {
 	var root = document.createElement('div');
 	root.className = 'vdMediaDiv';
 	vd.parentNode.insertBefore(root, vd.nextSibling);
-	newImage('O24/Accelerate/Question/question_contents_bar.png', 'vdMediaFrameImg', root);
 	var box = newElement('div', 'vdMediaBox', root);
 	newElement('img', 'vdMediaImg', box).alt = '';
 	var video = newElement('video', 'vdMediaVideo', box);

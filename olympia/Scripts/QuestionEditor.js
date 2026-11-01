@@ -452,7 +452,7 @@
 				b.appendChild(el('p', 'sub', v + ' điểm'));
 				model.vd[s][v].forEach(function (x, i) {
 					b.appendChild(questionRow(v + '·' + (i + 1), x));
-					var m = mediaPicker('Ảnh / video của câu (tuỳ chọn - phím B trên sân khấu)', x.media, ['image', 'video'], { preview: false });
+					var m = mediaPicker('Ảnh / video của câu (tuỳ chọn - phím B trên sân khấu, toàn màn hình)', x.media, ['image', 'video'], { empty: 'Câu này không có ảnh / video.' });
 					m.classList.add('vdMedia');
 					b.appendChild(m);
 				});
