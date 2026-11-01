@@ -88,7 +88,7 @@ function setQuestionText(text) {
 	var p = document.querySelector('.questionBarDiv .questionTextP');
 	if (p) {
 		p.textContent = text || '';
-		if (typeof o26FitHtml === 'function') { o26FitHtml(p.parentNode.classList.contains('plainSkin') ? p : null, 46, 26); }
+		if (typeof o26FitHtml === 'function') { o26FitHtml(p.parentNode.classList.contains('plainSkin') ? p : null, 27, 20); }
 	}
 }
 

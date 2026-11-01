@@ -8,7 +8,7 @@
  *   vd       03  Về đích: header "Name (score)" (blue = on stage, red = stealing), the score box,
  *                three cells under it = the package (20 / 30, the current one red), the timer
  *                strip in the metal groove
- *   choose   04  the package board, two rows (20 / 30) x three questions - as tall as 03 and 40 %
+ *   choose   04  the package board, two rows (20 / 30) x three questions - as tall as 03 and 52 %
  *                of its length, so it can close into the middle and 03 open from there (09)
  *   row      05 / 06  one answer row: name | answer | time (Tăng tốc) or name | answer (VCNV)
  *
@@ -135,8 +135,8 @@ function header4(p, s, rightAt){
 function headerTexts(hd, layout){
   const ff = `font-size="16"`;
   return hd.lefts.map((x0, i) => layout === 'center'
-    ? `<text class="o26hc" data-i="${i}" data-max="${f(hd.rights[i] - x0 - 30)}" x="${f((x0 + hd.rights[i]) / 2)}" y="23.5" text-anchor="middle" ${ff}></text>`
-    : `<text class="o26hn" data-i="${i}" data-max="${f(hd.rights[i] - x0 - 92)}" x="${f(x0 + 22)}" y="23.5" text-anchor="start" ${ff}></text><text class="o26hs" data-i="${i}" x="${f(hd.rights[i] - 26)}" y="23.5" text-anchor="end" ${ff}></text>`).join('');
+    ? `<text class="o26hc" data-i="${i}" data-max="${f(hd.rights[i] - x0 - 30)}" x="${f((x0 + hd.rights[i]) / 2)}" y="26" text-anchor="middle" ${ff}></text>`
+    : `<text class="o26hn" data-i="${i}" data-max="${f(hd.rights[i] - x0 - 70)}" x="${f(x0 + 10)}" y="26" text-anchor="start" ${ff}></text><text class="o26hs" data-i="${i}" x="${f(hd.rights[i] - 18)}" y="26" text-anchor="end" ${ff}></text>`).join('');
 }
 
 /* 02 — khung 4 ô tiêu đề */
@@ -174,17 +174,17 @@ function panelC(o){
     g += `<linearGradient id="${p}r${k}" gradientUnits="userSpaceOnUse" x1="${f(lx(yMid))}" y1="0" x2="${f(Math.min(rx(yMid), R))}" y2="0"><stop offset="0" stop-color="${st[0]}"/><stop offset=".5" stop-color="${st[1]}"/><stop offset="1" stop-color="${st[2]}"/></linearGradient>`;
     cells += `<g class="cell" data-k="${k}"><polygon class="red" points="${P(poly)}" fill="url(#${p}r${k})" opacity="${stC[k] ? 1 : 0}"/></g>`;
     const ym = (y0 + y1) / 2, cx = (lx(ym) + Math.min(rx(ym), R - 4)) / 2;
-    vals += `<text class="o26cv" data-k="${k}" x="${f(cx)}" y="${f(ym + 7)}" font-size="20"></text>`;
+    vals += `<text class="o26cv" data-k="${k}" x="${f(cx)}" y="${f(ym + 8)}" font-size="22"></text>`;
   }
   const bar = (() => {
     const xl = y => inL(s, y) + 1.8, xr = y => bx(y) - 1.8, y0 = 155.6, y1 = 169;
     const pl = [[xl(y0), y0],[xr(y0), y0],[xr(y1), y1],[xl(y1), y1]];
     const px0 = Math.max(xl(160.2), xl(165.6)) + 6, px1 = Math.min(xr(160.2), xr(165.6)) - 6;
     return `<polygon points="${P(pl)}" fill="url(#${p}chrome)"/><line x1="${f(xl(y0))}" y1="${y0 + .5}" x2="${f(xr(y0))}" y2="${y0 + .5}" stroke="#4d5e79" stroke-width="1" opacity=".8"/><rect x="${f(px0)}" y="160.2" width="${f(px1 - px0)}" height="5.4" rx="2.7" ry="2.7" fill="#25272d"/><rect x="${f(px0 + 3)}" y="160.2" width="${f(px1 - px0 - 6)}" height="1.2" fill="#000" opacity=".35"/>` +
-      `<g class="o26timer" opacity="0" data-x0="${f(px0)}" data-w="${f(px1 - px0)}"><rect class="o26tfill" x="${f(px0)}" y="160.2" width="0" height="5.4" rx="2.7" ry="2.7" fill="url(#${p}tf)"/><circle class="o26tdot" cx="${f(px0)}" cy="162.9" r="4.2" fill="#ffd9e3"/></g>`;
+      `<g class="o26timer" opacity="0" data-x0="${f(px0)}" data-w="${f(px1 - px0)}"><rect class="o26tfill" x="${f(px0)}" y="160.2" width="0" height="5.4" rx="2.7" ry="2.7" fill="url(#${p}tf)"/><circle class="o26tdot" cx="${f(px0)}" cy="162.9" r="5.3" fill="#b5043e" filter="url(#${p}tglow)"/></g>`;
   })();
   let out = open(s, 'Khung câu hỏi có ô điểm') + defs(p, s) +
-  `<defs><linearGradient id="${p}blk" gradientUnits="userSpaceOnUse" x1="800" y1="0" x2="935" y2="0"><stop offset="0" stop-color="#063899"/><stop offset=".45" stop-color="#0739ae"/><stop offset=".75" stop-color="#073cd3"/><stop offset="1" stop-color="#0740ec"/></linearGradient><linearGradient id="${p}tf" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#272523"/><stop offset="1" stop-color="#b5043e"/></linearGradient>
+  `<defs><linearGradient id="${p}blk" gradientUnits="userSpaceOnUse" x1="800" y1="0" x2="935" y2="0"><stop offset="0" stop-color="#063899"/><stop offset=".45" stop-color="#0739ae"/><stop offset=".75" stop-color="#073cd3"/><stop offset="1" stop-color="#0740ec"/></linearGradient><linearGradient id="${p}tf" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#272523"/><stop offset="1" stop-color="#b5043e"/></linearGradient><filter id="${p}tglow" filterUnits="userSpaceOnUse" x="0" y="140" width="${W}" height="45"><feMorphology in="SourceAlpha" operator="dilate" radius="1.2" result="d"/><feGaussianBlur in="d" stdDeviation="2" result="b"/><feFlood flood-color="#b5043e" flood-opacity=".75"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <linearGradient id="${p}blkv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".06"/><stop offset=".25" stop-color="#ffffff" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".08"/></linearGradient><linearGradient id="${p}strip" gradientUnits="userSpaceOnUse" x1="787" y1="0" x2="935" y2="0"><stop offset="0" stop-color="#082140"/><stop offset=".45" stop-color="#062b5d"/><stop offset="1" stop-color="#0d3274"/></linearGradient>${g}</defs>` +
   base(p, s) + hd.band +
   `<g clip-path="url(#${p}in)"><g class="blk">
@@ -198,7 +198,7 @@ ${cells}</g>${bar}<g class="bov" opacity="0"><polygon points="${P([[0,0],[W,0],[
   hd.marks + `<g style="pointer-events:none">${slashes(p, [slash(d[1], yMid, 25), slash(d[2], yMid, 25)])}</g>`;
   const sc = (bx(68) + (W - inL(s, 68))) / 2;
   out += textGroup(p, headerTexts(hd, 'center') + vals +
-    `<text class="o26score" data-max="${f(W - inL(s, 68) - bx(68) - 24)}" x="${f(sc)}" y="92" font-size="64"></text>`);
+    `<text class="o26score" data-max="${f(W - inL(s, 68) - bx(68) - 24)}" x="${f(sc)}" y="103" font-size="52"></text>`);
   return out.replace('<svg ', '<svg data-intro="1" ') + '</svg>';
 }
 
@@ -500,7 +500,7 @@ const BUILDERS = {
   summary: o => panelA(o),
   kd: () => panelB(),
   vd: () => panelC(),
-  choose: () => panelD({spec: SPEC.B, width: 400}),
+  choose: () => panelD({spec: SPEC.B, width: 520}),   /* the sheet's 400, 15 % longer on each side */
   row: o => rowSvg(o.cols, o.mode)
 };
 
@@ -540,7 +540,7 @@ function setCells(svg, values, current){
     const t = svg.querySelector('.o26cv[data-k="' + k + '"]');
     if (t){
       t.textContent = values[k] == null ? '' : String(values[k]);
-      t.setAttribute('fill', k === current ? '#ffffff' : '#8f9bb0');
+      t.setAttribute('fill', k === current ? '#e7a9c9' : '#ffffff');
     }
   }
 }

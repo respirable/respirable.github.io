@@ -329,7 +329,7 @@
 	function renderKd() {
 		var p = $('#panekd'); p.textContent = '';
 		/* every rules: the intro video, ← at Khởi động's first step plays it (KdIntro.js) */
-		var ib = block('Video intro', 'Chiếu toàn màn hình khi bấm ← lần đầu ở phần thi Khởi động (bấm ← lần nữa để bỏ qua); hết video thì phần thi bắt đầu.');
+		var ib = block('Video intro', 'Chiếu toàn màn hình khi bấm ← lần đầu ở phần thi Khởi động; bấm ← lần nữa để ẩn (đang chiếu hay đã hết), rồi ← để vào phần thi.');
 		var im = mediaPicker('Video', model.kd.intro, ['video'], { empty: 'Không có video intro.' });
 		im.classList.add('vdMedia', 'intro');
 		ib.appendChild(im);

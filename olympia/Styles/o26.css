@@ -72,18 +72,19 @@ body.rulesO26 .questionBarDiv.plainSkin .questionTimerDiv {
 	display: none;
 }
 
-/* the body of the frame: units x 80..920, y 40..165 */
+/* the body of the frame, as on the broadcast: left-aligned from its top-left, units x 71..930,
+   first baseline at y 67, type 15.5 units on 25-unit lines */
 body.rulesO26 .questionBarDiv.plainSkin .questionTextP {
-	left: 143px;
-	top: 75px;
-	width: 1434px;
-	height: 213px;
+	left: 128px;
+	top: 89px;
+	width: 1466px;
+	height: 199px;
 	margin: 0;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	font-size: 46px;
-	line-height: 1.25;
+	align-items: flex-start;
+	justify-content: flex-start;
+	text-align: left;
+	font-size: 27px;
+	line-height: 1.58;
 	overflow: hidden;
 	transition: opacity 250ms ease-out;
 	z-index: 1;
@@ -161,14 +162,15 @@ body.rulesO26 .vdQuestionBar {
 	height: 307px;
 }
 
-/* left-aligned at the top of the body: units x 86..790, y 45..140 */
+/* as on the broadcast: left-aligned from the body's top-left, units x 70..770, first baseline at
+   y 63, type 14.5 units on 22-unit lines */
 body.rulesO26 .vdQuestionTextP {
-	left: 154px;
-	top: 82px;
-	width: 1201px;
-	height: 166px;
-	font-size: 38px;
-	line-height: 1.3;
+	left: 126px;
+	top: 85px;
+	width: 1194px;
+	height: 178px;
+	font-size: 26px;
+	line-height: 1.5;
 	transition: opacity 250ms ease-out;
 }
 
@@ -179,11 +181,11 @@ body.rulesO26 .vdStarImg {
 	top: -235px;
 }
 
-/* ---------- 04 the package board: 696 x 307, centred on 03 (so 03 opens where it closes) ---------- */
+/* ---------- 04 the package board: 901 x 307, centred on 03 (so 03 opens where it closes) ---------- */
 body.rulesO26 .vdChooseDiv > svg.o26Svg {
-	left: 612px;
+	left: 510px;
 	top: 733px;
-	width: 696px;
+	width: 901px;
 }
 
 body.rulesO26 .vdChooseDiv.o26Closing {

@@ -207,8 +207,8 @@
 	gameVariables.VeDichMedia = null;                /* the VĐ question's picture / video { type, src } (key B) */
 	gameVariables.KdIntro = '';                      /* the intro video before Khởi động (khoidong.xml <intro>), '' = none */
 	gameVariables.KdIntroPlayed = false;             /* ...already shown this game (KdIntro.js) */
-	gameVariables.IsKdIntroPlaying = false;
-	gameVariables.KdIntroThen = null;
+	gameVariables.IsKdIntroPlaying = false;          /* ...on screen (playing, or over on its last frame: IsKdIntroOver) */
+	gameVariables.IsKdIntroOver = false;
 	gameVariables.IsVeDichVideoPlaying = false;      /* VĐ: a question's video is on (the answer clock waits for it) */
 	gameVariables.VeDichVideoAfter = null;           /* VĐ: the 1 s after the video, before the answer clock */
 	gameVariables.IsVcnvCenterOpened = false;        /* centre question answered right -> middle cover off (the prize drops to VCNV_AFTER_CENTER as soon as it is asked) */

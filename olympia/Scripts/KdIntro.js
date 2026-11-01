@@ -2,9 +2,10 @@
  * Olympia Controller - the intro video before Khởi động (every rules). The set's khoidong.xml
  * names it: <intro>intro.mp4</intro> (uploaded with the set; the question manager sets it).
  *
- *   ← at Khởi động's first step   plays it full screen, over everything; when it ends, that same
- *                                  first step runs by itself (title card + kd_start, or the turn)
- *   ← while it plays              skips the rest (the first step runs at once)
+ *   ← at Khởi động's first step   plays it full screen, over everything - the first thing the
+ *                                  stage shows; at its end it stays on its last frame
+ *   ←                              hides it (playing or over)
+ *   ←                              Khởi động's first step, as without an intro
  *
  * It plays once per game (again after the whole Khởi động is reset). It runs on the 'kd_intro'
  * clock; the stage / audience screens follow that clock (AudienceMirror.js), the stage screen with
@@ -51,13 +52,12 @@ function khoiDongIntroPending() {
 	return !!(g.KdIntro && !g.KdIntroPlayed && !g.IsKdIntroPlaying);
 }
 
-/* then(): Khởi động's first step, run once the intro is over (or skipped / unplayable) */
-function khoiDongPlayIntro(then) {
+function khoiDongPlayIntro() {
 	var g = window.GameVariables, video = kdIntroVideo();
-	if (!video || !g.KdIntro) { g.KdIntroPlayed = true; then(); return; }
+	if (!video || !g.KdIntro) { g.KdIntroPlayed = true; return; }
 	setKdIntro(g.KdIntro);
 	g.IsKdIntroPlaying = true;
-	g.KdIntroThen = then;
+	g.IsKdIntroOver = false;
 	showKdIntro();
 	g.changed();
 	function go() {
@@ -67,7 +67,7 @@ function khoiDongPlayIntro(then) {
 		try { video.currentTime = 0; } catch (e) { /* ignore */ }
 		video.muted = g.SoundAt === 'stage';   /* in a room the stage screens play it with sound */
 		var p = video.play(); if (p && p.catch) { p.catch(function () {}); }
-		startClock({ mode: 'down', duration: dur, label: 'kd_intro', onDone: khoiDongEndIntro });
+		startClock({ mode: 'down', duration: dur, label: 'kd_intro', onDone: function () { g.IsKdIntroOver = true; g.changed(); } });   /* stays on its last frame */
 	}
 	if (video.readyState >= 1) { go(); return; }
 	var waited = clockTimeout(function () { video.removeEventListener('loadedmetadata', onMeta); go(); }, 5000);   /* gives up inside go() */
@@ -75,17 +75,15 @@ function khoiDongPlayIntro(then) {
 	video.addEventListener('loadedmetadata', onMeta, { once: true });
 }
 
-/* the end (or ← to skip): the intro goes and Khởi động's first step runs */
+/* ←: the intro goes (over or not); the next ← starts Khởi động */
 function khoiDongEndIntro() {
 	var g = window.GameVariables;
 	if (!g.IsKdIntroPlaying) { return; }
 	if (g.TimerState && g.TimerState.label === 'kd_intro' && isClockRunning()) { stopClock(); }
 	g.IsKdIntroPlaying = false;
 	g.KdIntroPlayed = true;
+	g.IsKdIntroOver = false;
 	hideKdIntro();
-	var then = g.KdIntroThen;
-	g.KdIntroThen = null;
-	if (then) { then(); }
 	g.changed();
 }
 
@@ -95,6 +93,6 @@ function khoiDongStopIntro() {
 	if (!g.IsKdIntroPlaying) { return; }
 	if (g.TimerState && g.TimerState.label === 'kd_intro' && isClockRunning()) { stopClock(); }
 	g.IsKdIntroPlaying = false;
-	g.KdIntroThen = null;
+	g.IsKdIntroOver = false;
 	hideKdIntro();
 }

@@ -262,7 +262,7 @@ function buildRoundStateForPanel() {
 			buzzSeat: g.KhoiDongBuzzSeat,
 			resolved: g.IsKhoiDongQuestionResolved,
 			own: { wrong: g.KdOwnWrong || 0, streak: g.KdOwnStreak || 0, bonus: g.KdOwnBonus || 0, timeUp: !!g.IsKdOwnTimeUp },   /* Luật rừng */
-			intro: g.IsKdIntroPlaying ? 'playing' : (g.KdIntro && !g.KdIntroPlayed ? 'ready' : ''),   /* KdIntro.js */
+			intro: g.IsKdIntroPlaying ? (g.IsKdIntroOver ? 'over' : 'playing') : (g.KdIntro && !g.KdIntroPlayed ? 'ready' : ''),   /* KdIntro.js */
 			turnWrong: g.KdTurnWrong || {}
 		},
 		vcnv: {

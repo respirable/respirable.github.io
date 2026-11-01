@@ -219,7 +219,7 @@ function setVeDichQuestion(text, value) {
 	veDichElement('.vdQuestionTextP').textContent = text || '';
 	veDichElement('.vdScoreHeaderP').textContent = 'CÂU ' + (value || '') + ' ĐIỂM';
 	hideVeDichTimer();
-	if (typeof o26FitHtml === 'function') { o26FitHtml(veDichElement('.vdQuestionTextP'), 38, 24); }
+	if (typeof o26FitHtml === 'function') { o26FitHtml(veDichElement('.vdQuestionTextP'), 26, 19); }
 	if (typeof o26Refresh === 'function') { o26Refresh(); }
 }
 
