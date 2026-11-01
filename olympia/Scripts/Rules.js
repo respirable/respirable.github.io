@@ -1,8 +1,11 @@
 /*
  * Olympia Controller - the rules a game is played by. Loaded right after Variables.js.
  *
- *   'o24'  Olympia 24 + 26 (the default): Khởi động individual + common turn, obstacle
- *          60-50-40-30 (20 after the centre), Tăng tốc clocks 20/20/30/30 (tangtoc.xml may set them)
+ *   'o26'  Olympia 26 (the default): Khởi động individual + common turn, obstacle
+ *          60-50-40-30 (20 after the centre), Tăng tốc clocks 20/20/30/30 (tangtoc.xml may set them);
+ *          the Olympia 26 graphics (O26Frames.js, Styles/o26.css, body.rulesO26)
+ *   'o24'  Olympia 24: as 'o26' with the O24 graphics, but Tăng tốc clocks 10/20/30/40 whatever
+ *          tangtoc.xml says (rooms made before 'o26' existed - "Olympia 24 + 26" - are 'o24')
  *   'o23'  Olympia 23: Khởi động is three common turns of 8, 12 and 16 questions (taken in order
  *          from <common> in khoidong.xml), obstacle 50-40-30-20 (10 after the centre), Tăng tốc
  *          clocks 10/20/30/40 whatever tangtoc.xml says
@@ -28,6 +31,11 @@
 		TANG_TOC: gv.Timings.TANG_TOC.slice(),
 		TANG_TOC_RANK: gv.Points.TANG_TOC_RANK.slice()
 	};
+	var O24 = {
+		VCNV_OBSTACLE: BASE.VCNV_OBSTACLE,
+		VCNV_AFTER_CENTER: BASE.VCNV_AFTER_CENTER,
+		TANG_TOC: [10, 20, 30, 40]
+	};
 	var O23 = {
 		VCNV_OBSTACLE: { 1: 50, 2: 40, 3: 30, 4: 20 },
 		VCNV_AFTER_CENTER: 10,
@@ -45,17 +53,17 @@
 		KD_TURN_WRONG: -5,                 /* common turns: the n-th wrong of a seat costs (n-1) x this */
 		KD_TURNS: [8, 16]
 	};
-	var NAMES = { o24: 'Olympia 24 + 26', o23: 'Olympia 23', jungle: 'Luật rừng (BETA)' };
+	var NAMES = { o26: 'Olympia 26', o24: 'Olympia 24', o23: 'Olympia 23', jungle: 'Luật rừng (BETA)' };
 
-	gv.Rules = 'o24';
+	gv.Rules = 'o26';
 	gv.RulesO23 = O23;
 	gv.RulesJungle = JUNGLE;
 	gv.RulesNames = NAMES;
 
-	/* name: 'o24' | 'o23' | 'jungle' (anything else: 'o24') */
+	/* name: 'o26' | 'o24' | 'o23' | 'jungle' (anything else: 'o26') */
 	gv.applyRules = function (name) {
-		var r = NAMES[name] ? name : 'o24';
-		var src = r === 'o23' ? O23 : (r === 'jungle' ? JUNGLE : BASE);
+		var r = NAMES[name] ? name : 'o26';
+		var src = r === 'o23' ? O23 : (r === 'jungle' ? JUNGLE : (r === 'o24' ? O24 : BASE));
 		gv.Rules = r;
 		gv.Points.VCNV_OBSTACLE = Object.assign({}, src.VCNV_OBSTACLE);
 		gv.Points.VCNV_AFTER_CENTER = src.VCNV_AFTER_CENTER;
@@ -63,20 +71,22 @@
 		gv.Points.NEGATIVE = r === 'jungle';
 		gv.Timings.TANG_TOC = src.TANG_TOC.slice();
 		function mark() {
+			document.body.classList.toggle('rulesO26', gv.Rules === 'o26');
 			document.body.classList.toggle('rulesO23', gv.Rules === 'o23');
 			document.body.classList.toggle('rulesJungle', gv.Rules === 'jungle');
 		}
 		if (document.body) { mark(); } else { document.addEventListener('DOMContentLoaded', mark); }
 		return r;
 	};
+	gv.isO26 = function () { return gv.Rules === 'o26'; };
 	gv.isO23 = function () { return gv.Rules === 'o23'; };
 	gv.isJungle = function () { return gv.Rules === 'jungle'; };
 	/* Khởi động's common turns in the Olympia 23 style (sizes), or null (one 12-question turn, O24) */
 	gv.kdCommonTurns = function () { return gv.Rules === 'o23' ? O23.KD_TURNS : (gv.Rules === 'jungle' ? JUNGLE.KD_TURNS : null); };
 	/* Tăng tốc clocks fixed by the rules (tangtoc.xml's seconds ignored) */
-	gv.fixedTangTocClocks = function () { return gv.Rules === 'o23' || gv.Rules === 'jungle'; };
+	gv.fixedTangTocClocks = function () { return gv.Rules === 'o24' || gv.Rules === 'o23' || gv.Rules === 'jungle'; };
 
-	/* without a room: ?rules=o23 / ?rules=jungle (trying it out on one machine) */
+	/* without a room: ?rules=o24 / ?rules=o23 / ?rules=jungle (trying it out on one machine) */
 	var p = new URLSearchParams(location.search);
-	if (!p.get('room') && p.get('rules')) { gv.applyRules(p.get('rules')); }
+	gv.applyRules(!p.get('room') && p.get('rules') ? p.get('rules') : 'o26');
 })(window.GameVariables);

@@ -313,6 +313,7 @@ function khoiDongJudgeCommonWrong() {
 
 /* Restart from the individual turn (seat given: only un-mark that seat). Olympia 23: from turn 1. */
 function khoiDongReset(seat) {
+	if (seat === null) { khoiDongStopIntro(); window.GameVariables.KdIntroPlayed = false; }   /* the whole round again: the intro too */
 	if (window.GameVariables.Rules === 'o23') { khoiDongResetO23(1); return; }
 	if (window.GameVariables.isJungle()) { khoiDongJungleStopClock(); }
 	window.GameVariables.Players.forEach(function (p) { if (seat === null || p.seat === seat) { p.kdDone = false; } });

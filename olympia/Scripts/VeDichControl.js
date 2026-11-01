@@ -94,6 +94,7 @@ function renderVeDich() {
 	}
 
 	window.GameVariables.IsVeDichBuilt = true;
+	if (typeof o26SetupVeDich === 'function') { o26SetupVeDich(); }   /* Olympia 26 frames 03 / 04 */
 }
 
 function isVeDichShowing() {
@@ -141,6 +142,7 @@ function setChooseScreen(values) {
 			newElement('p', 'vdTickP', t).textContent = values[k] === v ? '✓' : '';
 		}
 	});
+	if (typeof o26Refresh === 'function') { o26Refresh(); }
 }
 
 function hideChooseScreen() {
@@ -192,7 +194,7 @@ function showVeDichQuestionGroup(o) {
 				scoreGlare.classList.add('on');
 			}); });
 		}, VD_GROUP_ZOOM_MS);
-	}, typeof o.delay === 'number' ? o.delay : VD_GROUP_DELAY_MS);
+	}, typeof o.delay === 'number' ? o.delay : (typeof o26VdGroupDelay === 'function' ? o26VdGroupDelay(VD_GROUP_DELAY_MS) : VD_GROUP_DELAY_MS));
 }
 
 /* tabs are fixed by seat; the contestant on stage gets the on-stage tab and name only, the
@@ -208,6 +210,7 @@ function setVeDichTabs(onStageSeat) {
 		var name = p ? window.GameVariables.displayName(p) : ('Thí sinh ' + seat);
 		tab.querySelector('.vdTabTextP').textContent = on ? name : (name + ' (' + (p ? p.score : 0) + ')');
 	});
+	if (typeof o26Refresh === 'function') { o26Refresh(); }
 }
 
 /* text ('' = bare bar) + "CÂU v ĐIỂM" header; no animation */
@@ -216,16 +219,19 @@ function setVeDichQuestion(text, value) {
 	veDichElement('.vdQuestionTextP').textContent = text || '';
 	veDichElement('.vdScoreHeaderP').textContent = 'CÂU ' + (value || '') + ' ĐIỂM';
 	hideVeDichTimer();
+	if (typeof o26FitHtml === 'function') { o26FitHtml(veDichElement('.vdQuestionTextP'), 38, 24); }
+	if (typeof o26Refresh === 'function') { o26Refresh(); }
 }
 
 function setVeDichScore(n) {
-	if (window.GameVariables.IsVeDichBuilt) { veDichElement('.vdScoreP').textContent = String(n); }
+	if (window.GameVariables.IsVeDichBuilt) { veDichElement('.vdScoreP').textContent = String(n); if (typeof o26Refresh === 'function') { o26Refresh(); } }
 }
 
 /* the stealer's tab turns red */
 function setVeDichStealSeat(seat) {
 	if (!window.GameVariables.IsVeDichBuilt) { return; }
 	[1, 2, 3, 4].forEach(function (s) { veDichElement('.vdTab.seat' + s).classList.toggle('stealing', s === seat); });
+	if (typeof o26Refresh === 'function') { o26Refresh(); }
 }
 
 /* on: the star clip loops above the seat-4 tab until setVeDichStar(false) / the group goes away */
@@ -291,10 +297,12 @@ function setVeDichTimer(fraction) {
 	var w = Math.round(f * VE_DICH_TIMER_WIDTH);
 	timer.querySelector('.vcnvTimerFill').style.width = w + 'px';
 	timer.querySelector('.vcnvTimerDot').style.left = (w - TIMER_DOT / 2) + 'px';
+	if (typeof o26VdTimer === 'function') { o26VdTimer(f); }   /* Olympia 26: the groove of frame 03 */
 }
 
 function hideVeDichTimer() {
 	if (window.GameVariables.IsVeDichBuilt) { veDichElement('.vdTimerDiv').classList.remove('visible'); }
+	if (typeof o26VdTimer === 'function') { o26VdTimer(null); }
 }
 
 function hideVeDich() {

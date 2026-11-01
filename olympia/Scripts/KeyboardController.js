@@ -53,6 +53,10 @@ function handleRoundKey(key, round) {
 	if (key == 'ArrowLeft') // key 'left arrow' for starting a round and stepping between contestants / screens
 	{
 		if (round == 'kd') {
+			/* the set's intro video (KdIntro.js): ← at the first step plays it, ← again skips it; the
+			 * first step itself runs when it is over */
+			if (window.GameVariables.IsKdIntroPlaying) { khoiDongEndIntro(); return true; }
+			if (kd == 0 && khoiDongIntroPending()) { khoiDongPlayIntro(function () { handleRoundKey('ArrowLeft', 'kd'); }); return true; }
 			if (window.GameVariables.Rules === 'o23') {                     /* Olympia 23: three common turns */
 				if (kd == 0) { khoiDongShowTitle(); }
 				else if (kd == 1) { khoiDongO23Ready(1); }

@@ -320,8 +320,9 @@
 			setDeck({
 				who: common ? (kd.buzzSeat ? ('Chuông: ' + nameOf(kd.buzzSeat) + (kd.resolved ? ' · đã chấm' : '')) : 'Lượt chung — chờ chuông') : (kd.seat ? nameOf(kd.seat) : 'Chưa chọn thí sinh'),
 				pts: (kd.questionIndex ? ('Câu ' + kd.questionIndex + ' / ' + kd.questionCount + (jungle && !common && kd.questionIndex > 12 ? ' (bổ sung)' : '')) : 'Chưa vào câu') + ptsText,
-				status: (kdPhaseText[kdKind] || {})[kd.phase] || kd.phase,
-				statusKind: kd.phase === 'question' ? 'hot' : statusKind(kd.phase),
+				status: kd.intro === 'playing' ? 'ĐANG CHIẾU INTRO — ← bỏ qua phần còn lại'
+					: ((kdPhaseText[kdKind] || {})[kd.phase] || kd.phase) + (kd.intro === 'ready' && kd.phase === 'idle' ? ' (← chiếu video intro trước)' : ''),
+				statusKind: kd.intro === 'playing' || kd.phase === 'question' ? 'hot' : statusKind(kd.phase),
 				question: kd.currentQuestion, answer: kd.currentAnswer,
 				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', (jungle && kd.lastResult === 'wrong' ? 'SAI' : kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult]) || '—'],
 					jungle && !common ? ['Chuỗi đúng · câu bổ sung · lần sai', own.streak + '/3 · ' + own.bonus + '/4 · ' + own.wrong] : ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]

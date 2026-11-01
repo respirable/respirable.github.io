@@ -33,6 +33,7 @@ function switchRound(roundId) {
 /* The round's graphics come down; its counter is kept, so F-keying back resumes where it was. */
 function leaveRound(roundId) {
 	if (roundId == 'kd') {
+		khoiDongStopIntro();
 		hideThinkClock();
 		stopLongPassiveSound();
 		showRoundGraphics();

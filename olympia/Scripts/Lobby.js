@@ -336,7 +336,7 @@
 		f('code').textContent = room.code;
 		f('name').textContent = room.name || '(chưa đặt tên)';
 		f('created').textContent = 'Tạo lúc ' + fmtTime(room.created_at);
-		f('rules').textContent = room.rules === 'o23' ? 'Luật Olympia 23' : room.rules === 'jungle' ? 'Luật rừng (BETA)' : (room.rules ? 'Luật Olympia 24 + 26' : '');
+		f('rules').textContent = { o26: 'Luật Olympia 26', o24: 'Luật Olympia 24', o23: 'Luật Olympia 23', jungle: 'Luật rừng (BETA)' }[room.rules] || '';
 		expiryNodes.push({ room: room, el: f('expiry'), card: node });
 		/* a room someone shared with this account: open its screens, but not the owner's actions */
 		var mine = !room.owner_id || room.owner_id === account.uid;
@@ -418,17 +418,17 @@
 		var pw = $('#roomPassword').value;
 		if (pw.length < 4 || pw.length > 20) { $('#createError').textContent = 'Mật khẩu thí sinh phải có từ 4 đến 20 ký tự.'; return; }
 		$('#createBtn').disabled = true;
-		var picked = $('#roomRules input:checked'), rules = picked && (picked.value === 'o23' || picked.value === 'jungle') ? picked.value : 'o24';
-		var args = { p_name: $('#roomName').value, p_password: pw };
-		if (rules !== 'o24') { args.p_rules = rules; }   /* O24 rooms work without migrations/0013 too */
+		var picked = $('#roomRules input:checked'), rules = picked && /^(o24|o23|jungle)$/.test(picked.value) ? picked.value : 'o26';
+		var args = { p_name: $('#roomName').value, p_password: pw, p_rules: rules };
 		var r = await db.rpc('create_room', args);
 		$('#createBtn').disabled = false;
 		if (r.error) {
-			$('#createError').textContent = 'Không tạo được phòng: ' + (r.error.code === 'PGRST202' && rules !== 'o24' ? 'cần chạy supabase/migrations/0013_room_rules_and_announcements.sql trước khi tạo phòng luật Olympia 23 / luật rừng.'
+			$('#createError').textContent = 'Không tạo được phòng: ' + (r.error.code === 'PGRST202' ? 'cần chạy supabase/migrations/0013_room_rules_and_announcements.sql, 0017_jungle_rules.sql và 0019_o26_rules.sql.'
+				: rules === 'o26' && /bad_rules|rooms_rules_check/.test(r.error.message || '') ? 'cần chạy supabase/migrations/0019_o26_rules.sql trước khi tạo phòng luật Olympia 26.'
 				: rules === 'jungle' && /bad_rules|rooms_rules_check/.test(r.error.message || '') ? 'cần chạy supabase/migrations/0017_jungle_rules.sql trước khi tạo phòng luật rừng.' : r.error.message);
 			return;
 		}
-		$('#roomName').value = ''; $('#roomPassword').value = ''; $('#roomRules input[value="o24"]').checked = true;
+		$('#roomName').value = ''; $('#roomPassword').value = ''; $('#roomRules input[value="o26"]').checked = true;
 		loadRooms();
 	}
 
