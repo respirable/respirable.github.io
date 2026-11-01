@@ -7,7 +7,7 @@
  *   INDIVIDUAL (KhoiDongMode 'individual') - 4 contestants x 6 questions
  *     Left    (1) title card + kd_start
  *     Left    (2) title off, next contestant on stage + kd_ready
- *     Left    (3) bars + empty question bar (timer skin) + kd_open_question
+ *     Left    (3) bars + empty question bar (no timer - Luật rừng: the timer bar) + kd_open_question
  *     Right   (4) question 1 + kd_60s bed (loops 30<->50 until the last question, then jumps to 49)
  *     Space       3-2-1 think clock      Up  +10 & kd_correct      Down  kd_wrong, no deduction
  *     Right       next question ... after question 6: graphics off, kd_complete 1 s later
@@ -134,6 +134,10 @@ function khoiDongHideGraphicsNow() {
 
 /* ---------- individual turn ---------- */
 
+/* the individual turn's question bar: without a timer (as the common turn's) - except under
+ * Luật rừng, whose 60 s run on the timer bar */
+function khoiDongOwnBarVariant() { return window.GameVariables.isJungle() ? 'timer' : 'plain'; }
+
 function khoiDongShowTitle() {
 	showTitleCard('kd');
 	startGeneralSound('kd_start.mp3');
@@ -158,9 +162,9 @@ function khoiDongCallNextContestant() {
 	window.GameVariables.KhoiDongSequenceCounter = 2;
 }
 
-/* question bar (timer skin) zooms in, the bars pop in one by one */
+/* question bar (khoiDongOwnBarVariant) zooms in, the bars pop in one by one */
 function khoiDongOpenQuestionBar() {
-	setQuestionBarVariant('timer');
+	setQuestionBarVariant(khoiDongOwnBarVariant());
 	clearQuestionBar();
 	showRoundGraphics();
 	showQuestionBar();
@@ -313,7 +317,7 @@ function khoiDongReset(seat) {
 	if (window.GameVariables.isJungle()) { khoiDongJungleStopClock(); }
 	window.GameVariables.Players.forEach(function (p) { if (seat === null || p.seat === seat) { p.kdDone = false; } });
 	khoiDongHideGraphicsNow();
-	setQuestionBarVariant('timer');
+	setQuestionBarVariant(khoiDongOwnBarVariant());
 	window.GameVariables.KhoiDongMode = 'individual';
 	window.GameVariables.KhoiDongSeat = null;
 	window.GameVariables.KhoiDongQuestionCount = window.GameVariables.Timings.KD_QUESTIONS_PER_PLAYER;

@@ -23,7 +23,7 @@
 	var params = new URLSearchParams(location.search);
 	var code = (params.get('room') || '').trim().toUpperCase();
 	var room = null, snap = null, prev = null, listeners = [], everHeard = false;
-	var boardSig = '', treeSig = '', ttSig = '', playersSig = '';
+	var boardSig = '', treeSig = '', ttSig = '', playersSig = '', vdMediaSig = '';
 
 	/* ---------- this device's clock vs the database clock (timers + video) ---------- */
 	var serverOffset = null, bestRtt = Infinity;
@@ -209,8 +209,23 @@
 		else { hideTangTocTimer(); }
 	}
 
+	/* a Về đích video follows the stage's 'vd_video' clock; the stage screen plays its sound */
+	function syncVeDichVideo() {
+		var video = $('.vdMediaDiv .vdMediaVideo');
+		if (!video) { return; }
+		var t = snap && snap.timer;
+		if (!isVeDichMediaShowing() || !video.classList.contains('on') || !t || t.label !== 'vd_video') { if (!video.paused) { video.pause(); } return; }
+		video.muted = !(stageView && soundOn);
+		var target = timerElapsed();
+		if (target === null || target < 0) { return; }
+		if (isFinite(video.duration) && target >= video.duration) { if (!video.paused) { video.pause(); } return; }
+		if (Math.abs(video.currentTime - target) > 0.4) { try { video.currentTime = target; } catch (e) { /* not seekable yet */ } }
+		if (video.paused) { var p = video.play(); if (p && p.catch) { p.catch(function () {}); } }
+	}
+
 	/* the clip follows the stage clock (muted: the hall has the stage's sound) */
 	function syncVideo() {
+		syncVeDichVideo();
 		var video = $('.ttDiv .ttMediaVideo');
 		var scene = snap && snap.scene;
 		if (!video || !scene || !scene.tt.on || !video.classList.contains('on')) { if (video && !video.paused) { video.pause(); } return; }
@@ -243,6 +258,12 @@
 			setVeDichStar(!!d.star);
 			if (d.timer) { startVeDichTimer(d.reverse); }
 		}
+		/* the question's picture / video (B): the VĐ graphics hide while it is up */
+		var md = d.media || {}, wm = w.media || {};
+		var msig = (md.type || '') + '|' + (md.src || '');
+		if (msig !== vdMediaSig) { vdMediaSig = msig; setVeDichMedia(md.src ? { type: md.type, src: md.src } : null); }
+		if (md.on && !isVeDichMediaShowing()) { showVeDichMedia(); }
+		else if (!md.on && (wm.on || isVeDichMediaShowing())) { hideVeDichMedia(); }
 	}
 
 	/* ---------- the rest ---------- */

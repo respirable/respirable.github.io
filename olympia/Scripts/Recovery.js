@@ -122,7 +122,7 @@ function restoreKhoiDong(a) {
 	g.KhoiDongStartIndex = recoveryInt(a.question, 1, g.KhoiDongQuestionCount, 1);
 	khoiDongResetQuestionState();
 	setContestantOnStage(seat);
-	g.KhoiDongSequenceCounter = 2;                /* Left: timer bar + bars; Right: question N */
+	g.KhoiDongSequenceCounter = 2;                /* Left: question bar + bars; Right: question N */
 }
 
 /* vcnv: { rows: [status x4], center: status, eliminated: [seats] }  status: closed|correct|wrong */

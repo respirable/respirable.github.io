@@ -10,10 +10,11 @@
  *          Khởi động: 4 individual turns of 60 s (up to 12 questions + a bonus one at the end for
  *          every 3 right in a row, at most 4; 1st wrong free, then -5 each), then two common turns
  *          of 8 and 16 questions (the n-th wrong of a seat in a turn costs 5*(n-1));
- *          obstacle 100-75-50-25 (10 after the centre), -5 to every seat still in that misses a row;
+ *          obstacle 100-75-50-25 (10 after the centre) - a wrong guess costs that much -, -5 to every
+ *          seat still in that misses a row;
  *          Tăng tốc 30 s each, 25/10/-5/-20 by speed, -20 for a wrong / no answer;
- *          Về đích: a wrong answer costs the value (x2 with the star), a right steal always takes
- *          the value from the contestant on stage
+ *          Về đích: always seat 1 - 2 - 3 - 4; a wrong answer costs the value (x2 with the star), a
+ *          right steal always takes the value from the contestant on stage
  *
  * Where the rules come from: the engine in a room asks the database (QuestionSet.js, room_rules
  * - migrations/0013) before it reads the questions; without a room, ?rules=o23 in the address

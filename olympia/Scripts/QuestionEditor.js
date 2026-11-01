@@ -62,6 +62,9 @@
 		return doc.querySelector('parsererror') ? null : doc;
 	}
 	function txt(node, sel) { var n = node && (sel ? node.querySelector(sel) : node); return n ? n.textContent.trim() : ''; }
+	/* a Về đích question: text, answer and an optional picture / video (shown on the stage with B) */
+	function vdQ(node) { var x = qOf(node), me = node && node.querySelector('media'); x.media = { type: (me && me.getAttribute('type')) || 'image', src: txt(me) }; return x; }
+	function withMedia(x) { if (!x.media) { x.media = { type: 'image', src: '' }; } return x; }
 	function qOf(node) { return node ? { text: txt(node, 'text') || (node.querySelector('text') ? '' : txt(node)), answer: txt(node, 'answer') } : q(); }
 
 	function modelFrom(docs) {
@@ -101,8 +104,8 @@
 			var pk = d && d.querySelector('package[seat="' + s + '"]');
 			var all = pk ? Array.prototype.slice.call(pk.querySelectorAll('question')) : [];
 			m.vd[s] = {
-				20: fill(all.filter(function (x) { return x.getAttribute('value') === '20'; }).map(qOf), COUNTS.vdEach),
-				30: fill(all.filter(function (x) { return x.getAttribute('value') === '30'; }).map(qOf), COUNTS.vdEach)
+				20: fill(all.filter(function (x) { return x.getAttribute('value') === '20'; }).map(vdQ), COUNTS.vdEach).map(withMedia),
+				30: fill(all.filter(function (x) { return x.getAttribute('value') === '30'; }).map(vdQ), COUNTS.vdEach).map(withMedia)
 			};
 		});
 		d = docs.tb;
@@ -114,6 +117,10 @@
 
 	function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 	function head(comment) { return '<?xml version="1.0" encoding="utf-8"?>\n<!--\n  ' + comment.replace(/--/g, '-') + '\n  Sửa bằng trang Quản lý câu hỏi (questions.html).\n-->\n'; }
+	function vdXml(x, v) {
+		var media = x.media && x.media.src ? '<media type="' + (x.media.type === 'video' ? 'video' : 'image') + '">' + esc(x.media.src) + '</media>' : '';
+		return '<question value="' + v + '"><text>' + esc(x.text) + '</text>' + media + '<answer>' + esc(x.answer) + '</answer></question>';
+	}
 	function qXml(x, tag, attrs) { return '<' + tag + (attrs || '') + '><text>' + esc(x.text) + '</text><answer>' + esc(x.answer) + '</answer></' + tag + '>'; }
 
 	function toXml(m) {
@@ -139,9 +146,9 @@
 					(x.answerMedia.src ? '    <answerMedia type="image">' + esc(x.answerMedia.src) + '</answerMedia>\n' : '') +
 					'    <answer>' + esc(x.answer) + '</answer>\n  </question>\n';
 			}).join('') + '</tangtoc>\n';
-		out.vd = head('Về đích. Mỗi <package seat="N">: 3 câu value="20" và 3 câu value="30".') + '<vedich>\n' +
+		out.vd = head('Về đích. Mỗi <package seat="N">: 3 câu value="20" và 3 câu value="30". <media type="image|video"> (tuỳ chọn): ảnh / video của câu, chiếu bằng phím B.') + '<vedich>\n' +
 			[1, 2, 3, 4].map(function (s) {
-				return '  <package seat="' + s + '">\n' + [20, 30].map(function (v) { return m.vd[s][v].map(function (x) { return '    ' + qXml(x, 'question', ' value="' + v + '"') + '\n'; }).join(''); }).join('') + '  </package>\n';
+				return '  <package seat="' + s + '">\n' + [20, 30].map(function (v) { return m.vd[s][v].map(function (x) { return '    ' + vdXml(x, v) + '\n'; }).join(''); }).join('') + '  </package>\n';
 			}).join('') + '</vedich>\n';
 		out.tb = head('Câu hỏi phụ. Tối đa 3 câu, hỏi lần lượt.') + '<cauhoiphu>\n' + m.tb.map(function (x) { return '  ' + qXml(x, 'question') + '\n'; }).join('') + '</cauhoiphu>\n';
 		return out;
@@ -443,7 +450,12 @@
 			var b = block('Gói câu hỏi — ' + playerName(s), 'Câu 20 điểm thứ k / câu 30 điểm thứ k được lấy theo thứ tự thí sinh chọn.');
 			[20, 30].forEach(function (v) {
 				b.appendChild(el('p', 'sub', v + ' điểm'));
-				model.vd[s][v].forEach(function (x, i) { b.appendChild(questionRow(v + '·' + (i + 1), x)); });
+				model.vd[s][v].forEach(function (x, i) {
+					b.appendChild(questionRow(v + '·' + (i + 1), x));
+					var m = mediaPicker('Ảnh / video của câu (tuỳ chọn - phím B trên sân khấu)', x.media, ['image', 'video'], { preview: false });
+					m.classList.add('vdMedia');
+					b.appendChild(m);
+				});
 			});
 			p.appendChild(b);
 		});
@@ -493,6 +505,7 @@
 	function inUse(key) {
 		var used = [fileKey(model.vcnv.image)];
 		model.tt.forEach(function (x) { used.push(fileKey(x.media.src), fileKey(x.answerMedia.src)); });
+		[1, 2, 3, 4].forEach(function (s) { [20, 30].forEach(function (v) { model.vd[s][v].forEach(function (x) { if (x.media) { used.push(fileKey(x.media.src)); } }); }); });
 		return used.indexOf(key) !== -1;
 	}
 

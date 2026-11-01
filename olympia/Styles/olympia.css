@@ -1338,6 +1338,59 @@ body {
 	display: none;
 }
 
+/* Về đích: a question's picture / video (key B) in the Tăng tốc contents frame; the VĐ graphics
+ * hide meanwhile (VeDichControl.js) */
+.vdDiv.mediaOn {
+	visibility: hidden;
+}
+
+.vdMediaDiv {
+	position: absolute;
+	left: 371px;
+	top: 178px;
+	width: 1178px;
+	height: 725px;
+	display: none;
+}
+
+.vdMediaDiv.on {
+	display: block;
+}
+
+.vdMediaFrameImg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1178px;
+	height: 725px;
+}
+
+.vdMediaBox {
+	position: absolute;
+	left: 83px;
+	top: 19px;
+	width: 1008px;
+	height: 679px;
+	overflow: hidden;
+}
+
+.vdMediaImg,
+.vdMediaVideo {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: none;
+}
+
+.vdMediaImg.on,
+.vdMediaVideo.on {
+	display: block;
+}
+
+
 .vdChooseDiv {
 	position: absolute;
 	left: 0;
