@@ -90,13 +90,16 @@ body.rulesO26 .questionBarDiv.plainSkin .questionTextP {
 	z-index: 1;
 }
 
+/* the 3 s count in the bottom-right corner of the body (units ~845..915, ~115..165) */
 body.rulesO26 .questionBarDiv.plainSkin .questionClockP {
-	left: 1500px;
-	top: 75px;
+	left: 1448px;
+	top: 198px;
 	bottom: auto;
-	width: 140px;
-	height: 213px;
-	font-size: 100px;
+	width: 120px;
+	height: 90px;
+	align-items: flex-end;
+	justify-content: flex-end;
+	font-size: 64px;
 	z-index: 1;
 }
 

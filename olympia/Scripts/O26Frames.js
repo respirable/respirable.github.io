@@ -94,7 +94,7 @@ function panelA(o){
   `<g clip-path="url(#${p}in)"><rect x="0" y="0" width="${W}" height="57" fill="url(#${p}band)"/><rect x="0" y="54.6" width="${W}" height="2.4" fill="url(#${p}bline)"/><rect x="0" y="57" width="${W}" height="6" fill="url(#${p}shade)"/></g>` +
   edges(p, s);
   out += textGroup(p,
-    `<text class="o26an" data-max="700" x="500" y="38" font-size="25" letter-spacing="1.5">${escT(o.name || '')}</text>
+    `<text class="o26an" data-max="700" x="500" y="41" font-size="36" letter-spacing="1">${escT(o.name || '')}</text>
 <text class="o26as" data-max="560" x="500" y="196" font-size="104">${escT(o.score == null ? '' : o.score)}</text>`);
   return out.replace('<svg ', '<svg data-intro="1" ') + '</svg>';
 }

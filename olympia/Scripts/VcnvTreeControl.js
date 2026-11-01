@@ -164,8 +164,8 @@ function showAnswerTree(entries, onDone, options) {
 
 /* ---------- Olympia 26: one answer row per contestant instead of the tree (O26Frames.js) ----------
  * 05 (Tăng tốc: name | answer | time) or 06 (VCNV: name | answer), 1500 px wide, centred, top to
- * bottom in entry order; each opens like every O26 frame, 110 ms after the one above. */
-var O26_ROW_WIDTH = 1500, O26_ROW_HEIGHT = 172, O26_ROW_STEP = 200, O26_ROW_STAGGER = 110;
+ * bottom in entry order; they open together, like every O26 frame. */
+var O26_ROW_WIDTH = 1500, O26_ROW_HEIGHT = 172, O26_ROW_STEP = 200, O26_ROW_STAGGER = 0;   /* all rows open together */
 
 function showO26AnswerRows(root, entries, instant, onDone) {
 	var tt = window.GameVariables.AnswerTreeOptions.layout === 'right';
