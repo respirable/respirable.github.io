@@ -12,6 +12,10 @@
  *   S        (ready)     Ngôi sao hy vọng on the first question (once per contestant)
  *   Right    (ready)     question text on the bar
  *   Right    (question)  answer clock (15 s for 20 pts, 20 s for 30 pts) + vd_15s / vd_20s
+ *   B        (question ... answered) the question's picture: in / out at any time (the VĐ graphics
+ *                        hide while it is up). A VIDEO only before the clock (question): it plays
+ *                        to its end with the graphics hidden (no way back meanwhile); the answer
+ *                        clock starts by itself 1 s after it ends.
  *   Up       (timer)     right: + value (x2 with the star), vd_correct
  *   Down     (timer)     wrong (star: - value); no sting - the 5 s steal music + reversed bar
  *   1-4      (steal)     another seat buzzes to steal (first press locks), kd_buzz; the 5 s
@@ -55,6 +59,8 @@ function veDichResetTurnState() {
 
 function veDichResetState() {
 	veDichStopTimer();
+	if (typeof veDichDropMedia === 'function') { veDichDropMedia(); }
+	window.GameVariables.VeDichMedia = null;
 	window.GameVariables.VeDichOrder = [];
 	window.GameVariables.IsVeDichOrderManual = false;
 	window.GameVariables.VeDichTurn = 0;
@@ -140,7 +146,7 @@ function veDichQuestionAt(index) {
 	var k = 0;
 	for (var i = 0; i < index; i++) { if (window.GameVariables.VeDichValues[i] === v) { k += 1; } }
 	var q = veDichPackage(window.GameVariables.VeDichSeat)[v][k - 1];
-	return { value: v, text: q && q.text ? q.text : window.GameVariables.MissingQuestionText, answer: q ? q.answer : '' };
+	return { value: v, text: q && q.text ? q.text : window.GameVariables.MissingQuestionText, answer: q ? q.answer : '', media: q && q.media && q.media.src ? q.media : null };
 }
 
 /* loads question `index` (host sees it on the panel) */
@@ -154,6 +160,64 @@ function veDichLoadQuestion(index) {
 	window.GameVariables.VeDichResult = null;
 	window.GameVariables.VeDichStealSeat = null;
 	window.GameVariables.VeDichStealResult = null;
+	veDichDropMedia();
+	window.GameVariables.VeDichMedia = q.media;
+	setVeDichMedia(q.media);   /* loaded now, shown with B */
+}
+
+/* ---------- a question's picture / video (B) ---------- */
+
+/* the picture / video off, a video stopped, its pending clock start cancelled */
+function veDichDropMedia() {
+	var g = window.GameVariables;
+	if (g.IsVeDichVideoPlaying && isClockRunning() && g.TimerState && g.TimerState.label === 'vd_video') { stopClock(); }
+	if (g.VeDichVideoAfter) { clearClockTimeout(g.VeDichVideoAfter); g.VeDichVideoAfter = null; }
+	g.IsVeDichVideoPlaying = false;
+	hideVeDichMedia();
+}
+
+function veDichToggleMedia() {
+	var g = window.GameVariables, m = g.VeDichMedia, c = g.VeDichSequenceCounter;
+	if (!m || !g.IsVeDichQuestionRevealed || g.IsVeDichVideoPlaying || c < 5 || c > 9) { return; }
+	if (m.type === 'video') {
+		if (c == 5) { veDichPlayVideo(); }   /* before the clock only */
+		return;
+	}
+	if (isVeDichMediaShowing()) { hideVeDichMedia(); } else { showVeDichMedia(); }
+	g.changed();
+}
+
+/* the video to its end on the 'vd_video' clock (the screens follow it), then 1 s, then the answer clock */
+function veDichPlayVideo() {
+	var g = window.GameVariables, video = veDichMediaVideo(), index = g.VeDichQuestionIndex;
+	if (!video) { return; }
+	g.IsVeDichVideoPlaying = true;
+	showVeDichMedia();
+	g.changed();
+	function go() {
+		if (!g.IsVeDichVideoPlaying || g.VeDichQuestionIndex !== index) { return; }
+		var dur = video.duration;
+		if (!(dur > 0) || !isFinite(dur)) { console.warn('[VD] the video cannot be played'); veDichDropMedia(); g.changed(); return; }
+		try { video.currentTime = 0; } catch (e) { /* ignore */ }
+		video.muted = g.SoundAt === 'stage';   /* in a room the stage screens play it with sound */
+		var p = video.play(); if (p && p.catch) { p.catch(function () {}); }
+		startClock({
+			mode: 'down', duration: dur, label: 'vd_video',
+			onDone: function () {
+				hideVeDichMedia();
+				g.IsVeDichVideoPlaying = false;
+				g.VeDichVideoAfter = clockTimeout(function () {
+					g.VeDichVideoAfter = null;
+					if (g.VeDichSequenceCounter == 5 && g.VeDichQuestionIndex === index) { veDichStartTimer(); g.changed(); }
+				}, 1000);
+				g.changed();
+			}
+		});
+	}
+	if (video.readyState >= 1) { go(); return; }
+	var waited = clockTimeout(function () { video.removeEventListener('loadedmetadata', onMeta); go(); }, 5000);   /* gives up inside go() */
+	function onMeta() { clearClockTimeout(waited); go(); }
+	video.addEventListener('loadedmetadata', onMeta, { once: true });
 }
 
 /* first question of the package: the group comes up with an EMPTY bar; the star may be placed
@@ -304,6 +368,7 @@ function veDichStealWrong() {
 
 function veDichCloseQuestion() {
 	veDichStopTimer();
+	veDichDropMedia();
 	setVeDichStealSeat(null);
 	if (window.GameVariables.VeDichQuestionIndex < VE_DICH_PICKS) {
 		veDichShowNextQuestion(window.GameVariables.VeDichQuestionIndex + 1);

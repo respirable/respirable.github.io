@@ -7,12 +7,12 @@
 	<title>Olympia Controller — Quản lý câu hỏi</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261031c">
-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261031c">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101b">
+	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261101b">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261031c"></script>
-	<script src="Scripts/Auth.js?v=20261031c"></script>
-	<script src="Scripts/QuestionEditor.js?v=20261031c" defer></script>
+	<script src="Scripts/Config.js?v=20261101b"></script>
+	<script src="Scripts/Auth.js?v=20261101b"></script>
+	<script src="Scripts/QuestionEditor.js?v=20261101b" defer></script>
 </head>
 
 <body>
@@ -189,6 +189,10 @@
   ... seat="2", "3", "4"
 &lt;/vedich&gt;</pre>
 				<p>Câu 20 điểm thứ k / câu 30 điểm thứ k được dùng theo thứ tự thí sinh chọn gói.</p>
+				<p>Câu có ảnh hoặc video: thêm <code>&lt;media type="image"&gt;anh.png&lt;/media&gt;</code> (hoặc
+					<code>type="video"</code>, file .mp4) vào trong <code>&lt;question&gt;</code>. Trên sân khấu, phím <b>B</b> bật / tắt ảnh bất
+					cứ lúc nào; video thì bấm B trước khi bật giờ - video chạy hết (không quay lại đồ hoạ được), đồng hồ trả lời
+					tự bật 1 giây sau khi video kết thúc.</p>
 
 				<h3>7. cauhoiphu.xml — tối đa 3 câu</h3>
 				<pre>&lt;cauhoiphu&gt;

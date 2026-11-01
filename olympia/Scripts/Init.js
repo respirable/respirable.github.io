@@ -240,7 +240,11 @@ async function getVeDichQuestions() {
 		pk.querySelectorAll('question').forEach(function (q) {
 			var v = parseInt(q.getAttribute('value'), 10);
 			if (!bag[v]) { return; }
-			bag[v].push({ text: xmlText(q, 'text') || xmlText(q), answer: xmlText(q, 'answer') || '' });
+			var m = q.querySelector('media');   /* optional picture / video (key B on the stage) */
+			bag[v].push({
+				text: xmlText(q, 'text') || xmlText(q), answer: xmlText(q, 'answer') || '',
+				media: m && xmlText(m) ? { type: m.getAttribute('type') === 'video' ? 'video' : 'image', src: window.GameVariables.resolveMedia(xmlText(m)) } : null
+			});
 		});
 		out[seat] = bag;
 	});

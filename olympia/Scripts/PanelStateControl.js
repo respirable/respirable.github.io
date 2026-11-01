@@ -148,6 +148,12 @@ function buildSceneForPublic() {
 		if (!c) { return ''; }
 		return c.classList.contains('revealed') ? 'revealed' : c.classList.contains('wrong') ? 'wrong' : c.classList.contains('selected') ? 'selected' : '';
 	}
+	function vdMedia() {
+		var img = q('.vdMediaDiv .vdMediaImg.on'), video = q('.vdMediaDiv .vdMediaVideo.on');
+		var el = video || img;
+		return { on: has('.vdMediaDiv.on'), type: video ? 'video' : 'image', src: el ? (el.getAttribute('src') || '') : '' };
+	}
+
 	function media(scope) {
 		var img = q(scope + ' .ttMediaImg.on'), video = q(scope + ' .ttMediaVideo.on');
 		if (video) { return { type: 'video', src: video.getAttribute('src') || '' }; }
@@ -223,7 +229,8 @@ function buildSceneForPublic() {
 			score: txt('.vdDiv .vdScoreP'),
 			star: has('.vdDiv video.vdStar.on'),
 			timer: !!(vdTimer && vdTimer.classList.contains('visible')),
-			reverse: !!(vdTimer && vdTimer.classList.contains('reverse'))
+			reverse: !!(vdTimer && vdTimer.classList.contains('reverse')),
+			media: vdMedia()   /* the question's picture / video (B): { on, type, src } */
 		},
 		board: on('.boardScreenDiv'),
 		/* green screen (key Q on the panel) and ',' - only stage screens copy these, not the audience */
@@ -305,6 +312,9 @@ function buildRoundStateForPanel() {
 			answer: g.VeDichAnswer,
 			seconds: g.VeDichSeconds,
 			revealed: g.IsVeDichQuestionRevealed,
+			mediaType: g.VeDichMedia ? g.VeDichMedia.type : '',   /* the question has a picture / video (key B) */
+			mediaShowing: typeof isVeDichMediaShowing === 'function' ? isVeDichMediaShowing() : false,
+			videoPlaying: !!(g.IsVeDichVideoPlaying || g.VeDichVideoAfter),
 			star: g.VeDichStar,
 			starUsed: g.IsVeDichStarUsed,
 			result: g.VeDichResult,

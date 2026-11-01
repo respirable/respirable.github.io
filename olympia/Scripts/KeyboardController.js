@@ -150,7 +150,7 @@ function handleRoundKey(key, round) {
 		}
 		else if (round == 'vd') {
 			if (vd == 4) { veDichRevealQuestion(); }
-			else if (vd == 5) { veDichStartTimer(); }
+			else if (vd == 5) { if (!window.GameVariables.IsVeDichVideoPlaying && !window.GameVariables.VeDichVideoAfter) { veDichStartTimer(); } }   /* a video question: the clock starts by itself */
 			else if (vd == 7) { if (window.GameVariables.VeDichStealSeat === null) { veDichCloseQuestion(); } }
 			else if (vd == 9) { veDichCloseQuestion(); }
 			return true;
@@ -276,12 +276,13 @@ function handleRoundKey(key, round) {
 	{
 		if (round == 'vd') { veDichPlaceStar(); return true; }
 	}
-	else if (lower == 'b') // key 'b' for reviewing the question frame (TT)
+	else if (lower == 'b') // key 'b' for reviewing the question frame (TT) / a question's picture or video (VĐ)
 	{
 		if (round == 'tt') {
 			if (tt == 4 || tt == 5) { tangTocToggleReview(); }
 			return true;
 		}
+		if (round == 'vd') { veDichToggleMedia(); return true; }
 	}
 	return false;
 }

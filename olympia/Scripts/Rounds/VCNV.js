@@ -360,8 +360,10 @@ function vcnvGuessAllWrong() {
 	/* they are out from here on - and a "right" mark on the row still in progress (not graded,
 	 * so not paid yet) is withdrawn: an eliminated contestant earns nothing more */
 	var r = vcnvRow(window.GameVariables.VcnvCurrentRow);
+	var penalty = window.GameVariables.isJungle() ? vcnvObstaclePrize() : 0;   /* Luật rừng: a wrong guess costs what a right one would have won */
 	window.GameVariables.VcnvQueue.forEach(function (seat) {
 		if (vcnvIsEliminated(seat)) { return; }
+		if (penalty) { addScore(seat, -penalty); }
 		window.GameVariables.VcnvEliminated.push(seat);
 		if (r && r.status === 'open' && r.correctSeats.indexOf(seat) !== -1) {
 			r.correctSeats.splice(r.correctSeats.indexOf(seat), 1);

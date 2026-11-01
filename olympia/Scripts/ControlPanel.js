@@ -167,6 +167,13 @@
 		return kd.mode || 'individual';
 	}
 
+	/* a VĐ question with a picture / video: what B does now */
+	function vdMediaHint(d) {
+		if (!d.mediaType || !d.revealed || d.videoPlaying) { return ''; }
+		if (d.mediaType === 'video') { return d.phase === 'question' ? ' · B: chiếu VIDEO (đồng hồ bật sau khi hết video)' : ''; }
+		return d.mediaShowing ? ' · B: tắt ẢNH, về đồ hoạ' : ' · B: hiện ẢNH';
+	}
+
 	function kdKeys(kd) {
 		var common = kd.mode === 'common', ph = kd.phase, k = [];
 		if (snap.rules === 'jungle' && !common) {   /* Luật rừng individual: no Space, one verdict per question */
@@ -329,7 +336,7 @@
 			var prize = v.centerAsked || v.centerOpened ? gv.Points.VCNV_AFTER_CENTER : gv.Points.VCNV_OBSTACLE[n];
 			setDeck({
 				who: v.queue && v.queue.length ? ('Xin trả lời CNV: ' + names(v.queue)) : (v.currentRow ? (v.currentRow === 5 ? 'Câu ô trung tâm' : 'Hàng ' + v.currentRow) : 'Bảng chướng ngại vật'),
-				pts: (v.openedCount || 0) + ' hàng đã mở · CNV = ' + prize + ' điểm' + (snap.rules === 'jungle' ? ' · không đúng hàng −5' : '') + (v.solved ? ' · ĐÃ GIẢI' : ''),
+				pts: (v.openedCount || 0) + ' hàng đã mở · CNV = ' + prize + ' điểm' + (snap.rules === 'jungle' ? ' · đoán sai CNV −' + prize + ' · không đúng hàng −5' : '') + (v.solved ? ' · ĐÃ GIẢI' : ''),
 				status: vcnvPhaseText[v.phase] || v.phase, statusKind: statusKind(v.phase),
 				question: v.currentQuestion, answer: v.currentAnswer || (v.keyword ? ('CNV: ' + v.keyword) : ''),
 				stats: [['Chướng ngại vật', v.keyword || '—'], ['Các hàng', (v.rows || []).slice(0, 4).map(function (r) { return vcnvRowText[r.status] || r.status; }).join(' · ') || '—'], ['Ô trung tâm', v.centerOpened ? 'đã mở' : ((v.rows || [])[4] ? vcnvRowText[v.rows[4].status] : '—')], ['Bị loại', names(v.eliminated) || 'không']]
@@ -385,7 +392,7 @@
 			setDeck({
 				who: d.seat ? (nameOf(d.seat, true) + ' · lượt ' + d.turn + ' / 4') : 'Chưa gọi thí sinh',
 				pts: d.qIndex ? ('Câu ' + d.qIndex + ' / 3 · ' + d.value + ' điểm · ' + d.seconds + ' s' + (d.star === d.qIndex ? ' · ★' : '') + (snap.rules === 'jungle' ? ' · sai −' + d.value * (d.star === d.qIndex ? 2 : 1) + ', bị cướp thêm −' + d.value : '')) : (vals.length ? 'Gói: ' + vals.join(' – ') : 'Chưa chọn gói'),
-				status: vdPhaseText[d.phase] || d.phase, statusKind: statusKind(d.phase),
+				status: (d.videoPlaying ? 'ĐANG CHIẾU VIDEO — đồng hồ trả lời tự bật 1 giây sau khi hết video' : (vdPhaseText[d.phase] || d.phase)) + vdMediaHint(d), statusKind: d.videoPlaying ? 'hot' : statusKind(d.phase),
 				question: d.question, answer: d.answer,
 				stats: [['Số câu trong lượt', (d.qIndex || 0) + ' / 3'], ['Gói câu hỏi', vals.length ? vals.join(' – ') : '—'], ['Ngôi sao hy vọng', d.star ? ('★ câu ' + d.star) : (d.starUsed ? 'đã dùng' : 'chưa đặt')], ['Giành quyền', d.stealSeat ? (nameOf(d.stealSeat) + (d.stealResult ? (d.stealResult === 'correct' ? ' — đúng' : ' — sai') : '')) : (d.phase === 'steal' ? 'đang chờ 5 s' : '—')]]
 			});

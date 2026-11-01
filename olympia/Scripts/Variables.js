@@ -204,6 +204,9 @@
 
 	gameVariables.IsVcnvTimerRunning = false;        /* 15 s bar under the question */
 	gameVariables.IsVcnvTimerDone = false;
+	gameVariables.VeDichMedia = null;                /* the VĐ question's picture / video { type, src } (key B) */
+	gameVariables.IsVeDichVideoPlaying = false;      /* VĐ: a question's video is on (the answer clock waits for it) */
+	gameVariables.VeDichVideoAfter = null;           /* VĐ: the 1 s after the video, before the answer clock */
 	gameVariables.IsVcnvCenterOpened = false;        /* centre question answered right -> middle cover off (the prize drops to VCNV_AFTER_CENTER as soon as it is asked) */
 	gameVariables.IsVcnvFinalWindowUsed = false;     /* the last-chance 15 s window has been run */
 	gameVariables.IsVcnvFinalWindowExpired = false;  /* ...and it ran out */
@@ -410,7 +413,8 @@
 
 	/* Về đích playing order: highest score first, ties by seat number. players: [{seat, score}]. */
 	gameVariables.vdOrder = function (players) {
-		return (players || []).slice().sort(function (a, b) { return (b.score - a.score) || (a.seat - b.seat); })
+		var bySeat = gameVariables.Rules === 'jungle';   /* Luật rừng (Rules.js): always seat 1 - 2 - 3 - 4 */
+		return (players || []).slice().sort(function (a, b) { return bySeat ? a.seat - b.seat : (b.score - a.score) || (a.seat - b.seat); })
 			.map(function (p) { return p.seat; });
 	};
 

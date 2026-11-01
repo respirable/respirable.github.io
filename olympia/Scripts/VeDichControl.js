@@ -10,6 +10,8 @@
  *                  text follows with setVeDichQuestion(). Zoom 600 ms from its top-left; exit instant.
  * .vdScoreBox      "CÂU N ĐIỂM" + the on-stage contestant's score; zooms once the group has landed.
  * video.vdStar     the Ngôi sao hy vọng (star.webm, VP9 with alpha) looping above the seat-4 tab.
+ * .vdMediaDiv      a question's picture / video (key B), full screen; it is a sibling of .vdDiv, and
+ *                  while it is up the VĐ graphics are hidden (.vdDiv.mediaOn).
  * img.vdStarImg    the same star as an animated WebP, shown instead on Safari / iPad / iPhone:
  *                  WebKit plays VP9 but drops its alpha, so the clip comes out on a black square.
  *                  The video keeps its "on" class there (PanelStateControl.js reads it), unseen.
@@ -296,8 +298,66 @@ function hideVeDichTimer() {
 }
 
 function hideVeDich() {
+	hideVeDichMedia();
 	hideChooseScreen();
 	hideVeDichQuestionGroup();
 	var root = document.querySelector('.vdDiv');
 	if (root) { root.classList.add('offstage'); }
+}
+
+/* ---------- a question's picture / video ---------- */
+
+function renderVeDichMedia() {
+	var vd = document.querySelector('.vdDiv');
+	if (!vd || document.querySelector('.vdMediaDiv')) { return document.querySelector('.vdMediaDiv'); }
+	var root = document.createElement('div');
+	root.className = 'vdMediaDiv';
+	vd.parentNode.insertBefore(root, vd.nextSibling);
+	var box = newElement('div', 'vdMediaBox', root);
+	newElement('img', 'vdMediaImg', box).alt = '';
+	var video = newElement('video', 'vdMediaVideo', box);
+	video.preload = 'auto';
+	video.playsInline = true;
+	video.muted = true;
+	return root;
+}
+
+function veDichMediaVideo() { return document.querySelector('.vdMediaDiv .vdMediaVideo'); }
+function isVeDichMediaShowing() { return !!document.querySelector('.vdMediaDiv.on'); }
+
+/* media: { type: 'image'|'video', src } or null - loads it, does not show it */
+function setVeDichMedia(media) {
+	var root = renderVeDichMedia();
+	if (!root) { return; }
+	var img = root.querySelector('.vdMediaImg'), video = root.querySelector('.vdMediaVideo');
+	var src = (media && media.src) || '', type = media && media.type === 'video' ? 'video' : 'image';
+	if (type === 'video' && src) {
+		img.classList.remove('on'); img.removeAttribute('src');
+		if (video.getAttribute('src') !== src) { video.src = src; video.load(); }
+		video.classList.add('on');
+	}
+	else {
+		try { video.pause(); } catch (e) { /* ignore */ }
+		video.classList.remove('on'); video.removeAttribute('src');
+		if (src) { img.src = src; img.classList.add('on'); } else { img.classList.remove('on'); img.removeAttribute('src'); }
+	}
+}
+
+/* the picture / video instead of the VĐ graphics */
+function showVeDichMedia() {
+	var root = renderVeDichMedia();
+	if (!root) { return; }
+	root.classList.add('on');
+	document.querySelector('.vdDiv').classList.add('mediaOn');
+}
+
+function hideVeDichMedia() {
+	var root = document.querySelector('.vdMediaDiv');
+	if (root) {
+		root.classList.remove('on');
+		var video = root.querySelector('.vdMediaVideo');
+		try { video.pause(); } catch (e) { /* ignore */ }
+	}
+	var vd = document.querySelector('.vdDiv');
+	if (vd) { vd.classList.remove('mediaOn'); }
 }
