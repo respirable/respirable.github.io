@@ -1,0 +1,342 @@
+diff --git a/olympia/Scripts/O26Frames.js b/olympia/Scripts/O26Frames.js
+index d22159f..add6373 100644
+--- a/olympia/Scripts/O26Frames.js
++++ b/olympia/Scripts/O26Frames.js
+@@ -94,7 +94,7 @@ function panelA(o){
+   `<g clip-path="url(#${p}in)"><rect x="0" y="0" width="${W}" height="57" fill="url(#${p}band)"/><rect x="0" y="54.6" width="${W}" height="2.4" fill="url(#${p}bline)"/><rect x="0" y="57" width="${W}" height="6" fill="url(#${p}shade)"/></g>` +
+   edges(p, s);
+   out += textGroup(p,
+-    `<text class="o26an" data-max="700" x="500" y="38" font-size="25" letter-spacing="1.5">${escT(o.name || '')}</text>
++    `<text class="o26an" data-max="700" x="500" y="41" font-size="36" letter-spacing="1">${escT(o.name || '')}</text>
+ <text class="o26as" data-max="560" x="500" y="196" font-size="104">${escT(o.score == null ? '' : o.score)}</text>`);
+   return out.replace('<svg ', '<svg data-intro="1" ') + '</svg>';
+ }
+diff --git a/olympia/Scripts/VcnvTreeControl.js b/olympia/Scripts/VcnvTreeControl.js
+index 7047f57..9993caa 100644
+--- a/olympia/Scripts/VcnvTreeControl.js
++++ b/olympia/Scripts/VcnvTreeControl.js
+@@ -164,8 +164,8 @@ function showAnswerTree(entries, onDone, options) {
+ 
+ /* ---------- Olympia 26: one answer row per contestant instead of the tree (O26Frames.js) ----------
+  * 05 (Tăng tốc: name | answer | time) or 06 (VCNV: name | answer), 1500 px wide, centred, top to
+- * bottom in entry order; each opens like every O26 frame, 110 ms after the one above. */
+-var O26_ROW_WIDTH = 1500, O26_ROW_HEIGHT = 172, O26_ROW_STEP = 200, O26_ROW_STAGGER = 110;
++ * bottom in entry order; they open together, like every O26 frame. */
++var O26_ROW_WIDTH = 1500, O26_ROW_HEIGHT = 172, O26_ROW_STEP = 200, O26_ROW_STAGGER = 0;   /* all rows open together */
+ 
+ function showO26AnswerRows(root, entries, instant, onDone) {
+ 	var tt = window.GameVariables.AnswerTreeOptions.layout === 'right';
+diff --git a/olympia/Styles/o26.css b/olympia/Styles/o26.css
+index 2afe0b3..aa54a84 100644
+--- a/olympia/Styles/o26.css
++++ b/olympia/Styles/o26.css
+@@ -90,13 +90,16 @@ body.rulesO26 .questionBarDiv.plainSkin .questionTextP {
+ 	z-index: 1;
+ }
+ 
++/* the 3 s count in the bottom-right corner of the body (units ~845..915, ~115..165) */
+ body.rulesO26 .questionBarDiv.plainSkin .questionClockP {
+-	left: 1500px;
+-	top: 75px;
++	left: 1448px;
++	top: 198px;
+ 	bottom: auto;
+-	width: 140px;
+-	height: 213px;
+-	font-size: 100px;
++	width: 120px;
++	height: 90px;
++	align-items: flex-end;
++	justify-content: flex-end;
++	font-size: 64px;
+ 	z-index: 1;
+ }
+ 
+diff --git a/olympia/audience.html b/olympia/audience.html
+index 1722f96..12bd346 100644
+--- a/olympia/audience.html
++++ b/olympia/audience.html
+@@ -5,32 +5,32 @@
+ 	<meta charset="utf-8">
+ 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ 	<title>Olympia — Khán giả</title>
+-	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261101e">
+-	<link rel="stylesheet" type="text/css" href="Styles/o26.css?v=20261101e"> <!-- Olympia 26 frames and face -->
+-	<link rel="stylesheet" type="text/css" href="Styles/audience.css?v=20261101e">
++	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261101f">
++	<link rel="stylesheet" type="text/css" href="Styles/o26.css?v=20261101f"> <!-- Olympia 26 frames and face -->
++	<link rel="stylesheet" type="text/css" href="Styles/audience.css?v=20261101f">
+ 
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261101e"></script>
+-	<script src="Scripts/Auth.js?v=20261101e"></script>
+-	<script src="Scripts/PublicRoom.js?v=20261101e"></script>
++	<script src="Scripts/Config.js?v=20261101f"></script>
++	<script src="Scripts/Auth.js?v=20261101f"></script>
++	<script src="Scripts/PublicRoom.js?v=20261101f"></script>
+ 	<!-- the stage's own graphics modules - drawn from the public state, no game logic, no sound -->
+-	<script src="Scripts/Variables.js?v=20261101e"></script>
+-	<script src="Scripts/Rules.js?v=20261101e"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+-	<script src="Scripts/AudioControl.js?v=20261101e"></script> <!-- stage screens: replays the sound the engine relays -->
+-	<script src="Scripts/StageControl.js?v=20261101e"></script>
+-	<script src="Scripts/O26Frames.js?v=20261101e"></script> <!-- Olympia 26 frames (SVG) -->
+-	<script src="Scripts/O26Stage.js?v=20261101e"></script> <!-- ...put on the stage under rules o26 -->
+-	<script src="Scripts/TimerControl.js?v=20261101e"></script>
+-	<script src="Scripts/QuestionControl.js?v=20261101e"></script>
+-	<script src="Scripts/ScoreboardControl.js?v=20261101e"></script>
+-	<script src="Scripts/ScoreBoardScreenControl.js?v=20261101e"></script>
+-	<script src="Scripts/VcnvControl.js?v=20261101e"></script>
+-	<script src="Scripts/VcnvTreeControl.js?v=20261101e"></script>
+-	<script src="Scripts/TangTocControl.js?v=20261101e"></script>
+-	<script src="Scripts/VeDichControl.js?v=20261101e"></script>
+-	<script src="Scripts/KdIntro.js?v=20261101e"></script>
+-	<script src="Scripts/AudienceMirror.js?v=20261101e" defer></script>
+-	<script src="Scripts/AudiencePlay.js?v=20261101e" defer></script>
++	<script src="Scripts/Variables.js?v=20261101f"></script>
++	<script src="Scripts/Rules.js?v=20261101f"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
++	<script src="Scripts/AudioControl.js?v=20261101f"></script> <!-- stage screens: replays the sound the engine relays -->
++	<script src="Scripts/StageControl.js?v=20261101f"></script>
++	<script src="Scripts/O26Frames.js?v=20261101f"></script> <!-- Olympia 26 frames (SVG) -->
++	<script src="Scripts/O26Stage.js?v=20261101f"></script> <!-- ...put on the stage under rules o26 -->
++	<script src="Scripts/TimerControl.js?v=20261101f"></script>
++	<script src="Scripts/QuestionControl.js?v=20261101f"></script>
++	<script src="Scripts/ScoreboardControl.js?v=20261101f"></script>
++	<script src="Scripts/ScoreBoardScreenControl.js?v=20261101f"></script>
++	<script src="Scripts/VcnvControl.js?v=20261101f"></script>
++	<script src="Scripts/VcnvTreeControl.js?v=20261101f"></script>
++	<script src="Scripts/TangTocControl.js?v=20261101f"></script>
++	<script src="Scripts/VeDichControl.js?v=20261101f"></script>
++	<script src="Scripts/KdIntro.js?v=20261101f"></script>
++	<script src="Scripts/AudienceMirror.js?v=20261101f" defer></script>
++	<script src="Scripts/AudiencePlay.js?v=20261101f" defer></script>
+ </head>
+ 
+ <body class="audience">
+diff --git a/olympia/control.html b/olympia/control.html
+index 065a924..b3231fc 100644
+--- a/olympia/control.html
++++ b/olympia/control.html
+@@ -6,25 +6,25 @@
+ 	<title>Olympia Controller — Quản lý</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/control.css?v=20261101e">
++	<link rel="stylesheet" type="text/css" href="Styles/control.css?v=20261101f">
+ 	<!-- NO AudioControl.js here: only the graphics page plays sound. -->
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
+ 		integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"
+ 		crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261101e"></script>
+-	<script src="Scripts/Auth.js?v=20261101e"></script>
+-	<script src="Scripts/Variables.js?v=20261101e"></script>
+-	<script src="Scripts/Rules.js?v=20261101e"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+-	<script src="Scripts/StateSync.js?v=20261101e"></script>
+-	<script src="Scripts/KeyboardController.js?v=20261101e"></script>
+-	<script src="Scripts/ControlPanel.js?v=20261101e"></script>
+-	<script src="Scripts/RecoveryPanel.js?v=20261101e"></script>
+-	<script src="Scripts/EmbeddedStage.js?v=20261101e"></script>
++	<script src="Scripts/Config.js?v=20261101f"></script>
++	<script src="Scripts/Auth.js?v=20261101f"></script>
++	<script src="Scripts/Variables.js?v=20261101f"></script>
++	<script src="Scripts/Rules.js?v=20261101f"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
++	<script src="Scripts/StateSync.js?v=20261101f"></script>
++	<script src="Scripts/KeyboardController.js?v=20261101f"></script>
++	<script src="Scripts/ControlPanel.js?v=20261101f"></script>
++	<script src="Scripts/RecoveryPanel.js?v=20261101f"></script>
++	<script src="Scripts/EmbeddedStage.js?v=20261101f"></script>
+ 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"
+ 		integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k"
+ 		crossorigin="anonymous"></script>
+-	<script src="Scripts/QrCode.js?v=20261101e"></script>
+-	<script src="Scripts/RoomPresence.js?v=20261101e"></script>
++	<script src="Scripts/QrCode.js?v=20261101f"></script>
++	<script src="Scripts/RoomPresence.js?v=20261101f"></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/default.html b/olympia/default.html
+index 2628267..47c5e78 100644
+--- a/olympia/default.html
++++ b/olympia/default.html
+@@ -4,47 +4,47 @@
+ <head>
+ 	<meta charset="utf-8">
+ 	<title>Olympia</title>
+-	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261101e">
+-	<link rel="stylesheet" type="text/css" href="Styles/o26.css?v=20261101e"> <!-- Olympia 26 frames and face -->
++	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261101f">
++	<link rel="stylesheet" type="text/css" href="Styles/o26.css?v=20261101f"> <!-- Olympia 26 frames and face -->
+ 
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script> <!-- only used with ?room= -->
+-	<script src="Scripts/Config.js?v=20261101e"></script> <!-- Supabase URL + public anon key -->
+-	<script src="Scripts/Auth.js?v=20261101e"></script> <!-- sign-in (anonymous here) -->
+-	<script src="Scripts/Variables.js?v=20261101e"></script> <!-- settings + all game state -->
+-	<script src="Scripts/Rules.js?v=20261101e"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+-	<script src="Scripts/Ticker.js?v=20261101e"></script> <!-- timers a background tab does not slow (heartbeats, clock end, buzz window) -->
+-	<script src="Scripts/StateSync.js?v=20261101e"></script> <!-- two-screen sync: this browser, or a room (?room=CODE) -->
+-	<script src="Scripts/AudioControl.js?v=20261101e"></script> <!-- sound - graphics page ONLY -->
+-	<script src="Scripts/TimerControl.js?v=20261101e"></script> <!-- the clock behind every timer bar -->
+-	<script src="Scripts/QuestionLoader.js?v=20261101e"></script> <!-- (empty - moved into Init.js) -->
+-	<script src="Scripts/StageControl.js?v=20261101e"></script> <!-- background, title card, DOM helpers -->
+-	<script src="Scripts/O26Frames.js?v=20261101e"></script> <!-- Olympia 26 frames (SVG) -->
+-	<script src="Scripts/O26Stage.js?v=20261101e"></script> <!-- ...put on the stage under rules o26 -->
+-	<script src="Scripts/ScoreboardControl.js?v=20261101e"></script> <!-- contestant bars + scores -->
+-	<script src="Scripts/ScoreSummaryControl.js?v=20261101e"></script><!-- key M -->
+-	<script src="Scripts/ScoreBoardScreenControl.js?v=20261101e"></script><!-- key F6 -->
+-	<script src="Scripts/VcnvControl.js?v=20261101e"></script> <!-- VCNV board / picture / question bar -->
+-	<script src="Scripts/VcnvTreeControl.js?v=20261101e"></script> <!-- answer tree (VCNV + Tăng tốc) -->
+-	<script src="Scripts/TangTocControl.js?v=20261101e"></script> <!-- Tăng tốc frame -->
+-	<script src="Scripts/VeDichControl.js?v=20261101e"></script> <!-- Về đích screens -->
+-	<script src="Scripts/KdIntro.js?v=20261101e"></script> <!-- the intro video before Khởi động -->
+-	<script src="Scripts/QuestionControl.js?v=20261101e"></script> <!-- Khởi động question bar -->
+-	<script src="Scripts/GeneralControl.js?v=20261101e"></script> <!-- switching rounds -->
+-	<script src="Scripts/Rounds/KhoiDong.js?v=20261101e"></script> <!-- step functions of each round -->
+-	<script src="Scripts/Rounds/VCNV.js?v=20261101e"></script>
+-	<script src="Scripts/Rounds/TangToc.js?v=20261101e"></script>
+-	<script src="Scripts/Rounds/VeDich.js?v=20261101e"></script>
+-	<script src="Scripts/Rounds/TieBreak.js?v=20261101e"></script>
+-	<script src="Scripts/KeyboardController.js?v=20261101e"></script> <!-- EVERY key: which step it calls -->
+-	<script src="Scripts/PanelStateControl.js?v=20261101e"></script> <!-- what the control panel is told -->
+-	<script src="Scripts/PanelCommands.js?v=20261101e"></script> <!-- what the control panel can ask -->
+-	<script src="Scripts/PlayerActions.js?v=20261101e"></script> <!-- players' own devices (room mode) -->
+-	<script src="Scripts/Recovery.js?v=20261101e"></script> <!-- emergency progress recovery (control panel) -->
+-	<script src="Scripts/GameSave.js?v=20261101e"></script> <!-- automatic save of the game + resuming from it -->
+-	<script src="Scripts/MatchLog.js?v=20261101e"></script> <!-- match log + undo of the last action's points -->
+-	<script src="Scripts/VcnvPublicImage.js?v=20261101e"></script> <!-- the VCNV picture players / audience may see -->
+-	<script src="Scripts/QuestionSet.js?v=20261101e"></script> <!-- a room's question set from Supabase Storage -->
+-	<script src="Scripts/Init.js?v=20261101e"></script>
++	<script src="Scripts/Config.js?v=20261101f"></script> <!-- Supabase URL + public anon key -->
++	<script src="Scripts/Auth.js?v=20261101f"></script> <!-- sign-in (anonymous here) -->
++	<script src="Scripts/Variables.js?v=20261101f"></script> <!-- settings + all game state -->
++	<script src="Scripts/Rules.js?v=20261101f"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
++	<script src="Scripts/Ticker.js?v=20261101f"></script> <!-- timers a background tab does not slow (heartbeats, clock end, buzz window) -->
++	<script src="Scripts/StateSync.js?v=20261101f"></script> <!-- two-screen sync: this browser, or a room (?room=CODE) -->
++	<script src="Scripts/AudioControl.js?v=20261101f"></script> <!-- sound - graphics page ONLY -->
++	<script src="Scripts/TimerControl.js?v=20261101f"></script> <!-- the clock behind every timer bar -->
++	<script src="Scripts/QuestionLoader.js?v=20261101f"></script> <!-- (empty - moved into Init.js) -->
++	<script src="Scripts/StageControl.js?v=20261101f"></script> <!-- background, title card, DOM helpers -->
++	<script src="Scripts/O26Frames.js?v=20261101f"></script> <!-- Olympia 26 frames (SVG) -->
++	<script src="Scripts/O26Stage.js?v=20261101f"></script> <!-- ...put on the stage under rules o26 -->
++	<script src="Scripts/ScoreboardControl.js?v=20261101f"></script> <!-- contestant bars + scores -->
++	<script src="Scripts/ScoreSummaryControl.js?v=20261101f"></script><!-- key M -->
++	<script src="Scripts/ScoreBoardScreenControl.js?v=20261101f"></script><!-- key F6 -->
++	<script src="Scripts/VcnvControl.js?v=20261101f"></script> <!-- VCNV board / picture / question bar -->
++	<script src="Scripts/VcnvTreeControl.js?v=20261101f"></script> <!-- answer tree (VCNV + Tăng tốc) -->
++	<script src="Scripts/TangTocControl.js?v=20261101f"></script> <!-- Tăng tốc frame -->
++	<script src="Scripts/VeDichControl.js?v=20261101f"></script> <!-- Về đích screens -->
++	<script src="Scripts/KdIntro.js?v=20261101f"></script> <!-- the intro video before Khởi động -->
++	<script src="Scripts/QuestionControl.js?v=20261101f"></script> <!-- Khởi động question bar -->
++	<script src="Scripts/GeneralControl.js?v=20261101f"></script> <!-- switching rounds -->
++	<script src="Scripts/Rounds/KhoiDong.js?v=20261101f"></script> <!-- step functions of each round -->
++	<script src="Scripts/Rounds/VCNV.js?v=20261101f"></script>
++	<script src="Scripts/Rounds/TangToc.js?v=20261101f"></script>
++	<script src="Scripts/Rounds/VeDich.js?v=20261101f"></script>
++	<script src="Scripts/Rounds/TieBreak.js?v=20261101f"></script>
++	<script src="Scripts/KeyboardController.js?v=20261101f"></script> <!-- EVERY key: which step it calls -->
++	<script src="Scripts/PanelStateControl.js?v=20261101f"></script> <!-- what the control panel is told -->
++	<script src="Scripts/PanelCommands.js?v=20261101f"></script> <!-- what the control panel can ask -->
++	<script src="Scripts/PlayerActions.js?v=20261101f"></script> <!-- players' own devices (room mode) -->
++	<script src="Scripts/Recovery.js?v=20261101f"></script> <!-- emergency progress recovery (control panel) -->
++	<script src="Scripts/GameSave.js?v=20261101f"></script> <!-- automatic save of the game + resuming from it -->
++	<script src="Scripts/MatchLog.js?v=20261101f"></script> <!-- match log + undo of the last action's points -->
++	<script src="Scripts/VcnvPublicImage.js?v=20261101f"></script> <!-- the VCNV picture players / audience may see -->
++	<script src="Scripts/QuestionSet.js?v=20261101f"></script> <!-- a room's question set from Supabase Storage -->
++	<script src="Scripts/Init.js?v=20261101f"></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/index.html b/olympia/index.html
+index 7d2e29e..685ff2e 100644
+--- a/olympia/index.html
++++ b/olympia/index.html
+@@ -7,15 +7,15 @@
+ 	<title>Olympia Controller — Sảnh</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101e">
++	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101f">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261101e"></script>
+-	<script src="Scripts/Auth.js?v=20261101e"></script>
++	<script src="Scripts/Config.js?v=20261101f"></script>
++	<script src="Scripts/Auth.js?v=20261101f"></script>
+ 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
+-	<script src="Scripts/QrCode.js?v=20261101e"></script>
+-	<script src="Scripts/Lobby.js?v=20261101e" defer></script>
+-	<script src="Scripts/LobbyPublic.js?v=20261101e" defer></script>
+-	<script src="Scripts/News.js?v=20261101e" defer></script>
++	<script src="Scripts/QrCode.js?v=20261101f"></script>
++	<script src="Scripts/Lobby.js?v=20261101f" defer></script>
++	<script src="Scripts/LobbyPublic.js?v=20261101f" defer></script>
++	<script src="Scripts/News.js?v=20261101f" defer></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/player.html b/olympia/player.html
+index 05509c9..57a6600 100644
+--- a/olympia/player.html
++++ b/olympia/player.html
+@@ -7,13 +7,13 @@
+ 	<title>Olympia — Thí sinh</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101e">
++	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101f">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261101e"></script>
+-	<script src="Scripts/Auth.js?v=20261101e"></script>
+-	<script src="Scripts/PublicRoom.js?v=20261101e"></script>
+-	<script src="Scripts/PlayerPanel.js?v=20261101e" defer></script>
+-	<script src="Scripts/PlayerJoin.js?v=20261101e" defer></script>
++	<script src="Scripts/Config.js?v=20261101f"></script>
++	<script src="Scripts/Auth.js?v=20261101f"></script>
++	<script src="Scripts/PublicRoom.js?v=20261101f"></script>
++	<script src="Scripts/PlayerPanel.js?v=20261101f" defer></script>
++	<script src="Scripts/PlayerJoin.js?v=20261101f" defer></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/podium.html b/olympia/podium.html
+index 8c023aa..af40ca1 100644
+--- a/olympia/podium.html
++++ b/olympia/podium.html
+@@ -5,12 +5,12 @@
+ 	<meta charset="utf-8">
+ 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ 	<title>Olympia — Bảng điểm</title>
+-	<link rel="stylesheet" type="text/css" href="Styles/podium.css?v=20261101e">
++	<link rel="stylesheet" type="text/css" href="Styles/podium.css?v=20261101f">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261101e"></script>
+-	<script src="Scripts/Auth.js?v=20261101e"></script>
+-	<script src="Scripts/PublicRoom.js?v=20261101e"></script>
+-	<script src="Scripts/Podium.js?v=20261101e" defer></script>
++	<script src="Scripts/Config.js?v=20261101f"></script>
++	<script src="Scripts/Auth.js?v=20261101f"></script>
++	<script src="Scripts/PublicRoom.js?v=20261101f"></script>
++	<script src="Scripts/Podium.js?v=20261101f" defer></script>
+ </head>
+ 
+ <body>
+diff --git a/olympia/questions.html b/olympia/questions.html
+index 1352f32..3473a30 100644
+--- a/olympia/questions.html
++++ b/olympia/questions.html
+@@ -7,12 +7,12 @@
+ 	<title>Olympia Controller — Quản lý câu hỏi</title>
+ 	<link rel="stylesheet"
+ 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
+-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101e">
+-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261101e">
++	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101f">
++	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261101f">
+ 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-	<script src="Scripts/Config.js?v=20261101e"></script>
+-	<script src="Scripts/Auth.js?v=20261101e"></script>
+-	<script src="Scripts/QuestionEditor.js?v=20261101e" defer></script>
++	<script src="Scripts/Config.js?v=20261101f"></script>
++	<script src="Scripts/Auth.js?v=20261101f"></script>
++	<script src="Scripts/QuestionEditor.js?v=20261101f" defer></script>
+ </head>
+ 
+ <body>

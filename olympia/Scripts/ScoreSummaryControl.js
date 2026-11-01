@@ -25,6 +25,7 @@ function renderScoreSummary(seat) {
 	var score = document.querySelector('.summaryDiv .summaryScoreP');
 	if (name) { name.textContent = window.GameVariables.displayName(p); }
 	if (score) { score.textContent = String(p.score); }
+	if (typeof o26Refresh === 'function') { o26Refresh(); }   /* Olympia 26: frame 01 */
 }
 
 /* Anything of a round still on screen? (shared with the F6 board) */

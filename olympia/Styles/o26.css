@@ -1,0 +1,212 @@
+/* =====================================================================================
+   Olympia Controller - Olympia 26 (rules 'o26', body.rulesO26): the face, and the boxes the
+   O26 frames (Scripts/O26Frames.js, O26Stage.js) are drawn in. The O24 pictures in those boxes
+   are hidden; everything else on the stage keeps the O24 pictures.
+   Frames are 1000 units wide plus a 4-unit margin (viewBox 1008 wide); a box W px wide draws
+   one unit as W / 1008 px.
+   ===================================================================================== */
+
+@font-face {
+	font-family: 'O26';
+	src: url('../Fonts/O26-AvantGardeGothic-Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+	font-display: block;
+}
+
+/* the O26 face everywhere on the stage ... */
+body.rulesO26 .stageContainerDiv,
+body.rulesO26 .stageContainerDiv * {
+	font-family: 'O26', 'ITC Avant Garde Gothic', 'Century Gothic', Arial, sans-serif;
+}
+
+/* ... but the obstacle's "CHƯỚNG NGẠI VẬT CÓ N CHỮ CÁI" and the letters of the rows keep theirs */
+body.rulesO26 .stageContainerDiv .vcnvBoardTitleP {
+	font-family: 'Olympia', 'Myriad Pro', Arial, sans-serif;
+}
+
+body.rulesO26 .stageContainerDiv .vcnvLetterP {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+svg.o26Svg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: auto;
+	display: block;
+	overflow: visible;
+	pointer-events: none;
+}
+
+/* the contestant bars make way while a frame with the four-name header is up */
+body.rulesO26.o26HeaderUp .scoreboardDiv {
+	visibility: hidden;
+}
+
+/* ---------- 02 Khởi động (the plain skin of .questionBarDiv): 1720 x 307 at 100, 733 ---------- */
+body.rulesO26 .questionBarDiv.plainSkin,
+body.rulesO26 .questionBarDiv.plainSkin.offstage {
+	left: 100px;
+	top: 733px;
+	width: 1720px;
+	height: 307px;
+	transform: none;
+	transition: none;
+}
+
+body.rulesO26 .questionBarDiv.plainSkin {
+	opacity: 1;
+	visibility: visible;
+}
+
+body.rulesO26 .questionBarDiv.plainSkin.offstage {
+	opacity: 0;
+	visibility: hidden;
+}
+
+body.rulesO26 .questionBarDiv.plainSkin .questionBarImg,
+body.rulesO26 .questionBarDiv.plainSkin .kdTurnTab,
+body.rulesO26 .questionBarDiv.plainSkin .questionTimerDiv {
+	display: none;
+}
+
+/* the body of the frame, as on the broadcast: left-aligned from its top-left, units x 71..930,
+   first baseline at y 67, type 15.5 units on 25-unit lines */
+body.rulesO26 .questionBarDiv.plainSkin .questionTextP {
+	left: 128px;
+	top: 89px;
+	width: 1466px;
+	height: 199px;
+	margin: 0;
+	align-items: flex-start;
+	justify-content: flex-start;
+	text-align: left;
+	font-size: 27px;
+	line-height: 1.58;
+	overflow: hidden;
+	transition: opacity 250ms ease-out;
+	z-index: 1;
+}
+
+/* the 3 s count in the bottom-right corner of the body (units ~845..915, ~115..165) */
+body.rulesO26 .questionBarDiv.plainSkin .questionClockP {
+	left: 1448px;
+	top: 198px;
+	bottom: auto;
+	width: 120px;
+	height: 90px;
+	align-items: flex-end;
+	justify-content: flex-end;
+	font-size: 64px;
+	z-index: 1;
+}
+
+body.rulesO26 .o26Wait .questionTextP,
+body.rulesO26 .o26Wait .vdQuestionTextP {
+	opacity: 0;
+	transition: none;
+}
+
+/* ---------- 01 the score summary (M): 1100 x 301 at 410, 739 ---------- */
+body.rulesO26 .summaryDiv,
+body.rulesO26 .summaryDiv.offstage {
+	left: 410px;
+	top: 739px;
+	width: 1100px;
+	height: 301px;
+	transform: none;
+	transition: none;
+}
+
+body.rulesO26 .summaryDiv {
+	opacity: 1;
+	visibility: visible;
+}
+
+body.rulesO26 .summaryDiv.offstage {
+	opacity: 0;
+	visibility: hidden;
+}
+
+/* name and score are drawn in the frame (they fade in with it); the O24 ones stay as the data */
+body.rulesO26 .summaryDiv > img,
+body.rulesO26 .summaryDiv > p {
+	display: none;
+}
+
+/* ---------- 03 Về đích: the question group is the frame, 1720 x 307 at 100, 733 ---------- */
+body.rulesO26 .vdQuestionGroup,
+body.rulesO26 .vdQuestionGroup.in {
+	left: 100px;
+	top: 733px;
+	width: 1720px;
+	height: 307px;
+	transform: none;
+	transition: none;
+}
+
+body.rulesO26 .vdTab,
+body.rulesO26 .vdQuestionImg,
+body.rulesO26 .vdTimerDiv,
+body.rulesO26 .vdTimerDiv.visible,
+body.rulesO26 .vdScoreBox,
+body.rulesO26 .vdScoreBox.on,
+body.rulesO26 .vdDiv .ttGlareImg,
+body.rulesO26 .vdChooseBox {
+	display: none;
+}
+
+body.rulesO26 .vdQuestionBar {
+	left: 0;
+	top: 0;
+	width: 1720px;
+	height: 307px;
+}
+
+/* as on the broadcast: left-aligned from the body's top-left, units x 70..770, first baseline at
+   y 63, type 14.5 units on 22-unit lines */
+body.rulesO26 .vdQuestionTextP {
+	left: 126px;
+	top: 85px;
+	width: 1194px;
+	height: 178px;
+	font-size: 26px;
+	line-height: 1.5;
+	transition: opacity 250ms ease-out;
+}
+
+/* the star rises above the score box */
+body.rulesO26 .vdStar,
+body.rulesO26 .vdStarImg {
+	left: 1340px;
+	top: -235px;
+}
+
+/* ---------- 04 the package board: 1242 x 307, centred on 03 (so 03 opens where it closes) ---------- */
+body.rulesO26 .vdChooseDiv > svg.o26Svg {
+	left: 339px;
+	top: 733px;
+	width: 1242px;
+}
+
+body.rulesO26 .vdChooseDiv.o26Closing {
+	display: block;
+}
+
+/* ---------- 05 / 06 the answer rows (VcnvTreeControl.js showO26AnswerRows) ---------- */
+.vcnvTreeDiv.o26Rows .o26Row {
+	position: absolute;
+	left: 210px;
+	width: 1500px;
+	height: 172px;
+}
+
+.vcnvTreeDiv.o26Rows .o26Row.waiting {
+	visibility: hidden;
+}
+
+.vcnvTreeDiv.o26Rows .o26Row.wrong {
+	filter: grayscale(1) brightness(0.75);
+}

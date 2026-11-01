@@ -5,8 +5,9 @@
  * is instant. setQuestionText() puts the question in with textContent. The 3-second think clock
  * shows 3 -> 2 -> 1 to the right of the question text, each number rendered with no animation.
  *
- * Two skins for the same bar: the individual turn shows the strip for the 60 s music at the
- * bottom ('timer'); the common turn uses the plain bar ('plain').
+ * Two skins for the same bar: 'timer' (the strip in the groove: Luật rừng's 60 s individual turn,
+ * the Câu hỏi phụ) and 'plain' (every other Khởi động question). Under Olympia 26 the plain skin
+ * is drawn as frame 02 instead (.plainSkin, O26Stage.js).
  */
 
 var QUESTION_BAR_IMAGES = {
@@ -78,13 +79,17 @@ function isQuestionBarShowing() {
 function setQuestionBarVariant(name) {
 	var img = document.querySelector('.questionBarDiv .questionBarImg');
 	if (!img) { return; }
+	img.parentNode.classList.toggle('plainSkin', name === 'plain');   /* Olympia 26: the plain bar is frame 02 (O26Stage.js) */
 	var src = QUESTION_BAR_IMAGES[name] || QUESTION_BAR_IMAGES.timer;
 	if (img.getAttribute('src') !== src) { img.setAttribute('src', src); }
 }
 
 function setQuestionText(text) {
 	var p = document.querySelector('.questionBarDiv .questionTextP');
-	if (p) { p.textContent = text || ''; }
+	if (p) {
+		p.textContent = text || '';
+		if (typeof o26FitHtml === 'function') { o26FitHtml(p.parentNode.classList.contains('plainSkin') ? p : null, 27, 20); }
+	}
 }
 
 function clearQuestionBar() {

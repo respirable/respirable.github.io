@@ -58,12 +58,14 @@ function refreshContestantBars() {
 		bar.querySelector('.contestantNameP').textContent = (look && look.plain) ? window.GameVariables.displayName(p) : contestantBarNameText(p);
 	});
 	if (typeof refreshBoardScreen === 'function') { refreshBoardScreen(); }   /* the F6 board hides the same seats */
+	if (typeof o26Refresh === 'function') { o26Refresh(); }   /* Olympia 26: the header of frames 02 / 03 */
 }
 
 function setContestantBarScore(seat, value) {
 	var bar = getContestantBar(seat);
 	if (bar) { bar.querySelector('.contestantScoreP').textContent = String(Math.round(value)); }
 	refreshBoardScreen();   /* the F6 board follows the live scores */
+	if (typeof o26Refresh === 'function') { o26Refresh(); }
 }
 
 /* delta may be negative. The graphics cut straight to the new value - no count-up.

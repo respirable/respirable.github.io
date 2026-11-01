@@ -224,7 +224,28 @@
 	}
 
 	/* the clip follows the stage clock (muted: the hall has the stage's sound) */
+	/* the intro before Khởi động (KdIntro.js): full screen while the stage shows it, on its 'kd_intro' clock */
+	function applyKdIntro(k) {
+		setKdIntro(k.src || '');
+		if (k.on && !isKdIntroShowing()) { showKdIntro(); }
+		else if (!k.on && isKdIntroShowing()) { hideKdIntro(); }
+	}
+
+	function syncKdIntro() {
+		var video = kdIntroVideo();
+		if (!video) { return; }
+		var t = snap && snap.timer;
+		if (!isKdIntroShowing() || !t || t.label !== 'kd_intro') { if (!video.paused) { video.pause(); } return; }
+		video.muted = !(stageView && soundOn);
+		var target = timerElapsed();
+		if (target === null || target < 0) { return; }
+		if (isFinite(video.duration) && target >= video.duration) { if (!video.paused) { video.pause(); } return; }
+		if (Math.abs(video.currentTime - target) > 0.4) { try { video.currentTime = target; } catch (e) { /* not seekable yet */ } }
+		if (video.paused) { var p = video.play(); if (p && p.catch) { p.catch(function () {}); } }
+	}
+
 	function syncVideo() {
+		syncKdIntro();
 		syncVeDichVideo();
 		var video = $('.ttDiv .ttMediaVideo');
 		var scene = snap && snap.scene;
@@ -244,6 +265,8 @@
 		var w = (was && was.vd) || {};
 		var value = parseInt(String(d.header || '').replace(/\D+/g, ''), 10) || '';
 		if (!d.on) { if (w.on) { hideVeDich(); } return; }
+		gv.VeDichValues = (d.values || []).slice();         /* Olympia 26: the package cells of frame 03 */
+		gv.VeDichQuestionIndex = d.qIndex || 0;
 		$('.vdDiv').classList.remove('offstage');
 		if (d.choose && !w.choose) { showChooseScreen(d.values); }
 		else if (d.choose) { setChooseScreen(d.values); }
@@ -289,6 +312,7 @@
 		var root = $('.summaryDiv');
 		$('.summaryDiv .summaryNameP').textContent = sm.name || '';
 		$('.summaryDiv .summaryScoreP').textContent = sm.score || '';
+		if (typeof o26Refresh === 'function') { o26Refresh(); }   /* Olympia 26: frame 01 */
 		root.classList.toggle('offstage', !sm.on);
 	}
 
@@ -307,6 +331,7 @@
 		applyVeDich(scene.vd, was);
 		applyBoard(!!scene.board, !!(was && was.board));
 		applySummary(scene.summary || {});
+		applyKdIntro(scene.kdIntro || {});
 		if (stageView) { applyStage(scene.stage); }
 		prev = scene;
 	}
@@ -448,6 +473,7 @@
 		renderQuestionBar();
 		renderTangTocFrame();
 		renderVeDich();
+		renderKdIntro();
 		room = window.OlympiaPublicRoom.connect(code, {
 			presence: { role: params.get('view') === 'stage' ? 'screen' : 'audience' },
 			onAsset: onAsset,

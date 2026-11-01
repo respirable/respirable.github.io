@@ -197,6 +197,10 @@ async function getKhoiDongQuestions() {
 		});
 	}
 	window.GameVariables.KhoiDongQuestions = out;
+	/* the intro video before Khởi động (KdIntro.js) */
+	var intro = doc.querySelector('khoidong > intro');
+	window.GameVariables.KdIntro = intro && xmlText(intro) ? window.GameVariables.resolveMedia(xmlText(intro)) : '';
+	if (typeof setKdIntro === 'function') { setKdIntro(window.GameVariables.KdIntro); }
 }
 
 /* Questions/vcnv.xml -> VcnvData = { keyword, image, rows:[{text,answer}x4], center:{text,answer} } */
@@ -223,7 +227,7 @@ async function getTangTocQuestions() {
 			media: { type: (m && m.getAttribute('type')) || 'image', src: window.GameVariables.resolveMedia(xmlText(m) || '') },
 			answerMedia: (am && xmlText(am)) ? { type: am.getAttribute('type') || 'image', src: window.GameVariables.resolveMedia(xmlText(am)) } : null,
 			answer: xmlText(q, 'answer') || '',
-			/* Olympia 23 (10/20/30/40) and Luật rừng (30 each): whatever the file says (Rules.js) */
+			/* Olympia 24 / 23 (10/20/30/40) and Luật rừng (30 each): whatever the file says (Rules.js) */
 			seconds: (secs > 0 && !window.GameVariables.fixedTangTocClocks()) ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
 		};
 	});

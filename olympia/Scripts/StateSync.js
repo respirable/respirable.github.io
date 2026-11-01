@@ -104,7 +104,7 @@
 			matchLog: gv.matchLogForPanel ? gv.matchLogForPanel() : null,   /* MatchLog.js: undo + the last log lines */
 			questionSet: gv.QuestionSetName || '',                      /* QuestionSet.js: '' = this machine's set */
 			soundAt: gv.SoundAt || 'here',                              /* AudioControl.js: here | stage | both */
-			rules: gv.Rules || 'o24',                                   /* Rules.js: the panel follows the engine's rules */
+			rules: gv.Rules || 'o26',                                   /* Rules.js: the panel follows the engine's rules */
 			source: instanceId,          /* which engine sent it (a panel follows only one) */
 			embedded: embeddedEngine
 		};
@@ -122,7 +122,7 @@
 			isScoreboardShowing: gv.IsScoreboardShowing,
 			answerReceipts: gv.AnswerReceipts || {},   /* PlayerActions.js: { seat: { nonce, ok } } */
 			soundAt: gv.SoundAt || 'here',             /* stage screens show their "sound on" button when not 'here' */
-			rules: gv.Rules || 'o24',                  /* Rules.js: Olympia 24/26 or 23 graphics */
+			rules: gv.Rules || 'o26',                  /* Rules.js: Olympia 26 / 24 / 23 / Luật rừng */
 			matchId: matchId(),                        /* AudiencePlay.js: a new match forgets the last one's answers */
 			timer: publicTimer()
 		};

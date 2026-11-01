@@ -18,6 +18,8 @@
  *   gradeAnswerTree(correctSeats)   every branch NOT in the list goes monochrome
  *   completeAnswerTreeNow()         jump to the fully drawn tree
  *   hideAnswerTree()                instant
+ *
+ * Olympia 26 (O26Stage.js): one answer row per contestant instead (showO26AnswerRows).
  */
 
 var TREE_ASSETS = 'O24/Beat the Obstacle/Answers/';
@@ -149,6 +151,8 @@ function showAnswerTree(entries, onDone, options) {
 	var instant = !!window.GameVariables.AnswerTreeOptions.instant;
 	root.classList.toggle('instant', instant);
 	window.GameVariables.IsAnswerTreeInstant = instant;
+	root.classList.remove('o26Rows');
+	if (typeof o26On === 'function' && o26On()) { showO26AnswerRows(root, entries || [], instant, onDone); return; }
 	buildAnswerTree(root, entries || []);
 	root.classList.remove('offstage');
 	var sig = document.querySelector('.vcnvTreeSignalsDiv');
@@ -158,9 +162,54 @@ function showAnswerTree(entries, onDone, options) {
 	runAnswerTreeSequence(onDone);
 }
 
+/* ---------- Olympia 26: one answer row per contestant instead of the tree (O26Frames.js) ----------
+ * 05 (Tăng tốc: name | answer | time) or 06 (VCNV: name | answer), 1500 px wide, centred, top to
+ * bottom in entry order; they open together, like every O26 frame. */
+var O26_ROW_WIDTH = 1500, O26_ROW_HEIGHT = 172, O26_ROW_STEP = 200, O26_ROW_STAGGER = 0;   /* all rows open together */
+
+function showO26AnswerRows(root, entries, instant, onDone) {
+	var tt = window.GameVariables.AnswerTreeOptions.layout === 'right';
+	root.textContent = '';
+	root.classList.add('o26Rows');
+	root.classList.remove('offstage');   /* the rows are measured as they are built */
+	var sig = document.querySelector('.vcnvTreeSignalsDiv');
+	if (sig) { sig.classList.remove('offstage'); }
+	window.GameVariables.IsAnswerTreeShowing = true;
+	var n = entries.length, step = n > 1 ? Math.min(O26_ROW_STEP, (1040 - O26_ROW_HEIGHT) / (n - 1)) : 0;
+	var top = Math.round((1080 - ((n - 1) * step + O26_ROW_HEIGHT)) / 2);
+	var rows = entries.map(function (e, i) {
+		var row = newElement('div', 'treeBranch o26Row seat' + e.seat, root);
+		row.setAttribute('data-seat', e.seat);
+		row.style.top = Math.round(top + i * step) + 'px';
+		var answer = String(e.answer || '').toUpperCase();
+		var cols = tt ? [String(e.name || '').toUpperCase(), answer, (typeof e.time === 'number' && !isNaN(e.time)) ? e.time.toFixed(2) : '']
+			: [e.name || '', answer];
+		O26.mount(row, 'row', { cols: cols, mode: tt ? 'full' : 'nav' });
+		if (!instant) { row.classList.add('waiting'); }
+		return row;
+	});
+	if (instant) { if (onDone) { onDone(); } return; }
+	var last = 0;
+	rows.forEach(function (row, i) {
+		var t = i * O26_ROW_STAGGER;
+		answerTreeLater(function () {
+			var svg = row.querySelector('svg.o26Svg');
+			O26.open(svg);           /* draws its first frame at once ... */
+			row.classList.remove('waiting');   /* ... so it can show */
+		}, t);
+		last = t;
+	});
+	if (onDone) { answerTreeLater(onDone, last + O26.OPEN_MS + 400); }
+}
+
 /* Jump to the fully drawn tree (the host moved on before the sequence ended). */
 function completeAnswerTreeNow() {
 	cancelAnswerTree();
+	var o26 = document.querySelector('.vcnvTreeDiv.o26Rows');
+	if (o26) {
+		o26.querySelectorAll('.o26Row').forEach(function (row) { row.classList.remove('waiting'); O26.finish(row.querySelector('svg.o26Svg')); });
+		return;
+	}
 	var axis = document.querySelector('.vcnvTreeDiv .treeAxis');
 	var burst = document.querySelector('.vcnvTreeDiv .treeBurst');
 	var cap = document.querySelector('.vcnvTreeDiv .treeCap');

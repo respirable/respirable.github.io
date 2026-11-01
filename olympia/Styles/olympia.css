@@ -1871,3 +1871,24 @@ body {
 .authorityWarningDiv.visible {
 	display: block;
 }
+/* the intro video before Khởi động (KdIntro.js): full screen, over everything */
+.stageContainerDiv > .kdIntroDiv {
+	left: 0;
+	top: 0;
+	width: 1920px;
+	height: 1080px;
+	background: #000;
+	display: none;
+	z-index: 50;
+}
+
+.stageContainerDiv > .kdIntroDiv.on {
+	display: block;
+}
+
+.kdIntroVideo {
+	width: 1920px;
+	height: 1080px;
+	object-fit: contain;
+	display: block;
+}

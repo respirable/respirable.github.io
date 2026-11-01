@@ -221,6 +221,7 @@ function buildSceneForPublic() {
 			on: on('.vdDiv'),
 			choose: has('.vdDiv .vdChooseDiv.on'),
 			values: (g.VeDichValues || []).slice(),
+			qIndex: g.VeDichQuestionIndex || 0,   /* Olympia 26: the current cell of frame 03 */
 			group: has('.vdDiv .vdQuestionGroup.on'),
 			onStage: g.VeDichSeat,
 			steal: g.VeDichStealSeat,
@@ -233,6 +234,8 @@ function buildSceneForPublic() {
 			media: vdMedia()   /* the question's picture / video (B): { on, type, src } */
 		},
 		board: on('.boardScreenDiv'),
+		/* the intro video before Khởi động (KdIntro.js), on the 'kd_intro' clock */
+		kdIntro: { on: typeof isKdIntroShowing === 'function' && isKdIntroShowing(), src: g.KdIntro || '' },
 		/* green screen (key Q on the panel) and ',' - only stage screens copy these, not the audience */
 		stage: {
 			green: g.IsGreenScreenOn ? (g.GreenScreenColor || '') : '',
@@ -259,6 +262,7 @@ function buildRoundStateForPanel() {
 			buzzSeat: g.KhoiDongBuzzSeat,
 			resolved: g.IsKhoiDongQuestionResolved,
 			own: { wrong: g.KdOwnWrong || 0, streak: g.KdOwnStreak || 0, bonus: g.KdOwnBonus || 0, timeUp: !!g.IsKdOwnTimeUp },   /* Luật rừng */
+			intro: g.IsKdIntroPlaying ? (g.IsKdIntroOver ? 'over' : 'playing') : (g.KdIntro && !g.KdIntroPlayed ? 'ready' : ''),   /* KdIntro.js */
 			turnWrong: g.KdTurnWrong || {}
 		},
 		vcnv: {
