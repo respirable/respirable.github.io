@@ -149,15 +149,20 @@ function revealContestantBars() {
 	/* the screens run the same entrance themselves (AudienceMirror.js): the bars shown one by one
 	 * here never reached them in time - only the next state did, with two or four bars at once */
 	window.GameVariables.BarsRevealId = (window.GameVariables.BarsRevealId || 0) + 1;
+	window.GameVariables.BarsRevealAt = Date.now();   /* the screens time the entrance from here (stage clock) */
 	if (window.GameVariables.changed) { window.GameVariables.changed(); }
 	window.GameVariables.Players.forEach(function (p) {
 		var seat = p.seat;
 		window.GameVariables.ContestantBarRevealTimeouts.push(setTimeout(function () {
 			var bar = getContestantBar(seat);
 			if (bar) { bar.classList.add('shown'); }
-		}, 300 + seat * 190));
+		}, contestantBarRevealDelay(seat)));
 	});
 }
+
+/* ms from the entrance's start to bar `seat` showing; the whole entrance: CONTESTANT_BARS_REVEAL_MS */
+function contestantBarRevealDelay(seat) { return 300 + seat * 190; }
+var CONTESTANT_BARS_REVEAL_MS = 300 + 4 * 190 + 100;
 
 /* Cancels reveals still waiting to fire, without touching bars already shown. */
 function cancelContestantBarsReveal() {
@@ -168,6 +173,7 @@ function cancelContestantBarsReveal() {
 /* Instantly hides every bar (no animation) and cancels any pending reveal. */
 function hideContestantBars() {
 	cancelContestantBarsReveal();
+	window.GameVariables.BarsRevealAt = 0;   /* no entrance under way (the screens stop timing it) */
 	window.GameVariables.Players.forEach(function (p) {
 		var bar = getContestantBar(p.seat);
 		if (bar) { bar.classList.remove('shown'); }
