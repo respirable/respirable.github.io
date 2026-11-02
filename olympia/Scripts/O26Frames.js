@@ -250,7 +250,8 @@ function panelDInner(o){
 
 /* 05 — bảng điểm: mỗi hàng là một khung riêng, có cùng animation mở khung như 01, 02, 04 */
 const RK = 1000 / 744;
-const ROWFS = {full: {name: 24, verdict: 31, score: 26.5}, nav: {name: 26, verdict: 36}};
+/* type sized as on the broadcast (Chung kết Olympia 26, VCNV answers) */
+const ROWFS = {full: {name: 29, verdict: 33, score: 30.5}, nav: {name: 31, verdict: 37}};
 const GL = [[0,'#082447'],[.13,'#082447'],[.173,'#07274f'],[.258,'#082a5b'],[.343,'#082e6a'],[.427,'#083177'],[.512,'#07327f'],[.618,'#063190'],[.66,'#0836a9'],[.703,'#0336bf'],[.745,'#073cde'],[.788,'#0c41fd'],[.873,'#0746fb'],[.958,'#0a4dff'],[1,'#094fff']];
 const GR = [[0,'#072447'],[.18,'#082447'],[.35,'#082853'],[.52,'#072c5f'],[.7,'#062f6f'],[.87,'#07337c'],[1,'#08357f']];
 const GNL = [[25,'#072247'],[109,'#072550'],[169,'#082857'],[265,'#082d69'],[311,'#083178'],[340,'#07337b'],[382,'#06337e']].map(([x, c]) => [(x - 12) / 370, c]);
