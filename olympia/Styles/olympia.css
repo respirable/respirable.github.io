@@ -111,8 +111,10 @@ body {
 }
 
 
+/* the bar and the contestant bars as on the broadcast (Chung kết O23): 24 px apart, bottoms
+   level, the pair centred on the stage (118 + 1284 + 24 + 377 + 117) */
 .questionBarDiv {
-	left: 100px;
+	left: 118px;
 	top: 715px;
 	width: 1284px;
 	height: 264px;
@@ -251,8 +253,8 @@ body {
 
 
 .scoreboardDiv {
-	left: 1444px;
-	top: 715px;
+	left: 1426px;
+	top: 701px;   /* 266 px tall: its bottom level with the plain question bar's (715 + 252) */
 	width: 377px;
 	height: 266px;
 	transition: opacity 400ms ease-out;

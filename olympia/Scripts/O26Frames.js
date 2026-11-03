@@ -28,6 +28,8 @@ let uid = 0;
 const SPEC = {
   A: {H:268, oT:80, oP:38, iT:126, iP:80, c1:31, c2:237, tip:2},
   B: {H:172, oT:50, oP:23, iT:78,  iP:49, c1:17, c2:155, tip:0},
+  /* 03 (Về đích): as B, its arrows a little sharper, as on the broadcast (edges ~0.37 to the height, B's 0.34) */
+  C: {H:172, oT:50, oP:19, iT:78,  iP:46, c1:17, c2:155, tip:0},
   D: {H:270, oT:84, oP:40, iT:128, iP:84, c1:37, c2:233, tip:4}
 };
 
@@ -152,7 +154,7 @@ function panelB(){
 function panelC(o){
   o = o || {};
   const idx = 0, stC = [0, 0, 0];
-  const s = SPEC.B, p = 'c' + (uid++) + '_', H = s.H;
+  const s = SPEC.C, p = 'c' + (uid++) + '_', H = s.H;
   const bx = y => 833 - SL * y;
   const hd = header4(p, s, bx);
   const yS = 138.6, yMid = 152.5;
