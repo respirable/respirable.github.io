@@ -159,7 +159,36 @@
 	/* ---------- dirty tracking ---------- */
 
 	function snapshot() { return JSON.stringify(model); }
+
+	/* a question box as tall as its text */
+	function autosize(t) {
+		if (!t.offsetParent) { return; }   /* in a hidden tab: done when the tab opens */
+		t.style.height = 'auto';
+		t.style.height = (t.scrollHeight + 2) + 'px';
+	}
+	function autosizeAll(root) { (root || document).querySelectorAll('.qe textarea').forEach(autosize); }
+
+	/* each round in the nav: questions written / question rows on its page, and a thin bar */
+	function tabCounts() {
+		document.querySelectorAll('#tabs .tab').forEach(function (b) {
+			var t = b.getAttribute('data-t'), pane = $('#pane' + t), c = b.querySelector('.tCount'), bar = b.querySelector('.tBar i');
+			if (!pane || !c) { return; }
+			var rows = pane.querySelectorAll('.qRow'), n = 0, total = rows.length;
+			if (t === 'players') {
+				var names = pane.querySelectorAll('.cell input');
+				total = Math.min(4, Math.ceil(names.length / 2));
+				n = model ? model.players.filter(function (p) { return p.name && !/^Thí sinh \d$/.test(p.name); }).length : 0;
+			}
+			else if (t === 'media') { total = 0; n = pane.querySelectorAll('.mediaItem').length; }
+			else { rows.forEach(function (r) { var q = r.querySelector('textarea'); if (q && q.value.trim()) { n += 1; } }); }
+			c.textContent = total ? n + '/' + total : (n ? String(n) : '');
+			b.classList.toggle('done', !!total && n >= total);
+			if (bar) { bar.style.transform = 'scaleX(' + (total ? Math.min(1, n / total) : 0) + ')'; }
+		});
+	}
+
 	function touched() {
+		tabCounts();
 		var dirty = !!model && snapshot() !== saved;
 		$('#saveState').textContent = dirty ? 'Có thay đổi chưa lưu.' : 'Đã lưu - không có thay đổi.';
 		$('#saveBar').classList.toggle('dirty', dirty);
@@ -174,10 +203,10 @@
 	function textField(label, obj, key, opts) {
 		opts = opts || {};
 		var l = el('label', 'fld' + (opts.cls ? ' ' + opts.cls : ''));
-		l.appendChild(document.createTextNode(label));
+		l.appendChild(el('span', 'lab', label));   /* questions.css shows it once per run of question rows */
 		var i = el(opts.area ? 'textarea' : 'input');
 		if (!opts.area) { i.type = opts.type || 'text'; }
-		if (opts.area) { i.rows = opts.rows || 2; }
+		if (opts.area) { i.rows = opts.rows || 1; }
 		if (opts.min !== undefined) { i.min = String(opts.min); }
 		i.value = obj[key] === undefined || obj[key] === null ? '' : String(obj[key]);
 		var hint = opts.count ? el('small', 'count') : null;
@@ -187,7 +216,7 @@
 			hint.textContent = n + ' chữ' + (n > VCNV_MAX ? ' - quá ' + VCNV_MAX + ', chỉ hiện ' + VCNV_MAX + ' chữ đầu' : '');
 			hint.classList.toggle('warn', n > VCNV_MAX);
 		}
-		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); touched(); if (rules === 'o23' || rules === 'jungle') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
+		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); if (opts.area) { autosize(i); } touched(); if (rules === 'o23' || rules === 'jungle') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
 		l.appendChild(i);
 		if (hint) { l.appendChild(hint); update(); }
 		return l;
@@ -553,17 +582,19 @@
 	function setRules(r) {
 		rules = RULE_NAMES[r] ? r : 'o26';
 		renderRules();
-		if (model) { renderKd(); renderTt(); }
+		if (model) { renderKd(); renderTt(); tabCounts(); autosizeAll(document.querySelector('.pane.on')); }
 	}
 
 	function renderAll(keepTab) {
 		renderPlayers(); renderKd(); renderVcnv(); renderTt(); renderVd(); renderTb(); renderMedia(); renderRules();
-		if (!keepTab) { touched(); }
+		if (!keepTab) { touched(); } else { tabCounts(); }
+		autosizeAll(document.querySelector('.pane.on'));
 	}
 
 	function showTab(t) {
-		document.querySelectorAll('#tabs .tab').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-t') === t); });
+		document.querySelectorAll('#tabs .tab').forEach(function (b) { var on = b.getAttribute('data-t') === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); if (on && b.scrollIntoView && window.innerWidth < 980) { b.scrollIntoView({ block: 'nearest', inline: 'center' }); } });
 		document.querySelectorAll('.pane').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-t') === t); });
+		autosizeAll($('#pane' + t));
 		try { sessionStorage.setItem('olympia.qeTab', t); } catch (e) { /* ignore */ }
 	}
 
@@ -701,7 +732,9 @@
 		show($('#saveBar'), !!s);
 		if (!s) { model = null; return; }
 		progress('Đang đọc bộ đề...');
-		model = modelFrom(await readSetXml(s));
+		$('#editor').classList.add('loading');   /* questions.css: the skeleton rows */
+		try { model = modelFrom(await readSetXml(s)); }
+		finally { $('#editor').classList.remove('loading'); }
 		saved = snapshot();
 		rules = room && RULE_NAMES[room.rules] ? room.rules : guessRules(model);
 		progress('');
