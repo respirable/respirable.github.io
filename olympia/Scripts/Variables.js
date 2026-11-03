@@ -375,7 +375,6 @@
 	gameVariables.BedWatchInterval = null;
 	gameVariables.FadeIntervals = {};
 	gameVariables.ContestantBarRevealTimeouts = [];
-	gameVariables.BarsRevealAt = 0;                  /* ...when it started (Date.now() on the stage), 0 = none under way */
 	gameVariables.BarsRevealId = 0;                  /* +1 per one-by-one entrance, for the screens */
 	gameVariables.AnswerTreeTimeouts = [];
 	gameVariables.AnswerTreeAnimationFrame = null;

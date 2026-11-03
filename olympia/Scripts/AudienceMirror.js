@@ -110,30 +110,10 @@
 
 	var barsRevealId = null;   /* the stage's last one-by-one entrance this screen has played */
 	var barsRevealUntil = 0;   /* ...and when ours is over (ScoreboardControl.js: 300 + seat * 190 ms) */
-	/* ms into the stage's one-by-one entrance (on the stage clock), or null when none is under way */
-	function barsEntranceElapsed() {
-		var b = snap && snap.scene && snap.scene.bars;
-		if (!b || !b.revealAt || !room) { return null; }
-		var e = room.stageNow() - b.revealAt;
-		return e >= -1000 && e < CONTESTANT_BARS_REVEAL_MS ? Math.max(0, e) : null;
-	}
-	/* every frame while it runs: bar k shows once its own moment has come - however late, lumpy or
-	 * dropped the states were, and whatever the bars showed before */
-	function tickBarsEntrance() {
-		var e = barsEntranceElapsed();
-		if (e === null) { return false; }
-		gv.Players.forEach(function (p) {
-			var bar = getContestantBar(p.seat);
-			if (bar) { bar.classList.toggle('shown', e >= contestantBarRevealDelay(p.seat)); }
-		});
-		return true;
-	}
-
 	function applyBars(scene, was) {
 		var shown = (scene.bars && scene.bars.shown) || [];
 		var revealId = (scene.bars && scene.bars.revealId) || 0;
-		if (tickBarsEntrance()) { barsRevealId = revealId; return; }   /* the stage's entrance, timed here */
-		/* (a stage without revealAt) the stage started an entrance: run it here too, at once (a screen just opened only syncs) */
+		/* the stage started an entrance: run it here too, at once (a screen just opened only syncs) */
 		if (barsRevealId !== null && revealId !== barsRevealId) {
 			barsRevealId = revealId;
 			revealContestantBars();
@@ -359,7 +339,6 @@
 	/* every frame: the timer strips + the clip, on the stage clock */
 	function frame() {
 		requestAnimationFrame(frame);
-		tickBarsEntrance();
 		var scene = snap && snap.scene, t = snap && snap.timer;
 		if (!scene || !t || !t.duration) { return; }
 		var e = timerElapsed();

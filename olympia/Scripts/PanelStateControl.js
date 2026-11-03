@@ -199,7 +199,6 @@ function buildSceneForPublic() {
 			})(),
 			shown: Array.prototype.map.call(document.querySelectorAll('.scoreboardDiv .contestantBar.shown'), function (b) { return Number(b.id.replace('contestantBar', '')); }),
 			revealId: g.BarsRevealId || 0,   /* ScoreboardControl.js revealContestantBars */
-			revealAt: g.BarsRevealAt || 0,   /* ...its start on the stage clock: the screens time each bar from it */
 			grey: Array.prototype.map.call(document.querySelectorAll('.scoreboardDiv .contestantBar.eliminated'), function (b) { return Number(b.id.replace('contestantBar', '')); }),
 			stripOn: !!g.IsScoreboardShowing
 		},
