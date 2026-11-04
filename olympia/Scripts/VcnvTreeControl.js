@@ -163,9 +163,10 @@ function showAnswerTree(entries, onDone, options) {
 }
 
 /* ---------- Olympia 26: one answer row per contestant instead of the tree (O26Frames.js) ----------
- * 05 (Tăng tốc: name | answer | time) or 06 (VCNV: name | answer), 1500 px wide, centred, top to
+ * 05 (Tăng tốc: name | answer | time) or 06 (VCNV: name | answer), 1082 px wide, centred, top to
  * bottom in entry order; they open together, like every O26 frame. */
-var O26_ROW_WIDTH = 1500, O26_ROW_HEIGHT = 172, O26_ROW_STEP = 200, O26_ROW_STAGGER = 0;   /* all rows open together */
+/* as on the broadcast (Chung kết Olympia 26): rows 1082 px wide, 146 px apart, centred on y 573 */
+var O26_ROW_WIDTH = 1082, O26_ROW_HEIGHT = 124, O26_ROW_STEP = 146, O26_ROW_CENTRE = 573, O26_ROW_STAGGER = 0;   /* all rows open together */
 
 function showO26AnswerRows(root, entries, instant, onDone) {
 	var tt = window.GameVariables.AnswerTreeOptions.layout === 'right';
@@ -175,8 +176,8 @@ function showO26AnswerRows(root, entries, instant, onDone) {
 	var sig = document.querySelector('.vcnvTreeSignalsDiv');
 	if (sig) { sig.classList.remove('offstage'); }
 	window.GameVariables.IsAnswerTreeShowing = true;
-	var n = entries.length, step = n > 1 ? Math.min(O26_ROW_STEP, (1040 - O26_ROW_HEIGHT) / (n - 1)) : 0;
-	var top = Math.round((1080 - ((n - 1) * step + O26_ROW_HEIGHT)) / 2);
+	var n = entries.length, step = n > 1 ? Math.min(O26_ROW_STEP, (1000 - O26_ROW_HEIGHT) / (n - 1)) : 0;
+	var top = Math.round(O26_ROW_CENTRE - ((n - 1) * step + O26_ROW_HEIGHT) / 2);
 	var rows = entries.map(function (e, i) {
 		var row = newElement('div', 'treeBranch o26Row seat' + e.seat, root);
 		row.setAttribute('data-seat', e.seat);

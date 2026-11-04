@@ -28,6 +28,8 @@ let uid = 0;
 const SPEC = {
   A: {H:268, oT:80, oP:38, iT:126, iP:80, c1:31, c2:237, tip:2},
   B: {H:172, oT:50, oP:23, iT:78,  iP:49, c1:17, c2:155, tip:0},
+  /* 03 (Về đích): as B, its arrows a little sharper, as on the broadcast (edges ~0.37 to the height, B's 0.34) */
+  C: {H:172, oT:50, oP:19, iT:78,  iP:46, c1:17, c2:155, tip:0},
   D: {H:270, oT:84, oP:40, iT:128, iP:84, c1:37, c2:233, tip:4}
 };
 
@@ -152,7 +154,7 @@ function panelB(){
 function panelC(o){
   o = o || {};
   const idx = 0, stC = [0, 0, 0];
-  const s = SPEC.B, p = 'c' + (uid++) + '_', H = s.H;
+  const s = SPEC.C, p = 'c' + (uid++) + '_', H = s.H;
   const bx = y => 833 - SL * y;
   const hd = header4(p, s, bx);
   const yS = 138.6, yMid = 152.5;
@@ -250,7 +252,8 @@ function panelDInner(o){
 
 /* 05 — bảng điểm: mỗi hàng là một khung riêng, có cùng animation mở khung như 01, 02, 04 */
 const RK = 1000 / 744;
-const ROWFS = {full: {name: 24, verdict: 31, score: 26.5}, nav: {name: 26, verdict: 36}};
+/* type sized as on the broadcast (Chung kết Olympia 26, VCNV answers) */
+const ROWFS = {full: {name: 29, verdict: 33, score: 30.5}, nav: {name: 31, verdict: 37}};
 const GL = [[0,'#082447'],[.13,'#082447'],[.173,'#07274f'],[.258,'#082a5b'],[.343,'#082e6a'],[.427,'#083177'],[.512,'#07327f'],[.618,'#063190'],[.66,'#0836a9'],[.703,'#0336bf'],[.745,'#073cde'],[.788,'#0c41fd'],[.873,'#0746fb'],[.958,'#0a4dff'],[1,'#094fff']];
 const GR = [[0,'#072447'],[.18,'#082447'],[.35,'#082853'],[.52,'#072c5f'],[.7,'#062f6f'],[.87,'#07337c'],[1,'#08357f']];
 const GNL = [[25,'#072247'],[109,'#072550'],[169,'#082857'],[265,'#082d69'],[311,'#083178'],[340,'#07337b'],[382,'#06337e']].map(([x, c]) => [(x - 12) / 370, c]);

@@ -6,13 +6,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Olympia Controller — Quản lý câu hỏi</title>
 	<link rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261101g">
-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261101g">
+		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&family=JetBrains+Mono:wght@500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261104a">
+	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261104a">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261101g"></script>
-	<script src="Scripts/Auth.js?v=20261101g"></script>
-	<script src="Scripts/QuestionEditor.js?v=20261101g" defer></script>
+	<script src="Scripts/Config.js?v=20261104a"></script>
+	<script src="Scripts/Auth.js?v=20261104a"></script>
+	<script src="Scripts/QuestionEditor.js?v=20261104a" defer></script>
 </head>
 
 <body>
@@ -67,34 +67,42 @@
 		</section>
 
 		<!-- ============ the editor ============ -->
-		<section class="card hidden" id="editor">
-			<!-- which rules the forms follow (Scripts/QuestionEditor.js, Scripts/Rules.js); the files hold both -->
-			<div class="rulesBar">
-				<span class="rulesName" id="qeRulesName">Soạn theo luật</span>
-				<div class="seg" id="qeRules" role="radiogroup" aria-labelledby="qeRulesName">
-					<label><input type="radio" name="qeRules" value="o26" checked>Olympia 26</label>
-					<label><input type="radio" name="qeRules" value="o24">Olympia 24</label>
-					<label><input type="radio" name="qeRules" value="o23">Olympia 23</label>
-					<label><input type="radio" name="qeRules" value="jungle">Luật rừng <small>BETA</small></label>
+		<section class="card editorCard hidden" id="editor">
+			<!-- the rounds: a column on wide screens, a strip you can swipe on a phone; the counts are the questions written (QuestionEditor.js tabCounts) -->
+			<nav class="qeNav" aria-label="Phần thi">
+				<div class="tabs" id="tabs" role="tablist">
+					<button type="button" class="tab" data-t="players"><span class="tLabel">Thí sinh</span><span class="tCount" aria-hidden="true"></span><span class="tBar" aria-hidden="true"><i></i></span></button>
+					<button type="button" class="tab" data-t="kd"><span class="tLabel">Khởi động</span><span class="tCount" aria-hidden="true"></span><span class="tBar" aria-hidden="true"><i></i></span></button>
+					<button type="button" class="tab" data-t="vcnv"><span class="tLabel">Vượt chướng ngại vật</span><span class="tCount" aria-hidden="true"></span><span class="tBar" aria-hidden="true"><i></i></span></button>
+					<button type="button" class="tab" data-t="tt"><span class="tLabel">Tăng tốc</span><span class="tCount" aria-hidden="true"></span><span class="tBar" aria-hidden="true"><i></i></span></button>
+					<button type="button" class="tab" data-t="vd"><span class="tLabel">Về đích</span><span class="tCount" aria-hidden="true"></span><span class="tBar" aria-hidden="true"><i></i></span></button>
+					<button type="button" class="tab" data-t="tb"><span class="tLabel">Câu hỏi phụ</span><span class="tCount" aria-hidden="true"></span><span class="tBar" aria-hidden="true"><i></i></span></button>
+					<button type="button" class="tab" data-t="media"><span class="tLabel">Ảnh / video</span><span class="tCount" aria-hidden="true"></span><span class="tBar" aria-hidden="true"><i></i></span></button>
 				</div>
-				<p class="meta" id="qeRulesNote"></p>
+			</nav>
+			<div class="qeMain">
+				<!-- which rules the forms follow (Scripts/QuestionEditor.js, Scripts/Rules.js); the files hold both -->
+				<div class="rulesBar">
+					<span class="rulesName" id="qeRulesName">Soạn theo luật</span>
+					<div class="seg" id="qeRules" role="radiogroup" aria-labelledby="qeRulesName">
+						<label><input type="radio" name="qeRules" value="o26" checked>Olympia 26</label>
+						<label><input type="radio" name="qeRules" value="o24">Olympia 24</label>
+						<label><input type="radio" name="qeRules" value="o23">Olympia 23</label>
+						<label><input type="radio" name="qeRules" value="jungle">Luật rừng <small>BETA</small></label>
+					</div>
+					<p class="meta" id="qeRulesNote"></p>
+				</div>
+				<div class="panes">
+					<div class="pane" data-t="players" id="paneplayers"></div>
+					<div class="pane" data-t="kd" id="panekd"></div>
+					<div class="pane" data-t="vcnv" id="panevcnv"></div>
+					<div class="pane" data-t="tt" id="panett"></div>
+					<div class="pane" data-t="vd" id="panevd"></div>
+					<div class="pane" data-t="tb" id="panetb"></div>
+					<div class="pane" data-t="media" id="panemedia"></div>
+					<div class="skeleton" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+				</div>
 			</div>
-			<div class="tabs" id="tabs">
-				<button type="button" class="tab" data-t="players">Thí sinh</button>
-				<button type="button" class="tab" data-t="kd">Khởi động</button>
-				<button type="button" class="tab" data-t="vcnv">Vượt chướng ngại vật</button>
-				<button type="button" class="tab" data-t="tt">Tăng tốc</button>
-				<button type="button" class="tab" data-t="vd">Về đích</button>
-				<button type="button" class="tab" data-t="tb">Câu hỏi phụ</button>
-				<button type="button" class="tab" data-t="media">Ảnh / video</button>
-			</div>
-			<div class="pane" data-t="players" id="paneplayers"></div>
-			<div class="pane" data-t="kd" id="panekd"></div>
-			<div class="pane" data-t="vcnv" id="panevcnv"></div>
-			<div class="pane" data-t="tt" id="panett"></div>
-			<div class="pane" data-t="vd" id="panevd"></div>
-			<div class="pane" data-t="tb" id="panetb"></div>
-			<div class="pane" data-t="media" id="panemedia"></div>
 		</section>
 
 		<!-- how to build a set folder by hand (for those who prefer editing XML) -->
@@ -174,15 +182,15 @@
 
 				<h3>5. tangtoc.xml — 4 câu</h3>
 				<pre>&lt;tangtoc&gt;
-  &lt;question seconds="20"&gt;
+  &lt;question&gt;
     &lt;text&gt;Câu hỏi tăng tốc 1&lt;/text&gt;
     &lt;media type="image"&gt;Questions/tt1.png&lt;/media&gt;
     &lt;answerMedia type="image"&gt;tt1_dapan.png&lt;/answerMedia&gt;   (tuỳ chọn)
     &lt;answer&gt;Đáp án&lt;/answer&gt;
   &lt;/question&gt;
-  ... câu 2 (20 giây), câu 3, 4 (30 giây); video: &lt;media type="video"&gt;tt4.mp4&lt;/media&gt;
+  ... câu 2, 3, 4; video: &lt;media type="video"&gt;tt4.mp4&lt;/media&gt;
 &lt;/tangtoc&gt;</pre>
-				<p>Luật <b>Olympia 24</b> và <b>Olympia 23</b> luôn dùng 10 / 20 / 30 / 40 giây, luật rừng luôn 30 giây; ba luật này không đọc <code>seconds</code>.</p>
+				<p>Thời gian mỗi câu do luật quyết định: <b>Olympia 26</b> 20 / 20 / 30 / 30 giây, <b>Olympia 24</b> và <b>Olympia 23</b> 10 / 20 / 30 / 40 giây, luật rừng 30 giây mỗi câu. Thuộc tính <code>seconds</code> trong file cũ (nếu có) không còn được đọc.</p>
 
 				<h3>6. vedich.xml — mỗi ghế 3 câu 20 điểm + 3 câu 30 điểm</h3>
 				<pre>&lt;vedich&gt;
@@ -225,7 +233,8 @@
 			</div>
 		</dialog>
 
-		<div class="saveBar hidden" id="saveBar">
+		<div class="saveBar hidden" id="saveBar" role="status">
+			<span class="dot" aria-hidden="true"></span>
 			<span id="saveState">Chưa có thay đổi.</span>
 			<button type="button" class="btn" id="revert">Bỏ thay đổi</button>
 			<button type="button" class="btn primary" id="save">Lưu bộ đề</button>

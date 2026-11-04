@@ -21,7 +21,7 @@
 	var XML = { players: 'players.xml', kd: 'khoidong.xml', vcnv: 'vcnv.xml', tt: 'tangtoc.xml', vd: 'vedich.xml', tb: 'cauhoiphu.xml' };
 	var TYPES = { xml: 'text/xml', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm', mp3: 'audio/mpeg', ogg: 'audio/ogg' };
 	var COUNTS = { kdOwn: 6, kdCommon: 12, tt: 4, vdEach: 3, tb: 3 };
-	var TT_SECONDS = [20, 20, 30, 30];
+	var TT_SECONDS = [20, 20, 30, 30];   /* Olympia 26 (Rules.js) - every rules sets its own clocks */
 	/* Olympia 23 (Rules.js): Khởi động = three common turns taken in order from <common>, Tăng tốc
 	 * clocks fixed. The model always holds both layouts; `rules` only picks the forms shown. */
 	var O23 = { kdTurns: [8, 12, 16], ttSeconds: [10, 20, 30, 40] };
@@ -141,9 +141,9 @@
 		out.vcnv = head('Vượt chướng ngại vật. <keyword>: chướng ngại vật. <image>: ảnh sau 5 miếng che. 4 <row> + <center>.') + '<vcnv>\n' +
 			'  <keyword><text>' + esc(m.vcnv.keyword) + '</text></keyword>\n  <image>' + esc(m.vcnv.image) + '</image>\n' +
 			m.vcnv.rows.map(function (x) { return '  ' + qXml(x, 'row') + '\n'; }).join('') + '  ' + qXml(m.vcnv.center, 'center') + '\n</vcnv>\n';
-		out.tt = head('Tăng tốc. 4 câu; seconds = thời gian (luật Olympia 24 và 23 luôn 10/20/30/40 giây, luật rừng luôn 30 giây); <media> ảnh / video của câu; <answerMedia> ảnh đáp án (tuỳ chọn).') + '<tangtoc>\n' +
+		out.tt = head('Tăng tốc. 4 câu; thời gian do luật quyết định (Olympia 26: 20/20/30/30 giây, Olympia 24 / 23: 10/20/30/40, luật rừng: 30); <media> ảnh / video của câu; <answerMedia> ảnh đáp án (tuỳ chọn).') + '<tangtoc>\n' +
 			m.tt.map(function (x) {
-				return '  <question seconds="' + (Number(x.seconds) || 20) + '">\n    <text>' + esc(x.text) + '</text>\n' +
+				return '  <question>\n    <text>' + esc(x.text) + '</text>\n' +
 					(x.media.src ? '    <media type="' + (x.media.type === 'video' ? 'video' : 'image') + '">' + esc(x.media.src) + '</media>\n' : '') +
 					(x.answerMedia.src ? '    <answerMedia type="image">' + esc(x.answerMedia.src) + '</answerMedia>\n' : '') +
 					'    <answer>' + esc(x.answer) + '</answer>\n  </question>\n';
@@ -159,7 +159,36 @@
 	/* ---------- dirty tracking ---------- */
 
 	function snapshot() { return JSON.stringify(model); }
+
+	/* a question box as tall as its text */
+	function autosize(t) {
+		if (!t.offsetParent) { return; }   /* in a hidden tab: done when the tab opens */
+		t.style.height = 'auto';
+		t.style.height = (t.scrollHeight + 2) + 'px';
+	}
+	function autosizeAll(root) { (root || document).querySelectorAll('.qe textarea').forEach(autosize); }
+
+	/* each round in the nav: questions written / question rows on its page, and a thin bar */
+	function tabCounts() {
+		document.querySelectorAll('#tabs .tab').forEach(function (b) {
+			var t = b.getAttribute('data-t'), pane = $('#pane' + t), c = b.querySelector('.tCount'), bar = b.querySelector('.tBar i');
+			if (!pane || !c) { return; }
+			var rows = pane.querySelectorAll('.qRow'), n = 0, total = rows.length;
+			if (t === 'players') {
+				var names = pane.querySelectorAll('.cell input');
+				total = Math.min(4, Math.ceil(names.length / 2));
+				n = model ? model.players.filter(function (p) { return p.name && !/^Thí sinh \d$/.test(p.name); }).length : 0;
+			}
+			else if (t === 'media') { total = 0; n = pane.querySelectorAll('.mediaItem').length; }
+			else { rows.forEach(function (r) { var q = r.querySelector('textarea'); if (q && q.value.trim()) { n += 1; } }); }
+			c.textContent = total ? n + '/' + total : (n ? String(n) : '');
+			b.classList.toggle('done', !!total && n >= total);
+			if (bar) { bar.style.transform = 'scaleX(' + (total ? Math.min(1, n / total) : 0) + ')'; }
+		});
+	}
+
 	function touched() {
+		tabCounts();
 		var dirty = !!model && snapshot() !== saved;
 		$('#saveState').textContent = dirty ? 'Có thay đổi chưa lưu.' : 'Đã lưu - không có thay đổi.';
 		$('#saveBar').classList.toggle('dirty', dirty);
@@ -174,10 +203,10 @@
 	function textField(label, obj, key, opts) {
 		opts = opts || {};
 		var l = el('label', 'fld' + (opts.cls ? ' ' + opts.cls : ''));
-		l.appendChild(document.createTextNode(label));
+		l.appendChild(el('span', 'lab', label));   /* questions.css shows it once per run of question rows */
 		var i = el(opts.area ? 'textarea' : 'input');
 		if (!opts.area) { i.type = opts.type || 'text'; }
-		if (opts.area) { i.rows = opts.rows || 2; }
+		if (opts.area) { i.rows = opts.rows || 1; }
 		if (opts.min !== undefined) { i.min = String(opts.min); }
 		i.value = obj[key] === undefined || obj[key] === null ? '' : String(obj[key]);
 		var hint = opts.count ? el('small', 'count') : null;
@@ -187,7 +216,7 @@
 			hint.textContent = n + ' chữ' + (n > VCNV_MAX ? ' - quá ' + VCNV_MAX + ', chỉ hiện ' + VCNV_MAX + ' chữ đầu' : '');
 			hint.classList.toggle('warn', n > VCNV_MAX);
 		}
-		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); touched(); if (rules === 'o23' || rules === 'jungle') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
+		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); if (opts.area) { autosize(i); } touched(); if (rules === 'o23' || rules === 'jungle') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
 		l.appendChild(i);
 		if (hint) { l.appendChild(hint); update(); }
 		return l;
@@ -431,19 +460,17 @@
 
 	function renderTt() {
 		var p = $('#panett'); p.textContent = '';
-		if (rules === 'o23' || rules === 'o24') { p.appendChild(el('p', 'meta', 'Luật ' + RULE_NAMES[rules] + ': thời gian 4 câu luôn là 10 / 20 / 30 / 40 giây. Thời gian ghi trong bộ đề chỉ dùng cho luật Olympia 26.')); }
-		if (rules === 'jungle') { p.appendChild(el('p', 'meta', 'Luật rừng: mỗi câu luôn 30 giây; điểm theo tốc độ 25 / 10 / −5 / −20, sai hoặc không trả lời −20. Thời gian ghi trong bộ đề chỉ dùng cho luật Olympia 26.')); }
+		var secs = rules === 'jungle' ? JUNGLE.ttSeconds : (rules === 'o26' ? TT_SECONDS : O23.ttSeconds);
+		if (rules === 'jungle') { p.appendChild(el('p', 'meta', 'Luật rừng: mỗi câu luôn 30 giây; điểm theo tốc độ 25 / 10 / −5 / −20, sai hoặc không trả lời −20.')); }
+		else { p.appendChild(el('p', 'meta', 'Luật ' + RULE_NAMES[rules] + ': thời gian 4 câu luôn là ' + secs.join(' / ') + ' giây.')); }
 		model.tt.forEach(function (x, i) {
 			var b = block('Câu ' + (i + 1));
 			var r = el('div', 'grid3');
-			if (rules !== 'o26') {
-				var fixed = el('label', 'fld');
-				fixed.appendChild(document.createTextNode('Thời gian (giây)'));
-				var f = el('input'); f.type = 'text'; f.value = (rules === 'jungle' ? JUNGLE : O23).ttSeconds[i] + ' (cố định)'; f.disabled = true;
-				fixed.appendChild(f);
-				r.appendChild(fixed);
-			}
-			else { r.appendChild(textField('Thời gian (giây)', x, 'seconds', { type: 'number', min: 5 })); }
+			var fixed = el('label', 'fld');
+			fixed.appendChild(el('span', 'lab', 'Thời gian (giây)'));
+			var f = el('input'); f.type = 'text'; f.value = secs[i] + ' (cố định)'; f.disabled = true;
+			fixed.appendChild(f);
+			r.appendChild(fixed);
 			r.appendChild(mediaPicker('Ảnh / video câu hỏi', x.media, ['image', 'video'], { empty: 'Câu này không có ảnh / video - khung nội dung để trống.' }));
 			r.appendChild(mediaPicker('Ảnh đáp án (tuỳ chọn)', x.answerMedia, ['image'], { empty: 'Không có ảnh đáp án.' }));
 			b.appendChild(r);
@@ -553,17 +580,19 @@
 	function setRules(r) {
 		rules = RULE_NAMES[r] ? r : 'o26';
 		renderRules();
-		if (model) { renderKd(); renderTt(); }
+		if (model) { renderKd(); renderTt(); tabCounts(); autosizeAll(document.querySelector('.pane.on')); }
 	}
 
 	function renderAll(keepTab) {
 		renderPlayers(); renderKd(); renderVcnv(); renderTt(); renderVd(); renderTb(); renderMedia(); renderRules();
-		if (!keepTab) { touched(); }
+		if (!keepTab) { touched(); } else { tabCounts(); }
+		autosizeAll(document.querySelector('.pane.on'));
 	}
 
 	function showTab(t) {
-		document.querySelectorAll('#tabs .tab').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-t') === t); });
+		document.querySelectorAll('#tabs .tab').forEach(function (b) { var on = b.getAttribute('data-t') === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); if (on && b.scrollIntoView && window.innerWidth < 980) { b.scrollIntoView({ block: 'nearest', inline: 'center' }); } });
 		document.querySelectorAll('.pane').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-t') === t); });
+		autosizeAll($('#pane' + t));
 		try { sessionStorage.setItem('olympia.qeTab', t); } catch (e) { /* ignore */ }
 	}
 
@@ -701,7 +730,9 @@
 		show($('#saveBar'), !!s);
 		if (!s) { model = null; return; }
 		progress('Đang đọc bộ đề...');
-		model = modelFrom(await readSetXml(s));
+		$('#editor').classList.add('loading');   /* questions.css: the skeleton rows */
+		try { model = modelFrom(await readSetXml(s)); }
+		finally { $('#editor').classList.remove('loading'); }
 		saved = snapshot();
 		rules = room && RULE_NAMES[room.rules] ? room.rules : guessRules(model);
 		progress('');

@@ -204,9 +204,9 @@ body.rulesO26 .vdChooseDiv.o26Closing {
 /* ---------- 05 / 06 the answer rows (VcnvTreeControl.js showO26AnswerRows) ---------- */
 .vcnvTreeDiv.o26Rows .o26Row {
 	position: absolute;
-	left: 210px;
-	width: 1500px;
-	height: 172px;
+	left: 419px;
+	width: 1082px;
+	height: 124px;
 }
 
 .vcnvTreeDiv.o26Rows .o26Row.waiting {

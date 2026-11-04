@@ -209,18 +209,56 @@
 		else { hideTangTocTimer(); }
 	}
 
+	/* a Về đích video / the intro: the stage screen plays it with its sound. Safari lets a video play
+	 * with sound only when a tap started it: refused, it goes on muted (the picture keeps time) and
+	 * the "tap for sound" button comes back - the tap turns its sound on (unlockVideos). */
+	var videoNeedsTap = false;
+	function playWithSound(video) {
+		var want = stageView && soundOn && !videoNeedsTap;
+		if (video.muted !== !want) { video.muted = !want; }
+		if (!video.paused) { return; }
+		var p = video.play();
+		if (p && p.catch) {
+			p.catch(function (e) {
+				if (!video.muted && e && e.name === 'NotAllowedError') {
+					videoNeedsTap = true;
+					refreshSoundButton();
+					video.muted = true;
+					var q = video.play(); if (q && q.catch) { q.catch(function () {}); }
+				}
+			});
+		}
+	}
+	/* inside a tap: every video of the page may play with sound from now on */
+	function unlockVideos() {
+		videoNeedsTap = false;
+		refreshSoundButton();
+		['.vdMediaDiv .vdMediaVideo', '.kdIntroDiv .kdIntroVideo'].forEach(function (sel) {
+			var v = $(sel);
+			if (!v) { return; }
+			try {
+				if (!v.paused) { v.muted = !stageView; return; }   /* playing muted: its sound, now */
+				var had = v.getAttribute('src');
+				if (!had) { v.src = SILENCE; }
+				v.muted = false;
+				var p = v.play();
+				var done = function () { if (!had && v.getAttribute('src') === SILENCE) { v.pause(); v.removeAttribute('src'); try { v.load(); } catch (e) { /* ignore */ } } else if (had) { v.pause(); } };
+				if (p && p.then) { p.then(done, function () { if (!had && v.getAttribute('src') === SILENCE) { v.removeAttribute('src'); } }); } else { done(); }
+			} catch (e) { /* ignore */ }
+		});
+	}
+
 	/* a Về đích video follows the stage's 'vd_video' clock; the stage screen plays its sound */
 	function syncVeDichVideo() {
 		var video = $('.vdMediaDiv .vdMediaVideo');
 		if (!video) { return; }
 		var t = snap && snap.timer;
 		if (!isVeDichMediaShowing() || !video.classList.contains('on') || !t || t.label !== 'vd_video') { if (!video.paused) { video.pause(); } return; }
-		video.muted = !(stageView && soundOn);
 		var target = timerElapsed();
 		if (target === null || target < 0) { return; }
 		if (isFinite(video.duration) && target >= video.duration) { if (!video.paused) { video.pause(); } return; }
 		if (Math.abs(video.currentTime - target) > 0.4) { try { video.currentTime = target; } catch (e) { /* not seekable yet */ } }
-		if (video.paused) { var p = video.play(); if (p && p.catch) { p.catch(function () {}); } }
+		playWithSound(video);
 	}
 
 	/* the clip follows the stage clock (muted: the hall has the stage's sound) */
@@ -236,12 +274,11 @@
 		if (!video) { return; }
 		var t = snap && snap.timer;
 		if (!isKdIntroShowing() || !t || t.label !== 'kd_intro') { if (!video.paused) { video.pause(); } return; }
-		video.muted = !(stageView && soundOn);
 		var target = timerElapsed();
 		if (target === null || target < 0) { return; }
 		if (isFinite(video.duration) && target >= video.duration) { if (!video.paused) { video.pause(); } return; }
 		if (Math.abs(video.currentTime - target) > 0.4) { try { video.currentTime = target; } catch (e) { /* not seekable yet */ } }
-		if (video.paused) { var p = video.play(); if (p && p.catch) { p.catch(function () {}); } }
+		playWithSound(video);
 	}
 
 	function syncVideo() {
@@ -377,7 +414,7 @@
 	function wantsSound() { return stageView || (!!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both')); }
 	function refreshSoundButton() {
 		var b = $('#aSound');
-		if (b) { b.classList.toggle('hidden', !(wantsSound() && !soundOn)); }
+		if (b) { b.classList.toggle('hidden', !(wantsSound() && (!soundOn || videoNeedsTap))); }
 	}
 	function soundReady() {
 		if (soundOn) { return; }
@@ -394,13 +431,14 @@
 	/* a click / tap / key (ev set) always turns the sound on - the browser allows audio after it.
 	 * Without one (page just opened) only when the browser lets this page play sound already. */
 	function enableSound(ev) {
-		if (soundOn) { return; }
+		if (soundOn) { if (ev && videoNeedsTap) { unlockVideos(); } return; }
 		/* iOS 17+: play like a media player (not muted with the ringer, not ducked) */
 		try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; } } catch (e) { /* not supported */ }
 		if (ev) {
 			playSilence().catch(function () {});
 			if (typeof unlockAudioPool === 'function') { unlockAudioPool(16, SILENCE); }   /* AudioControl.js: Safari plays only elements a tap started */
 			soundReady();
+			unlockVideos();   /* ...the same for the Về đích video and the intro */
 			return;
 		}
 		var policy = null;

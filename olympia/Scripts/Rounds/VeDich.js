@@ -200,7 +200,12 @@ function veDichPlayVideo() {
 		if (!(dur > 0) || !isFinite(dur)) { console.warn('[VD] the video cannot be played'); veDichDropMedia(); g.changed(); return; }
 		try { video.currentTime = 0; } catch (e) { /* ignore */ }
 		video.muted = g.SoundAt === 'stage';   /* in a room the stage screens play it with sound */
-		var p = video.play(); if (p && p.catch) { p.catch(function () {}); }
+		var p = video.play();
+		if (p && p.catch) {
+			p.catch(function (e) {   /* the browser refuses its sound (no tap started it): play it muted rather than not at all */
+				if (!video.muted && e && e.name === 'NotAllowedError') { console.warn('[video] sound refused - playing muted'); video.muted = true; var q = video.play(); if (q && q.catch) { q.catch(function () {}); } }
+			});
+		}
 		startClock({
 			mode: 'down', duration: dur, label: 'vd_video',
 			onDone: function () {
