@@ -229,21 +229,27 @@
 			});
 		}
 	}
-	/* inside a tap: every video of the page may play with sound from now on */
+	/* inside a tap: every video of the page may play with sound from now on. WebKit (every browser on
+	 * an iPad) unlocks an element only when play() is called on it inside a tap, so each video plays a
+	 * moment of silence now; one with its own file waiting gets the file back afterwards. */
 	function unlockVideos() {
 		videoNeedsTap = false;
-		refreshSoundButton();
 		['.vdMediaDiv .vdMediaVideo', '.kdIntroDiv .kdIntroVideo'].forEach(function (sel) {
 			var v = $(sel);
 			if (!v) { return; }
 			try {
-				if (!v.paused) { v.muted = !stageView; return; }   /* playing muted: its sound, now */
+				if (!v.paused) { v.muted = !stageView; return; }   /* playing muted (sound refused): its sound, now */
 				var had = v.getAttribute('src');
-				if (!had) { v.src = SILENCE; }
+				v.src = SILENCE;
 				v.muted = false;
+				var back = function () {
+					if (v.getAttribute('src') !== SILENCE) { return; }   /* something else loaded meanwhile */
+					try { v.pause(); } catch (e) { /* ignore */ }
+					if (had) { v.src = had; } else { v.removeAttribute('src'); }
+					try { v.load(); } catch (e) { /* ignore */ }
+				};
 				var p = v.play();
-				var done = function () { if (!had && v.getAttribute('src') === SILENCE) { v.pause(); v.removeAttribute('src'); try { v.load(); } catch (e) { /* ignore */ } } else if (had) { v.pause(); } };
-				if (p && p.then) { p.then(done, function () { if (!had && v.getAttribute('src') === SILENCE) { v.removeAttribute('src'); } }); } else { done(); }
+				if (p && p.then) { p.then(back, back); } else { back(); }
 			} catch (e) { /* ignore */ }
 		});
 	}
@@ -412,10 +418,30 @@
 		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'];
 	function fileOf(a) { if (a.__file) { return a.__file; } try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
 	function wantsSound() { return stageView || (!!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both')); }
+	/* a sound iOS stopped on its own (AudioControl.js onSoundInterrupted) - back with the next tap */
+	var interrupted = false;
 	function refreshSoundButton() {
 		var b = $('#aSound');
-		if (b) { b.classList.toggle('hidden', !(wantsSound() && (!soundOn || videoNeedsTap))); }
+		if (!b) { return; }
+		var again = soundOn && (videoNeedsTap || interrupted);
+		b.classList.toggle('hidden', !(wantsSound() && (!soundOn || again)));
+		b.classList.toggle('full', stageView && !again);   /* mid-show: a banner, not the whole screen */
+		var text = again ? (stageView ? 'Âm thanh vừa bị ngắt - nhấn vào màn hình để bật lại' : 'Âm thanh vừa bị ngắt - bấm để bật lại')
+			: (stageView ? 'Nhấn vào màn hình để bật âm thanh' : 'Bấm để bật âm thanh trên màn này');
+		if (b.textContent !== text) { b.textContent = text; }
 	}
+	window.onSoundInterrupted = function (a) {
+		if (!soundOn) { return; }
+		var p = null;
+		try { p = a.play(); } catch (e) { /* ignore */ }   /* a pause that may be undone at once */
+		var fail = function () { interrupted = true; refreshSoundButton(); console.warn('[Audience] a sound was stopped by the device - waiting for a tap'); };
+		if (p && p.then) { p.catch(fail); } else { fail(); }
+	};
+	document.addEventListener('visibilitychange', function () {
+		if (document.visibilityState !== 'visible' || !interrupted || typeof resumeInterruptedSounds !== 'function') { return; }
+		resumeInterruptedSounds();   /* back on screen: try (still refused -> the next tap) */
+		setTimeout(function () { if (typeof soundInterrupted === 'function' && !soundInterrupted().length) { interrupted = false; refreshSoundButton(); } }, 600);
+	});
 	function soundReady() {
 		if (soundOn) { return; }
 		soundOn = true;
@@ -431,14 +457,25 @@
 	/* a click / tap / key (ev set) always turns the sound on - the browser allows audio after it.
 	 * Without one (page just opened) only when the browser lets this page play sound already. */
 	function enableSound(ev) {
-		if (soundOn) { if (ev && videoNeedsTap) { unlockVideos(); } return; }
+		/* a finger's pointerdown is not a user activation (only its pointerup / touchend / click is):
+		 * unlocking there is refused on an iPad - wait for the end of the tap */
+		if (ev && ev.type === 'pointerdown' && ev.pointerType && ev.pointerType !== 'mouse') { return; }
+		if (soundOn && !videoNeedsTap && !interrupted) { return; }
 		/* iOS 17+: play like a media player (not muted with the ringer, not ducked) */
 		try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; } } catch (e) { /* not supported */ }
 		if (ev) {
-			playSilence().catch(function () {});
+			var first = !soundOn;
 			if (typeof unlockAudioPool === 'function') { unlockAudioPool(16, SILENCE); }   /* AudioControl.js: Safari plays only elements a tap started */
-			soundReady();
 			unlockVideos();   /* ...the same for the Về đích video and the intro */
+			if (interrupted) { interrupted = false; if (typeof resumeInterruptedSounds === 'function') { resumeInterruptedSounds(); } }
+			if (first) {
+				/* "on" only once the browser has really let this page play - a refused tap keeps the button */
+				playSilence().then(soundReady, function (err) {
+					if (err && err.name === 'NotAllowedError') { refreshSoundButton(); return; }
+					soundReady();
+				});
+			}
+			refreshSoundButton();
 			return;
 		}
 		var policy = null;
@@ -470,7 +507,9 @@
 	var ENGINE_GONE_MS = 30000, silenced = false;
 	setInterval(function () {
 		var gone = !!room && room.silentFor() > ENGINE_GONE_MS;
-		if (soundOn && gone && !silenced && typeof stopAllSounds === 'function') { stopAllSounds(); }
+		if (soundOn && gone && !silenced && typeof stopAllSounds === 'function') { console.warn('[Audience] the engine is silent for 30 s - sounds stopped'); stopAllSounds(); }
+		/* heard again (a dropped connection, a sleeping panel): ask what is playing now, so the bed comes back */
+		if (soundOn && silenced && !gone && room) { room.hello(); }
 		silenced = gone;
 	}, 2000);
 
@@ -506,11 +545,12 @@
 			$('#aSound').classList.add('full');
 			$('#aSound').textContent = 'Nhấn vào màn hình để bật âm thanh';
 		}
-		$('#aSound').addEventListener('click', enableSound);
-		['pointerdown', 'touchend', 'keydown'].forEach(function (t) { document.addEventListener(t, enableSound, true); });
+		/* the events a browser counts as a user activation (pointerdown: a mouse only - see enableSound) */
+		['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach(function (t) { document.addEventListener(t, enableSound, true); });
 		renderQuestionBar();
 		renderTangTocFrame();
 		renderVeDich();
+		renderVeDichMedia();   /* the Về đích video element, now: the tap that turns the sound on must find it */
 		renderKdIntro();
 		room = window.OlympiaPublicRoom.connect(code, {
 			presence: { role: params.get('view') === 'stage' ? 'screen' : 'audience' },
