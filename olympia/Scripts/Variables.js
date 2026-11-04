@@ -40,7 +40,7 @@
 		KD_QUESTIONS_PER_PLAYER: 6,             /* Khởi động: questions per contestant in the individual turn */
 		KD_COMMON_QUESTIONS: 12,                /* Khởi động: questions in the common turn */
 		VCNV_DECIDE: 15,                        /* VCNV: row question clock and the last-chance window */
-		TANG_TOC: [20, 20, 30, 30],             /* Tăng tốc: clock of questions 1-4 (tangtoc.xml may override) */
+		TANG_TOC: [20, 20, 30, 30],             /* Tăng tốc: clock of questions 1-4 (Rules.js sets it per rules) */
 		VE_DICH_STEAL: 5,                       /* Về đích: steal window */
 		VE_DICH_ANSWER: { 20: 15, 30: 20 },     /* Về đích: clock per question value */
 		TIEBREAK_ANSWER: 15,                    /* Câu hỏi phụ: buzzer clock (tb_15s.ogg) */

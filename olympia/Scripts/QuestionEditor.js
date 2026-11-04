@@ -21,7 +21,7 @@
 	var XML = { players: 'players.xml', kd: 'khoidong.xml', vcnv: 'vcnv.xml', tt: 'tangtoc.xml', vd: 'vedich.xml', tb: 'cauhoiphu.xml' };
 	var TYPES = { xml: 'text/xml', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', mp4: 'video/mp4', webm: 'video/webm', mp3: 'audio/mpeg', ogg: 'audio/ogg' };
 	var COUNTS = { kdOwn: 6, kdCommon: 12, tt: 4, vdEach: 3, tb: 3 };
-	var TT_SECONDS = [20, 20, 30, 30];
+	var TT_SECONDS = [20, 20, 30, 30];   /* Olympia 26 (Rules.js) - every rules sets its own clocks */
 	/* Olympia 23 (Rules.js): Khởi động = three common turns taken in order from <common>, Tăng tốc
 	 * clocks fixed. The model always holds both layouts; `rules` only picks the forms shown. */
 	var O23 = { kdTurns: [8, 12, 16], ttSeconds: [10, 20, 30, 40] };
@@ -141,9 +141,9 @@
 		out.vcnv = head('Vượt chướng ngại vật. <keyword>: chướng ngại vật. <image>: ảnh sau 5 miếng che. 4 <row> + <center>.') + '<vcnv>\n' +
 			'  <keyword><text>' + esc(m.vcnv.keyword) + '</text></keyword>\n  <image>' + esc(m.vcnv.image) + '</image>\n' +
 			m.vcnv.rows.map(function (x) { return '  ' + qXml(x, 'row') + '\n'; }).join('') + '  ' + qXml(m.vcnv.center, 'center') + '\n</vcnv>\n';
-		out.tt = head('Tăng tốc. 4 câu; seconds = thời gian (luật Olympia 24 và 23 luôn 10/20/30/40 giây, luật rừng luôn 30 giây); <media> ảnh / video của câu; <answerMedia> ảnh đáp án (tuỳ chọn).') + '<tangtoc>\n' +
+		out.tt = head('Tăng tốc. 4 câu; thời gian do luật quyết định (Olympia 26: 20/20/30/30 giây, Olympia 24 / 23: 10/20/30/40, luật rừng: 30); <media> ảnh / video của câu; <answerMedia> ảnh đáp án (tuỳ chọn).') + '<tangtoc>\n' +
 			m.tt.map(function (x) {
-				return '  <question seconds="' + (Number(x.seconds) || 20) + '">\n    <text>' + esc(x.text) + '</text>\n' +
+				return '  <question>\n    <text>' + esc(x.text) + '</text>\n' +
 					(x.media.src ? '    <media type="' + (x.media.type === 'video' ? 'video' : 'image') + '">' + esc(x.media.src) + '</media>\n' : '') +
 					(x.answerMedia.src ? '    <answerMedia type="image">' + esc(x.answerMedia.src) + '</answerMedia>\n' : '') +
 					'    <answer>' + esc(x.answer) + '</answer>\n  </question>\n';
@@ -460,19 +460,17 @@
 
 	function renderTt() {
 		var p = $('#panett'); p.textContent = '';
-		if (rules === 'o23' || rules === 'o24') { p.appendChild(el('p', 'meta', 'Luật ' + RULE_NAMES[rules] + ': thời gian 4 câu luôn là 10 / 20 / 30 / 40 giây. Thời gian ghi trong bộ đề chỉ dùng cho luật Olympia 26.')); }
-		if (rules === 'jungle') { p.appendChild(el('p', 'meta', 'Luật rừng: mỗi câu luôn 30 giây; điểm theo tốc độ 25 / 10 / −5 / −20, sai hoặc không trả lời −20. Thời gian ghi trong bộ đề chỉ dùng cho luật Olympia 26.')); }
+		var secs = rules === 'jungle' ? JUNGLE.ttSeconds : (rules === 'o26' ? TT_SECONDS : O23.ttSeconds);
+		if (rules === 'jungle') { p.appendChild(el('p', 'meta', 'Luật rừng: mỗi câu luôn 30 giây; điểm theo tốc độ 25 / 10 / −5 / −20, sai hoặc không trả lời −20.')); }
+		else { p.appendChild(el('p', 'meta', 'Luật ' + RULE_NAMES[rules] + ': thời gian 4 câu luôn là ' + secs.join(' / ') + ' giây.')); }
 		model.tt.forEach(function (x, i) {
 			var b = block('Câu ' + (i + 1));
 			var r = el('div', 'grid3');
-			if (rules !== 'o26') {
-				var fixed = el('label', 'fld');
-				fixed.appendChild(document.createTextNode('Thời gian (giây)'));
-				var f = el('input'); f.type = 'text'; f.value = (rules === 'jungle' ? JUNGLE : O23).ttSeconds[i] + ' (cố định)'; f.disabled = true;
-				fixed.appendChild(f);
-				r.appendChild(fixed);
-			}
-			else { r.appendChild(textField('Thời gian (giây)', x, 'seconds', { type: 'number', min: 5 })); }
+			var fixed = el('label', 'fld');
+			fixed.appendChild(el('span', 'lab', 'Thời gian (giây)'));
+			var f = el('input'); f.type = 'text'; f.value = secs[i] + ' (cố định)'; f.disabled = true;
+			fixed.appendChild(f);
+			r.appendChild(fixed);
 			r.appendChild(mediaPicker('Ảnh / video câu hỏi', x.media, ['image', 'video'], { empty: 'Câu này không có ảnh / video - khung nội dung để trống.' }));
 			r.appendChild(mediaPicker('Ảnh đáp án (tuỳ chọn)', x.answerMedia, ['image'], { empty: 'Không có ảnh đáp án.' }));
 			b.appendChild(r);

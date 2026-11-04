@@ -2,10 +2,11 @@
  * Olympia Controller - the rules a game is played by. Loaded right after Variables.js.
  *
  *   'o26'  Olympia 26 (the default): Khởi động individual + common turn, obstacle
- *          60-50-40-30 (20 after the centre), Tăng tốc clocks 20/20/30/30 (tangtoc.xml may set them);
+ *          60-50-40-30 (20 after the centre), Tăng tốc clocks always 20/20/30/30;
  *          the Olympia 26 graphics (O26Frames.js, Styles/o26.css, body.rulesO26)
- *   'o24'  Olympia 24: as 'o26' with the O24 graphics, but Tăng tốc clocks 10/20/30/40 whatever
- *          tangtoc.xml says (rooms made before 'o26' existed - "Olympia 24 + 26" - are 'o24')
+ *   'o24'  Olympia 24: as 'o26' with the O24 graphics, but Tăng tốc clocks 10/20/30/40
+ *          (rooms made before 'o26' existed - "Olympia 24 + 26" - are 'o24')
+ *   Every rules sets the Tăng tốc clocks itself: tangtoc.xml's seconds="" is not read any more.
  *   'o23'  Olympia 23: Khởi động is three common turns of 8, 12 and 16 questions (taken in order
  *          from <common> in khoidong.xml), obstacle 50-40-30-20 (10 after the centre), Tăng tốc
  *          clocks 10/20/30/40 whatever tangtoc.xml says
@@ -84,7 +85,7 @@
 	/* Khởi động's common turns in the Olympia 23 style (sizes), or null (one 12-question turn, O24) */
 	gv.kdCommonTurns = function () { return gv.Rules === 'o23' ? O23.KD_TURNS : (gv.Rules === 'jungle' ? JUNGLE.KD_TURNS : null); };
 	/* Tăng tốc clocks fixed by the rules (tangtoc.xml's seconds ignored) */
-	gv.fixedTangTocClocks = function () { return gv.Rules === 'o24' || gv.Rules === 'o23' || gv.Rules === 'jungle'; };
+	gv.fixedTangTocClocks = function () { return true; };   /* every rules: its own clocks (Timings.TANG_TOC) */
 
 	/* without a room: ?rules=o24 / ?rules=o23 / ?rules=jungle (trying it out on one machine) */
 	var p = new URLSearchParams(location.search);

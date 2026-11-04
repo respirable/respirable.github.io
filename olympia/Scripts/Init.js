@@ -227,7 +227,7 @@ async function getTangTocQuestions() {
 			media: { type: (m && m.getAttribute('type')) || 'image', src: window.GameVariables.resolveMedia(xmlText(m) || '') },
 			answerMedia: (am && xmlText(am)) ? { type: am.getAttribute('type') || 'image', src: window.GameVariables.resolveMedia(xmlText(am)) } : null,
 			answer: xmlText(q, 'answer') || '',
-			/* Olympia 24 / 23 (10/20/30/40) and Luật rừng (30 each): whatever the file says (Rules.js) */
+			/* the rules' own clocks (Rules.js: O26 20/20/30/30, O24 / O23 10/20/30/40, Luật rừng 30 each), whatever the file says */
 			seconds: (secs > 0 && !window.GameVariables.fixedTangTocClocks()) ? secs : (window.GameVariables.Timings.TANG_TOC[i] || 20)
 		};
 	});
