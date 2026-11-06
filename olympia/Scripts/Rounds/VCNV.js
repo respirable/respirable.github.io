@@ -160,12 +160,13 @@ function vcnvRevealQuestion() {
 	window.GameVariables.VcnvCurrentQuestion = q.text
 		? q.text + (n == VCNV_CENTER ? vcnvCenterLengthNote(q.answer) : '')   /* the centre has no circles: say how long its answer is */
 		: window.GameVariables.MissingQuestionText;
-	setObstacleQuestion(window.GameVariables.VcnvCurrentQuestion);
+	setObstacleQuestion(q.text || window.GameVariables.MissingQuestionText);   /* the stage (and the screens, which copy it) without the length: only the players and the control panel see it */
 	startGeneralSound('vcnv_open_question.mp3');
 	window.GameVariables.VcnvSequenceCounter = 4;
 }
 
-/* " (7 chữ cái)" / " (4 chữ số)" / " (3 kí tự)" - the centre answer's length, spaces not counted */
+/* " (7 chữ cái)" / " (4 chữ số)" / " (3 kí tự)" - the centre answer's length, spaces not counted;
+ * in VcnvCurrentQuestion (players' screens, control panel), not on the stage */
 function vcnvCenterLengthNote(answer) {
 	var a = String(answer || '').replace(/\s+/g, '');
 	if (!a) { return ''; }

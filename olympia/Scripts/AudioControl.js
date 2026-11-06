@@ -79,18 +79,34 @@ function unlockAudioPool(n, silence) {
 	while (AUDIO_POOL.length < n) { var a = watchSoundElement(new Audio(silence)); AUDIO_POOL.push(a); unlock(a); }
 }
 
-/* a free unlocked element (not held by a channel, not playing), else a new one */
+/* stuck: a fire-and-forget sound that "plays" well past its own length - iOS can leave an element
+ * playing-but-silent (stalled) for ever; it would hold its pool slot for good */
+function soundStuck(a) {
+	if (!a.__started || a.paused || a.ended || a.loop) { return false; }
+	var len = isFinite(a.duration) && a.duration > 0 ? a.duration : 30;
+	return Date.now() - a.__started > len * 1000 + 4000;
+}
+
+/* a free unlocked element (not held by a channel, not playing), else a stuck one, else a new one.
+ * On an iPad a new one stays silent (no tap started it): once the 16 of the pool were all taken by
+ * sounds that never ended, every later sound was lost - even the next ones. */
 function newSoundElement(src) {
 	var held = window.GameVariables.AudioChannels.map(function (c) { return window.GameVariables[c]; });
-	for (var i = 0; i < AUDIO_POOL.length; i++) {
-		var a = AUDIO_POOL[i];
-		if (held.indexOf(a) === -1 && (a.paused || a.ended)) {
-			a.onended = null; a.volume = 1; a.muted = false; a.loop = false; a.__want = false;
-			a.src = src;
-			return a;
-		}
+	function take(a) {
+		a.__want = false;   /* before pause(): this pause is wanted */
+		try { if (!a.paused) { a.pause(); } } catch (e) { /* ignore */ }
+		a.onended = null; a.volume = 1; a.muted = false; a.loop = false;
+		a.src = src;
+		a.__started = Date.now();
+		return a;
 	}
-	return watchSoundElement(new Audio(src));
+	var i;
+	for (i = 0; i < AUDIO_POOL.length; i++) { if (held.indexOf(AUDIO_POOL[i]) === -1 && (AUDIO_POOL[i].paused || AUDIO_POOL[i].ended)) { return take(AUDIO_POOL[i]); } }
+	for (i = 0; i < AUDIO_POOL.length; i++) { if (held.indexOf(AUDIO_POOL[i]) === -1 && soundStuck(AUDIO_POOL[i])) { console.warn('[Audio] a stuck sound gives its element back', AUDIO_POOL[i].__file); return take(AUDIO_POOL[i]); } }
+	if (AUDIO_POOL.length) { console.warn('[Audio] every unlocked element is busy - a new one (may stay silent on an iPad)'); }
+	var a = watchSoundElement(new Audio(src));
+	a.__started = Date.now();
+	return a;
 }
 
 /* ---------- the core: one channel ---------- */
