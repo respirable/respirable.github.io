@@ -84,14 +84,25 @@
 		if (p) { record(seat, before, p.score); }
 	};
 
+	/* what the key did, as the score line says it ("VĐ: cướp đúng", "VCNV: giải CNV") */
+	function keyLabel(round, key) {
+		var lower = key && key.length === 1 ? key.toLowerCase() : key;
+		if (round === 'vd' && gv.VeDichSequenceCounter == 8 && (key === 'ArrowUp' || key === 'ArrowDown')) { return key === 'ArrowUp' ? 'cướp đúng' : 'cướp sai'; }
+		if (round === 'vcnv' && gv.VcnvSequenceCounter == 9) {
+			if (key === '0') { return 'CNV sai'; }
+			if (/^[1-4qwer]$/.test(lower)) { return 'giải CNV'; }
+		}
+		return KEY[key] || key;
+	}
+
 	function wrapKeys() {
 		var kb = gv.Keyboard, d = kb.dispatch, dt = kb.dispatchTo;
 		kb.dispatch = function (key) {
-			var own = begin((ROUND[gv.CurrentRound] || gv.CurrentRound) + ': ' + (KEY[key] || key));
+			var own = begin((ROUND[gv.CurrentRound] || gv.CurrentRound) + ': ' + keyLabel(gv.CurrentRound, key));
 			try { return d.apply(kb, arguments); } finally { end(own); }
 		};
 		kb.dispatchTo = function (roundId, key) {
-			var own = begin((ROUND[roundId] || roundId) + ': ' + (KEY[key] || key));
+			var own = begin((ROUND[roundId] || roundId) + ': ' + keyLabel(roundId, key));
 			try { return dt.apply(kb, arguments); } finally { end(own); }
 		};
 	}

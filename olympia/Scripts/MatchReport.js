@@ -163,19 +163,23 @@
 		var tally = {};
 		state.players.forEach(function (p) { tally[p.seat] = { right: 0, wrong: 0 }; });
 		state.questions.forEach(function (q) { q.results.forEach(function (r) { if (!tally[r.seat]) { return; } if (r.verdict === 'right') { tally[r.seat].right += 1; } else if (r.verdict === 'wrong' || r.verdict === 'early') { tally[r.seat].wrong += 1; } }); });
-		var rank = state.players.map(function (p, k) { return { p: p, k: k, s: final[k] || 0 }; }).sort(function (x, y) { return y.s - x.s || x.p.seat - y.p.seat; });
+		/* level on points at the top: the Câu hỏi phụ decides (its winner is the last seat right in it) */
+		var tbWin = null;
+		state.questions.forEach(function (q) { if (q.round === 'tb') { q.results.forEach(function (r) { if (r.verdict === 'right') { tbWin = r.seat; } }); } });
+		var rank = state.players.map(function (p, k) { return { p: p, k: k, s: final[k] || 0 }; }).sort(function (x, y) { return y.s - x.s || (x.p.seat === tbWin ? -1 : y.p.seat === tbWin ? 1 : 0) || x.p.seat - y.p.seat; });
+		var topScore = rank.length ? rank[0].s : 0, byTb = tbWin !== null && rank.length > 1 && rank[0].p.seat === tbWin && rank[1].s === topScore;
 		var place = 0, last = null;
-		rank.forEach(function (r, i) { if (r.s !== last) { place = i + 1; last = r.s; } r.place = place; });
+		rank.forEach(function (r, i) { if (r.s !== last || (byTb && i === 1)) { place = i + 1; last = r.s; } r.place = place; });
 		var top = rank[0], h = [];
 		if (!top) { return '<p class="empty">Chưa có thí sinh.</p>'; }
 		function tallyText(seat) { var t = tally[seat]; return t && (t.right || t.wrong) ? t.right + ' câu đúng · ' + t.wrong + ' câu sai' : ''; }
 		h.push('<div class="standing">');
-		h.push('<div class="winner s' + (top.k + 1) + '"><span class="tag">' + (rank.filter(function (r) { return r.place === 1; }).length > 1 ? 'Đồng hạng nhất' : 'Hạng nhất') + '</span>');
+		h.push('<div class="winner s' + (top.k + 1) + '"><span class="tag">' + (rank.filter(function (r) { return r.place === 1; }).length > 1 ? 'Đồng hạng nhất' : (byTb ? 'Hạng nhất · thắng câu hỏi phụ' : 'Hạng nhất')) + '</span>');
 		h.push('<b class="name">' + esc(top.p.fullName || top.p.displayName) + '</b><span class="sub">Ghế ' + top.p.seat + (top.p.school ? ' · ' + esc(top.p.school) : '') + '</span>');
 		h.push('<span class="big">' + top.s + '</span><span class="sub">' + esc(tallyText(top.p.seat)) + '</span></div>');
 		h.push('<ol class="others">');
 		rank.slice(1).forEach(function (r) {
-			h.push('<li class="s' + (r.k + 1) + '"><span class="place">' + r.place + '</span><span class="who"><b>' + esc(r.p.fullName || r.p.displayName) + '</b><small>Ghế ' + r.p.seat + (r.p.school ? ' · ' + esc(r.p.school) : '') + (tallyText(r.p.seat) ? ' · ' + esc(tallyText(r.p.seat)) : '') + '</small></span><span class="pts">' + r.s + '<small>' + (r.s - top.s ? signed(r.s - top.s) : '=') + '</small></span></li>');
+			h.push('<li class="s' + (r.k + 1) + '"><span class="place">' + r.place + '</span><span class="who"><b>' + esc(r.p.fullName || r.p.displayName) + '</b><small>Ghế ' + r.p.seat + (r.p.school ? ' · ' + esc(r.p.school) : '') + (tallyText(r.p.seat) ? ' · ' + esc(tallyText(r.p.seat)) : '') + '</small></span><span class="pts">' + r.s + '<small>' + (r.s - top.s ? signed(r.s - top.s) : (byTb ? 'thua câu phụ' : '=')) + '</small></span></li>');
 		});
 		h.push('</ol></div>');
 		return h.join('');
@@ -209,6 +213,9 @@
 			(changed ? '<span class="was">Trước khi sửa: ' + esc(verdictWord(orig)) + '</span>' : '') + '</li>';
 	}
 
+	/* Về đích: the contestant on stage first, then whoever stole */
+	function ordered(q) { return q.results.slice().sort(function (a, b) { return (b.seat === q.seat) - (a.seat === q.seat) || a.seat - b.seat; }); }
+
 	function questionItem(q, i) {
 		var orig = {};
 		if (q.edit && q.edit.orig) { q.edit.orig.results.forEach(function (r) { orig[r.seat] = r; }); }
@@ -219,7 +226,7 @@
 		h.push('<button type="button" class="editBtn" data-edit="' + esc(q.id) + '">' + ICONS.pencil + 'Sửa</button></header>');
 		h.push('<p class="qText">' + esc(q.text || '(không có nội dung)') + '</p>');
 		if (q.answer) { h.push('<p class="qAns"><span>Đáp án</span>' + esc(q.answer) + '</p>'); }
-		if (q.results.length) { h.push('<ul class="results">' + q.results.map(function (r) { return resultCell(r, q.edit ? (orig[r.seat] || { verdict: 'none' }) : null); }).join('') + '</ul>'); }
+		if (q.results.length) { h.push('<ul class="results">' + ordered(q).map(function (r) { return resultCell(r, q.edit ? (orig[r.seat] || { verdict: 'none' }) : null); }).join('') + '</ul>'); }
 		else { h.push('<p class="qNone">' + (q.nobody ? 'Không ai bấm chuông trả lời.' : 'Chưa chấm.') + '</p>'); }
 		if (q.note) { h.push('<p class="qNote"><span>Ghi chú của chủ trận</span>' + esc(q.note) + '</p>'); }
 		h.push('</article>');
