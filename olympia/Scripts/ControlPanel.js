@@ -748,7 +748,7 @@
 
 	/* ---------------- undo + match log (MatchLog.js on the stage) ---------------- */
 
-	var logWanted = false;
+	var logWanted = false, reportWin = null;
 	function fmtClock(t) { try { return new Date(t).toLocaleTimeString('vi-VN', { hour12: false }); } catch (e) { return ''; } }
 
 	function renderLog(s) {
@@ -769,6 +769,39 @@
 			list.appendChild(li);
 		});
 		if (m.full && logWanted) { logWanted = false; downloadLog(m.full); }
+		if (m.full && reportWin) { var w = reportWin; reportWin = null; showReport(w, m.full, m.questions || []); }
+	}
+
+	/* "Biên bản trận" (MatchReport.js): the window opens at the click (a popup blocker lets it), the
+	 * report is written into it once the stage has sent the whole log */
+	/* the report corrects a question record (report.html -> window.opener.olympiaReportEdit); the
+	 * stage re-works the points (MatchLog.js editQuestion) and the report is drawn again */
+	window.olympiaReportEdit = function (id, patch, win) {
+		if (!gv.Sync || !gv.Sync.sendCommand) { return false; }
+		gv.Sync.sendCommand('editQuestion', Object.assign({ id: String(id) }, patch || {}));
+		if (win) { reportWin = win; gv.Sync.sendCommand('requestLog', {}); }   /* the report is drawn again with the new points */
+		return true;
+	};
+	function openReport() {
+		var v = ((document.querySelector('script[src*="ControlPanel.js"]') || {}).src || '').split('v=')[1] || '';
+		var w = window.open('report.html' + (v ? '?v=' + v : ''), '_blank');
+		if (!w) { alert('Trình duyệt chặn cửa sổ mới - hãy cho phép cửa sổ bật lên cho trang này.'); return; }
+		reportWin = w;
+		gv.Sync.sendCommand('requestLog', {});
+	}
+	/* report.html may still be loading: draw once its renderMatchReport is there */
+	function showReport(w, list, questions, tries) {
+		if (w.closed) { return; }
+		var ready = false;
+		try { ready = typeof w.renderMatchReport === 'function' && w.document.readyState !== 'loading'; } catch (e) { return; }
+		if (!ready) { if ((tries || 0) < 100) { setTimeout(function () { showReport(w, list, questions, (tries || 0) + 1); }, 100); } return; }
+		var day = list.length ? new Date(list[0].t) : new Date();
+		w.renderMatchReport(list, snap, questions, {
+			room: gv.Sync.room || '',
+			rules: gv.RulesNames ? 'Luật ' + (gv.RulesNames[snap.rules] || snap.rules || '') : '',
+			set: els.questionSet ? els.questionSet.textContent.trim() : '',
+			title: 'Trận đấu ngày ' + day.toLocaleDateString('vi-VN')
+		});
 	}
 
 	function csvCell(v) {
@@ -921,6 +954,7 @@
 			/* undo the last action's points / download the match log */
 			els.undoScore.addEventListener('click', function () { gv.Sync.sendCommand('undoScore', {}); });
 			$('#logDownload').addEventListener('click', function () { logWanted = true; gv.Sync.sendCommand('requestLog', {}); });
+			$('#logReport').addEventListener('click', openReport);
 
 			/* green screen */
 			els.greenScreenBtn.addEventListener('click', function () { gv.Sync.sendCommand('greenScreenToggle', {}); });

@@ -11,18 +11,29 @@
  * signals and verdicts, Câu hỏi phụ verdicts and round changes. The panel shows the last ones;
  * "Tải nhật ký" asks for the whole log once (snapshot.fullLog) and saves it as CSV. The log is
  * kept in the automatic save (GameSave.js) so a stage reopened after a crash keeps it.
+ *
+ * The question log (gv.QuestionLog, for "Biên bản trận" - MatchReport.js): one record per question
+ * put to the contestants - round, which question, its text and answer - and, as it is judged,
+ * each seat's result: right / wrong / no answer (+ the answer they gave, the Tăng tốc time, the
+ * points it moved, a steal or the star in Về đích). The host may correct a record from the report
+ * (command editQuestion): the first version is kept in record.edit.orig and the record shows as
+ * edited everywhere. The points follow the corrected results (pointsFor: the round's rules), as a
+ * score line "sửa biên bản" in the question's round; record.edit.rankSame says whether the
+ * standing moved.
  */
 (function (gv) {
 	var MAX_LOG = 600, MAX_UNDO = 40;
 	var ROUND = { kd: 'KĐ', vcnv: 'VCNV', tt: 'TT', vd: 'VĐ', tb: 'Câu phụ' };
 	var KEY = {
-		ArrowUp: 'đúng', ArrowDown: 'sai', ArrowRight: '→', ArrowLeft: '←', ' ': 'đồng hồ 3 s', Backspace: 'xoá chuông',
+		ArrowUp: 'đúng', ArrowDown: 'sai', ArrowRight: 'chấm', ArrowLeft: '←', ' ': 'đồng hồ 3 s', Backspace: 'xoá chuông',
 		'1': 'phím 1', '2': 'phím 2', '3': 'phím 3', '4': 'phím 4', '0': 'phím 0', z: '+10 tay', x: '−5 tay', Z: '+10 tay', X: '−5 tay'
 	};
 	var CMD = { setScore: 'sửa điểm', vcnvSetAnswers: 'đáp án VCNV', ttSetAnswers: 'đáp án Tăng tốc', restoreProgress: 'phục hồi tiến trình', restoreSaved: 'khôi phục bản lưu' };
 
 	gv.MatchLog = [];
 	gv.ScoreUndo = [];
+	gv.QuestionLog = [];
+	var MAX_QUESTIONS = 400, qSerial = 0;
 	var txn = null, sendFull = false;
 
 	function seatName(s) { var p = gv.getPlayer(s); return s + '. ' + (p ? gv.displayName(p) : ''); }
@@ -75,21 +86,32 @@
 		if (p) { record(seat, before, p.score); }
 	};
 
+	/* what the key did, as the score line says it ("VĐ: cướp đúng", "VCNV: giải CNV") */
+	function keyLabel(round, key) {
+		var lower = key && key.length === 1 ? key.toLowerCase() : key;
+		if (round === 'vd' && gv.VeDichSequenceCounter == 8 && (key === 'ArrowUp' || key === 'ArrowDown')) { return key === 'ArrowUp' ? 'cướp đúng' : 'cướp sai'; }
+		if (round === 'vcnv' && gv.VcnvSequenceCounter == 9) {
+			if (key === '0') { return 'CNV sai'; }
+			if (/^[1-4qwer]$/.test(lower)) { return 'giải CNV'; }
+		}
+		return KEY[key] || key;
+	}
+
 	function wrapKeys() {
 		var kb = gv.Keyboard, d = kb.dispatch, dt = kb.dispatchTo;
 		kb.dispatch = function (key) {
-			var own = begin((ROUND[gv.CurrentRound] || gv.CurrentRound) + ': ' + (KEY[key] || key));
+			var own = begin((ROUND[gv.CurrentRound] || gv.CurrentRound) + ': ' + keyLabel(gv.CurrentRound, key));
 			try { return d.apply(kb, arguments); } finally { end(own); }
 		};
 		kb.dispatchTo = function (roundId, key) {
-			var own = begin((ROUND[roundId] || roundId) + ': ' + (KEY[key] || key));
+			var own = begin((ROUND[roundId] || roundId) + ': ' + keyLabel(roundId, key));
 			try { return dt.apply(kb, arguments); } finally { end(own); }
 		};
 	}
 
 	function wrapCommands() {
 		Object.keys(gv.Commands).forEach(function (name) {
-			if (name === 'undoScore' || name === 'requestLog') { return; }
+			if (name === 'undoScore' || name === 'requestLog' || name === 'editQuestion') { return; }   /* editQuestion logs its own points */
 			var fn = gv.Commands[name];
 			gv.Commands[name] = function (args) {
 				var own = begin(CMD[name] || ('lệnh ' + name));
@@ -117,6 +139,232 @@
 		after('switchRound', function (r) { return ['round', 'Chuyển sang ' + (gv.RoundNames[r] || r)]; });
 	}
 
+	/* ---------- the question log ---------- */
+
+	function openQuestion(round, label, text, answer, extra) {
+		var q = Object.assign({ id: Date.now().toString(36) + '-' + (++qSerial), t: Date.now(), round: round, label: label, text: text || '', answer: answer || '', results: [] }, extra || {});
+		gv.QuestionLog.push(q);
+		if (gv.QuestionLog.length > MAX_QUESTIONS) { gv.QuestionLog.splice(0, gv.QuestionLog.length - MAX_QUESTIONS); }
+		return q;
+	}
+	/* the latest record of `round` that `ok` accepts */
+	function findQuestion(round, ok) {
+		for (var i = gv.QuestionLog.length - 1; i >= 0; i--) {
+			var q = gv.QuestionLog[i];
+			if (q.round === round && (!ok || ok(q))) { return q; }
+		}
+		return null;
+	}
+	function setResult(q, seat, verdict, extra) {
+		if (!q || !seat) { return; }
+		var r = q.results.filter(function (x) { return x.seat === seat; })[0];
+		if (!r) { r = { seat: seat }; q.results.push(r); q.results.sort(function (a, b) { return a.seat - b.seat; }); }
+		Object.assign(r, { verdict: verdict }, extra || {});
+	}
+	/* run `name` and look at the game before / after it; `this` holds s0 / s1 (every seat's score) */
+	function watch(name, before, after) {
+		var fn = window[name];
+		if (typeof fn !== 'function') { return; }
+		window[name] = function () {
+			var ctx = { s0: scores() };
+			try { if (before) { before.apply(ctx, arguments); } } catch (e) { /* never break the game for the log */ }
+			var r = fn.apply(this, arguments);
+			try { ctx.s1 = scores(); after.apply(ctx, arguments); } catch (e) { console.warn('[QuestionLog]', name, e); }
+			return r;
+		};
+	}
+	function moved(ctx, seat) { return (ctx.s1[seat - 1] || 0) - (ctx.s0[seat - 1] || 0); }
+
+	function wrapQuestions() {
+		/* Khởi động */
+		watch('khoiDongShowQuestion', null, function () {
+			var common = gv.KhoiDongMode === 'common';
+			var label = (common ? 'Lượt chung' + (gv.KhoiDongTurn ? ' ' + gv.KhoiDongTurn : '') : 'Lượt riêng · ' + seatName(gv.KhoiDongSeat)) + ' · Câu ' + gv.KhoiDongQuestionIndex;
+			openQuestion('kd', label, gv.KhoiDongCurrentQuestion, gv.KhoiDongCurrentAnswer, common ? null : { seat: gv.KhoiDongSeat });
+		});
+		function kdOwn(right) {
+			return function () {
+				if (!gv.KhoiDongSeat) { return; }
+				setResult(findQuestion('kd'), gv.KhoiDongSeat, right ? 'right' : 'wrong', { delta: moved(this, gv.KhoiDongSeat) });
+			};
+		}
+		watch('khoiDongJudgeIndividualCorrect', null, kdOwn(true));
+		watch('khoiDongJudgeIndividualWrong', null, kdOwn(false));
+		watch('khoiDongJudgeCommonCorrect', function () { this.seat = gv.KhoiDongBuzzSeat; this.done = gv.IsKhoiDongQuestionResolved; }, function () {
+			if (!this.done && this.seat !== null && gv.IsKhoiDongQuestionResolved) { setResult(findQuestion('kd'), this.seat, 'right', { delta: moved(this, this.seat) }); }
+		});
+		watch('khoiDongJudgeCommonWrong', function () { this.seat = gv.KhoiDongBuzzSeat; this.done = gv.IsKhoiDongQuestionResolved; }, function () {
+			if (this.done) { return; }
+			var q = findQuestion('kd');
+			if (this.seat !== null && this.seat !== undefined) { setResult(q, this.seat, 'wrong', { delta: moved(this, this.seat) }); }
+			else if (q) { q.nobody = true; }   /* nobody buzzed */
+		});
+
+		/* Vượt chướng ngại vật */
+		watch('vcnvRevealQuestion', null, function () {
+			var n = gv.VcnvCurrentRow, src = typeof vcnvQuestionFor === 'function' ? vcnvQuestionFor(n) : {};
+			openQuestion('vcnv', n == VCNV_CENTER ? 'Ô trung tâm' : 'Hàng ngang ' + n, gv.VcnvCurrentQuestion, (src && src.answer) || '', { row: n });
+		});
+		watch('vcnvGradeRow', function () { this.row = gv.VcnvCurrentRow; this.out = gv.VcnvEliminated.slice(); }, function () {
+			var n = this.row, r = vcnvRow(n), q = findQuestion('vcnv', function (x) { return x.row === n; });
+			if (!r || !q) { return; }
+			var ctx = this;
+			gv.Players.forEach(function (p) {
+				var ans = (r.answers && r.answers[p.seat]) || '';
+				if (ctx.out.indexOf(p.seat) !== -1) { setResult(q, p.seat, 'out', { answer: ans }); return; }
+				var right = r.correctSeats.indexOf(p.seat) !== -1;
+				setResult(q, p.seat, right ? 'right' : (ans ? 'wrong' : 'none'), { answer: ans, delta: moved(ctx, p.seat) });
+			});
+		});
+		watch('vcnvGuessCorrect', function (seat) { this.ok = vcnvInQueue(seat); }, function (seat) {
+			if (!this.ok || gv.VcnvSolvedBy !== seat) { return; }
+			setResult(openQuestion('vcnv', 'Chướng ngại vật', 'Trả lời chướng ngại vật', gv.VcnvKeyword, { cnv: true, prize: moved(this, seat) }), seat, 'right', { delta: moved(this, seat) });
+		});
+		watch('vcnvGuessAllWrong', function () { this.queue = gv.VcnvQueue.filter(function (s) { return gv.VcnvEliminated.indexOf(s) === -1; }); }, function () {
+			if (!this.queue.length) { return; }
+			var q = openQuestion('vcnv', 'Chướng ngại vật', 'Trả lời chướng ngại vật', gv.VcnvKeyword, { cnv: true, prize: typeof vcnvObstaclePrize === 'function' ? vcnvObstaclePrize() : 0 }), ctx = this;
+			this.queue.forEach(function (s) { setResult(q, s, 'wrong', { delta: moved(ctx, s) }); });
+		});
+
+		/* Tăng tốc */
+		watch('tangTocShowQuestion', null, function (index) {
+			openQuestion('tt', 'Câu ' + index, gv.TangTocQuestion, gv.TangTocAnswer, { index: index });
+		});
+		watch('tangTocGradeQuestion', null, function () {
+			var index = gv.TangTocIndex, q = findQuestion('tt', function (x) { return x.index === index; }), ctx = this;
+			if (!q) { return; }
+			gv.Players.forEach(function (p) {
+				var ans = gv.TangTocAnswers[p.seat] || '', time = gv.TangTocTimes[p.seat];
+				var right = gv.TangTocCorrectSeats.indexOf(p.seat) !== -1;
+				setResult(q, p.seat, right ? 'right' : (ans ? 'wrong' : 'none'), { answer: ans, time: typeof time === 'number' ? time : null, delta: moved(ctx, p.seat) });
+			});
+		});
+
+		/* Về đích */
+		watch('veDichLoadQuestion', null, function (index) {
+			openQuestion('vd', seatName(gv.VeDichSeat) + ' · Câu ' + index + ' · ' + gv.VeDichValue + ' điểm', gv.VeDichQuestion, gv.VeDichAnswer, { seat: gv.VeDichSeat, index: index, value: gv.VeDichValue });
+		});
+		function vdOwn(right) {
+			return function () {
+				var seat = gv.VeDichSeat;
+				setResult(findQuestion('vd'), seat, right ? 'right' : 'wrong', { delta: moved(this, seat), star: typeof veDichStarred === 'function' && veDichStarred() });
+			};
+		}
+		watch('veDichAnswerCorrect', null, vdOwn(true));
+		watch('veDichAnswerWrong', null, vdOwn(false));
+		function vdSteal(right) {
+			return function () {
+				var q = findQuestion('vd'), thief = gv.VeDichStealSeat, owner = gv.VeDichSeat;
+				if (!q || !thief) { return; }
+				setResult(q, thief, right ? 'right' : 'wrong', { steal: true, delta: moved(this, thief) });
+				var own = q.results.filter(function (x) { return x.seat === owner; })[0];
+				if (own && moved(this, owner)) { own.delta = (own.delta || 0) + moved(this, owner); }   /* a right steal also costs the contestant on stage */
+			};
+		}
+		watch('veDichStealCorrect', null, vdSteal(true));
+		watch('veDichStealWrong', null, vdSteal(false));
+
+		/* Câu hỏi phụ */
+		watch('tieBreakNextQuestion', function () { this.index = gv.TieBreakQuestionIndex; }, function () {
+			if (gv.TieBreakQuestionIndex !== this.index) { openQuestion('tb', 'Câu ' + gv.TieBreakQuestionIndex, gv.TieBreakCurrentQuestion, gv.TieBreakCurrentAnswer); }
+		});
+		watch('tieBreakJudgeCorrect', function () { this.seat = gv.TieBreakBuzzSeat; }, function () {
+			if (this.seat !== null && gv.TieBreakWinner === this.seat) { setResult(findQuestion('tb'), this.seat, 'right'); }
+		});
+		watch('tieBreakJudgeWrong', function () { this.seat = gv.TieBreakBuzzSeat; }, function () {
+			if (this.seat !== null && this.seat !== undefined) { setResult(findQuestion('tb'), this.seat, gv.TieBreakLastResult === 'early' ? 'early' : 'wrong'); }
+		});
+	}
+
+	/* the host corrects a record from the report: { id, results: [{ seat, verdict, answer }], note }.
+	 * The first version is kept (edit.orig); a score never changes here. */
+	/* ---------- correcting a question from the report ---------- */
+
+	/* the points each seat gets for the question as its results now say (the round's rules) */
+	function pointsFor(q) {
+		var P = gv.Points, J = gv.RulesJungle || {}, jungle = gv.isJungle && gv.isJungle(), out = {};
+		function by(v) { return q.results.filter(function (r) { return r.verdict === v; }); }
+		if (q.round === 'kd') {
+			var own = /^Lượt riêng/.test(q.label);
+			q.results.forEach(function (r) {
+				out[r.seat] = r.verdict === 'right' ? P.KD_CORRECT
+					: (r.verdict === 'wrong' ? (own ? (jungle ? ((J.KD_OWN || {}).wrong || 0) : P.KD_WRONG_INDIVIDUAL) : (jungle ? (J.KD_TURN_WRONG || 0) : P.KD_WRONG_COMMON)) : 0);
+			});
+		}
+		else if (q.round === 'vcnv' && q.cnv) {
+			var prize = q.prize || 0;
+			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? prize : (r.verdict === 'wrong' && jungle ? -prize : 0); });
+		}
+		else if (q.round === 'vcnv') {
+			var pts = q.row == VCNV_CENTER ? P.VCNV_CENTER : P.VCNV_ROW;
+			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? pts : (r.verdict !== 'out' && jungle ? (J.VCNV_ROW_MISS || 0) : 0); });
+		}
+		else if (q.round === 'tt') {
+			var times = {}; q.results.forEach(function (r) { times[r.seat] = typeof r.time === 'number' ? r.time : null; });
+			var rank = gv.ttRankPoints(times, by('right').map(function (r) { return r.seat; }));
+			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? (rank[r.seat] || 0) : (jungle ? (J.TANG_TOC_MISS || 0) : 0); });
+		}
+		else if (q.round === 'vd') {
+			var value = q.value || 0, owner = q.seat, ownR = q.results.filter(function (r) { return r.seat === owner; })[0];
+			var star = !!(ownR && ownR.star), x = star ? 2 : 1;
+			q.results.forEach(function (r) {
+				if (r.seat === owner) { out[r.seat] = r.verdict === 'right' ? value * x : (r.verdict === 'wrong' ? (jungle ? -value * x : (star ? -value : 0)) : 0); return; }
+				if (r.verdict === 'right') { out[r.seat] = value; if (!star || jungle) { out[owner] = (out[owner] || 0) - value; } }
+				else { out[r.seat] = r.verdict === 'wrong' ? -Math.round(value * P.VE_DICH_STEAL_WRONG_RATIO) : 0; }
+			});
+			if (ownR) { /* owner's own share first, then what steals took from it */
+				var mine = ownR.verdict === 'right' ? value * x : (ownR.verdict === 'wrong' ? (jungle ? -value * x : (star ? -value : 0)) : 0);
+				var taken = 0; q.results.forEach(function (r) { if (r.seat !== owner && r.verdict === 'right' && (!star || jungle)) { taken -= value; } });
+				out[owner] = mine + taken;
+			}
+		}
+		return out;   /* Câu hỏi phụ: no points */
+	}
+	function places(list) {
+		var sorted = list.slice().sort(function (a, b) { return b - a; });
+		return list.map(function (v) { return sorted.indexOf(v) + 1; });
+	}
+
+	/* args: { id, results: [{ seat, verdict, answer }], note } - the points follow the new results */
+	gv.Commands.editQuestion = function (args) {
+		var q = (gv.QuestionLog || []).filter(function (x) { return x.id === (args && args.id); })[0];
+		if (!q) { return; }
+		if (!q.edit) { q.edit = { orig: { results: JSON.parse(JSON.stringify(q.results)), note: q.note || '', nobody: !!q.nobody }, count: 0, points: {} }; }
+		var before = {}; q.results.forEach(function (r) { before[r.seat] = { verdict: r.verdict, delta: r.delta || 0 }; });
+		var VERDICTS = ['right', 'wrong', 'none', 'out', 'early'];
+		(args.results || []).forEach(function (r) {
+			var seat = Number(r.seat);
+			if (!gv.getPlayer(seat) || VERDICTS.indexOf(r.verdict) === -1) { return; }
+			var cur = q.results.filter(function (x) { return x.seat === seat; })[0];
+			setResult(q, seat, r.verdict, { answer: String(r.answer === undefined ? (cur && cur.answer) || '' : r.answer).slice(0, 200) });
+		});
+		if (typeof args.note === 'string') { q.note = args.note.slice(0, 500); }
+		q.nobody = false;
+		/* new points: Tăng tốc / Về đích re-worked as a whole (ranks, steals), the other rounds only for the seats changed */
+		var now = pointsFor(q), whole = q.round === 'tt' || q.round === 'vd', diffs = [];
+		q.results.forEach(function (r) {
+			var b = before[r.seat] || { verdict: 'none', delta: 0 };
+			if (!whole && b.verdict === r.verdict) { return; }
+			var d = (now[r.seat] || 0) - (r.delta || 0);
+			r.delta = now[r.seat] || 0;
+			if (d) { diffs.push({ seat: r.seat, delta: d }); }
+		});
+		var s0 = scores();
+		if (diffs.length) {
+			var own = begin('sửa biên bản ' + (ROUND[q.round] || q.round) + ' · ' + q.label), from = gv.MatchLog.length;
+			diffs.forEach(function (c) { window.addScore(c.seat, c.delta); });
+			end(own);
+			for (var i = from; i < gv.MatchLog.length; i++) { gv.MatchLog[i].round = q.round; gv.MatchLog[i].fix = q.id; }   /* the points belong to the question's round */
+			diffs.forEach(function (c) { q.edit.points[c.seat] = (q.edit.points[c.seat] || 0) + c.delta; });
+		}
+		var s1 = scores();
+		q.edit.lastPoints = diffs;
+		q.edit.rankSame = String(places(s0)) === String(places(s1));
+		q.edit.count += 1;
+		q.edit.at = Date.now();
+		log('edit', 'Sửa biên bản: ' + (ROUND[q.round] || q.round) + ' · ' + q.label + (diffs.length ? ' (' + diffs.map(function (c) { return seatName(c.seat) + ' ' + (c.delta > 0 ? '+' : '') + c.delta; }).join(', ') + ')' : ''), { fix: q.id });
+	};
+
 	/* ---------- undo / the whole log (control panel commands) ---------- */
 
 	gv.Commands.undoScore = function () {
@@ -140,17 +388,20 @@
 			count: gv.MatchLog.length,
 			tail: gv.MatchLog.slice(-20)
 		};
-		if (sendFull) { out.full = gv.MatchLog.slice(); sendFull = false; }
+		if (sendFull) { out.full = gv.MatchLog.slice(); out.questions = gv.QuestionLog.slice(); sendFull = false; }
 		return out;
 	};
 
 	/* GameSave.js keeps / gives back the log */
 	gv.matchLogSave = function () { return gv.MatchLog.slice(-400); };
 	gv.matchLogRestore = function (list) { if (Array.isArray(list)) { gv.MatchLog = list.slice(-MAX_LOG); } };
+	gv.questionLogSave = function () { return gv.QuestionLog.slice(-MAX_QUESTIONS); };
+	gv.questionLogRestore = function (list) { if (Array.isArray(list)) { gv.QuestionLog = list.slice(-MAX_QUESTIONS); } };
 
 	document.addEventListener('DOMContentLoaded', function () {
 		wrapKeys();
 		wrapEvents();
+		wrapQuestions();
 		/* commands are all registered by now (PanelCommands, Recovery, GameSave...) */
 		setTimeout(wrapCommands, 0);
 	});

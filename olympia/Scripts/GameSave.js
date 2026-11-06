@@ -52,6 +52,7 @@
 			},
 			tb: { counter: gv.TieBreakSequenceCounter, seats: (gv.TieBreakSeats || []).slice(), index: gv.TieBreakQuestionIndex, winner: gv.TieBreakWinner },
 			log: gv.matchLogSave ? gv.matchLogSave() : [],   /* MatchLog.js */
+			qlog: gv.questionLogSave ? gv.questionLogSave() : [],   /* MatchLog.js: the question log */
 			/* a clock running at save time (seconds gone), to resume it */
 			clock: (function () {
 				var t = gv.TimerState;
@@ -206,6 +207,7 @@
 		g.CurrentRound = round;
 		refreshContestantBars();
 		if (gv.matchLogRestore && s.log) { gv.matchLogRestore(s.log); }
+		if (gv.questionLogRestore && s.qlog) { gv.questionLogRestore(s.qlog); }
 		g.IsProgressRestored = true;
 		console.log('[GameSave] resumed from the save: ' + describe(s));
 	}

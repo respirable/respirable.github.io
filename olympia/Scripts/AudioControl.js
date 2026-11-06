@@ -29,8 +29,36 @@
  * played later from a network message stays silent. A screen that replays the engine's sounds
  * (AudienceMirror.js) unlocks a pool of elements inside the tap that turns its sound on
  * (unlockAudioPool), and every sound reuses a free one of them. Safari's Ogg support is patchy
- * too: an .ogg / .oga file plays its .mp3 twin (same name, in Sounds/) where Ogg cannot play. */
+ * too: an .ogg / .oga file plays its .mp3 twin (same name, in Sounds/) where Ogg cannot play.
+ *
+ * iOS also pauses every playing element on an audio interruption (a call, Siri, a notification,
+ * another app, Control Center...) and never resumes them: the sound just stops. Each element
+ * knows whether it should be playing (__want); a 'pause' it did not ask for calls
+ * window.onSoundInterrupted(a) - the screens show their "tap" overlay and resumeInterruptedSounds()
+ * plays them again inside the tap. iOS also ignores .volume (read-only there), so fades count
+ * their steps instead of waiting for the volume to reach 0. */
 var AUDIO_POOL = [];
+
+/* watch an element once: a pause nobody asked for = an interruption */
+function watchSoundElement(a) {
+	if (a.__watched) { return a; }
+	a.__watched = true;
+	a.addEventListener('ended', function () { a.__want = false; });
+	a.addEventListener('pause', function () {
+		if (a.__want && !a.ended && typeof window.onSoundInterrupted === 'function') { window.onSoundInterrupted(a); }
+	});
+	return a;
+}
+function soundInterrupted() {
+	return AUDIO_POOL.concat(window.GameVariables.AudioChannels.map(function (c) { return window.GameVariables[c]; }))
+		.filter(function (a, i, all) { return a && all.indexOf(a) === i && a.__want && a.paused && !a.ended; });
+}
+/* inside a tap: play again what an interruption stopped */
+function resumeInterruptedSounds() {
+	soundInterrupted().forEach(function (a) {
+		try { var p = a.play(); if (p && p.catch) { p.catch(function () {}); } } catch (e) { /* ignore */ }
+	});
+}
 var OGG_PLAYABLE = (function () { try { return !!new Audio().canPlayType('audio/ogg; codecs="vorbis"'); } catch (e) { return true; } })();
 
 function soundUrl(filename) {
@@ -46,7 +74,9 @@ function unlockAudioPool(n, silence) {
 			else { a.pause(); }
 		} catch (e) { /* ignore */ }
 	}
-	while (AUDIO_POOL.length < n) { var a = new Audio(silence); AUDIO_POOL.push(a); unlock(a); }
+	/* an element of an earlier, refused unlock (idle): again, with silence */
+	AUDIO_POOL.forEach(function (a) { if (a.paused && !a.__want) { a.src = silence; unlock(a); } });
+	while (AUDIO_POOL.length < n) { var a = watchSoundElement(new Audio(silence)); AUDIO_POOL.push(a); unlock(a); }
 }
 
 /* a free unlocked element (not held by a channel, not playing), else a new one */
@@ -55,12 +85,12 @@ function newSoundElement(src) {
 	for (var i = 0; i < AUDIO_POOL.length; i++) {
 		var a = AUDIO_POOL[i];
 		if (held.indexOf(a) === -1 && (a.paused || a.ended)) {
-			a.onended = null; a.volume = 1; a.muted = false; a.loop = false;
+			a.onended = null; a.volume = 1; a.muted = false; a.loop = false; a.__want = false;
 			a.src = src;
 			return a;
 		}
 	}
-	return new Audio(src);
+	return watchSoundElement(new Audio(src));
 }
 
 /* ---------- the core: one channel ---------- */
@@ -73,6 +103,7 @@ function startSound(channel, filename, overlap, onEnded) {
 		if (window.GameVariables.SoundAt === 'stage') { a.muted = true; }   /* the stage / audience screens play it instead */
 		a.onended = onEnded || null;   /* a property, not a listener: pool elements are reused */
 		if (!overlap) { window.GameVariables[channel] = a; }
+		a.__want = true;
 		var p = a.play();
 		if (p && p.catch) { p.catch(function (err) { console.warn('[Audio] play blocked/failed', filename, err && err.message); }); }
 		return a;
@@ -87,6 +118,7 @@ function stopSound(channel) {
 	}
 	var a = window.GameVariables[channel];
 	if (a) {
+		a.__want = false;   /* before pause(): this pause is wanted */
 		try { a.pause(); } catch (e) { /* ignore */ }
 		window.GameVariables[channel] = null;
 	}
@@ -96,12 +128,14 @@ function fadeOutSound(channel, ms) {
 	var a = window.GameVariables[channel];
 	if (!a) { return; }
 	ms = ms || 1000;
-	var step = a.volume / Math.max(1, Math.round(ms / 50));
+	/* counted steps: iOS ignores .volume, so waiting for it to reach 0 never ended (the sound
+	 * played on at full volume) - there it simply stops after `ms` */
+	var steps = Math.max(1, Math.round(ms / 50)), k = 0, from = a.volume;
 	if (window.GameVariables.FadeIntervals[channel]) { clearInterval(window.GameVariables.FadeIntervals[channel]); }
 	window.GameVariables.FadeIntervals[channel] = setInterval(function () {
-		var v = a.volume - step;
-		if (v <= 0.01) { stopSound(channel); }
-		else { a.volume = v; }
+		k += 1;
+		if (k >= steps) { stopSound(channel); }
+		else { try { a.volume = Math.max(0, from * (1 - k / steps)); } catch (e) { /* read-only (iOS) */ } }
 	}, 50);
 }
 
@@ -130,12 +164,13 @@ function stopShortPassiveSound() { stopSound('TimerSound'); }
  * `at` = where the music stood here, so a screen picks up at the same point */
 function pauseShortPassiveSound() {
 	var a = window.GameVariables.TimerSound;
-	if (a) { try { a.pause(); } catch (e) { /* ignore */ } }
+	if (a) { a.__want = false; try { a.pause(); } catch (e) { /* ignore */ } }
 }
 function resumeShortPassiveSound(at) {
 	var a = window.GameVariables.TimerSound;
 	if (!a) { return; }
 	if (typeof at === 'number' && isFinite(at)) { try { a.currentTime = at; } catch (e) { /* not seekable */ } }
+	a.__want = true;
 	var p = a.play();
 	if (p && p.catch) { p.catch(function () {}); }
 }
