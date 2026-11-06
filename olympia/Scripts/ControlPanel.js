@@ -774,10 +774,12 @@
 
 	/* "Biên bản trận" (MatchReport.js): the window opens at the click (a popup blocker lets it), the
 	 * report is written into it once the stage has sent the whole log */
-	/* the report corrects a question record (report.html -> window.opener.olympiaReportEdit) */
-	window.olympiaReportEdit = function (id, patch) {
+	/* the report corrects a question record (report.html -> window.opener.olympiaReportEdit); the
+	 * stage re-works the points (MatchLog.js editQuestion) and the report is drawn again */
+	window.olympiaReportEdit = function (id, patch, win) {
 		if (!gv.Sync || !gv.Sync.sendCommand) { return false; }
 		gv.Sync.sendCommand('editQuestion', Object.assign({ id: String(id) }, patch || {}));
+		if (win) { reportWin = win; gv.Sync.sendCommand('requestLog', {}); }   /* the report is drawn again with the new points */
 		return true;
 	};
 	function openReport() {

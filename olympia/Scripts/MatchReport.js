@@ -19,8 +19,11 @@
  */
 (function () {
 	var ROUNDS = ['kd', 'vcnv', 'tt', 'vd', 'tb'];
-	var ROUND_NAMES = { kd: 'Khởi động', vcnv: 'Vượt chướng ngại vật', tt: 'Tăng tốc', vd: 'Về đích', tb: 'Câu hỏi phụ' };
-	var ROUND_SHORT = { kd: 'KĐ', vcnv: 'VCNV', tt: 'TT', vd: 'VĐ', tb: 'Phụ' };
+	var ROUND_NAMES = { kd: 'Khởi động', vcnv: 'Vượt chướng ngại vật', tt: 'Tăng tốc', vd: 'Về đích', tb: 'Câu hỏi phụ', fix: 'Sửa biên bản' };
+	var ROUND_SHORT = { kd: 'KĐ', vcnv: 'VCNV', tt: 'TT', vd: 'VĐ', tb: 'Phụ', fix: 'Sửa' };
+	/* where a log line is drawn: points from a correction (MatchLog.js editQuestion, e.fix) count in
+	   their question's round, but sit after the match in the chart and the event log */
+	function shownRound(e) { return e.fix ? 'fix' : e.round; }
 	var MANUAL = /sửa điểm|tay\)|phục hồi|khôi phục/;   /* score lines made by hand, not by a verdict */
 
 	function esc(s) { return String(s === undefined || s === null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -52,7 +55,7 @@
 				else if (e.delta < 0) { losses[r][k] += 1; }
 			}
 			var lastPt = points[points.length - 1];
-			if (changed) { points.push({ t: e.t, round: e.round, scores: e.scores.slice(), text: e.text, parts: [e.text] }); }
+			if (changed) { points.push({ t: e.t, round: shownRound(e), scores: e.scores.slice(), text: e.text, parts: [e.text] }); }
 			else if (e.kind === 'score' && lastPt.parts && together(lastPt, e)) { lastPt.parts.push(e.text); lastPt.text = joinScoreTexts(lastPt.parts); }   /* the same verdict moved several scores */
 			prev = e.scores.slice();
 		});
@@ -63,7 +66,7 @@
 
 	/* score changes made by one action (a Tăng tốc / VCNV verdict, a Về đích steal) share their time:
 	   one line for them all - "1. An +40, 2. Bình +30 (TT: chấm)" */
-	function together(a, b) { return a.round === b.round && Math.abs(a.t - b.t) <= 20 && String(a.scores) === String(b.scores); }   /* one action logs every change with the scores after all of them */
+	function together(a, b) { return shownRound(a) === shownRound(b) && Math.abs(a.t - b.t) <= 20 && String(a.scores) === String(b.scores); }   /* one action logs every change with the scores after all of them */
 	function joinScoreTexts(texts) {
 		var m = /\s(\([^()]*\))$/.exec(texts[0]), tail = m ? m[1] : null;
 		if (tail && texts.every(function (t) { return t.slice(-tail.length) === tail; })) {
@@ -78,7 +81,7 @@
 			if (e.kind === 'score' && last && last.kind === 'score' && together(last, e)) {
 				last.parts.push(e.text); last.text = joinScoreTexts(last.parts); last.scores = e.scores; return;
 			}
-			out.push(e.kind === 'score' ? { t: e.t, round: e.round, kind: e.kind, text: e.text, scores: e.scores, parts: [e.text] } : e);
+			out.push(e.kind === 'score' ? { t: e.t, round: e.round, fix: e.fix, kind: e.kind, text: e.text, scores: e.scores, parts: [e.text] } : e);
 		});
 		return out;
 	}
@@ -234,7 +237,14 @@
 		h.push('<td class="qc"><p class="qText">' + (pl.label ? '<b>' + esc(pl.label) + '.</b> ' : '') + esc(q.text || '(không có nội dung)') + '</p>');
 		if (q.answer) { h.push('<p class="qAns"><span>Đáp án</span>' + esc(q.answer) + '</p>'); }
 		if (!q.results.length) { h.push('<p class="qNone">' + (q.nobody ? 'Không ai bấm chuông.' : 'Chưa chấm.') + '</p>'); }
-		if (q.edit) { h.push('<p class="qEdited">' + ICONS.pencil + 'Đã sửa' + (q.edit.at ? ' lúc ' + esc(clock(q.edit.at)) : '') + (q.note ? ': ' + esc(q.note) : '') + '</p>'); }
+		if (q.edit) {
+			h.push('<p class="qEdited">' + ICONS.pencil + '<span>Đã sửa' + (q.edit.at ? ' lúc ' + esc(clock(q.edit.at)) : '') + (q.note ? ': ' + esc(q.note) : '') + '</span></p>');
+			var pts = Object.keys(q.edit.points || {}).filter(function (s) { return q.edit.points[s]; });
+			if (pts.length) {
+				h.push('<p class="qPts">Điểm đã điều chỉnh: ' + pts.map(function (s) { return '<b>' + signed(q.edit.points[s]) + '</b> ' + esc(seatShort(Number(s))); }).join(', ') + '.' +
+					(q.edit.rankSame ? ' Sự thay đổi điểm số này không ảnh hưởng tới thứ hạng của các thí sinh trong trận đấu.' : (q.edit.rankSame === false ? ' Thứ hạng các thí sinh đã thay đổi theo kết quả mới.' : '')) + '</p>');
+			}
+		}
 		else if (q.note) { h.push('<p class="qEdited">' + esc(q.note) + '</p>'); }
 		h.push('</td>');
 		state.players.forEach(function (p) { h.push(resultCell(by[p.seat], q.edit ? (orig[p.seat] || { verdict: 'none' }) : null)); });
@@ -301,7 +311,7 @@
 		h.push('<header class="head"><div><p class="eyebrow">Olympia Controller · Biên bản trận</p><h1>' + esc(meta.title || 'Trận đấu') + '</h1>');
 		h.push('<p class="meta">' + esc([meta.room ? 'Phòng ' + meta.room : '', meta.rules, meta.set ? 'Bộ đề: ' + meta.set : '', when.toLocaleDateString('vi-VN') + ' · ' + clock(log.length ? log[0].t : Date.now()) + (log.length ? '–' + clock(log[log.length - 1].t) : '')].filter(Boolean).join(' · ')) + '</p></div>');
 		h.push('<div class="actions"><button type="button" class="btn" id="editToggle" aria-pressed="' + state.editing + '">' + ICONS.pencil + (state.editing ? 'Xong' : 'Sửa biên bản') + '</button><button type="button" class="btn primary" id="printBtn">' + ICONS.print + 'In / lưu PDF</button></div></header>');
-		if (edited) { h.push('<p class="note edited">' + ICONS.pencil + '<span>Biên bản có <b>' + edited + ' câu</b> đã được chủ trận sửa sau khi chấm. Các câu này mang dấu "Đã sửa" và ghi kết quả trước khi sửa. Điểm số không thay đổi theo việc sửa biên bản.</span></p>'); }
+		if (edited) { h.push('<p class="note edited">' + ICONS.pencil + '<span>Biên bản có <b>' + edited + ' câu</b> đã được chủ trận sửa sau khi chấm. Các câu này mang dấu "Đã sửa", ghi kết quả trước khi sửa và số điểm đã cộng / trừ theo kết quả mới.</span></p>'); }
 		if (a.truncated) { h.push('<p class="note">Nhật ký chỉ giữ những dòng gần nhất; điểm trước dòng đầu tiên được tính là điểm xuất phát.</p>'); }
 		h.push('<section class="sec"><h2>Kết quả</h2>' + standing(a, final) + '</section>');
 		h.push('<section class="sec"><h2>Điểm theo vòng</h2>' + roundTable(a, final, rounds) + '</section>');
@@ -309,7 +319,7 @@
 		h.push('<section class="sec"><details class="events"><summary><h2>Nhật ký sự kiện</h2><span class="meta">' + log.length + ' dòng · bấm để mở</span></summary>');
 		var cur = null, lines = mergeSimultaneous(log);
 		lines.forEach(function (e) {
-			if (e.round !== cur) { if (cur !== null) { h.push('</ol>'); } cur = e.round; h.push('<h3 class="roundHead">' + esc(ROUND_NAMES[cur] || cur || '—') + '</h3><ol class="log">'); }
+			if (shownRound(e) !== cur) { if (cur !== null) { h.push('</ol>'); } cur = shownRound(e); h.push('<h3 class="roundHead">' + esc(ROUND_NAMES[cur] || cur || '—') + '</h3><ol class="log">'); }
 			h.push('<li class="' + esc(e.kind) + '"><time>' + clock(e.t) + '</time><span>' + esc(e.text) + '</span>' + (e.kind === 'score' ? '<span class="sc">' + esc((e.scores || []).join(' · ')) + '</span>' : '') + '</li>');
 		});
 		if (cur !== null) { h.push('</ol>'); }
@@ -326,7 +336,7 @@
 
 	function editor(q) {
 		var seats = state.players.map(function (p) { return p.seat; });
-		var h = ['<form class="qEdit" data-id="' + esc(q.id) + '"><p class="editHint">Sửa kết quả của câu này trong biên bản. Điểm số không đổi - muốn sửa điểm, dùng ô "Đặt điểm" trên bảng điều khiển.</p><div class="editRows">'];
+		var h = ['<form class="qEdit" data-id="' + esc(q.id) + '"><p class="editHint">Sửa kết quả của câu này. Điểm của thí sinh được cộng / trừ lại theo kết quả mới, theo luật của vòng thi (Tăng tốc: xếp lại theo thời gian; Về đích: tính cả ngôi sao và cướp điểm).</p><div class="editRows">'];
 		seats.forEach(function (seat) {
 			var r = q.results.filter(function (x) { return x.seat === seat; })[0] || { verdict: '', answer: '' };
 			h.push('<fieldset class="editRow"><legend>' + esc(seatShort(seat)) + '</legend><div class="seg small">');
@@ -352,18 +362,13 @@
 		var keep = results.filter(function (r) { var cur = q.results.filter(function (x) { return x.seat === r.seat; })[0]; return cur || r.verdict !== 'none' || r.answer; });
 		var after = JSON.stringify(keep.map(function (r) { return [r.seat, r.verdict, r.answer || '']; })) + '|' + note;
 		if (before === after) { form.querySelector('.formErr').textContent = 'Chưa có gì thay đổi.'; return; }
-		if (q.edit === undefined || !q.edit) { q.edit = { orig: { results: JSON.parse(JSON.stringify(q.results)), note: q.note || '', nobody: !!q.nobody }, count: 0 }; }
-		keep.forEach(function (r) {
-			var cur = q.results.filter(function (x) { return x.seat === r.seat; })[0];
-			if (cur) { cur.verdict = r.verdict; cur.answer = r.answer; } else { q.results.push({ seat: r.seat, verdict: r.verdict, answer: r.answer }); }
-		});
-		q.results.sort(function (x, y) { return x.seat - y.seat; });
-		q.note = note; q.nobody = false; q.edit.count += 1; q.edit.at = Date.now();
 		var sent = false;
-		try { sent = !!(window.opener && !window.opener.closed && window.opener.olympiaReportEdit && window.opener.olympiaReportEdit(q.id, { results: keep, note: note })); } catch (e) { sent = false; }
-		q.edit.local = !sent;
-		redrawQuestions();
-		toast(sent ? 'Đã lưu chỉnh sửa vào nhật ký trận.' : 'Đã sửa trên trang này, nhưng chưa lưu vào trận: bảng điều khiển đã đóng. In / lưu PDF ngay để giữ bản sửa.', !sent);
+		try { sent = !!(window.opener && !window.opener.closed && window.opener.olympiaReportEdit && window.opener.olympiaReportEdit(q.id, { results: keep, note: note }, window)); } catch (e) { sent = false; }
+		if (!sent) { form.querySelector('.formErr').textContent = 'Không lưu được: bảng điều khiển của trận đã đóng. Mở lại biên bản từ bảng điều khiển (Nhật ký trận → Biên bản trận) rồi sửa lại.'; return; }
+		state.pending = q.id;
+		var btn = form.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Đang lưu…';
+		clearTimeout(state.pendingTimer);
+		state.pendingTimer = setTimeout(function () { if (state.pending) { state.pending = null; btn.disabled = false; btn.textContent = 'Lưu chỉnh sửa'; form.querySelector('.formErr').textContent = 'Chưa nhận được trả lời từ máy chạy trò chơi. Thử lại sau giây lát.'; } }, 8000);
 	}
 
 	function toast(text, warn) {
@@ -421,5 +426,13 @@
 		document.title = 'Biên bản trận' + (state.meta.room ? ' ' + state.meta.room : '');
 		wire();
 		redrawQuestions();
+		if (state.pending) {
+			var q = state.questions.filter(function (x) { return x.id === state.pending; })[0];
+			state.pending = null; clearTimeout(state.pendingTimer);
+			if (q && q.edit) {
+				var d = q.edit.lastPoints || [];
+				toast('Đã lưu chỉnh sửa' + (d.length ? ': ' + d.map(function (c) { return seatShort(c.seat) + ' ' + signed(c.delta); }).join(', ') + '.' + (q.edit.rankSame ? ' Sự thay đổi điểm số này không ảnh hưởng tới thứ hạng của các thí sinh trong trận đấu.' : ' Thứ hạng các thí sinh đã thay đổi.') : ' (điểm không đổi).'));
+			}
+		}
 	};
 })();
