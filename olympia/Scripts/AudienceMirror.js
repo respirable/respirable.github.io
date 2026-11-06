@@ -263,8 +263,52 @@
 		var target = timerElapsed();
 		if (target === null || target < 0) { return; }
 		if (isFinite(video.duration) && target >= video.duration) { if (!video.paused) { video.pause(); } return; }
-		if (Math.abs(video.currentTime - target) > 0.4) { try { video.currentTime = target; } catch (e) { /* not seekable yet */ } }
+		followClock(video, target);
 		playWithSound(video);
+	}
+
+	/* keep a playing video on the stage clock without fighting it. The old rule (seek whenever 0.4 s
+	 * off, checked every 200 ms) looped on an iPad: a seek there re-buffers from a keyframe, the clock
+	 * runs on meanwhile, the next check finds it late again and seeks again - the picture moved only
+	 * when a seek landed (~0.3 fps) and the sound stuttered with it. Now: nothing while it is seeking
+	 * or buffering; a small gap is closed by playing a little faster / slower; a seek only for a big
+	 * gap, and at most once every 4 s. */
+	function followClock(video, target) {
+		var rateOk = !video.__noRate;
+		if (video.seeking || video.readyState < 3) { return; }   /* HAVE_FUTURE_DATA: let it load */
+		var gap = target - video.currentTime, now = Date.now();
+		if (Math.abs(gap) > 1.5 && (!video.__seekAt || now - video.__seekAt > 4000)) {
+			video.__seekAt = now;
+			video.__seeks = (video.__seeks || 0) + 1;
+			try { video.currentTime = Math.min(target + 0.3, isFinite(video.duration) ? video.duration : target); } catch (e) { /* not seekable yet */ }
+			if (rateOk && video.playbackRate !== 1) { video.playbackRate = 1; }
+			return;
+		}
+		if (!rateOk) { return; }
+		var rate = Math.abs(gap) < 0.15 ? 1 : Math.max(0.9, Math.min(1.1, 1 + gap * 0.2));
+		if (Math.abs(video.playbackRate - rate) > 0.01) { try { video.playbackRate = rate; } catch (e) { video.__noRate = true; } }
+	}
+
+	/* ?debug=media: a corner readout of the videos and the sound elements (for a device without a
+	 * console, e.g. an iPad): what each is doing, how far off the clock, how many seeks */
+	function startMediaDebug() {
+		var box = document.createElement('pre');
+		box.style.cssText = 'position:fixed;left:6px;bottom:6px;z-index:99999;margin:0;padding:6px 8px;max-width:96vw;font:11px/1.35 ui-monospace,Menlo,monospace;color:#0f0;background:rgba(0,0,0,.78);border-radius:6px;pointer-events:none;white-space:pre-wrap';
+		document.body.appendChild(box);
+		setInterval(function () {
+			var lines = [], target = timerElapsed(), t = snap && snap.timer;
+			lines.push('clock ' + (t ? t.label : '-') + ' ' + (target === null ? '-' : target.toFixed(2)) + ' · sound ' + (soundOn ? 'on' : 'off') + (videoNeedsTap ? ' · video needs tap' : '') + (interrupted ? ' · interrupted' : ''));
+			['.vdMediaDiv .vdMediaVideo', '.kdIntroDiv .kdIntroVideo', '.ttDiv .ttMediaVideo'].forEach(function (sel) {
+				var v = $(sel);
+				if (!v || !v.getAttribute('src')) { return; }
+				lines.push(sel.split(' ').pop() + ' rs' + v.readyState + (v.paused ? ' paused' : ' playing') + (v.seeking ? ' SEEKING' : '') + (v.muted ? ' muted' : ' sound') + ' t' + v.currentTime.toFixed(2) + (target !== null ? ' gap' + (target - v.currentTime).toFixed(2) : '') + ' x' + v.playbackRate.toFixed(2) + ' seeks ' + (v.__seeks || 0));
+			});
+			if (typeof AUDIO_POOL !== 'undefined') {
+				var busy = AUDIO_POOL.filter(function (a) { return !a.paused && !a.ended; });
+				lines.push('pool ' + AUDIO_POOL.length + ' · busy ' + busy.length + ' · stuck ' + AUDIO_POOL.filter(function (a) { return typeof soundStuck === 'function' && soundStuck(a); }).length + (busy.length ? ' · ' + busy.map(function (a) { return (a.__file || '?') + '@' + a.currentTime.toFixed(1); }).join(', ') : ''));
+			}
+			box.textContent = lines.join('\n');
+		}, 500);
 	}
 
 	/* the clip follows the stage clock (muted: the hall has the stage's sound) */
@@ -283,7 +327,7 @@
 		var target = timerElapsed();
 		if (target === null || target < 0) { return; }
 		if (isFinite(video.duration) && target >= video.duration) { if (!video.paused) { video.pause(); } return; }
-		if (Math.abs(video.currentTime - target) > 0.4) { try { video.currentTime = target; } catch (e) { /* not seekable yet */ } }
+		followClock(video, target);
 		playWithSound(video);
 	}
 
@@ -298,7 +342,7 @@
 		var target = timerElapsed();
 		if (target === null || target < 0) { return; }
 		if (isFinite(video.duration) && target >= video.duration) { if (!video.paused) { video.pause(); } return; }
-		if (Math.abs(video.currentTime - target) > 0.4) { try { video.currentTime = target; } catch (e) { /* not seekable yet */ } }
+		followClock(video, target);
 		if (video.paused) { var p = video.play(); if (p && p.catch) { p.catch(function () {}); } }
 	}
 
@@ -327,9 +371,18 @@
 		/* the question's picture / video (B): the VĐ graphics hide while it is up */
 		var md = d.media || {}, wm = w.media || {};
 		var msig = (md.type || '') + '|' + (md.src || '');
-		if (msig !== vdMediaSig) { vdMediaSig = msig; setVeDichMedia(md.src ? { type: md.type, src: md.src } : null); }
+		if (msig !== vdMediaSig && !(vdMediaSig === 'released|' + msig && !md.on)) { vdMediaSig = msig; setVeDichMedia(md.src ? { type: md.type, src: md.src } : null); }
 		if (md.on && !isVeDichMediaShowing()) { showVeDichMedia(); }
-		else if (!md.on && (wm.on || isVeDichMediaShowing())) { hideVeDichMedia(); }
+		else if (!md.on && (wm.on || isVeDichMediaShowing())) {
+			hideVeDichMedia();
+			/* a video that has been shown lets go of its file: a paused video with sound keeps the
+			 * iPad's media playback (decoder, audio route, "now playing") to itself */
+			var v = $('.vdMediaDiv .vdMediaVideo');
+			if (md.type === 'video' && v && v.getAttribute('src')) {
+				try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { /* ignore */ }
+				vdMediaSig = 'released|' + msig;
+			}
+		}
 	}
 
 	/* ---------- the rest ---------- */
@@ -567,6 +620,7 @@
 		window.OlympiaAuth.ensureAnonymous().then(function () { return syncClock(5); }).catch(function () {});
 		setInterval(function () { syncClock(3); }, 60000);
 		setInterval(syncVideo, 200);
+		if (params.get('debug') === 'media') { startMediaDebug(); }
 		requestAnimationFrame(frame);
 	}
 
