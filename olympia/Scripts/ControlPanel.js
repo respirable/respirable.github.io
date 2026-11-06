@@ -769,11 +769,17 @@
 			list.appendChild(li);
 		});
 		if (m.full && logWanted) { logWanted = false; downloadLog(m.full); }
-		if (m.full && reportWin) { var w = reportWin; reportWin = null; showReport(w, m.full); }
+		if (m.full && reportWin) { var w = reportWin; reportWin = null; showReport(w, m.full, m.questions || []); }
 	}
 
 	/* "Biên bản trận" (MatchReport.js): the window opens at the click (a popup blocker lets it), the
 	 * report is written into it once the stage has sent the whole log */
+	/* the report corrects a question record (report.html -> window.opener.olympiaReportEdit) */
+	window.olympiaReportEdit = function (id, patch) {
+		if (!gv.Sync || !gv.Sync.sendCommand) { return false; }
+		gv.Sync.sendCommand('editQuestion', Object.assign({ id: String(id) }, patch || {}));
+		return true;
+	};
 	function openReport() {
 		var v = ((document.querySelector('script[src*="ControlPanel.js"]') || {}).src || '').split('v=')[1] || '';
 		var w = window.open('report.html' + (v ? '?v=' + v : ''), '_blank');
@@ -782,13 +788,13 @@
 		gv.Sync.sendCommand('requestLog', {});
 	}
 	/* report.html may still be loading: draw once its renderMatchReport is there */
-	function showReport(w, list, tries) {
+	function showReport(w, list, questions, tries) {
 		if (w.closed) { return; }
 		var ready = false;
 		try { ready = typeof w.renderMatchReport === 'function' && w.document.readyState !== 'loading'; } catch (e) { return; }
-		if (!ready) { if ((tries || 0) < 100) { setTimeout(function () { showReport(w, list, (tries || 0) + 1); }, 100); } return; }
+		if (!ready) { if ((tries || 0) < 100) { setTimeout(function () { showReport(w, list, questions, (tries || 0) + 1); }, 100); } return; }
 		var day = list.length ? new Date(list[0].t) : new Date();
-		w.renderMatchReport(list, snap, {
+		w.renderMatchReport(list, snap, questions, {
 			room: gv.Sync.room || '',
 			rules: gv.RulesNames ? 'Luật ' + (gv.RulesNames[snap.rules] || snap.rules || '') : '',
 			set: els.questionSet ? els.questionSet.textContent.trim() : '',
