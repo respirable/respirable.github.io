@@ -210,6 +210,7 @@ table.score .full { display: block; font-size: 12px; color: var(--muted); }
 /* ---------- undo + match log (MatchLog.js) ---------- */
 .undoBtn { justify-content: flex-start; white-space: normal; text-align: left; height: auto; min-height: 36px; padding: 6px 12px; }
 .logBox summary { cursor: pointer; color: var(--muted); font-weight: 700; padding: 4px 0; }
+.logBtns { display: flex; gap: 8px; flex-wrap: wrap; }
 .logList { margin: 8px 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow: auto; font-size: 12.5px; }
 .logList li { display: grid; grid-template-columns: 58px 1fr; gap: 8px; padding: 4px 6px; border-radius: 6px; background: var(--panel-2); }
 .logList li time { font: 500 11px "Roboto Mono", monospace; color: var(--muted); padding-top: 2px; }

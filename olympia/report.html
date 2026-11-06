@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Biên bản trận</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="Styles/report.css?v=20261106a">
+	<script src="Scripts/MatchReport.js?v=20261106a"></script> <!-- draws the report -->
+	<script src="Scripts/MatchReportPage.js?v=20261106a"></script> <!-- the chart's hover layer -->
+</head>
+
+<body>
+	<!-- "Biên bản trận": the control panel opens this page and hands it the match log
+	     (ControlPanel.js showReport -> renderMatchReport) -->
+	<main class="report" id="report">
+		<p class="meta" id="reportWait">Đang lấy nhật ký trận từ máy chạy trò chơi…</p>
+	</main>
+	<script>
+		/* opened on its own (a reload, a bookmark): there is no panel to hand it the log */
+		setTimeout(function () {
+			var w = document.getElementById('reportWait');
+			if (w && !window.REPORT) { w.textContent = 'Chưa có dữ liệu - mở trang này bằng nút "Biên bản trận" trên bảng điều khiển (Nhật ký trận).'; }
+		}, 8000);
+	</script>
+</body>
+
+</html>
