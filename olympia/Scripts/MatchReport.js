@@ -179,7 +179,7 @@
 		h.push('<span class="big">' + top.s + '</span><span class="sub">' + esc(tallyText(top.p.seat)) + '</span></div>');
 		h.push('<ol class="others">');
 		rank.slice(1).forEach(function (r) {
-			h.push('<li class="s' + (r.k + 1) + '"><span class="place">' + r.place + '</span><span class="who"><b>' + esc(r.p.fullName || r.p.displayName) + '</b><small>Ghế ' + r.p.seat + (r.p.school ? ' · ' + esc(r.p.school) : '') + (tallyText(r.p.seat) ? ' · ' + esc(tallyText(r.p.seat)) : '') + '</small></span><span class="pts">' + r.s + '<small>' + (r.s - top.s ? signed(r.s - top.s) : (byTb ? 'thua câu phụ' : '=')) + '</small></span></li>');
+			h.push('<li class="s' + (r.k + 1) + '"><span class="place">' + r.place + '</span><span class="who"><b>' + esc(r.p.fullName || r.p.displayName) + '</b><small>Ghế ' + r.p.seat + (r.p.school ? ' · ' + esc(r.p.school) : '') + (tallyText(r.p.seat) ? ' · ' + esc(tallyText(r.p.seat)) : '') + '</small></span><span class="pts">' + r.s + (byTb && r.s === top.s ? '<small>thua câu phụ</small>' : '') + '</span></li>');
 		});
 		h.push('</ol></div>');
 		return h.join('');
@@ -201,40 +201,66 @@
 		return h.join('');
 	}
 
-	/* one result cell: seat, verdict (icon + word), the answer given, time, points */
-	function resultCell(r, orig) {
-		var v = VERDICT[r.verdict] || VERDICT.none;
-		var changed = orig && orig.verdict !== r.verdict;
-		return '<li class="res ' + esc(r.verdict) + (changed ? ' changed' : '') + '"><span class="seat">' + esc(seatShort(r.seat)) + '</span>' +
-			'<span class="verdict">' + ICONS[v.icon] + esc(verdictWord(r)) + '</span>' +
-			(r.answer ? '<span class="ans">“' + esc(r.answer) + '”</span>' : '') +
-			(typeof r.time === 'number' ? '<span class="time">' + r.time.toFixed(2) + ' s</span>' : '') +
-			(r.delta ? '<span class="delta">' + signed(r.delta) + '</span>' : '') +
-			(changed ? '<span class="was">Trước khi sửa: ' + esc(verdictWord(orig)) + '</span>' : '') + '</li>';
+	/* where a question sits: its group row (a Khởi động turn, a Về đích contestant) and its number */
+	function place(q) {
+		var m;
+		if (q.round === 'vd' && (m = /^(.*) · Câu (\d+) · (\d+) điểm$/.exec(q.label))) { return { group: m[1], no: m[2], tag: m[3] }; }
+		if (q.round === 'kd' && (m = /^(.*) · Câu (\d+)$/.exec(q.label))) { return { group: m[1], no: m[2] }; }
+		if (q.round === 'vcnv') { return { group: null, no: q.cnv ? 'CNV' : (q.row == 5 || /trung tâm/.test(q.label) ? 'TT' : String(q.row || '')), wide: q.cnv || q.row == 5 }; }
+		if ((m = /Câu (\d+)/.exec(q.label))) { return { group: null, no: m[1] }; }
+		return { group: null, no: '', label: q.label };
 	}
 
-	/* Về đích: the contestant on stage first, then whoever stole */
-	function ordered(q) { return q.results.slice().sort(function (a, b) { return (b.seat === q.seat) - (a.seat === q.seat) || a.seat - b.seat; }); }
+	/* one seat's cell: verdict (icon + word), the answer given, time, points; a corrected one says what it was */
+	function resultCell(r, orig) {
+		if (!r) { return '<td class="rc blank"><span class="sr">Không tham gia</span></td>'; }
+		var v = VERDICT[r.verdict] || VERDICT.none;
+		var changed = orig && orig.verdict !== r.verdict;
+		return '<td class="rc ' + esc(r.verdict) + (changed ? ' changed' : '') + '"><span class="verdict">' + ICONS[v.icon] + esc(verdictWord(r)) + '</span>' +
+			(r.delta ? '<b class="delta">' + signed(r.delta) + '</b>' : '') +
+			(r.answer ? '<span class="ans">' + esc(r.answer) + '</span>' : '') +
+			(typeof r.time === 'number' ? '<span class="time">' + r.time.toFixed(2) + ' s</span>' : '') +
+			(changed ? '<span class="was">trước: ' + esc(verdictWord(orig)) + '</span>' : '') + '</td>';
+	}
 
-	function questionItem(q, i) {
-		var orig = {};
+	function questionRow(q) {
+		var orig = {}, by = {}, pl = place(q);
 		if (q.edit && q.edit.orig) { q.edit.orig.results.forEach(function (r) { orig[r.seat] = r; }); }
-		var hasWrong = q.results.some(function (r) { return r.verdict === 'wrong' || r.verdict === 'early'; });
-		var h = ['<article class="q' + (q.edit ? ' edited' : '') + '" data-id="' + esc(q.id) + '" data-round="' + esc(q.round) + '" data-wrong="' + (hasWrong ? 1 : 0) + '" style="--i:' + Math.min(i, 24) + '">'];
-		h.push('<header class="qHead"><span class="qLabel">' + esc(ROUND_SHORT[q.round] || q.round) + ' · ' + esc(q.label) + '</span><time>' + clock(q.t) + '</time>');
-		if (q.edit) { h.push('<span class="badge">' + ICONS.pencil + 'Đã sửa' + (q.edit.at ? ' lúc ' + clock(q.edit.at) : '') + '</span>'); }
-		h.push('<button type="button" class="editBtn" data-edit="' + esc(q.id) + '">' + ICONS.pencil + 'Sửa</button></header>');
-		h.push('<p class="qText">' + esc(q.text || '(không có nội dung)') + '</p>');
+		q.results.forEach(function (r) { by[r.seat] = r; });
+		var h = ['<tr class="qr' + (q.edit ? ' edited' : '') + '" data-id="' + esc(q.id) + '">'];
+		h.push('<th class="no" scope="row"><span class="num' + (pl.wide ? ' wide' : '') + '" title="' + esc(clock(q.t)) + '">' + esc(pl.no || '·') + '</span>' + (pl.tag ? '<span class="val">' + esc(pl.tag) + '</span>' : '') +
+			(q.edit ? '<span class="mark" title="Đã sửa' + (q.edit.at ? ' lúc ' + esc(clock(q.edit.at)) : '') + '">' + ICONS.pencil + '<span class="sr">Đã sửa</span></span>' : '') +
+			'<button type="button" class="editBtn" data-edit="' + esc(q.id) + '" aria-label="Sửa câu này">' + ICONS.pencil + '</button></th>');
+		h.push('<td class="qc"><p class="qText">' + (pl.label ? '<b>' + esc(pl.label) + '.</b> ' : '') + esc(q.text || '(không có nội dung)') + '</p>');
 		if (q.answer) { h.push('<p class="qAns"><span>Đáp án</span>' + esc(q.answer) + '</p>'); }
-		if (q.results.length) { h.push('<ul class="results">' + ordered(q).map(function (r) { return resultCell(r, q.edit ? (orig[r.seat] || { verdict: 'none' }) : null); }).join('') + '</ul>'); }
-		else { h.push('<p class="qNone">' + (q.nobody ? 'Không ai bấm chuông trả lời.' : 'Chưa chấm.') + '</p>'); }
-		if (q.note) { h.push('<p class="qNote"><span>Ghi chú của chủ trận</span>' + esc(q.note) + '</p>'); }
-		h.push('</article>');
+		if (!q.results.length) { h.push('<p class="qNone">' + (q.nobody ? 'Không ai bấm chuông.' : 'Chưa chấm.') + '</p>'); }
+		if (q.edit) { h.push('<p class="qEdited">' + ICONS.pencil + 'Đã sửa' + (q.edit.at ? ' lúc ' + esc(clock(q.edit.at)) : '') + (q.note ? ': ' + esc(q.note) : '') + '</p>'); }
+		else if (q.note) { h.push('<p class="qEdited">' + esc(q.note) + '</p>'); }
+		h.push('</td>');
+		state.players.forEach(function (p) { h.push(resultCell(by[p.seat], q.edit ? (orig[p.seat] || { verdict: 'none' }) : null)); });
+		h.push('</tr>');
+		return h.join('');
+	}
+
+	function roundTableOf(round, list, k) {
+		var cols = 2 + state.players.length, h = ['<section class="qBlock" style="--i:' + k + '"><h3 class="roundHead">' + esc(ROUND_NAMES[round] || round) + '<small>' + list.length + ' câu</small></h3><div class="tableWrap"><table class="qt"><colgroup><col class="cNo"><col class="cQ">'];
+		state.players.forEach(function () { h.push('<col class="cS">'); });
+		h.push('</colgroup><thead><tr><th scope="col">#</th><th scope="col">Câu hỏi · đáp án</th>');
+		state.players.forEach(function (p, i) { h.push('<th scope="col" class="seatH s' + (i + 1) + '">' + esc(p.seat + '. ' + p.displayName) + '</th>'); });
+		h.push('</tr></thead><tbody>');
+		var grp;
+		list.forEach(function (q) {
+			var g = place(q).group || null;
+			if (g && g !== grp) { h.push('<tr class="grp"><th colspan="' + cols + '">' + esc(g) + '</th></tr>'); }
+			grp = g;
+			h.push(questionRow(q));
+		});
+		h.push('</tbody></table></div></section>');
 		return h.join('');
 	}
 
 	function questionList() {
-		var f = state.filter, cur = null, h = [], i = 0;
+		var f = state.filter, h = [];
 		var shown = state.questions.filter(function (q) {
 			if (f.round !== 'all' && q.round !== f.round) { return false; }
 			if (f.wrong && !q.results.some(function (r) { return r.verdict === 'wrong' || r.verdict === 'early'; })) { return false; }
@@ -245,11 +271,11 @@
 			return '<div class="empty"><b>Chưa có câu hỏi nào được ghi lại.</b><span>Nhật ký câu hỏi bắt đầu từ khi câu đầu tiên của trận được đưa ra. Trận chơi trước khi có tính năng này chỉ có nhật ký sự kiện bên dưới.</span></div>';
 		}
 		if (!shown.length) { return '<div class="empty"><b>Không có câu nào khớp bộ lọc.</b><span>Bỏ bớt điều kiện lọc phía trên để xem lại.</span></div>'; }
-		shown.forEach(function (q) {
-			if (q.round !== cur) { if (cur !== null) { h.push('</div>'); } cur = q.round; h.push('<h3 class="roundHead">' + esc(ROUND_NAMES[cur] || cur) + '</h3><div class="qs">'); }
-			h.push(questionItem(q, i++));
+		var k = 0;
+		ROUNDS.forEach(function (r) {
+			var list = shown.filter(function (q) { return q.round === r; });
+			if (list.length) { h.push(roundTableOf(r, list, k++)); }
 		});
-		h.push('</div>');
 		return h.join('');
 	}
 
@@ -371,15 +397,15 @@
 			if (b.hasAttribute('data-flag')) { var k = b.getAttribute('data-flag'); state.filter[k] = !state.filter[k]; redrawList(); return; }
 			if (b.hasAttribute('data-edit')) {
 				var q = state.questions.filter(function (x) { return x.id === b.getAttribute('data-edit'); })[0];
-				var art = b.closest('article.q');
-				if (!q || !art || art.querySelector('.qEdit')) { return; }
-				art.insertAdjacentHTML('beforeend', editor(q));
-				art.classList.add('open');
-				var first = art.querySelector('.qEdit input:checked') || art.querySelector('.qEdit input');
+				var tr = b.closest('tr.qr');
+				if (!q || !tr || tr.classList.contains('open')) { return; }
+				tr.insertAdjacentHTML('afterend', '<tr class="editTr"><td colspan="' + tr.children.length + '">' + editor(q) + '</td></tr>');
+				tr.classList.add('open');
+				var first = tr.nextElementSibling.querySelector('input:checked') || tr.nextElementSibling.querySelector('input');
 				if (first) { first.focus(); }
 				return;
 			}
-			if (b.hasAttribute('data-cancel')) { var f = b.closest('.qEdit'); if (f) { f.closest('article.q').classList.remove('open'); f.remove(); } }
+			if (b.hasAttribute('data-cancel')) { var row = b.closest('tr.editTr'); if (row) { row.previousElementSibling.classList.remove('open'); row.remove(); } }
 		});
 		main.addEventListener('submit', function (e) { e.preventDefault(); saveEdit(e.target); });
 	}
