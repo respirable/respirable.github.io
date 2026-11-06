@@ -216,3 +216,13 @@ body.rulesO26 .vdChooseDiv.o26Closing {
 .vcnvTreeDiv.o26Rows .o26Row.wrong {
 	filter: grayscale(1) brightness(0.75);
 }
+
+/* ---------- VCNV question bar (O24 picture): type 10 % smaller ---------- */
+body.rulesO26 .vcnvQuestionTextP {
+	font-size: 29px;
+}
+
+/* ---------- Câu hỏi phụ: the name-only contestant bars, type 8 % smaller ---------- */
+body.rulesO26 .contestantBar.plain .contestantNameP {
+	font-size: 31px;
+}
