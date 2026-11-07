@@ -23,8 +23,12 @@
 		if (typeof unlockAudioPool === 'function') { unlockAudioPool(16, L.SILENCE); }
 		try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; } } catch (e) { /* not supported */ }
 		$('luckMenu').classList.add('gone');
+		L.started = true;
 		document.body.classList.add('playing');
-		L.setSeats(name);
+		var seat = parseInt((document.querySelector('#luckSeats input:checked') || {}).value, 10) || 0;
+		try { localStorage.setItem('olympia-luck.seat', String(seat)); } catch (e) { /* blocked */ }
+		L.setSeats(name, seat);
+		L.shuffleQuestions();
 		L.play().then(showResult, function (e) { console.error('[Luck] the match stopped', e); });
 	}
 
@@ -72,6 +76,11 @@
 		window.addEventListener('resize', fit);
 		L.bindStage(document.querySelector('.stageContainerDiv'));
 		try { $('luckName').value = localStorage.getItem('olympia-luck.name') || ''; } catch (e) { /* blocked */ }
+		try {
+			var saved = localStorage.getItem('olympia-luck.seat') || '0';
+			var r = document.querySelector('#luckSeats input[value="' + saved + '"]');
+			if (r) { r.checked = true; }
+		} catch (e) { /* blocked */ }
 		$('luckStart').disabled = true;
 		$('luckStart').textContent = 'Đang chuẩn bị phòng thi…';
 		/* the engine is ready once its question files are in (Init.js) */
@@ -82,6 +91,14 @@
 		});
 		$('luckForm').addEventListener('submit', function (e) { e.preventDefault(); if (!$('luckStart').disabled) { start(); } });
 		$('luckNext').addEventListener('click', L.skip);
+		$('luckBoard').addEventListener('click', function () {
+			L.togglePause();
+			var on = L.isPaused();
+			this.textContent = on ? 'Tiếp tục (F6)' : 'Bảng điểm (F6)';
+			this.setAttribute('aria-pressed', String(on));
+		});
+		/* F6 from the keyboard: keep the button's label in step */
+		document.addEventListener('keyup', function (e) { if (e.key === 'F6') { $('luckBoard').textContent = L.isPaused() ? 'Tiếp tục (F6)' : 'Bảng điểm (F6)'; } });
 		$('luckShare').addEventListener('click', share);
 		$('luckAgain').addEventListener('click', function () { location.href = location.pathname; });
 	});

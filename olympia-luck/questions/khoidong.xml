@@ -23,7 +23,7 @@
     <question><text>Bấm nhanh hơn có làm tăng tỉ lệ đúng không?</text><answer>Không</answer></question>
     <question><text>Một robot trả lời sai liên tục 6 câu. Robot đó cần học thêm gì?</text><answer>Không cần, nó chỉ đen thôi</answer></question>
     <question><text>Từ nào sau đây không tồn tại trong kịch bản của chương trình: "may", "rủi", "kiến thức"?</text><answer>Kiến thức</answer></question>
-    <question><text>Đây là câu hỏi thứ mấy của lượt này? Gợi ý: không quan trọng.</text><answer>Câu 6</answer></question>
+    <question><text>Đây là câu hỏi thứ mấy của lượt này? Gợi ý: không quan trọng.</text><answer>Không quan trọng</answer></question>
   </individual>
   <individual seat="4">
     <question><text>Phát minh nào của loài người được dùng nhiều nhất trong chương trình này: bánh xe, la bàn hay bộ sinh số ngẫu nhiên?</text><answer>Bộ sinh số ngẫu nhiên</answer></question>
@@ -31,7 +31,7 @@
     <question><text>Ba con robot trong phòng thi có tên chung là gì?</text><answer>Đối thủ không biết đọc</answer></question>
     <question><text>Thời gian suy nghĩ cho câu hỏi này là bao lâu?</text><answer>Bao lâu cũng được, kết quả vẫn thế</answer></question>
     <question><text>Một thí sinh cầu nguyện trước khi bấm. Tỉ lệ đúng của thí sinh đó tăng thêm bao nhiêu phần trăm?</text><answer>0%</answer></question>
-    <question><text>Câu hỏi cuối lượt: bạn có muốn đổi câu hỏi khác không?</text><answer>Đổi cũng vậy</answer></question>
+    <question><text>Bạn có muốn đổi sang một câu hỏi khác không?</text><answer>Đổi cũng vậy</answer></question>
   </individual>
   <common>
     <question><text>Ai bấm chuông nhanh nhất sẽ được quyền… tung đồng xu. Bạn có muốn bấm không?</text><answer>Có</answer></question>
@@ -45,6 +45,6 @@
     <question><text>Nếu bạn sai câu này, lỗi thuộc về ai?</text><answer>Vũ trụ</answer></question>
     <question><text>Từ "Olympia" trong tên chương trình này nên được đọc thành gì cho đúng bản chất?</text><answer>Ô-lym-pia-ngẫu-nhiên</answer></question>
     <question><text>Một robot vừa bấm chuông trước bạn 0,2 giây. Robot đó có giỏi hơn bạn không?</text><answer>Không, nó chỉ nhanh tay</answer></question>
-    <question><text>Câu cuối của Khởi động: bạn cảm thấy thế nào về điểm số hiện tại của mình?</text><answer>Không liên quan tới năng lực</answer></question>
+    <question><text>Bạn cảm thấy thế nào về điểm số hiện tại của mình?</text><answer>Không liên quan tới năng lực</answer></question>
   </common>
 </khoidong>

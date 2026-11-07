@@ -19,7 +19,7 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
 	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261107h">
 	<link rel="stylesheet" type="text/css" href="Styles/o26.css?v=20261107h">
-	<link rel="stylesheet" type="text/css" href="Styles/luck.css?v=1">
+	<link rel="stylesheet" type="text/css" href="Styles/luck.css?v=4">
 	<script src="Scripts/Config.js?v=20261107h"></script>
 	<script src="Scripts/Auth.js?v=20261107h"></script>
 	<script src="Scripts/Variables.js?v=20261107h"></script>
@@ -56,9 +56,9 @@
 	<script src="Scripts/VcnvPublicImage.js?v=20261107h"></script>
 	<script src="Scripts/QuestionSet.js?v=20261107h"></script>
 	<script src="Scripts/Init.js?v=20261107h"></script>
-	<script src="Scripts/Luck/LuckCore.js?v=1"></script> <!-- settings, seeded rolls, seats, waiting, taps -->
-	<script src="Scripts/Luck/LuckDirector.js?v=1"></script> <!-- the host: the whole match, the robots -->
-	<script src="Scripts/Luck/LuckScreens.js?v=1"></script> <!-- menu, fitted stage, result card -->
+	<script src="Scripts/Luck/LuckCore.js?v=4"></script> <!-- settings, seeded rolls, seats, waiting, taps -->
+	<script src="Scripts/Luck/LuckDirector.js?v=4"></script> <!-- the host: the whole match, the robots -->
+	<script src="Scripts/Luck/LuckScreens.js?v=4"></script> <!-- menu, fitted stage, result card -->
 </head>
 
 <body class="luckPage">
@@ -130,6 +130,7 @@
 	<div id="luckHint" aria-live="polite"></div>
 	<div id="luckToasts" aria-live="polite"></div>
 	<div id="luckCounter"></div>
+	<button type="button" id="luckBoard" aria-pressed="false">Bảng điểm (F6)</button>
 	<button type="button" id="luckNext">Tiếp <span aria-hidden="true">›</span><i></i></button>
 	<div id="luckPick">
 		<p>Chọn gói câu hỏi <small></small></p>
@@ -139,6 +140,7 @@
 	<button type="button" id="luckStar">Đặt ngôi sao hy vọng</button>
 
 	<section id="luckMenu">
+		<a class="luckBack" href="/"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>respirable</a>
 		<img class="menuArt" src="/olympia-luck/menu.jpg" alt="Đường lên đỉnh Olympia - chữ &quot;lên&quot; bị gạch, thay bằng &quot;tạch&quot;" width="1200" height="675">
 		<form id="luckForm">
 			<h1>Bạn có <s>lên</s> tạch đỉnh Olympia?</h1>
@@ -150,12 +152,20 @@
 				<li><b>Về đích</b> câu 20 điểm cần quay 71+, câu 30 điểm cần 91+. Kết quả chỉ hiện khi hết giờ.</li>
 				<li><b>Câu hỏi phụ</b> chỉ bấm chuông khi nghe thấy nhạc.</li>
 			</ul>
+			<fieldset id="luckSeats">
+				<legend>Vị trí thi đấu</legend>
+				<label><input type="radio" name="seat" value="0" checked><span>Ngẫu nhiên</span></label>
+				<label><input type="radio" name="seat" value="1"><span>1</span></label>
+				<label><input type="radio" name="seat" value="2"><span>2</span></label>
+				<label><input type="radio" name="seat" value="3"><span>3</span></label>
+				<label><input type="radio" name="seat" value="4"><span>4</span></label>
+			</fieldset>
 			<label for="luckName">Tên của bạn</label>
 			<div class="row">
 				<input id="luckName" maxlength="40" autocomplete="nickname" placeholder="Bạn">
 				<button type="submit" id="luckStart">Vào thi</button>
 			</div>
-			<small>Bật loa. Giữa các bước có thể nhấn "Tiếp ›" để đi nhanh hơn. <a href="/">respirable</a></small>
+			<small>Bật loa. Giữa các bước có thể nhấn "Tiếp ›" để đi nhanh hơn. F6 (hoặc nút "Bảng điểm") xem điểm và tạm dừng trận.</small>
 		</form>
 	</section>
 
