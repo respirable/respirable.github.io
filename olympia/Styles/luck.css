@@ -93,7 +93,7 @@ html, body.luckPage {
 #luckCounter {
 	position: fixed;
 	left: 14px;
-	top: 14px;
+	top: 64px;
 	padding: 8px 14px;
 	border-radius: 10px;
 	background: rgba(8, 14, 40, .88);
@@ -276,3 +276,62 @@ html, body.luckPage {
 	#luckForm ul { display: none; }
 	#luckForm p { font-size: 13px; }
 }
+
+/* the way back, top-left of the menu */
+.luckBack {
+	position: absolute;
+	left: clamp(12px, 2vw, 24px);
+	top: clamp(10px, 2vw, 20px);
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: rgba(8, 14, 40, .7);
+	border: 1px solid rgba(255, 255, 255, .18);
+	color: #ffd85a;
+	font-weight: 800;
+	font-size: 14px;
+	text-decoration: none;
+	z-index: 2;
+}
+.luckBack:hover { background: rgba(8, 14, 40, .92); }
+#luckMenu { padding-top: max(24px, 64px); }
+
+/* F6 / the board button: results board + the game frozen */
+#luckBoard {
+	position: fixed;
+	left: 14px;
+	top: 14px;
+	min-height: 40px;
+	padding: 0 14px;
+	border: 1px solid rgba(255, 255, 255, .25);
+	border-radius: 10px;
+	background: rgba(8, 14, 40, .88);
+	color: #fff;
+	font: 800 14px Nunito, sans-serif;
+	cursor: pointer;
+	display: none;
+	z-index: 21;
+}
+body.playing #luckBoard { display: block; }
+body.luckPaused #luckBoard { background: linear-gradient(#ffd85a, #f0a91c); color: #2b1700; }
+body.luckPaused::before {
+	content: "Đang tạm dừng - F6 hoặc nút \"Tiếp tục\" để chơi tiếp";
+	position: fixed;
+	left: 50%;
+	bottom: 16px;
+	transform: translateX(-50%);
+	padding: 10px 18px;
+	border-radius: 999px;
+	background: rgba(8, 14, 40, .92);
+	border: 1px solid rgba(255, 214, 90, .5);
+	color: #ffe9a8;
+	font-weight: 800;
+	z-index: 22;
+}
+body.luckPaused #luckHint, body.luckPaused #luckNext, body.luckPaused #luckPick, body.luckPaused #luckStar { visibility: hidden; }
+
+/* the standing on the result card: Verdana, as the results board (F6) */
+#luckResList, #luckResPlace { font-family: Verdana, Geneva, sans-serif; }
+#luckResList li { font-weight: 700; font-size: 14px; }

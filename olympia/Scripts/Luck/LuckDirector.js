@@ -64,8 +64,8 @@
 				L.toast(L.name(seat) + ': ' + rightWord(ok), ok ? 'good' : 'bad');
 				await L.sleep(L.between(1400, 2200));
 			}
-			L.key('ArrowRight');                    /* end of the turn */
-			await L.sleep(2600);
+			L.key('ArrowRight');                    /* end of the turn: kd_complete 1 s later */
+			await L.sleep(11000);                   /* 10 s from kd_complete to the next kd_ready */
 		}
 		L.key('ArrowLeft');                         /* the common turn */
 		await L.sleep(1800);
@@ -76,8 +76,8 @@
 			await kdBuzzRace();
 			await L.sleep(L.between(1400, 2400));
 		}
-		L.key('ArrowRight');                        /* Khởi động over */
-		await L.sleep(3000);
+		L.key('ArrowRight');                        /* Khởi động over: kd_complete 1 s later */
+		await L.sleep(11000);                       /* 10 s from kd_complete to the score summary */
 	}
 
 	/* the first to buzz answers: the player taps the bar, each robot buzzes with 70 % */
@@ -89,11 +89,11 @@
 			khoiDongBuzz(seat);
 			L.changed();
 		}
-		L.bots.forEach(function (s) { if (L.chance(0.7)) { timers.push(setTimeout(function () { buzz(s); }, L.between(800, 4000))); } });
+		L.bots.forEach(function (s) { if (L.chance(0.7)) { timers.push(L.after(L.between(800, 4000), function () { buzz(s); })); } });
 		var stop = L.expect(BAR_KD, function () { buzz(L.me); }, 'Nhấn vào thanh câu hỏi để bấm chuông!', 0.08);
 		await L.until(function () { return winner !== null; }, 5000);
 		stop();
-		timers.forEach(clearTimeout);
+		timers.forEach(function (t) { t.cancel(); });
 		if (winner === null) { L.key('ArrowDown'); L.toast('Không ai bấm chuông', ''); return; }
 		await L.sleep(1100);
 		var ok = L.chance(0.5);
@@ -107,7 +107,7 @@
 		return new Promise(function (res) {
 			var done = false;
 			var stop = L.expect(sel, function () { if (!done) { done = true; stop(); res(true); } }, hint, 0.2);
-			setTimeout(function () { if (!done) { done = true; stop(); res(false); } }, ms);
+			L.after(ms, function () { if (!done) { done = true; stop(); res(false); } });
 		});
 	}
 
@@ -125,8 +125,8 @@
 		if (!vcnvInQueue(seat)) { return false; }
 		L.changed();
 		L.toast(L.name(seat) + ' xin trả lời chướng ngại vật!', 'warn');
-		clearTimeout(guessTimer);
-		guessTimer = setTimeout(ruleGuess, 2600);   /* others may join in the meantime */
+		if (guessTimer) { guessTimer.cancel(); }
+		guessTimer = L.after(2600, ruleGuess);   /* others may join in the meantime */
 		return true;
 	}
 	/* everyone in the queue answers; the first right one solves it */
@@ -162,9 +162,9 @@
 	var robotWant = null;
 	function startRobotWants() {
 		robotWant = setInterval(function () {
-			if (vcnvOver() || !vcnvIsRowStep()) { return; }
+			if (L.isPaused() || vcnvOver() || !vcnvIsRowStep()) { return; }
 			L.bots.forEach(function (s) {
-				if (!vcnvIsEliminated(s) && !vcnvInQueue(s) && L.chance(0.012) && L.chance(0.3)) { signal(s); }
+				if (!vcnvIsEliminated(s) && !vcnvInQueue(s) && L.chance(0.005) && L.chance(0.3)) { signal(s); }   /* wants now and then; really signals with 30 % */
 			});
 		}, 1000);
 	}
@@ -175,16 +175,21 @@
 		await step();
 		startRobotWants();
 		offerPicture();
-		var order = [1, 2, 3, 4], turn = 0;
-		for (var r = 0; r < 4 && !vcnvOver(); r++) {
+		var order = [1, 2, 3, 4], turn = 0, rowsPlayed = 0;
+		while (rowsPlayed < 4 && !vcnvOver()) {
+			await guardGuess();                     /* a signal being ruled may put the next chooser out */
+			if (vcnvOver()) { break; }
 			var chooser = null;
 			for (var k = 0; k < 4 && chooser === null; k++) { var s = order[(turn + k) % 4]; if (!vcnvIsEliminated(s)) { chooser = s; turn = (turn + k + 1) % 4; } }
+			if (chooser === null) { break; }
 			var row = await chooseRow(chooser);
 			await guardGuess();
 			if (vcnvOver()) { break; }
+			if (vcnvIsEliminated(chooser) || row === null) { continue; }   /* out meanwhile: the next one chooses */
 			vcnvSelectRow(row);
 			L.changed();
 			L.toast(L.name(chooser) + ' chọn hàng ngang số ' + row, '');
+			rowsPlayed += 1;
 			await playRow(row);
 		}
 		if (!vcnvOver() && vcnvCenterAvailable()) {
@@ -217,13 +222,15 @@
 	async function chooseRow(seat) {
 		var closed = [1, 2, 3, 4].filter(function (n) { return vcnvRow(n).status === 'closed'; });
 		if (!L.isMe(seat)) { await L.sleep(L.between(1500, 3000)); return L.pick(closed); }
+		if (vcnvIsEliminated(seat)) { return null; }
 		var picked = null;
 		var stop = L.expect(closed.map(function (n) { return '.vcnvBoardDiv .vcnvStrip' + n; }).join(','), function (el) {
 			var m = /vcnvStrip(\d)/.exec(el.className);
 			if (m) { picked = parseInt(m[1], 10); }
 		}, 'Lượt của bạn: nhấn vào một hàng ngang để chọn', 0.3);
-		await L.until(function () { return picked !== null; }, 12000);
+		await L.until(function () { return picked !== null || vcnvIsEliminated(seat) || gv.VcnvSequenceCounter == 9; }, 12000);
 		stop();
+		if (vcnvIsEliminated(seat)) { return null; }
 		return picked !== null ? picked : L.pick(closed);
 	}
 
@@ -243,11 +250,11 @@
 			answers[seat] = ok ? expected : L.pick(WRONG);
 			if (ok) { right.push(seat); }
 		}
-		var timers = L.bots.map(function (s) { return L.chance(0.9) ? setTimeout(function () { answer(s); }, L.between(2000, 13000)) : null; });
+		var timers = L.bots.map(function (s) { return L.chance(0.9) ? L.after(L.between(2000, 13000), function () { answer(s); }) : null; });
 		var stop = vcnvIsEliminated(L.me) ? function () {} : L.expect(BAR_VCNV, function () { answer(L.me); stop(); }, 'Nhấn vào thanh câu hỏi để trả lời hàng ngang (đúng 50%)', 0.05);
 		await L.until(function () { return gv.IsVcnvTimerDone || vcnvOver(); });
 		stop();
-		timers.forEach(function (t) { if (t) { clearTimeout(t); } });
+		timers.forEach(function (t) { if (t) { t.cancel(); } });
 		await guardGuess(); if (vcnvOver()) { return; }
 		vcnvSetAnswers(row, answers);
 		var r = vcnvRow(row);
@@ -257,11 +264,11 @@
 		L.key('ArrowRight');                        /* answer tree */
 		await step();
 		await guardGuess(); if (vcnvOver()) { return; }
-		L.key('ArrowRight');                        /* graded */
-		await step();
+		L.key('ArrowRight');                        /* graded: vcnv_row_correct / vcnv_row_wrong */
+		await L.sleep(7000);
 		await guardGuess(); if (vcnvOver()) { return; }
 		L.key('ArrowRight');                        /* tree off */
-		await L.sleep(1500);
+		await L.sleep(3000);                        /* the picture quarter: 10 s after the row's sound */
 		await guardGuess(); if (vcnvOver()) { return; }
 		L.key('ArrowRight');                        /* the picture quarter; back to the board */
 	}
@@ -303,7 +310,7 @@
 			var dur = (gv.TangTocSeconds || 20) * 1000;
 			var timers = [];
 			L.bots.forEach(function (s) {
-				for (var k = 0; k < max; k++) { timers.push(setTimeout(function () { command(s); }, L.between(500, dur - 500))); }
+				for (var k = 0; k < max; k++) { timers.push(L.after(L.between(500, dur - 500), function () { command(s); })); }
 			});
 			var counter = document.getElementById('luckCounter');
 			function command(seat) {
@@ -314,16 +321,16 @@
 				if (ok) { c.right += 1; }
 				if (L.isMe(seat)) {
 					L.record(ok);
-					L.toast('Lệnh hỏi ' + c.used + '/' + c.max + ': ' + rightWord(ok), ok ? 'good' : 'bad');
-					if (counter) { counter.textContent = 'Lệnh hỏi: ' + c.used + '/' + c.max + ' · đúng ' + c.right; }
+					L.toast('Đã ghi nhận lệnh hỏi ' + c.used + '/' + c.max, '');   /* right or wrong: only on the answer tree */
+					if (counter) { counter.textContent = 'Lệnh hỏi: ' + c.used + '/' + c.max; }
 				}
 				return true;
 			}
 			if (counter) { counter.textContent = 'Lệnh hỏi: 0/' + max; counter.classList.add('on'); }
-			var stop = L.expect(BAR_TT, function () { command(L.me); if (ttCount[L.me].used >= max) { stop(); } }, 'Nhấn vào khung câu hỏi: mỗi lần nhấn là một lệnh hỏi (đúng 50%)', 0.25);
+			var stop = L.expect(BAR_TT, function () { command(L.me); if (ttCount[L.me].used >= max) { stop(); } }, 'Nhấn vào khung câu hỏi: mỗi lần nhấn là một lệnh hỏi (đúng 50%, kết quả có ở cây đáp án)', 0.25);
 			await L.until(function () { return gv.IsTangTocTimerDone; });
 			stop();
-			timers.forEach(clearTimeout);
+			timers.forEach(function (t) { t.cancel(); });
 			if (counter) { counter.classList.remove('on'); }
 			await step();
 			L.key('ArrowRight');                    /* answers */
@@ -347,6 +354,12 @@
 		return L.chance(vdLevel[key]);
 	}
 	function threshold() { return gv.VeDichValue >= 30 ? 91 : 71; }
+	/* ms left on the running VĐ clock */
+	function timeLeft() {
+		var c = gv.CurrentClock;
+		if (!c || c.paused) { return 0; }
+		return Math.max(0, c.duration * 1000 - (performance.now() - c.t0));
+	}
 
 	async function veDich() {
 		await L.sleep(3500);                        /* the title card (switchRound showed it) */
@@ -357,7 +370,9 @@
 			await step();
 			L.key('ArrowLeft');                     /* choose screen */
 			await choosePackage(seat);
-			var starAt = !L.isMe(seat) && L.chance(0.4) ? L.int(1, 3) : 0;
+			/* a robot puts the star on each question with 25 % (until it has used it) */
+			var starAt = 0;
+			if (!L.isMe(seat)) { for (var k = 1; k <= 3 && !starAt; k++) { if (L.chance(0.25)) { starAt = k; } } }
 			await step();
 			L.key('ArrowLeft');                     /* question group, empty bar */
 			await L.sleep(2200);
@@ -397,7 +412,7 @@
 			}
 			box.querySelector('small').textContent = '';
 			box.onclick = function (e) { var b = e.target.closest('button[data-v]'); if (b) { pick(parseInt(b.getAttribute('data-v'), 10)); } };
-			if (L.auto) { (function autoPick() { setTimeout(function () { if (gv.VeDichValues.length < 3) { pick(L.pick([20, 30])); autoPick(); } }, 300); })(); }
+			if (L.auto) { (function autoPick() { L.after(300, function () { if (gv.VeDichValues.length < 3) { pick(L.pick([20, 30])); autoPick(); } }); })(); }
 		});
 		box.classList.remove('on');
 		L.hint('');
@@ -412,10 +427,10 @@
 				veDichPlaceStar(); L.changed();
 				if (gv.IsVeDichStarUsed) { btn.classList.remove('on'); L.toast('Ngôi sao hy vọng đặt vào câu ' + index, 'warn'); }
 			};
-			if (L.auto && L.chance(0.25)) { setTimeout(function () { if (btn.onclick) { btn.onclick(); } }, 200); }
+			if (L.auto && L.chance(0.25)) { L.after(200, function () { if (btn.onclick) { btn.onclick(); } }); }
 		}
 		else if (starAt === index) {
-			setTimeout(function () { veDichPlaceStar(); L.changed(); L.toast(L.name(seat) + ' đặt ngôi sao hy vọng!', 'warn'); }, L.between(600, 2000));
+			L.after(L.between(600, 2000), function () { veDichPlaceStar(); L.changed(); L.toast(L.name(seat) + ' đặt ngôi sao hy vọng!', 'warn'); });
 		}
 		await step();
 		btn.classList.remove('on');
@@ -445,7 +460,9 @@
 		else {
 			var t = Math.min(L.between(3000, 10000), (gv.VeDichSeconds || 15) * 1000 - 800);
 			await L.sleep(t);
+			L.toast(L.name(seat) + ' đã trả lời', '');
 			ok = robotRight(seat, index);
+			await L.until(function () { return gv.IsVeDichTimerDone; });   /* the verdict once the clock has run out */
 		}
 		await L.sleep(600);
 		L.key(ok ? 'ArrowUp' : 'ArrowDown');
@@ -464,24 +481,30 @@
 			L.changed();
 			L.toast(L.name(seat) + ' bấm chuông cướp điểm!', 'warn');
 		}
-		bots(owner).forEach(function (s) { if (L.chance(0.3)) { timers.push(setTimeout(function () { buzz(s); }, L.between(500, 4500))); } });
+		bots(owner).forEach(function (s) { if (L.chance(0.3)) { timers.push(L.after(L.between(500, 4500), function () { buzz(s); })); } });
 		var stop = L.isMe(owner) ? function () {} : L.expect(BAR_VD, function () { buzz(L.me); }, 'Nhấn vào thanh câu hỏi để bấm chuông cướp điểm (5 giây)', 0.04);
 		await L.until(function () { return thief !== null || gv.IsVeDichTimerDone; });
 		stop();
-		timers.forEach(clearTimeout);
+		timers.forEach(function (t) { t.cancel(); });
 		if (thief === null) { L.toast('Không ai cướp điểm', ''); return; }
+		/* the one who buzzed answers within the 5 s; the verdict once the 5 s have run out */
 		var ok;
 		if (L.isMe(thief)) {
-			await L.sleep(400);
 			var need = threshold();
-			var tapped = await tapOnce(BAR_VD, 'Nhấn vào thanh câu hỏi để trả lời câu cướp (1 lần, cần quay ' + need + '+)', 5000);
+			var tapped = await tapOnce(BAR_VD, 'Nhấn vào thanh câu hỏi để trả lời câu cướp (1 lần, cần quay ' + need + '+)', Math.max(1500, timeLeft()));
 			if (tapped) { L.toast('Đã ghi nhận câu trả lời', ''); }
-			await L.sleep(1200);
 			var r = tapped ? L.roll100() : 0;
 			ok = L.record(tapped && r >= need);
+			await L.until(function () { return gv.IsVeDichTimerDone; });
 			L.toast(tapped ? 'Kết quả quay: ' + r + ' (cần ' + need + '+)' : 'Bạn không trả lời', ok ? 'good' : 'bad');
 		}
-		else { await L.sleep(1400); ok = robotRight(thief, owner + '/' + index); }
+		else {
+			await L.sleep(Math.min(1200, Math.max(200, timeLeft() - 300)));
+			L.toast(L.name(thief) + ' đã trả lời', '');
+			ok = robotRight(thief, owner + '/' + index);
+			await L.until(function () { return gv.IsVeDichTimerDone; });
+		}
+		await L.sleep(500);
 		L.key(ok ? 'ArrowUp' : 'ArrowDown');
 		L.toast(L.name(thief) + ' cướp ' + rightWord(ok).toLowerCase(), ok ? 'good' : 'bad');
 	}
@@ -511,7 +534,7 @@
 				if (gv.TieBreakBuzzSeat !== seat) { return; }
 				if (gv.IsTieBreakBuzzEarly) {
 					L.toast(L.name(seat) + ' bấm sớm - bị loại khỏi câu này', 'bad');
-					setTimeout(function () { L.key('ArrowDown'); }, 700);
+					L.after(700, function () { L.key('ArrowDown'); });
 				}
 				else {
 					L.key('ArrowUp');
@@ -523,11 +546,11 @@
 			if (gv.TieBreakWinner === null && gv.TieBreakSequenceCounter == 3 && gv.TieBreakBuzzSeat === null && tieBreakSeatsLeft().length) {
 				L.key('ArrowRight');                /* the 15 s music: now */
 				musicOn = true;
-				tied.filter(function (s) { return !L.isMe(s); }).forEach(function (s) { timers.push(setTimeout(function () { buzz(s); }, L.between(250, 700))); });
+				tied.filter(function (s) { return !L.isMe(s); }).forEach(function (s) { timers.push(L.after(L.between(250, 700), function () { buzz(s); })); });
 			}
 			await L.until(function () { return gv.TieBreakWinner !== null || gv.TieBreakSequenceCounter == 5 || (!musicOn && !tieBreakSeatsLeft().length); }, 20000);
 			stop();
-			timers.forEach(clearTimeout);
+			timers.forEach(function (t) { t.cancel(); });
 			await L.sleep(1800);
 		}
 		L.key('ArrowLeft');                         /* graphics off */
@@ -540,7 +563,7 @@
 	 * only once the round's graphics are off the screen. */
 	async function summary() {
 		for (var tries = 0; tries < 10 && !isScoreSummaryShowing(); tries++) {
-			await L.sleep(tries ? 800 : 1000);
+			if (tries) { await L.sleep(800); }
 			stepScoreSummary(); L.changed();
 		}
 		if (!isScoreSummaryShowing()) { return; }
@@ -548,7 +571,9 @@
 			await L.pause(3, 5);
 			stepScoreSummary(); L.changed();   /* the next contestant; after the last one it closes */
 		}
-		await L.sleep(1200);
+		/* the summary music plays on: the next round 5 s after it ends */
+		await L.until(function () { var a = gv.AmbientSound; return !a || a.paused || a.ended; }, 40000);
+		await L.sleep(5000);
 	}
 
 	/* ======================================================================== the match */

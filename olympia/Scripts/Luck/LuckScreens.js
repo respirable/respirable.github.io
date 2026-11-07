@@ -23,6 +23,7 @@
 		if (typeof unlockAudioPool === 'function') { unlockAudioPool(16, L.SILENCE); }
 		try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; } } catch (e) { /* not supported */ }
 		$('luckMenu').classList.add('gone');
+		L.started = true;
 		document.body.classList.add('playing');
 		L.setSeats(name);
 		L.play().then(showResult, function (e) { console.error('[Luck] the match stopped', e); });
@@ -82,6 +83,14 @@
 		});
 		$('luckForm').addEventListener('submit', function (e) { e.preventDefault(); if (!$('luckStart').disabled) { start(); } });
 		$('luckNext').addEventListener('click', L.skip);
+		$('luckBoard').addEventListener('click', function () {
+			L.togglePause();
+			var on = L.isPaused();
+			this.textContent = on ? 'Tiếp tục (F6)' : 'Bảng điểm (F6)';
+			this.setAttribute('aria-pressed', String(on));
+		});
+		/* F6 from the keyboard: keep the button's label in step */
+		document.addEventListener('keyup', function (e) { if (e.key === 'F6') { $('luckBoard').textContent = L.isPaused() ? 'Tiếp tục (F6)' : 'Bảng điểm (F6)'; } });
 		$('luckShare').addEventListener('click', share);
 		$('luckAgain').addEventListener('click', function () { location.href = location.pathname; });
 	});
