@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Vượt chướng ngại vật, bộ NGỦ NƯỚNG. Số vòng tròn = số ký tự của đáp án (không tính dấu cách). -->
+<vcnv>
+  <keyword><text>NGỦ NƯỚNG</text></keyword>
+  <image>O24/VCNV Image.png</image>
+
+  <row><text>Nút trên màn hình báo thức được bấm nhiều hơn nút "Dừng": Tạm ...</text><answer>HOÃN</answer></row>
+  <row><text>"Năm ... nữa thôi": câu được nói sáu lần mỗi sáng.</text><answer>PHÚT</answer></row>
+  <row><text>Bữa ăn bị bỏ nhiều nhất trong ngày: bữa ...</text><answer>SÁNG</answer></row>
+  <row><text>Thứ duy nhất kéo bạn lại khi chuông báo thức kêu.</text><answer>CHĂN</answer></row>
+
+  <center><text>Ô trung tâm: Môn thể thao duy nhất bạn tập đều đặn mỗi sáng là gì?</text><answer>NGỦ NƯỚNG</answer></center>
+</vcnv>

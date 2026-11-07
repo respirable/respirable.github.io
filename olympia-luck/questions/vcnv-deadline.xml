@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Vượt chướng ngại vật, bộ DEADLINE. Số vòng tròn = số ký tự của đáp án (không tính dấu cách). -->
+<vcnv>
+  <keyword><text>DEADLINE</text></keyword>
+  <image>O24/VCNV Image.png</image>
+
+  <row><text>Khoảng thời gian làm ra 90% bài tập lớn của một học kỳ.</text><answer>ĐÊM CUỐI</answer></row>
+  <row><text>Câu quen thuộc khi hạn nộp còn một tuần: "Để từ từ ...".</text><answer>TÍNH</answer></row>
+  <row><text>Thức uống được gọi ba ly trong một đêm, dù ly thứ nhất đã đủ làm tim đập nhanh.</text><answer>CÀ PHÊ</answer></row>
+  <row><text>Việc bị gạch khỏi lịch đầu tiên khi hạn nộp còn 12 tiếng.</text><answer>NGỦ</answer></row>
+
+  <center><text>Ô trung tâm: Động lực làm việc duy nhất đáng tin của sinh viên, có tên tiếng Anh, là gì?</text><answer>DEADLINE</answer></center>
+</vcnv>

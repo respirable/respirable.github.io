@@ -42,7 +42,19 @@
 	L.pick = function (list) { return list[Math.floor(L.rand() * list.length)]; };
 	L.roll100 = function () { return L.int(1, 100); };
 
+	/* one obstacle per match, out of six (same seed, same obstacle); ?cnv=hoc-tu forces one */
+	L.CNV_SETS = ['vcnv.xml', 'vcnv-hoc-tu.xml', 'vcnv-deadline.xml', 'vcnv-tri-hoan.xml', 'vcnv-ngu-nuong.xml', 'vcnv-hop-nhom.xml'];
+	var forced = L.CNV_SETS.indexOf('vcnv-' + params.get('cnv') + '.xml');
+	gv.DataFiles.vcnv = Q + (forced >= 0 ? L.CNV_SETS[forced] : L.pick(L.CNV_SETS));
+
 	L.auto = params.get('auto') === '1';
+
+	/* the mode, set on the menu (?hard=1 for tests). Hardcore: Khởi động, the VCNV rows and the
+	 * Tăng tốc commands are right 40 % instead of 50 %, for everyone; Về đích 20 points needs 76+
+	 * instead of 71+, and a 30-point question gets 2 rolls instead of 3 */
+	L.hard = params.get('hard') === '1';
+	L.p = function () { return L.hard ? 0.4 : 0.5; };
+	L.pct = function () { return Math.round(L.p() * 100) + '%'; };
 	L.SILENCE = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
 
 	/* ---------- seats ---------- */
@@ -212,7 +224,11 @@
 		ev.preventDefault();
 		hit.e.fn(hit.el);
 	}
-	L.bindStage = function (stage) { stage.addEventListener('pointerdown', onTap); };
+	L.bindStage = function (stage) {
+		stage.addEventListener('pointerdown', onTap);
+		/* no context menu on the stage: "open / save image" would show the VCNV photo uncovered */
+		stage.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+	};
 	if (L.auto) {
 		setInterval(function () {
 			if (pausedAt !== null) { return; }

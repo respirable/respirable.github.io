@@ -9,12 +9,12 @@
  * key (roundState.vcnv.imageKey). Once the obstacle is solved / revealed, nothing is black.
  *
  * Geometry = the stage's (olympia.css): photo box 744 x 458 at (6, 6) inside the 756 x 470
- * picture, corners 378 x 235, centre piece 378 x 235 at (189, 118); the photo fills its box
+ * picture, corners 378 x 235, centre piece 380.8 x 238.4 at (187.6, 115.1); the photo fills its box
  * (object-fit: cover). The JPEG is drawn at SCALE of that size to keep messages small.
  */
 (function (gv) {
 	var W = 744, H = 458, OFF = 6, SCALE = 0.8, QUALITY = 0.72;
-	var COVERS = { 1: [0, 0], 2: [378, 0], 3: [378, 235], 4: [0, 235], middle: [189, 118] };
+	var COVERS = { 1: [0, 0, 378, 235], 2: [378, 0, 378, 235], 3: [378, 235, 378, 235], 4: [0, 235, 378, 235], middle: [187.6, 115.1, 380.8, 238.4] };   /* x, y, w, h (olympia.css) */
 	var img = null, imgSrc = '', ready = false, failed = false;
 	/* the cover pictures (same site: always readable) */
 	var frames = {};
@@ -56,15 +56,15 @@
 		g.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
 		/* each closed cover: its own shape, solid black (drawn twice so soft edges hide too) */
 		closed.forEach(function (k) {
-			var x = COVERS[k][0] - OFF, y = COVERS[k][1] - OFF, f = frames[k];
-			if (!f.__ok) { g.fillStyle = '#000'; g.fillRect(x, y, 378, 235); return; }
-			var m = document.createElement('canvas'); m.width = 378; m.height = 235;
+			var x = COVERS[k][0] - OFF, y = COVERS[k][1] - OFF, w = COVERS[k][2], h = COVERS[k][3], f = frames[k];
+			if (!f.__ok) { g.fillStyle = '#000'; g.fillRect(x, y, w, h); return; }
+			var m = document.createElement('canvas'); m.width = Math.ceil(w); m.height = Math.ceil(h);
 			var mg = m.getContext('2d');
-			mg.drawImage(f, 0, 0, 378, 235);
-			mg.drawImage(f, 0, 0, 378, 235);
+			mg.drawImage(f, 0, 0, w, h);
+			mg.drawImage(f, 0, 0, w, h);
 			mg.globalCompositeOperation = 'source-in';
 			mg.fillStyle = '#000';
-			mg.fillRect(0, 0, 378, 235);
+			mg.fillRect(0, 0, m.width, m.height);
 			g.drawImage(m, x, y);
 		});
 		return c.toDataURL('image/jpeg', QUALITY);

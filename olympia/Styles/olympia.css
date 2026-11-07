@@ -499,6 +499,17 @@ body {
 	height: 100%;
 }
 
+/* The photo under the covers is the whole picture: a long press on an <img> (iPad: drag lift /
+   image preview menu) or a right click ("open image") would show it uncovered. No picture of the
+   box takes a touch - a press lands on the box itself, which has no image of its own. */
+.vcnvPictureDiv img {
+	pointer-events: none;
+	-webkit-touch-callout: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
 .vcnvCover1 {
 	left: 0;
 	top: 0;
@@ -519,10 +530,15 @@ body {
 	top: 235px;
 }
 
-/* the centre piece is the same size as a quarter (asset 413x246 like the corners), centred */
+/* the centre piece lies over the frame lines the corner pieces draw round their see-through
+   cut-outs (measured on the PNGs, once each quarter is 378 x 235: x 187.6-567.5, y 115.1-352.5),
+   so its own frame replaces theirs and no second line or step shows. Its PNG (413 x 246) has a
+   see-through last column and row, hence 379.9 x 413/412 and 237.4 x 246/245. */
 .vcnvCoverMiddle {
-	left: 189px;
-	top: 118px;
+	left: 187.6px;
+	top: 115.1px;
+	width: 380.8px;
+	height: 238.4px;
 	z-index: 2;
 }
 

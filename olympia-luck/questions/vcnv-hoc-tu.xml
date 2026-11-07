@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Vượt chướng ngại vật, bộ HỌC TỦ. Số vòng tròn = số ký tự của đáp án (không tính dấu cách). -->
+<vcnv>
+  <keyword><text>HỌC TỦ</text></keyword>
+  <image>O24/VCNV Image.png</image>
+
+  <row><text>Thứ được mang vào phòng thi trong ống tay áo, dù trong phòng không có nước để bơi.</text><answer>PHAO</answer></row>
+  <row><text>Việc làm lúc giám thị quay lưng, cũng là tên một loài cá nuôi trong ao.</text><answer>CHÉP</answer></row>
+  <row><text>Hai chữ khiến người học tủ vui nhất năm: đề ra đúng phần đã học.</text><answer>TRÚNG TỦ</answer></row>
+  <row><text>Kết cục hay gặp hơn nhiều so với hàng ngang thứ ba.</text><answer>TRẬT TỦ</answer></row>
+
+  <center><text>Ô trung tâm: Chiến lược ôn thi chỉ học đúng phần mình đoán sẽ ra, và cũng y như cách bạn đang chơi trò này, là gì?</text><answer>HỌC TỦ</answer></center>
+</vcnv>

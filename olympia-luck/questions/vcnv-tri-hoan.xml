@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Vượt chướng ngại vật, bộ TRÌ HOÃN. Số vòng tròn = số ký tự của đáp án (không tính dấu cách). -->
+<vcnv>
+  <keyword><text>TRÌ HOÃN</text></keyword>
+  <image>O24/VCNV Image.png</image>
+
+  <row><text>Ngày được hứa sẽ bắt đầu làm bài, và là ngày chưa từng đến.</text><answer>MAI</answer></row>
+  <row><text>"Sang ... mới sẽ thay đổi": câu nói được dùng lại mỗi tháng Một.</text><answer>NĂM</answer></row>
+  <row><text>"Xem nốt ... video nữa thôi": con số luôn sai, thường sai gấp mười.</text><answer>BA</answer></row>
+  <row><text>Đồ vật được dọn sạch nhất nhà, đúng vào đêm trước hôm thi.</text><answer>BÀN HỌC</answer></row>
+
+  <center><text>Ô trung tâm: Nghệ thuật làm mọi việc trên đời, trừ việc cần làm, là gì?</text><answer>TRÌ HOÃN</answer></center>
+</vcnv>
