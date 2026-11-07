@@ -499,6 +499,17 @@ body {
 	height: 100%;
 }
 
+/* The photo under the covers is the whole picture: a long press on an <img> (iPad: drag lift /
+   image preview menu) or a right click ("open image") would show it uncovered. No picture of the
+   box takes a touch - a press lands on the box itself, which has no image of its own. */
+.vcnvPictureDiv img {
+	pointer-events: none;
+	-webkit-touch-callout: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
 .vcnvCover1 {
 	left: 0;
 	top: 0;

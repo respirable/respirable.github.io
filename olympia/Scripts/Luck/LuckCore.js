@@ -212,7 +212,11 @@
 		ev.preventDefault();
 		hit.e.fn(hit.el);
 	}
-	L.bindStage = function (stage) { stage.addEventListener('pointerdown', onTap); };
+	L.bindStage = function (stage) {
+		stage.addEventListener('pointerdown', onTap);
+		/* no context menu on the stage: "open / save image" would show the VCNV photo uncovered */
+		stage.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+	};
 	if (L.auto) {
 		setInterval(function () {
 			if (pausedAt !== null) { return; }

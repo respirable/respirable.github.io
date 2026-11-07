@@ -24,6 +24,7 @@ html, body.luckPage {
 #luckFrame .stageContainerDiv {
 	transform-origin: 0 0;
 	touch-action: manipulation;
+	-webkit-touch-callout: none;   /* no iOS long-press menu anywhere on the stage */
 }
 #luckFrame .authorityWarningDiv { display: none !important; }
 

@@ -52,6 +52,8 @@ function buildObstaclePicture(data) {
 	});
 	var mid = newElement('div', 'vcnvCover vcnvCoverMiddle', p);
 	newImage(VCNV_ASSETS + 'picture_frame_middle.png', '', mid);
+	/* never dragged out (the drag picture would be the whole, uncovered photo) - see olympia.css */
+	p.querySelectorAll('img').forEach(function (img) { img.draggable = false; });
 }
 
 /* one strip of circles; at most VCNV_MAX_CELLS are shown - a longer answer is cut, not squeezed */
