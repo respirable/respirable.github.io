@@ -81,12 +81,22 @@
 			var r = document.querySelector('#luckSeats input[value="' + saved + '"]');
 			if (r) { r.checked = true; }
 		} catch (e) { /* blocked */ }
-		$('luckStart').disabled = true;
-		$('luckStart').textContent = 'Đang chuẩn bị phòng thi…';
-		/* the engine is ready once its question files are in (Init.js) */
-		L.until(function () { return gv.VcnvData && gv.VeDichQuestions && gv.Players && gv.Players.length === 4; }, 20000).then(function () {
-			$('luckStart').disabled = false;
-			$('luckStart').textContent = 'Vào thi';
+		/* the start button: a shimmer until the stage and its questions are in, an inline error if they never come */
+		var form = $('luckForm'), btn = $('luckStart');
+		btn.disabled = true;
+		btn.setAttribute('aria-busy', 'true');
+		btn.setAttribute('aria-label', 'Đang dựng sân khấu');
+		L.until(function () { var vd = gv.VeDichQuestions, kd = gv.KhoiDongQuestions, v = gv.VcnvData; return !!(vd && vd[1] && vd[1][30] && vd[1][30].length && kd && kd.common && kd.common.length && v && v.rows && v.rows.length === 4 && gv.Players && gv.Players.length === 4); }, 20000).then(function (ok) {
+			btn.removeAttribute('aria-busy');
+			form.classList.remove('loading');
+			if (!ok) {
+				form.classList.add('failed');
+				btn.setAttribute('aria-label', 'Không vào thi được');
+				$('luckErr').textContent = 'Không tải được phòng thi (bộ câu hỏi hoặc đồ hoạ). Kiểm tra mạng rồi tải lại trang.';
+				return;
+			}
+			btn.disabled = false;
+			btn.removeAttribute('aria-label');
 			if (L.auto) { start(); }
 		});
 		$('luckForm').addEventListener('submit', function (e) { e.preventDefault(); if (!$('luckStart').disabled) { start(); } });
