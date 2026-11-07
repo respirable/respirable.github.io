@@ -25,7 +25,10 @@
 		$('luckMenu').classList.add('gone');
 		L.started = true;
 		document.body.classList.add('playing');
-		L.setSeats(name);
+		var seat = parseInt((document.querySelector('#luckSeats input:checked') || {}).value, 10) || 0;
+		try { localStorage.setItem('olympia-luck.seat', String(seat)); } catch (e) { /* blocked */ }
+		L.setSeats(name, seat);
+		L.shuffleQuestions();
 		L.play().then(showResult, function (e) { console.error('[Luck] the match stopped', e); });
 	}
 
@@ -73,6 +76,11 @@
 		window.addEventListener('resize', fit);
 		L.bindStage(document.querySelector('.stageContainerDiv'));
 		try { $('luckName').value = localStorage.getItem('olympia-luck.name') || ''; } catch (e) { /* blocked */ }
+		try {
+			var saved = localStorage.getItem('olympia-luck.seat') || '0';
+			var r = document.querySelector('#luckSeats input[value="' + saved + '"]');
+			if (r) { r.checked = true; }
+		} catch (e) { /* blocked */ }
 		$('luckStart').disabled = true;
 		$('luckStart').textContent = 'Đang chuẩn bị phòng thi…';
 		/* the engine is ready once its question files are in (Init.js) */

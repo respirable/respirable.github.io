@@ -51,8 +51,9 @@
 	L.bots = [2, 3, 4];
 	L.isMe = function (seat) { return seat === L.me; };
 	L.name = function (seat) { var p = gv.getPlayer(seat); return p ? gv.displayName(p) : 'Ghế ' + seat; };
-	L.setSeats = function (myName) {
-		L.me = L.int(1, 4);
+	/* seat: 1-4 as the player chose, anything else = a random seat */
+	L.setSeats = function (myName, seat) {
+		L.me = seat >= 1 && seat <= 4 ? seat : L.int(1, 4);
 		L.bots = [1, 2, 3, 4].filter(function (s) { return s !== L.me; });
 		var names = L.BOT_NAMES.slice();
 		gv.Players.forEach(function (p) {
@@ -60,6 +61,39 @@
 			p.school = p.seat === L.me ? 'Người thật' : 'Máy quay số';
 		});
 		if (typeof refreshContestantBars === 'function') { refreshContestantBars(); }
+	};
+
+	/* ---------- a different match every time: the questions in a new order ----------
+	 * Khởi động: the 24 individual questions dealt anew (6 each), the common turn shuffled;
+	 * VCNV: the 4 rows change places on the board (the centre stays); Về đích: the 20- and the
+	 * 30-point questions dealt anew to the four packages. Seeded: ?seed= replays the same order. */
+	L.shuffle = function (list) {
+		for (var i = list.length - 1; i > 0; i--) { var j = Math.floor(L.rand() * (i + 1)), t = list[i]; list[i] = list[j]; list[j] = t; }
+		return list;
+	};
+	function deal(pool, per) { var out = {}; [1, 2, 3, 4].forEach(function (s, i) { out[s] = pool.slice(i * per, i * per + per); }); return out; }
+	L.shuffleQuestions = function () {
+		var kd = gv.KhoiDongQuestions;
+		if (kd && kd.individual) {
+			var per = (kd.individual[1] || []).length || 6, all = [];
+			[1, 2, 3, 4].forEach(function (s) { all = all.concat(kd.individual[s] || []); });
+			kd.individual = deal(L.shuffle(all), per);
+			kd.common = L.shuffle((kd.common || []).slice());
+		}
+		var v = gv.VcnvData;
+		if (v && v.rows && v.rows.length) {
+			v.rows = L.shuffle(v.rows.slice());
+			if (typeof renderObstacleBoard === 'function') { renderObstacleBoard(); }   /* the strips follow their answers */
+		}
+		var vd = gv.VeDichQuestions;
+		if (vd && vd[1]) {
+			[20, 30].forEach(function (value) {
+				var pool = [];
+				[1, 2, 3, 4].forEach(function (s) { pool = pool.concat((vd[s] && vd[s][value]) || []); });
+				var dealt = deal(L.shuffle(pool), pool.length / 4);
+				[1, 2, 3, 4].forEach(function (s) { if (vd[s]) { vd[s][value] = dealt[s]; } });
+			});
+		}
 	};
 
 	/* the player's luck, for the result card */

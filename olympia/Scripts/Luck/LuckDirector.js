@@ -27,7 +27,20 @@
 	var gv = window.GameVariables, L = window.LUCK;
 	var BAR_KD = '.questionBarDiv', BAR_VCNV = '.vcnvQuestionDiv', BAR_TT = '.ttDiv', BAR_VD = '.vdQuestionGroup';
 	var PICTURE = '.vcnvPictureDiv', ROWS = '.vcnvBoardDiv [class*="vcnvStrip"]';
-	var WRONG = ['TÔI KHÔNG BIẾT', 'HÊN XUI', 'ĐOÁN BỪA', 'CHỊU', '???', 'NHÂN PHẨM', 'MAY RỦI', 'BỎ QUA'];
+	/* wrong row answers: always as many letters as the row (hope, then disappointment) */
+	var WRONG = ['XUI', 'ĐEN', 'LỤI', 'BỪA', 'HỤT', 'TỊT', 'TẠCH', 'CHỊU', 'ĐOÁN', 'MÙ MỜ', 'TOANG', 'TRƯỢT', 'BÓ TAY',
+		'SỐ ĐEN', 'HÊN XUI', 'CẦU MAY', 'BỎ CUỘC', 'VẬN MAY', 'PHÉP MÀU', 'ĐOÁN BỪA', 'THUA ĐAU', 'MAY RỦI', 'TRẬT LẤT',
+		'TRÚNG SỐ', 'HẾT HỒN', 'ĐỊNH MỆNH', 'CẦU NGUYỆN', 'KHÔNG BIẾT', 'TRÚNG MÁNH', 'XUI XẺO', 'BẤT LỰC', 'NHẮM MẮT'];
+	function letters(t) { return Array.from(String(t || '').replace(/\s+/g, '')); }
+	function wrongFor(expected) {
+		var n = letters(expected).length, key = letters(expected).join('');
+		var fit = WRONG.filter(function (w) { return letters(w).length === n && letters(w).join('') !== key; });
+		if (fit.length) { return L.pick(fit); }
+		/* nothing that long: the right letters in another order */
+		var l = letters(expected);
+		for (var tries = 0; tries < 8; tries++) { var a = L.shuffle(l.slice()).join(''); if (a !== key) { return a; } }
+		return l.reverse().join('');
+	}
 	var STEP = [5, 15];        /* the pause between two steps of VCNV / TT / VĐ (s) */
 	var QUICK = [1.5, 3];      /* Khởi động / tie-break */
 
@@ -118,7 +131,7 @@
 	/* a signal freezes the row flow: wait until it has been ruled */
 	function guardGuess() { return L.until(function () { return gv.VcnvSequenceCounter != 9; }); }
 
-	function signal(seat) {
+	function signal(seat, joining) {
 		if (!vcnvIsRowStep() && gv.VcnvSequenceCounter != 9) { return false; }
 		if (vcnvIsEliminated(seat) || vcnvInQueue(seat) || gv.IsVcnvSolved) { return false; }
 		vcnvSignal(seat);
@@ -127,6 +140,15 @@
 		L.toast(L.name(seat) + ' xin trả lời chướng ngại vật!', 'warn');
 		if (guessTimer) { guessTimer.cancel(); }
 		guessTimer = L.after(2600, ruleGuess);   /* others may join in the meantime */
+		/* somebody signalled: each robot still in may get the urge too - and acts on it with 30 % */
+		if (!joining) {
+			L.bots.forEach(function (b) {
+				if (b === seat || vcnvIsEliminated(b) || vcnvInQueue(b) || !L.chance(0.6)) { return; }
+				L.after(L.between(300, 2200), function () {
+					if (gv.VcnvSequenceCounter == 9 && !gv.IsVcnvSolved && L.chance(0.3)) { signal(b, true); }
+				});
+			});
+		}
 		return true;
 	}
 	/* everyone in the queue answers; the first right one solves it */
@@ -164,7 +186,7 @@
 		robotWant = setInterval(function () {
 			if (L.isPaused() || vcnvOver() || !vcnvIsRowStep()) { return; }
 			L.bots.forEach(function (s) {
-				if (!vcnvIsEliminated(s) && !vcnvInQueue(s) && L.chance(0.005) && L.chance(0.3)) { signal(s); }   /* wants now and then; really signals with 30 % */
+				if (!vcnvIsEliminated(s) && !vcnvInQueue(s) && L.chance(0.008) && L.chance(0.3)) { signal(s); }   /* wants now and then; really signals with 30 % */
 			});
 		}, 1000);
 	}
@@ -247,7 +269,7 @@
 			if (vcnvIsEliminated(seat) || answers[seat]) { return; }
 			var ok = L.chance(0.5);
 			if (L.isMe(seat)) { L.record(ok); L.toast('Đã gửi đáp án', ''); }
-			answers[seat] = ok ? expected : L.pick(WRONG);
+			answers[seat] = ok ? expected : wrongFor(expected);
 			if (ok) { right.push(seat); }
 		}
 		var timers = L.bots.map(function (s) { return L.chance(0.9) ? L.after(L.between(2000, 13000), function () { answer(s); }) : null; });
