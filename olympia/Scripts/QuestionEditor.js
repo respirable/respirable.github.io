@@ -818,7 +818,7 @@
 			if (r.data) { room = r.data; }
 		}
 		$('#roomLine').textContent = room ? ('Phòng ' + room.code + (room.name ? ' · ' + room.name : '')) : 'Không gắn với phòng nào - mở từ nút "Quản lý câu hỏi" của một phòng để chọn bộ đề cho phòng đó.';
-		document.title = 'Quản lý câu hỏi' + (room ? ' · ' + room.code : '') + ' — Olympia Controller';
+		document.title = 'Quản lý câu hỏi' + (room ? ' · ' + room.code : '') + ' - Olympia Controller';
 
 		$('#openGuide').addEventListener('click', function () { $('#guideDialog').showModal(); });
 		$('#closeGuide').addEventListener('click', function () { $('#guideDialog').close(); });
