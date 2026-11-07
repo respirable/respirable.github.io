@@ -46,6 +46,12 @@ svg.o26Svg {
 	pointer-events: none;
 }
 
+/* the Khởi động frame (02) belongs to the plain skin only: once the bar takes the timer skin
+   (Câu hỏi phụ) the O24 bar shows, without the four-name header left over from Khởi động */
+.questionBarDiv:not(.plainSkin) > svg.o26Svg {
+	display: none;
+}
+
 /* the contestant bars make way while a frame with the four-name header is up */
 body.rulesO26.o26HeaderUp .scoreboardDiv {
 	visibility: hidden;

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Vượt chướng ngại vật, bộ HỌP NHÓM. Số vòng tròn = số ký tự của đáp án (không tính dấu cách). -->
+<vcnv>
+  <keyword><text>HỌP NHÓM</text></keyword>
+  <image>O24/VCNV Image.png</image>
+
+  <row><text>Số người thật sự làm bài trong một nhóm năm người.</text><answer>MỘT NGƯỜI</answer></row>
+  <row><text>Số lần cả nhóm hẹn họp rồi hủy, trước khi chịu gặp nhau vào đêm trước hạn nộp.</text><answer>BA</answer></row>
+  <row><text>Thứ được bàn kỹ nhất trong buổi họp, kỹ hơn cả đề bài.</text><answer>ĐỒ ĂN</answer></row>
+  <row><text>"Để ... lo": câu nói của người sau đó "đã xem" mà không trả lời trong nhóm chat.</text><answer>TỚ</answer></row>
+
+  <center><text>Ô trung tâm: Hoạt động trong đó năm người hẹn nhau, ba người đến, một người làm, là gì?</text><answer>HỌP NHÓM</answer></center>
+</vcnv>

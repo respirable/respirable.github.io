@@ -16,6 +16,17 @@
 		frame.style.height = Math.round(1080 * s) + 'px';
 	}
 
+	function modeHard() { return !!document.querySelector('#luckMode input[value="hard"]:checked'); }
+	var MODE_HELP = {
+		normal: 'Mỗi câu đúng 50%. Về đích: câu 20 điểm cần quay từ 71, câu 30 điểm được quay 3 lần.',
+		hard: 'Mỗi câu chỉ đúng 40%. Về đích: câu 20 điểm cần quay từ 76, câu 30 điểm chỉ được quay 2 lần.'
+	};
+	function showModeHelp() {
+		var mode = modeHard() ? 'hard' : 'normal';
+		$('luckModeHelp').textContent = MODE_HELP[mode];
+		document.querySelectorAll('#luckMenu [data-hard]').forEach(function (el) { el.textContent = el.getAttribute('data-' + mode); });   /* the rules on the left */
+	}
+
 	function start() {
 		var name = ($('luckName').value || '').trim().replace(/\s+/g, ' ').slice(0, 40) || 'Bạn';
 		try { localStorage.setItem('olympia-luck.name', name); } catch (e) { /* blocked */ }
@@ -25,6 +36,9 @@
 		$('luckMenu').classList.add('gone');
 		L.started = true;
 		document.body.classList.add('playing');
+		L.hard = L.hard || modeHard();
+		try { localStorage.setItem('olympia-luck.mode', L.hard ? 'hard' : 'normal'); } catch (e) { /* blocked */ }
+		document.body.classList.toggle('hardcore', L.hard);
 		var seat = parseInt((document.querySelector('#luckSeats input:checked') || {}).value, 10) || 0;
 		try { localStorage.setItem('olympia-luck.seat', String(seat)); } catch (e) { /* blocked */ }
 		L.setSeats(name, seat);
@@ -42,7 +56,7 @@
 		var me = res.me, st = res.stats;
 		var pct = st.rolls ? Math.round(100 * st.hits / st.rolls) : 0;
 		$('luckResTitle').textContent = headline(me);
-		$('luckResPlace').textContent = 'Hạng ' + me.place + ' · ' + me.score + ' điểm';
+		$('luckResPlace').textContent = 'Hạng ' + me.place + ' · ' + me.score + ' điểm' + (L.hard ? ' · Hardcore' : '');
 		var ol = $('luckResList');
 		ol.textContent = '';
 		res.list.forEach(function (r) {
@@ -58,7 +72,7 @@
 			(st.vd.length ? ' Về đích: đúng ' + vdRight + '/' + st.vd.length + ' câu.' : '') +
 			(pct >= 55 ? ' Hôm nay bạn hên.' : pct <= 40 ? ' Hôm nay không phải ngày của bạn.' : ' Hên xui đúng như tên gọi.');
 		$('luckResult').classList.add('on');
-		L.lastShare = (me.place === 1 ? 'Tôi đã lên đỉnh Olympia nhờ may mắn với ' : 'Tôi đã tạch đỉnh Olympia với ') + me.score + ' điểm (hạng ' + me.place + '/4). Thử nhân phẩm của bạn:';
+		L.lastShare = (me.place === 1 ? 'Tôi đã lên đỉnh Olympia nhờ may mắn với ' : 'Tôi đã tạch đỉnh Olympia với ') + me.score + ' điểm (hạng ' + me.place + '/4' + (L.hard ? ', chế độ Hardcore' : '') + '). Thử nhân phẩm của bạn:';
 	}
 
 	function share() {
@@ -81,6 +95,13 @@
 			var r = document.querySelector('#luckSeats input[value="' + saved + '"]');
 			if (r) { r.checked = true; }
 		} catch (e) { /* blocked */ }
+		try {
+			var mode = L.hard ? 'hard' : localStorage.getItem('olympia-luck.mode') || 'normal';
+			var m = document.querySelector('#luckMode input[value="' + mode + '"]');
+			if (m) { m.checked = true; }
+		} catch (e) { /* blocked */ }
+		showModeHelp();
+		document.querySelectorAll('#luckMode input').forEach(function (i) { i.addEventListener('change', showModeHelp); });
 		/* the start button: a shimmer until the stage and its questions are in, an inline error if they never come */
 		var form = $('luckForm'), btn = $('luckStart');
 		btn.disabled = true;

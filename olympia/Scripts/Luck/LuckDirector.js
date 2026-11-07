@@ -3,6 +3,7 @@
  * (the host's keys: LUCK.key('ArrowLeft') ..., or the round functions the keys call), with the
  * robots and the player's taps as the contestants. Every answer is a roll:
  *
+ *   (Hardcore: 40 % instead of 50 % below; Về đích 20 points needs 76+, 30 points gets 2 taps)
  *   Khởi động   individual turn: tap the bar within 5 s, 50 % (+10 / 0); common turn: a buzzer race
  *               with the robots (each buzzes with 70 %, after 0.8-4 s), the first is right 50 % (+10 / -5)
  *   VCNV        the chooser picks a row (the player taps a row of the board); during the 15 s the
@@ -30,7 +31,8 @@
 	/* wrong row answers: always as many letters as the row (hope, then disappointment) */
 	var WRONG = ['XUI', 'ĐEN', 'LỤI', 'BỪA', 'HỤT', 'TỊT', 'TẠCH', 'CHỊU', 'ĐOÁN', 'MÙ MỜ', 'TOANG', 'TRƯỢT', 'BÓ TAY',
 		'SỐ ĐEN', 'HÊN XUI', 'CẦU MAY', 'BỎ CUỘC', 'VẬN MAY', 'PHÉP MÀU', 'ĐOÁN BỪA', 'THUA ĐAU', 'MAY RỦI', 'TRẬT LẤT',
-		'TRÚNG SỐ', 'HẾT HỒN', 'ĐỊNH MỆNH', 'CẦU NGUYỆN', 'KHÔNG BIẾT', 'TRÚNG MÁNH', 'XUI XẺO', 'BẤT LỰC', 'NHẮM MẮT'];
+		'TRÚNG SỐ', 'HẾT HỒN', 'ĐỊNH MỆNH', 'CẦU NGUYỆN', 'KHÔNG BIẾT', 'TRÚNG MÁNH', 'XUI XẺO', 'BẤT LỰC', 'NHẮM MẮT',
+		'MÙ', 'ỦA', 'ÔI', 'NGỦ QUÊN', 'ĐỨNG HÌNH', 'CHẮC CHẮN', 'BIẾT CHẾT'];
 	function letters(t) { return Array.from(String(t || '').replace(/\s+/g, '')); }
 	function wrongFor(expected) {
 		var n = letters(expected).length, key = letters(expected).join('');
@@ -66,12 +68,12 @@
 				var ok;
 				if (L.isMe(seat)) {
 					var tapped = await tapOnce(BAR_KD, 'Nhấn vào thanh câu hỏi để trả lời (5 giây)', 5000);
-					ok = tapped && L.record(L.chance(0.5));
+					ok = tapped && L.record(L.chance(L.p()));
 					if (!tapped) { L.toast('Hết giờ - tính là sai', 'bad'); }
 				}
 				else {
 					await L.sleep(L.between(1000, 3000));
-					ok = L.chance(0.5);
+					ok = L.chance(L.p());
 				}
 				L.key(ok ? 'ArrowUp' : 'ArrowDown');
 				L.toast(L.name(seat) + ': ' + rightWord(ok), ok ? 'good' : 'bad');
@@ -109,7 +111,7 @@
 		timers.forEach(function (t) { t.cancel(); });
 		if (winner === null) { L.key('ArrowDown'); L.toast('Không ai bấm chuông', ''); return; }
 		await L.sleep(1100);
-		var ok = L.chance(0.5);
+		var ok = L.chance(L.p());
 		if (L.isMe(winner)) { L.record(ok); }
 		L.key(ok ? 'ArrowUp' : 'ArrowDown');
 		L.toast(L.name(winner) + ': ' + rightWord(ok) + (ok ? ' +10' : ' -5'), ok ? 'good' : 'bad');
@@ -143,7 +145,7 @@
 		/* somebody signalled: each robot still in may get the urge too - and acts on it with 30 % */
 		if (!joining) {
 			L.bots.forEach(function (b) {
-				if (b === seat || vcnvIsEliminated(b) || vcnvInQueue(b) || !L.chance(0.6)) { return; }
+				if (b === seat || vcnvIsEliminated(b) || vcnvInQueue(b) || !L.chance(0.8)) { return; }
 				L.after(L.between(300, 2200), function () {
 					if (gv.VcnvSequenceCounter == 9 && !gv.IsVcnvSolved && L.chance(0.3)) { signal(b, true); }
 				});
@@ -180,13 +182,14 @@
 	}
 	function closePicture() { if (stopPicture) { stopPicture(); stopPicture = null; } }
 
-	/* a robot now and then "wants" to signal; it really does with 30 % */
+	/* a robot now and then "wants" to signal (2 %/s, 8 %/s in the last 15 s); it really does with 30 % */
 	var robotWant = null;
 	function startRobotWants() {
 		robotWant = setInterval(function () {
 			if (L.isPaused() || vcnvOver() || !vcnvIsRowStep()) { return; }
+			var want = gv.VcnvSequenceCounter == 10 ? 0.08 : 0.02;   /* per second; more in the last 15 s */
 			L.bots.forEach(function (s) {
-				if (!vcnvIsEliminated(s) && !vcnvInQueue(s) && L.chance(0.008) && L.chance(0.3)) { signal(s); }   /* wants now and then; really signals with 30 % */
+				if (!vcnvIsEliminated(s) && !vcnvInQueue(s) && L.chance(want) && L.chance(0.3)) { signal(s); }   /* wants now and then; really signals with 30 % */
 			});
 		}, 1000);
 	}
@@ -267,13 +270,13 @@
 		var expected = vcnvQuestionFor(row).answer || '';
 		function answer(seat) {
 			if (vcnvIsEliminated(seat) || answers[seat]) { return; }
-			var ok = L.chance(0.5);
+			var ok = L.chance(L.p());
 			if (L.isMe(seat)) { L.record(ok); L.toast('Đã gửi đáp án', ''); }
 			answers[seat] = ok ? expected : wrongFor(expected);
 			if (ok) { right.push(seat); }
 		}
 		var timers = L.bots.map(function (s) { return L.chance(0.9) ? L.after(L.between(2000, 13000), function () { answer(s); }) : null; });
-		var stop = vcnvIsEliminated(L.me) ? function () {} : L.expect(BAR_VCNV, function () { answer(L.me); stop(); }, 'Nhấn vào thanh câu hỏi để trả lời hàng ngang (đúng 50%)', 0.05);
+		var stop = vcnvIsEliminated(L.me) ? function () {} : L.expect(BAR_VCNV, function () { answer(L.me); stop(); }, 'Nhấn vào thanh câu hỏi để trả lời hàng ngang (đúng ' + L.pct() + ')', 0.05);
 		await L.until(function () { return gv.IsVcnvTimerDone || vcnvOver(); });
 		stop();
 		timers.forEach(function (t) { if (t) { t.cancel(); } });
@@ -339,7 +342,7 @@
 				var c = ttCount[seat];
 				if (!gv.IsTangTocTimerRunning || c.used >= c.max) { return false; }
 				c.used += 1;
-				var ok = L.chance(0.5);
+				var ok = L.chance(L.p());
 				if (ok) { c.right += 1; }
 				if (L.isMe(seat)) {
 					L.record(ok);
@@ -349,7 +352,7 @@
 				return true;
 			}
 			if (counter) { counter.textContent = 'Lệnh hỏi: 0/' + max; counter.classList.add('on'); }
-			var stop = L.expect(BAR_TT, function () { command(L.me); if (ttCount[L.me].used >= max) { stop(); } }, 'Nhấn vào khung câu hỏi: mỗi lần nhấn là một lệnh hỏi (đúng 50%, kết quả có ở cây đáp án)', 0.25);
+			var stop = L.expect(BAR_TT, function () { command(L.me); if (ttCount[L.me].used >= max) { stop(); } }, 'Nhấn vào khung câu hỏi: mỗi lần nhấn là một lệnh hỏi (đúng ' + L.pct() + ', kết quả có ở cây đáp án)', 0.25);
 			await L.until(function () { return gv.IsTangTocTimerDone; });
 			stop();
 			timers.forEach(function (t) { t.cancel(); });
@@ -375,7 +378,7 @@
 		if (!(key in vdLevel)) { vdLevel[key] = L.pick([0.1, 0.4, 1]); }
 		return L.chance(vdLevel[key]);
 	}
-	function threshold() { return gv.VeDichValue >= 30 ? 91 : 71; }
+	function threshold() { return gv.VeDichValue >= 30 ? 91 : L.hard ? 76 : 71; }
 	/* ms left on the running VĐ clock */
 	function timeLeft() {
 		var c = gv.CurrentClock;
@@ -464,7 +467,7 @@
 	async function answerVd(seat, index) {
 		var ok = null;
 		if (L.isMe(seat)) {
-			var max = gv.VeDichValue >= 30 ? 3 : 2, used = 0, need = threshold(), rolls = [];
+			var max = gv.VeDichValue >= 30 && !L.hard ? 3 : 2, used = 0, need = threshold(), rolls = [];
 			var stop = L.expect(BAR_VD, function () {
 				if (used >= max || !gv.IsVeDichTimerRunning) { return; }
 				used += 1;
@@ -533,6 +536,17 @@
 
 	/* ======================================================================== Câu hỏi phụ */
 
+	/* "BẮT ĐẦU" in big white letters inside the question bar, in place of the question, while the
+	 * 15 s music plays: the sign to buzz, for those who play without sound */
+	function startSign(on) {
+		var bar = document.querySelector(BAR_KD);
+		if (!bar) { return; }
+		var sign = bar.querySelector('.luckGo');
+		if (!sign) { sign = document.createElement('p'); sign.className = 'luckGo'; sign.textContent = 'BẮT ĐẦU'; bar.appendChild(sign); }
+		sign.classList.toggle('on', !!on);
+		bar.classList.toggle('luckGoOn', !!on);   /* the question text goes while the sign is up */
+	}
+
 	async function tieBreak() {
 		var tied = gv.topScoreSeats(gv.Players);
 		if (tied.length < 2) { return; }
@@ -563,18 +577,27 @@
 					L.toast(L.name(seat) + ' bấm chuông đầu tiên và thắng!', 'good');
 				}
 			}
-			var stop = meIn ? L.expect(BAR_KD, function () { buzz(L.me); }, 'Chỉ bấm khi nghe thấy nhạc! Bấm sớm là bị loại khỏi câu này', 0.03) : function () {};
-			await L.sleep(L.between(2000, 8000));
+			var stop = meIn ? L.expect(BAR_KD, function () { buzz(L.me); }, 'Chỉ bấm khi nghe thấy nhạc và thấy chữ BẮT ĐẦU! Bấm sớm là bị loại khỏi câu này', 0.03) : function () {};
+			var wait = L.between(2000, 8000);
+			/* a robot jumps the gun now and then (2 %): early, out of this question */
+			tied.filter(function (s) { return !L.isMe(s); }).forEach(function (s) {
+				if (L.chance(0.02)) { timers.push(L.after(L.between(300, wait - 200), function () { if (!musicOn) { buzz(s); } })); }
+			});
+			await L.sleep(wait);
+			await L.until(function () { return gv.TieBreakBuzzSeat === null; }, 3000);   /* an early buzz is ruled first */
 			if (gv.TieBreakWinner === null && gv.TieBreakSequenceCounter == 3 && gv.TieBreakBuzzSeat === null && tieBreakSeatsLeft().length) {
 				L.key('ArrowRight');                /* the 15 s music: now */
 				musicOn = true;
+				startSign(true);
 				tied.filter(function (s) { return !L.isMe(s); }).forEach(function (s) { timers.push(L.after(L.between(250, 700), function () { buzz(s); })); });
 			}
 			await L.until(function () { return gv.TieBreakWinner !== null || gv.TieBreakSequenceCounter == 5 || (!musicOn && !tieBreakSeatsLeft().length); }, 20000);
 			stop();
 			timers.forEach(function (t) { t.cancel(); });
+			startSign(false);
 			await L.sleep(1800);
 		}
+		startSign(false);
 		L.key('ArrowLeft');                         /* graphics off */
 		await L.sleep(1500);
 	}
