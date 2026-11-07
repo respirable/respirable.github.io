@@ -521,7 +521,7 @@ async function renderFileList() {
         <h4>No files in sandbox</h4>
         <p>Upload your controller graphics and sounds or restore the default questions.</p>
         <div style="display:flex;gap:8px;">
-          <button class="sg-btn" onclick="document.getElementById('fileInput').click()">Upload Files</button>
+          <button class="sg-btn" onclick="triggerFileUpload()">Upload Files</button>
           <button class="sg-btn" onclick="restoreDefaultQuestions()">Restore Defaults</button>
         </div>
       </div>`;
@@ -1681,12 +1681,39 @@ async function handleFolderUpload(files) {
   await handleFileUpload(files, true);
 }
 
+/* Files the operating system drops into folders on its own (Windows thumbnails / folder settings,
+   macOS Finder data and resource forks). A folder upload sends them along, and one of them used to
+   reject the whole folder - e.g. a "Sounds" folder of MP3s with a hidden desktop.ini. */
+function isSystemJunk(file) {
+  const rawPath = file.webkitRelativePath || file.name;
+  const name = file.name.toLowerCase();
+  return name.startsWith('.') || name === 'thumbs.db' || name === 'ehthumbs.db' || name === 'desktop.ini'
+    || /(^|\/)__macosx\//i.test(rawPath);
+}
+
+function fileExt(name) {
+  return name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+}
+
+function showRestriction(names) {
+  const msg = document.getElementById('restrictionMsg');
+  if (msg) {
+    if (!msg.dataset.base) msg.dataset.base = msg.textContent.trim();
+    const list = names.slice(0, 6).join(', ') + (names.length > 6 ? ` and ${names.length - 6} more` : '');
+    msg.textContent = msg.dataset.base + (names.length ? ` Not allowed: ${list}.` : '');
+  }
+  document.getElementById('restrictionOverlay').classList.add('active');
+}
+
 async function handleFileUpload(files, isFolderUpload = false, snapPath = selectedPath, snapType = selectedType) {
   if (!files || !files.length) return;
-  const fileArray = Array.from(files);
-  const invalid = fileArray.filter(f => !WHITELIST.includes(f.name.split('.').pop().toLowerCase()));
-  if (invalid.length > 0) {
-    document.getElementById('restrictionOverlay').classList.add('active');
+  const picked = Array.from(files).filter(f => !isSystemJunk(f));
+  const invalid = picked.filter(f => !WHITELIST.includes(fileExt(f.name)));
+  const fileArray = picked.filter(f => WHITELIST.includes(fileExt(f.name)));
+  // Nothing usable: say which files are not allowed. Otherwise the allowed ones go in and the
+  // others are named in the result (a folder of MP3s is not refused for one stray file).
+  if (!fileArray.length) {
+    if (invalid.length) showRestriction(invalid.map(f => f.name));
     return;
   }
 
@@ -1705,6 +1732,19 @@ async function handleFileUpload(files, isFolderUpload = false, snapPath = select
     if (targetDir && !targetDir.endsWith('/')) targetDir += '/';
   }
 
+  // Where a file goes. A folder upload keeps its folder ("Sounds/x.mp3"), except: an Olga bundle
+  // folder is unwrapped, and a folder dropped onto the folder of the same name replaces its files
+  // instead of nesting ("Sounds" onto the selected "Sounds" -> sounds/x.mp3, not sounds/sounds/x.mp3).
+  const targetName = targetDir.replace(/\/$/, '').split('/').pop().toLowerCase();
+  const destOf = (file) => {
+    const rawPath = file.webkitRelativePath || file.name;
+    const parts = rawPath.split('/');
+    if (parts.length > 1 && (rawPath.toLowerCase().includes('olga') || (targetName && parts[0].toLowerCase() === targetName))) {
+      return targetDir + parts.slice(1).join('/');
+    }
+    return targetDir + rawPath;
+  };
+
   const toast = showNotification(`Uploading ${fileArray.length} file(s)...`, true);
 
   try {
@@ -1716,8 +1756,7 @@ async function handleFileUpload(files, isFolderUpload = false, snapPath = select
     if (settings.promptConflict) {
       let hasConflict = false;
       for (const file of fileArray) {
-        const rawPath = file.webkitRelativePath || file.name;
-        const destPath = targetDir + (rawPath.split('/').length > 1 && rawPath.toLowerCase().includes('olga') ? rawPath.split('/').slice(1).join('/') : rawPath);
+        const destPath = destOf(file);
         const existing = await getFile(destPath);
         if (existing) { hasConflict = true; break; }
       }
@@ -1733,8 +1772,7 @@ async function handleFileUpload(files, isFolderUpload = false, snapPath = select
     }
 
     for (const file of fileArray) {
-      const rawPath = file.webkitRelativePath || file.name;
-      const destPath = targetDir + (rawPath.split('/').length > 1 && rawPath.toLowerCase().includes('olga') ? rawPath.split('/').slice(1).join('/') : rawPath);
+      const destPath = destOf(file);
 
       if (conflictPolicy === 'skip') {
         const existing = await getFile(destPath);
@@ -1754,14 +1792,18 @@ async function handleFileUpload(files, isFolderUpload = false, snapPath = select
     if (targetDir) {
       expandedFolders.add(targetDir.replace(/\/$/, ''));
     }
+    if (firstUploaded && firstUploaded.includes('/')) {
+      expandedFolders.add(firstUploaded.substring(0, firstUploaded.lastIndexOf('/')).toLowerCase());   /* stored paths are lower case */
+    }
     await renderFileList();
     if (firstUploaded) {
-      selectedPath = firstUploaded;
+      selectedPath = firstUploaded.toLowerCase();
       selectedType = 'file';
       highlightSelectedRow();
     }
 
-    toast.setComplete(`Uploaded ${completed} file(s) successfully!`, true);
+    const skipped = invalid.length ? ` Skipped ${invalid.length} file(s) of a type the sandbox does not take: ${invalid.slice(0, 4).map(f => f.name).join(', ')}${invalid.length > 4 ? '…' : ''}` : '';
+    toast.setComplete(`Uploaded ${completed} file(s) successfully!${skipped}`, true);
     hardRefresh();
   } catch (err) {
     toast.setComplete('Upload failed: ' + err.message, false);
