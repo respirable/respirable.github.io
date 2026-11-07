@@ -142,7 +142,7 @@ html, body.luckPage {
 #luckPick.on { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 14px; background: rgba(8, 14, 40, .9); border: 1px solid rgba(255, 214, 90, .5); }
 #luckPick p { margin: 0 6px 0 0; font-weight: 800; }
 #luckPick small { color: #ffcf4a; margin-left: 6px; }
-#luckPick button, #luckStar, #luckMenu button, #luckResult button {
+#luckPick button, #luckStar, #luckResult button {
 	min-height: 42px;
 	padding: 0 18px;
 	border: 0;
@@ -152,66 +152,8 @@ html, body.luckPage {
 	font: 900 15px Nunito, sans-serif;
 	cursor: pointer;
 }
-#luckPick button:active, #luckStar:active, #luckMenu button:active, #luckResult button:active { transform: translateY(1px) scale(.98); }
+#luckPick button:active, #luckStar:active, #luckResult button:active { transform: translateY(1px) scale(.98); }
 #luckStar.on { display: block; top: auto; bottom: max(14px, env(safe-area-inset-bottom)); left: 14px; transform: none; }
-
-/* ---------- the menu: the show's opening card ---------- */
-#luckMenu {
-	position: fixed;
-	inset: 0;
-	z-index: 30;
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
-	align-items: center;
-	gap: clamp(16px, 3vw, 40px);
-	padding: 24px clamp(16px, 4vw, 56px);
-	background: radial-gradient(ellipse at 35% 45%, #12305a 0%, #071330 55%, #040917 100%);
-	overflow-y: auto;
-	transition: opacity .5s, visibility .5s;
-}
-#luckMenu.gone { opacity: 0; visibility: hidden; }
-#luckMenu .menuArt {
-	width: 100%;
-	height: auto;
-	max-height: calc(100dvh - 48px);
-	object-fit: contain;
-	border-radius: 16px;
-	box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .9);
-	-webkit-mask-image: radial-gradient(ellipse at center, #000 70%, transparent 100%);
-	mask-image: radial-gradient(ellipse at center, #000 70%, transparent 100%);
-}
-#luckForm {
-	grid-column: 2;
-	padding: 22px 22px 18px;
-	border-radius: 18px;
-	background: rgba(6, 12, 34, .82);
-	border: 1px solid rgba(255, 214, 90, .35);
-	box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .8);
-	-webkit-backdrop-filter: blur(6px);
-	backdrop-filter: blur(6px);
-}
-#luckForm h1 { margin: 0 0 8px; font-size: 26px; font-weight: 900; line-height: 1.15; color: #ffd85a; }
-#luckForm h1 s { color: #9aa6c8; text-decoration-thickness: 3px; }
-#luckForm p { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: #d7ddf3; }
-#luckForm ul { margin: 0 0 14px; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 13px; line-height: 1.45; color: #c9d1ec; }
-#luckForm li b { display: inline-block; min-width: 86px; color: #ffd85a; }
-#luckForm label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 800; }
-#luckForm .row { display: flex; gap: 8px; }
-#luckForm input {
-	flex: 1;
-	min-width: 0;
-	height: 42px;
-	padding: 0 12px;
-	border: 1px solid rgba(255, 255, 255, .25);
-	border-radius: 10px;
-	background: rgba(255, 255, 255, .08);
-	color: #fff;
-	font: 700 15px Nunito, sans-serif;
-}
-#luckForm input:focus { outline: 2px solid #ffd85a; outline-offset: 1px; }
-#luckForm button:disabled { opacity: .6; cursor: wait; }
-#luckForm small { display: block; margin-top: 10px; font-size: 12px; color: #9aa6c8; }
-#luckForm small a { color: #ffd85a; }
 
 /* ---------- the result ---------- */
 #luckResult {
@@ -259,45 +201,9 @@ html, body.luckPage {
 		z-index: 22;
 	}
 }
-@media (max-width: 760px) {
-	#luckMenu { grid-template-columns: minmax(0, 1fr); align-content: start; }
-	#luckMenu .menuArt { max-height: none; }
-	#luckForm { grid-column: 1; }
-	#luckForm ul { display: none; }
-}
 @media (prefers-reduced-motion: reduce) {
 	#luckFrame .luckGlow, .luckToast, #luckResult.on { animation: none; }
 }
-/* a phone held sideways: little height - the rules list goes, the card gets tighter */
-@media (max-height: 520px) {
-	#luckMenu { align-items: safe center; padding-block: 12px; }
-	#luckForm { padding: 14px 16px 12px; }
-	#luckForm h1 { font-size: 20px; }
-	#luckForm ul { display: none; }
-	#luckForm p { font-size: 13px; }
-}
-
-/* the way back, top-left of the menu */
-.luckBack {
-	position: absolute;
-	left: clamp(12px, 2vw, 24px);
-	top: clamp(10px, 2vw, 20px);
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 8px 14px;
-	border-radius: 999px;
-	background: rgba(8, 14, 40, .7);
-	border: 1px solid rgba(255, 255, 255, .18);
-	color: #ffd85a;
-	font-weight: 800;
-	font-size: 14px;
-	text-decoration: none;
-	z-index: 2;
-}
-.luckBack:hover { background: rgba(8, 14, 40, .92); }
-#luckMenu { padding-top: max(24px, 64px); }
-
 /* F6 / the board button: results board + the game frozen */
 #luckBoard {
 	position: fixed;
@@ -336,28 +242,257 @@ body.luckPaused #luckHint, body.luckPaused #luckNext, body.luckPaused #luckPick,
 #luckResList, #luckResPlace { font-family: Verdana, Geneva, sans-serif; }
 #luckResList li { font-weight: 700; font-size: 14px; }
 
-/* the seat picker on the menu: Ngẫu nhiên | 1 | 2 | 3 | 4 */
-#luckSeats { margin: 0 0 12px; padding: 0; border: 0; display: grid; grid-template-columns: 1.9fr repeat(4, 1fr); gap: 6px; }
-#luckSeats span { width: 100%; }
-#luckSeats legend { grid-column: 1 / -1; width: 100%; margin-bottom: 6px; padding: 0; font-size: 13px; font-weight: 800; }
-#luckSeats label { position: relative; cursor: pointer; }
-#luckSeats input { position: absolute; opacity: 0; pointer-events: none; }
-#luckSeats span {
+/* ========================================================================== the menu
+   Split screen: the show's opening card on the left (it fades into the night blue), the form on
+   the right. One accent - the card's gold, toned down. Everything arrives in order (--i), the
+   word "lên" is struck out and "tạch" written over it. While the stage loads, the start button
+   is a shimmer; if it never loads, the form says so under the button. */
+#luckMenu {
+	--gold: #f2c94c;
+	--ink: #e9edf8;
+	--mute: #9ea8c6;
+	--line: rgba(233, 237, 248, .14);
+	--bg: #060c20;
+	position: fixed;
+	inset: 0;
+	z-index: 30;
+	display: grid;
+	grid-template-columns: minmax(0, 1.35fr) minmax(340px, 460px);
+	align-items: center;
+	gap: clamp(20px, 4vw, 64px);
+	min-height: 100dvh;
+	padding: 72px clamp(16px, 5vw, 72px) 32px;
+	box-sizing: border-box;
+	background: radial-gradient(ellipse 70% 80% at 30% 50%, #0f2a52 0%, #0a1838 45%, var(--bg) 100%);
+	color: var(--ink);
+	overflow-y: auto;
+	transition: opacity .5s, visibility .5s;
+}
+#luckMenu.gone { opacity: 0; visibility: hidden; }
+
+.luckBack {
+	position: absolute;
+	left: clamp(16px, 2.5vw, 32px);
+	top: clamp(14px, 2.5vw, 28px);
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	min-width: 0;
-	height: 38px;
-	padding: 0 6px;
-	border: 1px solid rgba(255, 255, 255, .25);
-	border-radius: 10px;
-	background: rgba(255, 255, 255, .06);
+	gap: 6px;
+	padding: 8px 14px 8px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--line);
+	background: rgba(6, 12, 32, .55);
+	color: var(--ink);
 	font-weight: 800;
 	font-size: 14px;
-	transition: background .15s, border-color .15s;
+	text-decoration: none;
+	transition: border-color .2s, transform .2s cubic-bezier(.16, 1, .3, 1);
 }
-#luckSeats input:checked + span { background: linear-gradient(#ffd85a, #f0a91c); border-color: transparent; color: #2b1700; }
-#luckSeats input:focus-visible + span { outline: 2px solid #ffd85a; outline-offset: 2px; }
+.luckBack:hover { border-color: rgba(242, 201, 76, .5); }
+.luckBack:active { transform: translateY(1px); }
+
+/* left: the opening card (no frame, it melts into the background) and the five rounds under it */
+.menuLeft { display: grid; gap: clamp(12px, 2vh, 24px); align-content: center; min-width: 0; }
+.menuArt { margin: 0; }
+.menuArt img {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-height: calc(100dvh - 300px);
+	margin: 0 auto;
+	object-fit: contain;
+	-webkit-mask-image: radial-gradient(ellipse 60% 58% at 50% 50%, #000 52%, transparent 100%);
+	mask-image: radial-gradient(ellipse 60% 58% at 50% 50%, #000 52%, transparent 100%);
+	animation: artIn 1.2s cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes artIn { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+
+/* the form: a sheet of glass - an inner border and a top highlight, no glow */
+#luckForm {
+	position: relative;
+	padding: 28px 28px 22px;
+	border-radius: 22px;
+	background: rgba(9, 17, 42, .72);
+	border: 1px solid var(--line);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 30px 60px -30px rgba(2, 5, 16, .9);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+}
+#luckForm > * { animation: rise .7s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--i, 0) * 60ms + 150ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+#luckForm .kicker {
+	margin: 0 0 10px;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: var(--mute);
+}
+#luckForm h1 {
+	margin: 0 0 12px;
+	font-size: clamp(26px, 2.4vw, 32px);
+	font-weight: 900;
+	line-height: 1.15;
+	letter-spacing: -.01em;
+	color: var(--ink);
+}
+#luckForm h1 .was { position: relative; color: var(--mute); }
+#luckForm h1 .was::after {
+	content: "";
+	position: absolute;
+	left: -2px;
+	right: -2px;
+	top: 54%;
+	height: 3px;
+	border-radius: 2px;
+	background: var(--gold);
+	transform: scaleX(0);
+	transform-origin: 0 50%;
+	animation: strike .45s cubic-bezier(.65, 0, .35, 1) .9s forwards;
+}
+#luckForm h1 .now { display: inline-block; color: var(--gold); animation: writeIn .5s cubic-bezier(.16, 1, .3, 1) 1.3s both; }
+@keyframes strike { to { transform: scaleX(1); } }
+@keyframes writeIn { from { opacity: 0; transform: translateY(-6px) rotate(-4deg); } to { opacity: 1; transform: none; } }
+#luckForm .lead { margin: 0 0 18px; max-width: 46ch; font-size: 15px; line-height: 1.55; color: #c9d1ea; }
+
+/* the five rounds, in playing order: five columns under the card */
+.menuLeft .rounds {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: round;
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 0;
+	border-top: 1px solid var(--line);
+}
+.menuLeft .rounds li {
+	counter-increment: round;
+	display: grid;
+	align-content: start;
+	gap: 4px;
+	padding: 12px 14px 0 0;
+	font-size: 12.5px;
+	line-height: 1.45;
+	animation: rise .7s cubic-bezier(.16, 1, .3, 1) both;
+	animation-delay: calc(var(--i, 0) * 70ms + 500ms);
+}
+.menuLeft .rounds li + li { padding-left: 14px; border-left: 1px solid var(--line); }
+.menuLeft .rounds li::before {
+	content: counter(round, decimal-leading-zero);
+	font: 700 12px "JetBrains Mono", ui-monospace, Menlo, monospace;
+	color: var(--gold);
+}
+.menuLeft .rounds b { font-weight: 800; font-size: 14px; color: var(--ink); }
+.menuLeft .rounds span { color: var(--mute); }
+
+/* seat: one connected segmented control */
+#luckSeats { margin: 0 0 14px; padding: 0; border: 0; min-width: 0; }
+#luckSeats legend, #luckForm .field label { display: block; margin: 0 0 6px; padding: 0; font-size: 13px; font-weight: 800; color: var(--ink); }
+#luckSeats .seg {
+	display: grid;
+	grid-template-columns: 2fr repeat(4, 1fr);
+	padding: 3px;
+	gap: 3px;
+	border-radius: 12px;
+	border: 1px solid var(--line);
+	background: rgba(255, 255, 255, .03);
+}
+#luckSeats label { position: relative; display: block; min-width: 0; cursor: pointer; }
+#luckSeats input { position: absolute; opacity: 0; pointer-events: none; }
+#luckSeats span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 36px;
+	border-radius: 9px;
+	font-weight: 800;
+	font-size: 14px;
+	color: var(--mute);
+	transition: background-color .25s cubic-bezier(.16, 1, .3, 1), color .25s;
+}
+#luckSeats label:hover span { color: var(--ink); }
+#luckSeats input:checked + span { background: var(--gold); color: #241900; }
+#luckSeats input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
 #luckSeats label:active span { transform: scale(.97); }
-#luckSeats label { display: block; min-width: 0; }
-#luckSeats span { box-sizing: border-box; }
+
+/* name: label above, help under it */
+#luckForm .field { display: grid; gap: 6px; margin: 0 0 16px; }
+#luckForm .field label { margin: 0; }
+#luckForm input#luckName {
+	height: 44px;
+	padding: 0 14px;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, .04);
+	color: var(--ink);
+	font: 700 15px Nunito, sans-serif;
+	transition: border-color .2s;
+}
+#luckForm input#luckName::placeholder { color: rgba(158, 168, 198, .7); }
+#luckForm input#luckName:focus { outline: none; border-color: var(--gold); }
+#luckForm .field small { font-size: 12px; color: var(--mute); }
+
+/* start: a shimmer while the stage loads */
+#luckStart {
+	position: relative;
+	width: 100%;
+	height: 48px;
+	border: 0;
+	border-radius: 12px;
+	background: var(--gold);
+	color: #241900;
+	font: 900 16px Nunito, sans-serif;
+	cursor: pointer;
+	overflow: hidden;
+	transition: transform .2s cubic-bezier(.16, 1, .3, 1), filter .2s;
+}
+#luckStart:hover { filter: brightness(1.05); }
+#luckStart:active { transform: translateY(1px) scale(.99); }
+#luckStart .skeleton { display: none; }
+#luckForm.loading #luckStart { background: rgba(255, 255, 255, .06); cursor: progress; }
+#luckForm.loading #luckStart .label { visibility: hidden; }
+#luckForm.loading #luckStart .skeleton {
+	display: block;
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(100deg, transparent 20%, rgba(242, 201, 76, .22) 50%, transparent 80%) -100% 0 / 200% 100% no-repeat;
+	animation: shimmer 1.3s linear infinite;
+}
+@keyframes shimmer { to { background-position: 200% 0; } }
+#luckForm.failed #luckStart { background: rgba(255, 255, 255, .06); color: var(--mute); cursor: not-allowed; }
+#luckErr { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: #ff8a7a; }
+#luckErr:empty { display: none; }
+#luckForm .foot { margin: 14px 0 0; font-size: 12px; line-height: 1.5; color: var(--mute); }
+
+/* below 760 px wide (phones held upright): one column, the card on top */
+@media (max-width: 760px) {
+	#luckMenu { grid-template-columns: minmax(0, 1fr); align-items: start; padding: 64px 16px 24px; }
+	.menuLeft { display: contents; }
+	.menuArt { order: 1; }
+	.menuArt img { max-height: 40dvh; }
+	#luckForm { order: 2; padding: 22px 18px 18px; }
+	.menuLeft .rounds { order: 3; grid-template-columns: minmax(0, 1fr); }
+	.menuLeft .rounds li { grid-template-columns: 26px minmax(0, 1fr); padding: 10px 0; border-bottom: 1px solid var(--line); }
+	.menuLeft .rounds li + li { padding-left: 0; border-left: 0; }
+	.menuLeft .rounds li::before { grid-row: 1 / 3; }
+}
+/* a phone held sideways: little height - the round list goes */
+@media (max-height: 560px) {
+	#luckMenu { padding-top: 56px; }
+	.menuLeft .rounds { display: none; }
+	.menuArt img { max-height: calc(100dvh - 90px); }
+	#luckMenu { padding-bottom: 12px; }
+	#luckForm { padding: 16px 18px; }
+	#luckForm .kicker, #luckForm .foot, #luckForm .field small { display: none; }
+	#luckSeats, #luckForm .field { margin-bottom: 10px; }
+	#luckSeats span { height: 32px; }
+	#luckForm input#luckName, #luckStart { height: 40px; }
+	#luckForm .lead { margin-bottom: 12px; }
+	#luckForm h1 { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.menuArt img, #luckForm > *, #luckForm h1 .now, .menuLeft .rounds li { animation: none; }
+	#luckForm h1 .was::after { animation: none; transform: scaleX(1); }
+	#luckForm.loading #luckStart .skeleton { animation: none; }
+}

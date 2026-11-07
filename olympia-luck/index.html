@@ -16,10 +16,10 @@
 	<meta property="og:site_name" content="respirable" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Bạn có tạch đỉnh Olympia?", "url": "https://respirable.github.io/olympia-luck/", "description": "Một trận Đường lên đỉnh Olympia (luật O26) với ba rô-bốt, nơi mọi câu trả lời đều là quay số.", "applicationCategory": "GameApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires JavaScript", "inLanguage": "vi", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Person", "name": "respirable", "url": "https://respirable.github.io/"}}</script>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap">
 	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261107h">
 	<link rel="stylesheet" type="text/css" href="Styles/o26.css?v=20261107h">
-	<link rel="stylesheet" type="text/css" href="Styles/luck.css?v=4">
+	<link rel="stylesheet" type="text/css" href="Styles/luck.css?v=5">
 	<script src="Scripts/Config.js?v=20261107h"></script>
 	<script src="Scripts/Auth.js?v=20261107h"></script>
 	<script src="Scripts/Variables.js?v=20261107h"></script>
@@ -56,9 +56,9 @@
 	<script src="Scripts/VcnvPublicImage.js?v=20261107h"></script>
 	<script src="Scripts/QuestionSet.js?v=20261107h"></script>
 	<script src="Scripts/Init.js?v=20261107h"></script>
-	<script src="Scripts/Luck/LuckCore.js?v=4"></script> <!-- settings, seeded rolls, seats, waiting, taps -->
-	<script src="Scripts/Luck/LuckDirector.js?v=4"></script> <!-- the host: the whole match, the robots -->
-	<script src="Scripts/Luck/LuckScreens.js?v=4"></script> <!-- menu, fitted stage, result card -->
+	<script src="Scripts/Luck/LuckCore.js?v=5"></script> <!-- settings, seeded rolls, seats, waiting, taps -->
+	<script src="Scripts/Luck/LuckDirector.js?v=5"></script> <!-- the host: the whole match, the robots -->
+	<script src="Scripts/Luck/LuckScreens.js?v=5"></script> <!-- menu, fitted stage, result card -->
 </head>
 
 <body class="luckPage">
@@ -141,31 +141,40 @@
 
 	<section id="luckMenu">
 		<a class="luckBack" href="/"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>respirable</a>
-		<img class="menuArt" src="/olympia-luck/menu.jpg" alt="Đường lên đỉnh Olympia - chữ &quot;lên&quot; bị gạch, thay bằng &quot;tạch&quot;" width="1200" height="675">
-		<form id="luckForm">
-			<h1>Bạn có <s>lên</s> tạch đỉnh Olympia?</h1>
-			<p>Một trận Đường lên đỉnh Olympia theo luật O26, với ba rô-bốt. Bạn không cần biết đáp án: mỗi lần nhấn là một lần quay số.</p>
-			<ul>
-				<li><b>Khởi động</b> nhấn thanh câu hỏi để trả lời, đúng 50%. Lượt chung phải giành chuông với rô-bốt.</li>
-				<li><b>VCNV</b> nhấn thanh câu hỏi để trả lời hàng ngang, nhấn ảnh gợi ý để xin trả lời chướng ngại vật (đúng 10%).</li>
-				<li><b>Tăng tốc</b> 6, 6, 8, 8 lệnh hỏi, mỗi lệnh đúng 50%. Nhiều lệnh đúng nhất thì nhiều điểm nhất.</li>
-				<li><b>Về đích</b> câu 20 điểm cần quay 71+, câu 30 điểm cần 91+. Kết quả chỉ hiện khi hết giờ.</li>
-				<li><b>Câu hỏi phụ</b> chỉ bấm chuông khi nghe thấy nhạc.</li>
-			</ul>
-			<fieldset id="luckSeats">
+		<div class="menuLeft">
+			<figure class="menuArt">
+				<img src="/olympia-luck/menu.jpg" alt="Logo Đường lên đỉnh Olympia, chữ &quot;lên&quot; bị gạch và viết đè chữ &quot;tạch&quot;" width="1200" height="675">
+			</figure>
+			<ol class="rounds">
+				<li style="--i:2"><b>Khởi động</b><span>Nhấn thanh câu hỏi, đúng 50%. Lượt chung phải giành chuông với rô-bốt, sai bị trừ 5.</span></li>
+				<li style="--i:3"><b>Vượt chướng ngại vật</b><span>Hàng ngang đúng 50%. Nhấn ảnh gợi ý để xin trả lời chướng ngại vật, đúng 10%.</span></li>
+				<li style="--i:4"><b>Tăng tốc</b><span>6, 6, 8, 8 lệnh hỏi, mỗi lệnh đúng 50%. Kết quả chỉ hiện ở cây đáp án.</span></li>
+				<li style="--i:5"><b>Về đích</b><span>Câu 20 điểm cần quay từ 71, câu 30 điểm từ 91. Đúng hay sai chỉ biết khi hết giờ.</span></li>
+				<li style="--i:6"><b>Câu hỏi phụ</b><span>Chỉ bấm khi nhạc nổi lên. Bấm sớm là bị loại khỏi câu đó.</span></li>
+			</ol>
+		</div>
+		<form id="luckForm" class="loading" novalidate>
+			<p class="kicker" style="--i:0">Olympia 26 · 4 vòng thi · 3 rô-bốt</p>
+			<h1 style="--i:1">Bạn có <span class="was">lên</span> <span class="now">tạch</span> đỉnh Olympia?</h1>
+			<p class="lead" style="--i:2">Bạn không phải trả lời câu nào. Mỗi lần nhấn là một lần quay số, và rô-bốt cũng chơi bằng số y như bạn.</p>
+			<fieldset id="luckSeats" style="--i:3">
 				<legend>Vị trí thi đấu</legend>
-				<label><input type="radio" name="seat" value="0" checked><span>Ngẫu nhiên</span></label>
-				<label><input type="radio" name="seat" value="1"><span>1</span></label>
-				<label><input type="radio" name="seat" value="2"><span>2</span></label>
-				<label><input type="radio" name="seat" value="3"><span>3</span></label>
-				<label><input type="radio" name="seat" value="4"><span>4</span></label>
+				<div class="seg">
+					<label><input type="radio" name="seat" value="0" checked><span>Ngẫu nhiên</span></label>
+					<label><input type="radio" name="seat" value="1"><span>1</span></label>
+					<label><input type="radio" name="seat" value="2"><span>2</span></label>
+					<label><input type="radio" name="seat" value="3"><span>3</span></label>
+					<label><input type="radio" name="seat" value="4"><span>4</span></label>
+				</div>
 			</fieldset>
-			<label for="luckName">Tên của bạn</label>
-			<div class="row">
-				<input id="luckName" maxlength="40" autocomplete="nickname" placeholder="Bạn">
-				<button type="submit" id="luckStart">Vào thi</button>
+			<div class="field" style="--i:4">
+				<label for="luckName">Tên của bạn</label>
+				<input id="luckName" maxlength="40" autocomplete="nickname" placeholder="Bạn" aria-describedby="luckNameHelp">
+				<small id="luckNameHelp">Tên hiện trên bảng điểm, tối đa 40 ký tự.</small>
 			</div>
-			<small>Bật loa. Giữa các bước có thể nhấn "Tiếp ›" để đi nhanh hơn. F6 (hoặc nút "Bảng điểm") xem điểm và tạm dừng trận.</small>
+			<button type="submit" id="luckStart" style="--i:5"><span class="label">Vào thi</span><span class="skeleton" aria-hidden="true"></span></button>
+			<p id="luckErr" role="alert"></p>
+			<p class="foot" style="--i:6">Nên bật loa. Nút "Tiếp ›" bỏ qua lúc chờ, F6 xem bảng điểm và tạm dừng trận.</p>
 		</form>
 	</section>
 
