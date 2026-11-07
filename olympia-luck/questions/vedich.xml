@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Về đích. Mỗi gói: 3 câu 20 điểm + 3 câu 30 điểm. -->
+<vedich>
+  <package seat="1">
+    <question value="20"><text>Câu 20 điểm: hãy giải thích vì sao bạn xứng đáng với 20 điểm này. Bạn có 15 giây và khoảng 30% cơ hội.</text><answer>Không cần giải thích</answer></question>
+    <question value="20"><text>Một thí sinh chọn toàn câu 20 điểm. Đó là chiến thuật an toàn hay là nhát?</text><answer>Cả hai</answer></question>
+    <question value="20"><text>Ngôi sao hy vọng nhân đôi điểm của câu hỏi. Nó nhân đôi điều gì khác nữa?</text><answer>Nỗi thất vọng</answer></question>
+    <question value="30"><text>Chứng minh rằng bạn xứng đáng với 30 điểm này. Bạn có 20 giây, và 10% cơ hội.</text><answer>Không chứng minh được</answer></question>
+    <question value="30"><text>Câu 30 điểm khó hơn câu 20 điểm ở điểm nào, nếu cả hai đều không cần đọc?</text><answer>Ở xác suất</answer></question>
+    <question value="30"><text>Hãy kể tên ba thứ có thể giúp bạn trả lời đúng câu này.</text><answer>Hên, hên và hên</answer></question>
+  </package>
+  <package seat="2">
+    <question value="20"><text>Bạn có tin vào phép màu không? Câu trả lời của bạn không ảnh hưởng đến kết quả.</text><answer>Tuỳ</answer></question>
+    <question value="20"><text>Nếu bạn sai câu này, một robot có thể cướp điểm. Robot đó cần làm gì để cướp được?</text><answer>Bấm chuông và gặp may</answer></question>
+    <question value="20"><text>Trong Về đích, ai là người chọn gói câu hỏi khôn ngoan nhất?</text><answer>Chẳng ai cả</answer></question>
+    <question value="30"><text>Câu hỏi này đã được hội đồng chuyên môn thẩm định kỹ lưỡng. Hỏi hội đồng gồm mấy con xúc xắc?</text><answer>Một trăm mặt</answer></question>
+    <question value="30"><text>Nếu bạn trả lời đúng câu này, bạn sẽ khoe với ai đầu tiên?</text><answer>Robot</answer></question>
+    <question value="30"><text>Hãy giải phương trình: may mắn + cố gắng = ? (biết cố gắng bằng 0)</text><answer>May mắn</answer></question>
+  </package>
+  <package seat="3">
+    <question value="20"><text>Một robot đặt ngôi sao hy vọng vào câu này. Robot đó có hy vọng không?</text><answer>Không, nó chỉ bấm bừa</answer></question>
+    <question value="20"><text>Điền từ còn thiếu: "Thắng không kiêu, bại không ..."</text><answer>Bất ngờ</answer></question>
+    <question value="20"><text>Thời gian trả lời câu này là 15 giây. Thời gian để chấp nhận kết quả là bao lâu?</text><answer>Lâu hơn nhiều</answer></question>
+    <question value="30"><text>Một thí sinh trả lời đúng cả ba câu 30 điểm. Xác suất xảy ra chuyện đó là bao nhiêu?</text><answer>Rất thấp, nhưng hãy chụp màn hình lại</answer></question>
+    <question value="30"><text>Hãy nêu cảm nghĩ của bạn về con số 91.</text><answer>Nó là con số tối thiểu để đúng câu này</answer></question>
+    <question value="30"><text>Nếu điểm số là thước đo năng lực, thì chương trình này đang đo cái gì?</text><answer>Độ hên</answer></question>
+  </package>
+  <package seat="4">
+    <question value="20"><text>Bạn có quyền nhấn hai lần để trả lời câu này. Lần thứ hai có khác lần thứ nhất không?</text><answer>Không</answer></question>
+    <question value="20"><text>Một robot luôn đúng ở một số câu hỏi bí mật. Câu này có phải một trong số đó không?</text><answer>Bí mật</answer></question>
+    <question value="20"><text>Ai là người phát minh ra câu "cố lên, sắp về đích rồi"?</text><answer>Người chưa từng thi</answer></question>
+    <question value="30"><text>Bạn còn ba lần nhấn và 10% cơ hội mỗi lần. Đây là lúc để làm gì?</text><answer>Nhấn và nhắm mắt</answer></question>
+    <question value="30"><text>Nếu bạn về nhất trong chương trình này, bạn sẽ ghi gì vào CV?</text><answer>Số hưởng</answer></question>
+    <question value="30"><text>Câu hỏi cuối cùng của Về đích. Hãy nói lời cảm ơn tới thứ đã đưa bạn đến đây.</text><answer>Hàm Math.random()</answer></question>
+  </package>
+</vedich>

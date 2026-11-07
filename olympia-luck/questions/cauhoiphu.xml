@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Câu hỏi phụ: chỉ là bài kiểm tra phản xạ. Đợi nhạc rồi mới bấm. -->
+<cauhoiphu>
+  <question><text>Câu hỏi này không có nội dung. Hãy đợi nhạc.</text><answer>Đợi nhạc</answer></question>
+  <question><text>Vẫn không có nội dung. Lần này đừng bấm sớm.</text><answer>Đợi nhạc</answer></question>
+  <question><text>Câu cuối. Robot không biết đọc nhưng biết nghe nhạc.</text><answer>Đợi nhạc</answer></question>
+  <question><text>Nếu bạn đọc được dòng này, có lẽ bạn đã bấm sớm quá nhiều lần.</text><answer>Đợi nhạc</answer></question>
+</cauhoiphu>

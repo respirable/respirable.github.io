@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Khởi động. Câu hỏi chỉ để đọc cho vui: kết quả là quay số. -->
+<khoidong>
+  <individual seat="1">
+    <question><text>Bạn đang trả lời câu này bằng kiến thức hay bằng ngón tay?</text><answer>Ngón tay</answer></question>
+    <question><text>Một thí sinh không đọc câu hỏi mà vẫn trả lời đúng. Hiện tượng này trong khoa học gọi là gì?</text><answer>Hên</answer></question>
+    <question><text>Điền vào chỗ trống: "Học tài thi ..."</text><answer>Phận</answer></question>
+    <question><text>Nếu xác suất trả lời đúng là 50%, thì sau 6 câu bạn chắc chắn đúng bao nhiêu câu?</text><answer>Không chắc chắn gì cả</answer></question>
+    <question><text>Thứ gì càng ôn nhiều thì trong chương trình này càng vô dụng?</text><answer>Kiến thức</answer></question>
+    <question><text>Câu hỏi này dài đúng một dòng. Hỏi bạn đã đọc hết nó chưa?</text><answer>Chưa</answer></question>
+  </individual>
+  <individual seat="2">
+    <question><text>Robot trong trận này được lập trình bởi ai: kỹ sư, thầy bói hay một con xúc xắc?</text><answer>Một con xúc xắc</answer></question>
+    <question><text>Thủ đô của nước Việt Nam là gì? (Câu này dễ, nhưng đáp án vẫn được quyết định bằng quay số.)</text><answer>Hà Nội</answer></question>
+    <question><text>Môn học nào giúp bạn nhiều nhất trong chương trình này: Toán, Văn hay Tâm linh?</text><answer>Tâm linh</answer></question>
+    <question><text>Một đồng xu được tung 5 lần đều ra mặt sấp. Lần thứ 6 khả năng ra mặt ngửa là bao nhiêu?</text><answer>50%, như mọi lần khác</answer></question>
+    <question><text>Kể tên một chiến thuật hiệu quả để thắng vòng Khởi động của chương trình này.</text><answer>Không có</answer></question>
+    <question><text>Bạn có cảm thấy mình đang được đánh giá công bằng không?</text><answer>Có, công bằng như nhau với cả robot</answer></question>
+  </individual>
+  <individual seat="3">
+    <question><text>Ai là người quyết định bạn đúng hay sai ở câu hỏi này?</text><answer>Hàm Math.random()</answer></question>
+    <question><text>"Có công mài sắt, có ngày nên kim." Trong chương trình này, câu tục ngữ đó nên sửa thành gì?</text><answer>Có công mài sắt, chưa chắc nên kim</answer></question>
+    <question><text>Bấm nhanh hơn có làm tăng tỉ lệ đúng không?</text><answer>Không</answer></question>
+    <question><text>Một robot trả lời sai liên tục 6 câu. Robot đó cần học thêm gì?</text><answer>Không cần, nó chỉ đen thôi</answer></question>
+    <question><text>Từ nào sau đây không tồn tại trong kịch bản của chương trình: "may", "rủi", "kiến thức"?</text><answer>Kiến thức</answer></question>
+    <question><text>Đây là câu hỏi thứ mấy của lượt này? Gợi ý: không quan trọng.</text><answer>Câu 6</answer></question>
+  </individual>
+  <individual seat="4">
+    <question><text>Phát minh nào của loài người được dùng nhiều nhất trong chương trình này: bánh xe, la bàn hay bộ sinh số ngẫu nhiên?</text><answer>Bộ sinh số ngẫu nhiên</answer></question>
+    <question><text>Nếu bạn biết chắc đáp án câu này, điểm của bạn sẽ thay đổi thế nào?</text><answer>Không thay đổi</answer></question>
+    <question><text>Ba con robot trong phòng thi có tên chung là gì?</text><answer>Đối thủ không biết đọc</answer></question>
+    <question><text>Thời gian suy nghĩ cho câu hỏi này là bao lâu?</text><answer>Bao lâu cũng được, kết quả vẫn thế</answer></question>
+    <question><text>Một thí sinh cầu nguyện trước khi bấm. Tỉ lệ đúng của thí sinh đó tăng thêm bao nhiêu phần trăm?</text><answer>0%</answer></question>
+    <question><text>Câu hỏi cuối lượt: bạn có muốn đổi câu hỏi khác không?</text><answer>Đổi cũng vậy</answer></question>
+  </individual>
+  <common>
+    <question><text>Ai bấm chuông nhanh nhất sẽ được quyền… tung đồng xu. Bạn có muốn bấm không?</text><answer>Có</answer></question>
+    <question><text>Trong lượt chung, robot bấm chuông vì biết đáp án hay vì thích bấm?</text><answer>Vì thích bấm</answer></question>
+    <question><text>Bấm sai bị trừ 5 điểm. Không bấm thì bị trừ bao nhiêu?</text><answer>0 điểm và một chút tự trọng</answer></question>
+    <question><text>Một câu hỏi không có đáp án đúng thì ai sẽ trả lời đúng?</text><answer>Người được quay số trúng</answer></question>
+    <question><text>Tỉ lệ đúng của câu hỏi khó là bao nhiêu? Tỉ lệ đúng của câu hỏi dễ là bao nhiêu?</text><answer>50% và 50%</answer></question>
+    <question><text>Đây có phải câu hỏi mẹo không?</text><answer>Không, nó chỉ vô nghĩa thôi</answer></question>
+    <question><text>Kể tên một đức tính cần có của nhà vô địch chương trình này.</text><answer>Số hưởng</answer></question>
+    <question><text>Bạn có biết vì sao robot không bao giờ hồi hộp không?</text><answer>Vì nó cũng không biết đáp án</answer></question>
+    <question><text>Nếu bạn sai câu này, lỗi thuộc về ai?</text><answer>Vũ trụ</answer></question>
+    <question><text>Từ "Olympia" trong tên chương trình này nên được đọc thành gì cho đúng bản chất?</text><answer>Ô-lym-pia-ngẫu-nhiên</answer></question>
+    <question><text>Một robot vừa bấm chuông trước bạn 0,2 giây. Robot đó có giỏi hơn bạn không?</text><answer>Không, nó chỉ nhanh tay</answer></question>
+    <question><text>Câu cuối của Khởi động: bạn cảm thấy thế nào về điểm số hiện tại của mình?</text><answer>Không liên quan tới năng lực</answer></question>
+  </common>
+</khoidong>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<base href="/olympia/">
+	<title>Bạn có tạch đỉnh Olympia? - Đường lên đỉnh Olympia nhưng 100% nhờ may mắn | respirable</title>
+	<meta name="description" content="Một trận Đường lên đỉnh Olympia theo luật O26 với ba rô-bốt, nhưng mọi câu trả lời đều là quay số: Khởi động, VCNV, Tăng tốc, Về đích. Bạn có tạch không?" />
+	<link rel="canonical" href="https://respirable.github.io/olympia-luck/" />
+	<meta property="og:title" content="Bạn có tạch đỉnh Olympia?" />
+	<meta property="og:description" content="Đường lên đỉnh Olympia, luật O26, ba rô-bốt và 100% may mắn. Không cần biết đáp án, chỉ cần nhân phẩm." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://respirable.github.io/olympia-luck/" />
+	<meta property="og:image" content="https://respirable.github.io/olympia-luck/menu.jpg" />
+	<meta property="og:site_name" content="respirable" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Bạn có tạch đỉnh Olympia?", "url": "https://respirable.github.io/olympia-luck/", "description": "Một trận Đường lên đỉnh Olympia (luật O26) với ba rô-bốt, nơi mọi câu trả lời đều là quay số.", "applicationCategory": "GameApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires JavaScript", "inLanguage": "vi", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Person", "name": "respirable", "url": "https://respirable.github.io/"}}</script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
+	<link rel="stylesheet" type="text/css" href="Styles/olympia.css?v=20261107h">
+	<link rel="stylesheet" type="text/css" href="Styles/o26.css?v=20261107h">
+	<link rel="stylesheet" type="text/css" href="Styles/luck.css?v=1">
+	<script src="Scripts/Config.js?v=20261107h"></script>
+	<script src="Scripts/Auth.js?v=20261107h"></script>
+	<script src="Scripts/Variables.js?v=20261107h"></script>
+	<script src="Scripts/Rules.js?v=20261107h"></script>
+	<script src="Scripts/Ticker.js?v=20261107h"></script>
+	<script src="Scripts/StateSync.js?v=20261107h"></script>
+	<script src="Scripts/AudioControl.js?v=20261107h"></script>
+	<script src="Scripts/TimerControl.js?v=20261107h"></script>
+	<script src="Scripts/QuestionLoader.js?v=20261107h"></script>
+	<script src="Scripts/StageControl.js?v=20261107h"></script>
+	<script src="Scripts/O26Frames.js?v=20261107h"></script>
+	<script src="Scripts/O26Stage.js?v=20261107h"></script>
+	<script src="Scripts/ScoreboardControl.js?v=20261107h"></script>
+	<script src="Scripts/ScoreSummaryControl.js?v=20261107h"></script>
+	<script src="Scripts/ScoreBoardScreenControl.js?v=20261107h"></script>
+	<script src="Scripts/VcnvControl.js?v=20261107h"></script>
+	<script src="Scripts/VcnvTreeControl.js?v=20261107h"></script>
+	<script src="Scripts/TangTocControl.js?v=20261107h"></script>
+	<script src="Scripts/VeDichControl.js?v=20261107h"></script>
+	<script src="Scripts/KdIntro.js?v=20261107h"></script>
+	<script src="Scripts/QuestionControl.js?v=20261107h"></script>
+	<script src="Scripts/GeneralControl.js?v=20261107h"></script>
+	<script src="Scripts/Rounds/KhoiDong.js?v=20261107h"></script>
+	<script src="Scripts/Rounds/VCNV.js?v=20261107h"></script>
+	<script src="Scripts/Rounds/TangToc.js?v=20261107h"></script>
+	<script src="Scripts/Rounds/VeDich.js?v=20261107h"></script>
+	<script src="Scripts/Rounds/TieBreak.js?v=20261107h"></script>
+	<script src="Scripts/KeyboardController.js?v=20261107h"></script>
+	<script src="Scripts/PanelStateControl.js?v=20261107h"></script>
+	<script src="Scripts/PanelCommands.js?v=20261107h"></script>
+	<script src="Scripts/PlayerActions.js?v=20261107h"></script>
+	<script src="Scripts/Recovery.js?v=20261107h"></script>
+	<script src="Scripts/MatchLog.js?v=20261107h"></script>
+	<script src="Scripts/VcnvPublicImage.js?v=20261107h"></script>
+	<script src="Scripts/QuestionSet.js?v=20261107h"></script>
+	<script src="Scripts/Init.js?v=20261107h"></script>
+	<script src="Scripts/Luck/LuckCore.js?v=1"></script> <!-- settings, seeded rolls, seats, waiting, taps -->
+	<script src="Scripts/Luck/LuckDirector.js?v=1"></script> <!-- the host: the whole match, the robots -->
+	<script src="Scripts/Luck/LuckScreens.js?v=1"></script> <!-- menu, fitted stage, result card -->
+</head>
+
+<body class="luckPage">
+	<!-- "Bạn có tạch đỉnh Olympia?": Olympia 26 alone against three robots - every answer is a roll.
+	     The stage below is default.html's, scaled to the window (LuckScreens.js). -->
+	<div id="luckFrame">
+	<div class="stageContainerDiv">
+	
+			<!-- background: hidden until C -->
+			<div class="stageBackgroundDiv visible">
+				<img src="O24/background.png" alt="">
+			</div>
+	
+			<!-- round title card -->
+			<div class="titleCardDiv">
+				<img data-round="kd" src="O24/Warm-up/text.png" width="1077" height="240" alt="">
+				<img data-round="vcnv" src="O24/Beat the Obstacle/text.png" width="1731" height="460" alt="">
+				<img data-round="tt" src="O24/Accelerate/text.png" width="959" height="250" alt="">
+				<img data-round="vd" src="O24/Finish Line/text.png" width="749" height="250" alt="">
+			</div>
+	
+			<!-- question bar -->
+			<div class="questionBarDiv offstage">
+				<img src="O24/Warm-up/question_bar.png" alt="" class="questionBarImg">
+				<p class="questionTextP"></p>
+				<p class="questionClockP"></p>
+			</div>
+	
+			<!-- four contestant bars, built by ScoreboardControl.render() -->
+			<div class="scoreboardDiv offstage"></div>
+	
+			<!-- score summary (key M): plain question bar shrunk to a panel + Accelerate name tab on top -->
+			<!-- Vượt chướng ngại vật: picture + covers (left), letter board (right), question bar (bottom-left).
+			     Contents are built by VcnvControl.render() from Questions/vcnv.xml. -->
+			<div class="vcnvDiv offstage">
+				<div class="vcnvPictureDiv"></div>
+				<div class="vcnvBoardDiv"></div>
+				<div class="vcnvQuestionDiv"></div>
+			</div>
+	
+			<!-- Tăng tốc: question bar + contents frame (built by TangTocControl) -->
+			<div class="ttDiv offstage"></div>
+	
+			<!-- Ve dich: choose screen, name tabs + question bar, score box (built by VeDichControl) -->
+			<div class="vdDiv offstage"></div>
+	
+			<!-- VCNV answer tree (built by VcnvTreeControl) -->
+			<div class="vcnvTreeDiv offstage"></div>
+			<!-- CNV signal tabs while the answer tree is up - same screen spot as on the question bar -->
+			<div class="vcnvSignalsDiv vcnvTreeSignalsDiv offstage"></div>
+	
+			<div class="summaryDiv offstage">
+				<img src="O24/Warm-up/question_bar_without_timer.png" alt="" class="summaryPanelImg">
+				<img src="O24/Accelerate/Answers/contestant_name_bar.png" alt="" class="summaryTabImg">
+				<p class="summaryNameP"></p>
+				<p class="summaryScoreP"></p>
+			</div>
+	
+			<!-- "current results" board (F6): four CSS score cards, built by ScoreBoardScreenControl -->
+			<div class="boardScreenDiv offstage"></div>
+	
+			<!-- shown when a second graphics tab is detected -->
+			<div class="authorityWarningDiv">Một màn hình đồ hoạ khác đang mở — âm thanh sẽ bị lặp. Đóng tab này hoặc tab
+				kia.</div>
+	
+		</div>
+	</div>
+
+	<div id="luckHint" aria-live="polite"></div>
+	<div id="luckToasts" aria-live="polite"></div>
+	<div id="luckCounter"></div>
+	<button type="button" id="luckNext">Tiếp <span aria-hidden="true">›</span><i></i></button>
+	<div id="luckPick">
+		<p>Chọn gói câu hỏi <small></small></p>
+		<button type="button" data-v="20">20 điểm</button>
+		<button type="button" data-v="30">30 điểm</button>
+	</div>
+	<button type="button" id="luckStar">Đặt ngôi sao hy vọng</button>
+
+	<section id="luckMenu">
+		<img class="menuArt" src="/olympia-luck/menu.jpg" alt="Đường lên đỉnh Olympia - chữ &quot;lên&quot; bị gạch, thay bằng &quot;tạch&quot;" width="1200" height="675">
+		<form id="luckForm">
+			<h1>Bạn có <s>lên</s> tạch đỉnh Olympia?</h1>
+			<p>Một trận Đường lên đỉnh Olympia theo luật O26, với ba rô-bốt. Bạn không cần biết đáp án: mỗi lần nhấn là một lần quay số.</p>
+			<ul>
+				<li><b>Khởi động</b> nhấn thanh câu hỏi để trả lời, đúng 50%. Lượt chung phải giành chuông với rô-bốt.</li>
+				<li><b>VCNV</b> nhấn thanh câu hỏi để trả lời hàng ngang, nhấn ảnh gợi ý để xin trả lời chướng ngại vật (đúng 10%).</li>
+				<li><b>Tăng tốc</b> 6, 6, 8, 8 lệnh hỏi, mỗi lệnh đúng 50%. Nhiều lệnh đúng nhất thì nhiều điểm nhất.</li>
+				<li><b>Về đích</b> câu 20 điểm cần quay 71+, câu 30 điểm cần 91+. Kết quả chỉ hiện khi hết giờ.</li>
+				<li><b>Câu hỏi phụ</b> chỉ bấm chuông khi nghe thấy nhạc.</li>
+			</ul>
+			<label for="luckName">Tên của bạn</label>
+			<div class="row">
+				<input id="luckName" maxlength="40" autocomplete="nickname" placeholder="Bạn">
+				<button type="submit" id="luckStart">Vào thi</button>
+			</div>
+			<small>Bật loa. Giữa các bước có thể nhấn "Tiếp ›" để đi nhanh hơn. <a href="/">respirable</a></small>
+		</form>
+	</section>
+
+	<section id="luckResult" aria-live="polite">
+		<div class="card">
+			<p class="eyebrow">Kết quả</p>
+			<h2 id="luckResTitle"></h2>
+			<p id="luckResPlace"></p>
+			<ol id="luckResList"></ol>
+			<p id="luckResLuck"></p>
+			<div class="row">
+				<button type="button" id="luckShare">Chia sẻ</button>
+				<button type="button" id="luckAgain">Chơi lại</button>
+			</div>
+		</div>
+	</section>
+</body>
+
+</html>
