@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Vượt chướng ngại vật. Số vòng tròn = số ký tự của đáp án (không tính dấu cách). -->
+<vcnv>
+  <keyword><text>NHÂN PHẨM</text></keyword>
+  <image>O24/VCNV Image.png</image>
+
+  <row><text>Thứ bạn cần có nhiều nhất trước khi bấm vào thanh câu hỏi này, gồm 3 chữ cái.</text><answer>HÊN</answer></row>
+  <row><text>Đối lập với "may", cũng là thứ đã xảy ra với hầu hết các thí sinh tham gia chương trình này.</text><answer>RỦI RO</answer></row>
+  <row><text>Thứ mà ba robot trong phòng thi không có, nhưng vẫn trả lời đúng thường xuyên hơn bạn.</text><answer>NÃO</answer></row>
+  <row><text>Hành động của một thí sinh khi nhìn thấy kết quả quay số của mình, gồm 6 chữ cái.</text><answer>THỞ DÀI</answer></row>
+
+  <center><text>Ô trung tâm: Thứ duy nhất được kiểm tra trong suốt chương trình này là gì?</text><answer>NHÂN PHẨM</answer></center>
+</vcnv>

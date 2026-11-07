@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Bạn có tạch đỉnh Olympia?" - Tăng tốc. Mỗi lần nhấn là một "lệnh hỏi" (6, 6, 8, 8 lệnh). -->
+<tangtoc>
+  <question seconds="20">
+    <text>Hãy sắp xếp các bước sau theo đúng thứ tự: (A) nhấn bừa, (B) cầu nguyện, (C) tạch.</text>
+    <answer>B - A - C</answer>
+  </question>
+  <question seconds="20">
+    <text>Có 6 lệnh hỏi, mỗi lệnh đúng 50%. Hỏi số lệnh đúng kỳ vọng là bao nhiêu, và số lệnh đúng thực tế của bạn sẽ ít hơn bao nhiêu?</text>
+    <answer>3, và ít hơn một chút</answer>
+  </question>
+  <question seconds="30">
+    <text>Điền vào chỗ trống trong định luật bảo toàn của chương trình này: "Điểm số không tự sinh ra cũng không tự mất đi, nó chỉ chuyển từ ... sang ..."</text>
+    <answer>Bạn sang robot</answer>
+  </question>
+  <question seconds="30">
+    <text>Bạn có 30 giây và 8 lệnh hỏi. Kiến thức của bạn đóng góp bao nhiêu phần trăm vào kết quả câu này?</text>
+    <answer>0%</answer>
+  </question>
+</tangtoc>

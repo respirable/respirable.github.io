@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tên thật được đặt lại lúc bắt đầu trận (Scripts/Luck/LuckCore.js). -->
+<players>
+  <player seat="1"><name>Thí sinh 1</name><school></school></player>
+  <player seat="2"><name>Thí sinh 2</name><school></school></player>
+  <player seat="3"><name>Thí sinh 3</name><school></school></player>
+  <player seat="4"><name>Thí sinh 4</name><school></school></player>
+</players>
