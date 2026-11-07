@@ -1,3 +1,4 @@
 User-agent: *
 Disallow: /controller/
 Allow: /
+Sitemap: https://respirable.github.io/sitemap.xml

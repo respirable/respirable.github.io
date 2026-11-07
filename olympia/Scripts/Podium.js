@@ -27,7 +27,7 @@
 		if (hideScore && (tb.seats || []).indexOf(seat) === -1) { name = ''; }
 		if ($('#name').textContent !== name) { $('#name').textContent = name; }
 		if ($('#score').textContent !== score) { $('#score').textContent = score; }
-		document.title = 'Bảng điểm ' + seat + (name ? ' — ' + name : '');
+		document.title = 'Bảng điểm ' + seat + (name ? ' - ' + name : '');
 	}
 
 	function start() {

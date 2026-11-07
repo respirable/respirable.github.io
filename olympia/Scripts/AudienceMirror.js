@@ -594,7 +594,7 @@
 		if (!/^[A-Z0-9]{4,12}$/.test(code)) { status('Link chưa đúng: cần dạng audience.html?room=MÃPHÒNG'); return; }
 		if (stageView) {
 			document.body.classList.add('stageView');
-			document.title = 'Olympia — Sân khấu';
+			document.title = 'Olympia - Sân khấu';
 			$('#aSound').classList.add('full');
 			$('#aSound').textContent = 'Nhấn vào màn hình để bật âm thanh';
 		}
