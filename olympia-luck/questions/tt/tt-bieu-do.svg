@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1008" height="679" viewBox="0 0 1008 679" font-family="Verdana, Arial, 'Helvetica Neue', sans-serif">
+<rect x="2" y="2" width="1004" height="675" rx="22" fill="#0b1a3f" stroke="#3a5a9a" stroke-width="3"/>
+<line x1="140" y1="560.0" x2="948" y2="560.0" stroke="#3a5a9a" stroke-width="1"/>
+<text x="122" y="560.0" font-size="22" fill="#9fb0d6" text-anchor="end" font-weight="400" dominant-baseline="central">0</text>
+<line x1="140" y1="493.33333333333337" x2="948" y2="493.33333333333337" stroke="#3a5a9a" stroke-width="1"/>
+<text x="122" y="493.33333333333337" font-size="22" fill="#9fb0d6" text-anchor="end" font-weight="400" dominant-baseline="central">10</text>
+<line x1="140" y1="426.6666666666667" x2="948" y2="426.6666666666667" stroke="#3a5a9a" stroke-width="1"/>
+<text x="122" y="426.6666666666667" font-size="22" fill="#9fb0d6" text-anchor="end" font-weight="400" dominant-baseline="central">20</text>
+<line x1="140" y1="360.0" x2="948" y2="360.0" stroke="#3a5a9a" stroke-width="1"/>
+<text x="122" y="360.0" font-size="22" fill="#9fb0d6" text-anchor="end" font-weight="400" dominant-baseline="central">30</text>
+<line x1="140" y1="293.33333333333337" x2="948" y2="293.33333333333337" stroke="#3a5a9a" stroke-width="1"/>
+<text x="122" y="293.33333333333337" font-size="22" fill="#9fb0d6" text-anchor="end" font-weight="400" dominant-baseline="central">40</text>
+<line x1="140" y1="226.66666666666663" x2="948" y2="226.66666666666663" stroke="#3a5a9a" stroke-width="1"/>
+<text x="122" y="226.66666666666663" font-size="22" fill="#9fb0d6" text-anchor="end" font-weight="400" dominant-baseline="central">50</text>
+<line x1="140" y1="160.0" x2="948" y2="160.0" stroke="#3a5a9a" stroke-width="1"/>
+<text x="122" y="160.0" font-size="22" fill="#9fb0d6" text-anchor="end" font-weight="400" dominant-baseline="central">60</text>
+<rect x="185.0" y="293.33333333333337" width="52" height="266.66666666666663" rx="4" fill="#5a74b0"/>
+<text x="211.0" y="275.33333333333337" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">40</text>
+<rect x="245.0" y="413.33333333333337" width="52" height="146.66666666666666" rx="4" fill="#f2c94c"/>
+<text x="271.0" y="395.33333333333337" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">22</text>
+<text x="241.0" y="592" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">Hên</text>
+<rect x="387.0" y="226.66666666666663" width="52" height="333.33333333333337" rx="4" fill="#5a74b0"/>
+<text x="413.0" y="208.66666666666663" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">50</text>
+<rect x="447.0" y="426.6666666666667" width="52" height="133.33333333333331" rx="4" fill="#f2c94c"/>
+<text x="473.0" y="408.6666666666667" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">20</text>
+<text x="443.0" y="592" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">Xui</text>
+<rect x="589.0" y="360.0" width="52" height="200.0" rx="4" fill="#5a74b0"/>
+<text x="615.0" y="342.0" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">30</text>
+<rect x="649.0" y="440.0" width="52" height="120.0" rx="4" fill="#f2c94c"/>
+<text x="675.0" y="422.0" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">18</text>
+<text x="645.0" y="592" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">Lụi</text>
+<rect x="791.0" y="160.0" width="52" height="400.0" rx="4" fill="#5a74b0"/>
+<text x="817.0" y="142.0" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">60</text>
+<rect x="851.0" y="380.0" width="52" height="180.0" rx="4" fill="#f2c94c"/>
+<text x="877.0" y="362.0" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">27</text>
+<text x="847.0" y="592" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">Bạn</text>
+<rect x="140" y="26" width="22" height="22" rx="4" fill="#5a74b0"/><text x="172" y="37" font-size="24" fill="#9fb0d6" text-anchor="start" font-weight="600" dominant-baseline="central">Số lần quay</text>
+<rect x="390" y="26" width="22" height="22" rx="4" fill="#f2c94c"/><text x="422" y="37" font-size="24" fill="#9fb0d6" text-anchor="start" font-weight="600" dominant-baseline="central">Số lần trúng</text>
+</svg>

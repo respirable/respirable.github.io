@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- "Bạn có tạch đỉnh Olympia?" - Khởi động. Câu hỏi chỉ để đọc cho vui: kết quả là quay số. -->
+<!-- "Bạn có tạch đỉnh Olympia?" - Khởi động. Câu hỏi chỉ để đọc: kết quả là quay số.
+     Kho câu: mỗi trận bốc 6 câu riêng cho mỗi ghế từ mọi khối <individual> và 12 câu chung (LuckCore.js). -->
 <khoidong>
   <individual seat="1">
     <question><text>Bạn đang trả lời câu này bằng kiến thức hay bằng ngón tay?</text><answer>Ngón tay</answer></question>
@@ -8,6 +9,18 @@
     <question><text>Nếu xác suất trả lời đúng là 50%, thì sau 6 câu bạn chắc chắn đúng bao nhiêu câu?</text><answer>Không chắc chắn gì cả</answer></question>
     <question><text>Thứ gì càng ôn nhiều thì trong chương trình này càng vô dụng?</text><answer>Kiến thức</answer></question>
     <question><text>Câu hỏi này dài đúng một dòng. Hỏi bạn đã đọc hết nó chưa?</text><answer>Chưa</answer></question>
+    <question><text>Kim loại nào ở thể lỏng trong điều kiện thường, giống kiến thức của bạn trong phòng thi?</text><answer>Thủy ngân</answer></question>
+    <question><text>Động vật nào lớn nhất trên cạn, lớn gần bằng áp lực của bạn lúc này?</text><answer>Voi châu Phi</answer></question>
+    <question><text>Thủ đô của Nhật Bản là gì? Câu này dễ, nên xác suất vẫn là 50%.</text><answer>Tokyo</answer></question>
+    <question><text>Tổng ba góc trong một tam giác bằng bao nhiêu độ? Góc nhìn của bạn về trò này không tính.</text><answer>180 độ</answer></question>
+    <question><text>Nhóm máu nào cho được cả bốn nhóm theo hệ ABO? Rô-bốt thì không có máu để cho.</text><answer>Nhóm O</answer></question>
+    <question><text>Đơn vị tiền tệ của Nhật Bản là gì? Không phải "yên tâm", vì ở đây không có gì yên tâm.</text><answer>Yên</answer></question>
+    <question><text>Nước sôi ở bao nhiêu độ C? Đầu bạn lúc này có thể đã vượt mốc đó.</text><answer>100 độ C</answer></question>
+    <question><text>Tiểu thuyết "Số đỏ" của ai? Tên sách là điều bạn đang cần nhất.</text><answer>Vũ Trọng Phụng</answer></question>
+    <question><text>Đại dương nào lớn nhất? Sâu hơn cả nỗi buồn khi bạn bị trừ điểm.</text><answer>Thái Bình Dương</answer></question>
+    <question><text>"Thursday" là thứ mấy? Gợi ý: không phải ngày bạn may mắn.</text><answer>Thứ Năm</answer></question>
+    <question><text>Kí hiệu hoá học của vàng là gì? Thứ duy nhất bằng vàng hôm nay là chiếc cúp bạn không cầm được.</text><answer>Au</answer></question>
+    <question><text>Thành phố nào được gọi là "thành phố ngàn hoa"? Hoa ở đó nhiều hơn số câu đúng của bạn.</text><answer>Đà Lạt</answer></question>
   </individual>
   <individual seat="2">
     <question><text>Robot trong trận này được lập trình bởi ai: kỹ sư, thầy bói hay một con xúc xắc?</text><answer>Một con xúc xắc</answer></question>
@@ -16,6 +29,18 @@
     <question><text>Một đồng xu được tung 5 lần đều ra mặt sấp. Lần thứ 6 khả năng ra mặt ngửa là bao nhiêu?</text><answer>50%, như mọi lần khác</answer></question>
     <question><text>Kể tên một chiến thuật hiệu quả để thắng vòng Khởi động của chương trình này.</text><answer>Không có</answer></question>
     <question><text>Bạn có cảm thấy mình đang được đánh giá công bằng không?</text><answer>Có, công bằng như nhau với cả robot</answer></question>
+    <question><text>Công thức hoá học của muối ăn, thứ bạn sắp được nếm khi thấy bảng điểm, là gì?</text><answer>NaCl</answer></question>
+    <question><text>"Trăm năm trong cõi người ta" là câu mở đầu tác phẩm nào, và ai viết?</text><answer>Truyện Kiều, Nguyễn Du</answer></question>
+    <question><text>Đỉnh núi cao nhất Việt Nam là gì? Không tính đỉnh cao phong độ của rô-bốt Hên.</text><answer>Phan Xi Păng</answer></question>
+    <question><text>Từ trái nghĩa với "ancient" là "modern" hay "antique"? Phương pháp quay số thuộc loại "ancient".</text><answer>Modern</answer></question>
+    <question><text>Một đội bóng đá có bao nhiêu người trên sân, nhiều hơn số câu bạn chắc chắn trả lời đúng?</text><answer>11</answer></question>
+    <question><text>Ai vẽ bức "Mona Lisa", người phụ nữ cười bí ẩn như rô-bốt khi thấy bạn trả lời?</text><answer>Leonardo da Vinci</answer></question>
+    <question><text>"Ăn quả nhớ kẻ ...". Thắng trận này thì nhớ cảm ơn bộ quay số.</text><answer>Trồng cây</answer></question>
+    <question><text>Vị vua cuối cùng của triều Nguyễn là ai? Người cuối cùng thoái vị, trước bạn một chút.</text><answer>Bảo Đại</answer></question>
+    <question><text>Căn bậc hai của 144 là bao nhiêu? Căn nguyên thất bại của bạn thì ai cũng biết rồi.</text><answer>12</answer></question>
+    <question><text>Số nhiều của "child" là gì? Đừng trả lời "childs" như hồi lớp 6.</text><answer>Children</answer></question>
+    <question><text>Ai đưa ra thuyết tương đối? Ông không giải thích được vì sao rô-bốt hơn điểm bạn.</text><answer>Albert Einstein</answer></question>
+    <question><text>Mỗi bên có bao nhiêu quân khi bắt đầu ván cờ vua? Ở trò này bạn chỉ có một quân: ngón tay.</text><answer>16</answer></question>
   </individual>
   <individual seat="3">
     <question><text>Ai là người quyết định bạn đúng hay sai ở câu hỏi này?</text><answer>Hàm Math.random()</answer></question>
@@ -24,6 +49,18 @@
     <question><text>Một robot trả lời sai liên tục 6 câu. Robot đó cần học thêm gì?</text><answer>Không cần, nó chỉ đen thôi</answer></question>
     <question><text>Từ nào sau đây không tồn tại trong kịch bản của chương trình: "may", "rủi", "kiến thức"?</text><answer>Kiến thức</answer></question>
     <question><text>Đây là câu hỏi thứ mấy của lượt này? Gợi ý: không quan trọng.</text><answer>Không quan trọng</answer></question>
+    <question><text>Đơn vị đo cường độ dòng điện là gì? Gợi ý: không phải "nhân phẩm".</text><answer>Ampe (A)</answer></question>
+    <question><text>"Bình Ngô đại cáo" do ai soạn? Rô-bốt không biết, nhưng có 50% sẽ đúng.</text><answer>Nguyễn Trãi</answer></question>
+    <question><text>15 nhân 15 bằng bao nhiêu? Bấm máy tính không kịp đâu.</text><answer>225</answer></question>
+    <question><text>Quá khứ của "go" là gì? Giống điểm số của bạn sau lượt này: đã đi xa.</text><answer>Went</answer></question>
+    <question><text>Thế vận hội Mùa hè tổ chức mấy năm một lần? Lâu hơn khoảng thời gian bạn giữ được ngôi đầu.</text><answer>4 năm</answer></question>
+    <question><text>Ai viết "Bản giao hưởng số 9" dù gần như không nghe được, giống bạn lúc bỏ ngoài tai lời khuyên ôn bài?</text><answer>Beethoven</answer></question>
+    <question><text>"Uống nước nhớ ...". Thua trận này thì nhớ đổ cho bộ quay số.</text><answer>Nguồn</answer></question>
+    <question><text>Ai lãnh đạo khởi nghĩa Lam Sơn và kiên trì suốt 10 năm, lâu hơn bạn kiên trì ôn bài?</text><answer>Lê Lợi</answer></question>
+    <question><text>Năm nhuận có bao nhiêu ngày? Thêm một ngày vẫn không đủ để bạn ôn kịp.</text><answer>366</answer></question>
+    <question><text>Cơ quan nào bơm máu đi khắp cơ thể, và đang đập rất nhanh khi bạn nhìn bảng điểm?</text><answer>Tim</answer></question>
+    <question><text>Tam giác có ba cạnh bằng nhau gọi là gì? Còn tam giác "bạn, robot, chiếc cúp" thì không đều chút nào.</text><answer>Tam giác đều</answer></question>
+    <question><text>Nước nào có lãnh thổ hình chiếc ủng, kiểu ủng bạn cần khi lội qua vòng này?</text><answer>Italy (Ý)</answer></question>
   </individual>
   <individual seat="4">
     <question><text>Phát minh nào của loài người được dùng nhiều nhất trong chương trình này: bánh xe, la bàn hay bộ sinh số ngẫu nhiên?</text><answer>Bộ sinh số ngẫu nhiên</answer></question>
@@ -32,6 +69,18 @@
     <question><text>Thời gian suy nghĩ cho câu hỏi này là bao lâu?</text><answer>Bao lâu cũng được, kết quả vẫn thế</answer></question>
     <question><text>Một thí sinh cầu nguyện trước khi bấm. Tỉ lệ đúng của thí sinh đó tăng thêm bao nhiêu phần trăm?</text><answer>0%</answer></question>
     <question><text>Bạn có muốn đổi sang một câu hỏi khác không?</text><answer>Đổi cũng vậy</answer></question>
+    <question><text>Hành tinh nào gần Mặt Trời nhất, gần hơn cả khoảng cách giữa bạn và chiếc cúp?</text><answer>Sao Thủy</answer></question>
+    <question><text>Chiến thắng Điện Biên Phủ diễn ra năm nào? Trả lời trước khi thanh thời gian chiến thắng bạn.</text><answer>1954</answer></question>
+    <question><text>Số nguyên tố nhỏ nhất là số mấy, cũng gần bằng số câu bạn sẽ đúng ở lượt này?</text><answer>2</answer></question>
+    <question><text>Bào quan nào giúp cây quang hợp, tức là tự kiếm ăn mà không cần may mắn?</text><answer>Lục lạp</answer></question>
+    <question><text>Vịnh Hạ Long thuộc tỉnh nào? Bạn có thể đến đó du lịch sau khi tạch.</text><answer>Quảng Ninh</answer></question>
+    <question><text>Khí nào nhiều nhất trong không khí? Không phải khí thế của bạn.</text><answer>Nitơ</answer></question>
+    <question><text>"Sông Mã xa rồi Tây Tiến ơi" là thơ của ai? Bạn đang xa chiếc cúp y như vậy.</text><answer>Quang Dũng</answer></question>
+    <question><text>Châu lục nào lớn nhất thế giới, lớn hơn cả khoảng trống trong vở ghi của bạn?</text><answer>Châu Á</answer></question>
+    <question><text>Số La Mã XIV là số mấy? Đọc không ra thì cứ bấm, đằng nào cũng là quay số.</text><answer>14</answer></question>
+    <question><text>Xương dài nhất cơ thể người là xương gì? Không phải xương sống của chiến thuật quay số.</text><answer>Xương đùi</answer></question>
+    <question><text>Sa mạc nóng lớn nhất thế giới tên gì? Khô cằn không kém bảng điểm của bạn.</text><answer>Sahara</answer></question>
+    <question><text>Đơn vị đo tần số là gì? Tần số bạn bấm nhầm không đo được.</text><answer>Héc (Hz)</answer></question>
   </individual>
   <common>
     <question><text>Ai bấm chuông nhanh nhất sẽ được quyền… tung đồng xu. Bạn có muốn bấm không?</text><answer>Có</answer></question>
@@ -46,5 +95,29 @@
     <question><text>Từ "Olympia" trong tên chương trình này nên được đọc thành gì cho đúng bản chất?</text><answer>Ô-lym-pia-ngẫu-nhiên</answer></question>
     <question><text>Một robot vừa bấm chuông trước bạn 0,2 giây. Robot đó có giỏi hơn bạn không?</text><answer>Không, nó chỉ nhanh tay</answer></question>
     <question><text>Bạn cảm thấy thế nào về điểm số hiện tại của mình?</text><answer>Không liên quan tới năng lực</answer></question>
+    <question><text>Ánh sáng từ Mặt Trời đến Trái Đất mất khoảng mấy phút? Nhanh hơn bạn nhận ra mình đã tạch.</text><answer>Khoảng 8 phút</answer></question>
+    <question><text>Kim tự tháp Giza ở nước nào? Nơi ai đó cũng từng tin vào số mệnh.</text><answer>Ai Cập</answer></question>
+    <question><text>Con nào là thú có vú biết bay: chim cánh cụt, dơi hay chuồn chuồn? Rô-bốt chọn bừa và vẫn có thể đúng.</text><answer>Dơi</answer></question>
+    <question><text>7 nhân 8 bằng bao nhiêu? Nếu bạn nghĩ là 54, bạn hợp với trò quay số.</text><answer>56</answer></question>
+    <question><text>"Lão Hạc" là của nhà văn nào? Ông cũng viết về những người số khổ.</text><answer>Nam Cao</answer></question>
+    <question><text>Năm 938, Ngô Quyền thắng quân Nam Hán trên sông nào? Ông dùng cọc gỗ, bạn dùng cầu may.</text><answer>Sông Bạch Đằng</answer></question>
+    <question><text>"Nhà giả kim" của ai? Cuốn sách nói cả vũ trụ sẽ giúp bạn, trừ bộ quay số.</text><answer>Paulo Coelho</answer></question>
+    <question><text>Từ nào gần nghĩa với "big": "huge" hay "tiny"? Hy vọng của bạn thuộc loại thứ hai.</text><answer>Huge</answer></question>
+    <question><text>Một giờ có bao nhiêu giây? Chừng đó thời gian bạn đã lướt điện thoại thay vì ôn bài.</text><answer>3600</answer></question>
+    <question><text>Kim loại nào dẫn điện tốt nhất? Không phải "may mắn", vì may mắn không dẫn tới đâu.</text><answer>Bạc</answer></question>
+    <question><text>Vạn Lý Trường Thành ở nước nào? Bức tường dài, nhưng chưa dài bằng chuỗi câu sai của bạn.</text><answer>Trung Quốc</answer></question>
+    <question><text>Đa giác 6 cạnh gọi là gì? Số cạnh của con xúc xắc quyết định số phận bạn đấy.</text><answer>Hình lục giác</answer></question>
+    <question><text>Lý Thông là nhân vật truyện nào? Người chuyên nhận công của người khác, giống rô-bốt Hên.</text><answer>Thạch Sanh</answer></question>
+    <question><text>Cầu Long Biên bắc qua sông nào? Bạn thì đang bắc cầu qua vòng loại bằng hy vọng.</text><answer>Sông Hồng</answer></question>
+    <question><text>Chất nào làm lá cây màu xanh? Mặt bạn thì xanh vì lý do khác.</text><answer>Diệp lục</answer></question>
+    <question><text>Hành tinh nào có vành đai dễ thấy nhất? Bạn chỉ thấy vành đai của số 0.</text><answer>Sao Thổ</answer></question>
+    <question><text>"Tiến quân ca" do ai sáng tác? Điểm của bạn thì đang thoái quân.</text><answer>Văn Cao</answer></question>
+    <question><text>Đơn vị đo công suất là gì? Công suất não của rô-bốt là 0, nhưng vẫn ngang bạn.</text><answer>Oát (W)</answer></question>
+    <question><text>Số pi làm tròn hai chữ số thập phân bằng bao nhiêu? Xác suất bạn nhớ chính xác hơn thế: rất thấp.</text><answer>3,14</answer></question>
+    <question><text>Lang Liêu là con vua Hùng thứ mấy? Chàng thắng nhờ bánh chưng, bạn thì nhờ gì?</text><answer>Thứ sáu</answer></question>
+    <question><text>Loài chim nào là biểu tượng của hoà bình? Giữa bạn và rô-bốt thì không có hoà bình.</text><answer>Chim bồ câu</answer></question>
+    <question><text>Người viết sách là "author" hay "audience"? Người viết bộ đề này không chịu trách nhiệm điểm của bạn.</text><answer>Author</answer></question>
+    <question><text>Nguyên tố nào có kí hiệu O? Cũng là hình dạng điểm số của bạn lúc này.</text><answer>Oxi</answer></question>
+    <question><text>Thủ đô của Australia là gì? Không phải Sydney, giống như chiến thắng không phải của bạn.</text><answer>Canberra</answer></question>
   </common>
 </khoidong>

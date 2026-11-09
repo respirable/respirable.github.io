@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- "Bạn có tạch đỉnh Olympia?" - Tăng tốc. Mỗi lần nhấn là một "lệnh hỏi" (6, 6, 8, 8 lệnh). -->
+<!-- "Bạn có tạch đỉnh Olympia?" - Tăng tốc. Mỗi lần nhấn là một "lệnh hỏi" (6, 6, 8, 8 lệnh).
+     Kho câu: mỗi trận bốc 4 câu; thời gian theo vị trí (20, 20, 30, 30 giây), không theo file. -->
 <tangtoc>
   <question seconds="20">
     <text>Hãy sắp xếp các bước sau theo đúng thứ tự: (A) nhấn bừa, (B) cầu nguyện, (C) tạch.</text>
@@ -16,5 +17,45 @@
   <question seconds="30">
     <text>Bạn có 30 giây và 8 lệnh hỏi. Kiến thức của bạn đóng góp bao nhiêu phần trăm vào kết quả câu này?</text>
     <answer>0%</answer>
+  </question>
+  <question>
+    <text>Ba hàng là điểm của ba rô-bốt sau mỗi vòng, theo cùng một quy luật. Ô dấu hỏi là bao nhiêu? (Bạn không có hàng nào, vì bạn chưa ghi điểm.)</text>
+    <media type="image">/olympia-luck/questions/tt/tt-luoi-so.svg</media>
+    <answer>21 (số thứ ba bằng tích hai số đầu: 3 x 7)</answer>
+  </question>
+  <question>
+    <text>Bạn tự hứa "lướt thêm chút nữa rồi ngủ". Đồng hồ thứ 5 chỉ mấy giờ?</text>
+    <media type="image">/olympia-luck/questions/tt/tt-dong-ho.svg</media>
+    <answer>6 giờ 20 phút (mỗi lần "chút nữa" là 1 giờ 20 phút)</answer>
+  </question>
+  <question>
+    <text>Tam giác là 1 giờ học, vuông là 1 video ngắn, tròn là 1 lần than "mệt quá". Hai cân thăng bằng. 1 giờ học nặng bằng mấy lần than?</text>
+    <media type="image">/olympia-luck/questions/tt/tt-can.svg</media>
+    <answer>6</answer>
+  </question>
+  <question>
+    <text>Biểu đồ số lần quay và số lần trúng của bốn thí sinh. Ai có tỉ lệ trúng cao nhất? Gợi ý: không phải bạn.</text>
+    <media type="image">/olympia-luck/questions/tt/tt-bieu-do.svg</media>
+    <answer>Rô-bốt Lụi (18/30 = 60%)</answer>
+  </question>
+  <question>
+    <text>Xếp bốn sự kiện theo thứ tự thời gian. Các cụ chiến thắng bằng mưu lược, không phải quay số.</text>
+    <media type="image">/olympia-luck/questions/tt/tt-su-kien.svg</media>
+    <answer>C - A - B - D</answer>
+  </question>
+  <question>
+    <text>Giải mã dòng chữ trong khung vàng: thứ duy nhất được chấm điểm ở chương trình này.</text>
+    <media type="image">/olympia-luck/questions/tt/tt-mat-ma.svg</media>
+    <answer>NHAN PHAM (Nhân phẩm)</answer>
+  </question>
+  <question>
+    <text>Kết quả khảo sát học sinh ghét môn nào. Có bao nhiêu bạn ghét đúng hai môn?</text>
+    <media type="image">/olympia-luck/questions/tt/tt-venn.svg</media>
+    <answer>11 (3 + 6 + 2)</answer>
+  </question>
+  <question>
+    <text>Đây là bảng điểm bạn sau trận: toàn ô trống. Trong hình có tất cả bao nhiêu hình vuông?</text>
+    <media type="image">/olympia-luck/questions/tt/tt-o-vuong.svg</media>
+    <answer>20 (12 + 6 + 2)</answer>
   </question>
 </tangtoc>

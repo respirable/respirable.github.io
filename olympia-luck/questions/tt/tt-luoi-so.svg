@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1008" height="679" viewBox="0 0 1008 679" font-family="Verdana, Arial, 'Helvetica Neue', sans-serif">
+<rect x="2" y="2" width="1004" height="675" rx="22" fill="#0b1a3f" stroke="#3a5a9a" stroke-width="3"/>
+<rect x="257.0" y="92.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="334.0" y="169.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">2</text>
+<rect x="427.0" y="92.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="504.0" y="169.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">3</text>
+<rect x="597.0" y="92.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="674.0" y="169.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">6</text>
+<rect x="257.0" y="262.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="334.0" y="339.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">4</text>
+<rect x="427.0" y="262.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="504.0" y="339.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">5</text>
+<rect x="597.0" y="262.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="674.0" y="339.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">20</text>
+<rect x="257.0" y="432.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="334.0" y="509.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">3</text>
+<rect x="427.0" y="432.5" width="154" height="154" rx="16" fill="#13285a" stroke="#3a5a9a" stroke-width="2"/>
+<text x="504.0" y="509.5" font-size="64" fill="#ffffff" text-anchor="middle" font-weight="800" dominant-baseline="central">7</text>
+<rect x="597.0" y="432.5" width="154" height="154" rx="16" fill="none" stroke="#f2c94c" stroke-width="4"/>
+<text x="674.0" y="509.5" font-size="64" fill="#f2c94c" text-anchor="middle" font-weight="800" dominant-baseline="central">?</text>
+</svg>

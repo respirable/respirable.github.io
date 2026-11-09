@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1008" height="679" viewBox="0 0 1008 679" font-family="Verdana, Arial, 'Helvetica Neue', sans-serif">
+<rect x="2" y="2" width="1004" height="675" rx="22" fill="#0b1a3f" stroke="#3a5a9a" stroke-width="3"/>
+<text x="504.0" y="80" font-size="28" fill="#9fb0d6" text-anchor="middle" font-weight="600" dominant-baseline="central">Mỗi chữ cái được thay bằng chữ đứng sau nó 3 vị trí</text>
+<text x="75.6923076923077" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">A</text>
+<line x1="75.6923076923077" y1="182" x2="75.6923076923077" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="75.6923076923077" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">D</text>
+<text x="147.0769230769231" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">B</text>
+<line x1="147.0769230769231" y1="182" x2="147.0769230769231" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="147.0769230769231" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">E</text>
+<text x="218.46153846153845" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">C</text>
+<line x1="218.46153846153845" y1="182" x2="218.46153846153845" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="218.46153846153845" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">F</text>
+<text x="289.84615384615387" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">D</text>
+<line x1="289.84615384615387" y1="182" x2="289.84615384615387" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="289.84615384615387" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">G</text>
+<text x="361.2307692307692" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">E</text>
+<line x1="361.2307692307692" y1="182" x2="361.2307692307692" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="361.2307692307692" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">H</text>
+<text x="432.6153846153846" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">F</text>
+<line x1="432.6153846153846" y1="182" x2="432.6153846153846" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="432.6153846153846" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">I</text>
+<text x="504.0" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">G</text>
+<line x1="504.0" y1="182" x2="504.0" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="504.0" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">J</text>
+<text x="575.3846153846155" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">H</text>
+<line x1="575.3846153846155" y1="182" x2="575.3846153846155" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="575.3846153846155" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">K</text>
+<text x="646.7692307692308" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">I</text>
+<line x1="646.7692307692308" y1="182" x2="646.7692307692308" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="646.7692307692308" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">L</text>
+<text x="718.1538461538462" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">J</text>
+<line x1="718.1538461538462" y1="182" x2="718.1538461538462" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="718.1538461538462" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">M</text>
+<text x="789.5384615384615" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">K</text>
+<line x1="789.5384615384615" y1="182" x2="789.5384615384615" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="789.5384615384615" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">N</text>
+<text x="860.923076923077" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">L</text>
+<line x1="860.923076923077" y1="182" x2="860.923076923077" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="860.923076923077" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">O</text>
+<text x="932.3076923076924" y="160" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">M</text>
+<line x1="932.3076923076924" y1="182" x2="932.3076923076924" y2="212" stroke="#3a5a9a" stroke-width="2"/>
+<text x="932.3076923076924" y="238" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">P</text>
+<text x="75.6923076923077" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">N</text>
+<line x1="75.6923076923077" y1="332" x2="75.6923076923077" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="75.6923076923077" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">Q</text>
+<text x="147.0769230769231" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">O</text>
+<line x1="147.0769230769231" y1="332" x2="147.0769230769231" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="147.0769230769231" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">R</text>
+<text x="218.46153846153845" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">P</text>
+<line x1="218.46153846153845" y1="332" x2="218.46153846153845" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="218.46153846153845" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">S</text>
+<text x="289.84615384615387" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">Q</text>
+<line x1="289.84615384615387" y1="332" x2="289.84615384615387" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="289.84615384615387" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">T</text>
+<text x="361.2307692307692" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">R</text>
+<line x1="361.2307692307692" y1="332" x2="361.2307692307692" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="361.2307692307692" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">U</text>
+<text x="432.6153846153846" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">S</text>
+<line x1="432.6153846153846" y1="332" x2="432.6153846153846" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="432.6153846153846" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">V</text>
+<text x="504.0" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">T</text>
+<line x1="504.0" y1="332" x2="504.0" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="504.0" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">W</text>
+<text x="575.3846153846155" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">U</text>
+<line x1="575.3846153846155" y1="332" x2="575.3846153846155" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="575.3846153846155" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">X</text>
+<text x="646.7692307692308" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">V</text>
+<line x1="646.7692307692308" y1="332" x2="646.7692307692308" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="646.7692307692308" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">Y</text>
+<text x="718.1538461538462" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">W</text>
+<line x1="718.1538461538462" y1="332" x2="718.1538461538462" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="718.1538461538462" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">Z</text>
+<text x="789.5384615384615" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">X</text>
+<line x1="789.5384615384615" y1="332" x2="789.5384615384615" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="789.5384615384615" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">A</text>
+<text x="860.923076923077" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">Y</text>
+<line x1="860.923076923077" y1="332" x2="860.923076923077" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="860.923076923077" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">B</text>
+<text x="932.3076923076924" y="310" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700" dominant-baseline="central">Z</text>
+<line x1="932.3076923076924" y1="332" x2="932.3076923076924" y2="362" stroke="#3a5a9a" stroke-width="2"/>
+<text x="932.3076923076924" y="388" font-size="30" fill="#f2c94c" text-anchor="middle" font-weight="700" dominant-baseline="central">C</text>
+<rect x="150" y="490" width="708" height="120" rx="18" fill="#13285a" stroke="#f2c94c" stroke-width="3"/>
+<text x="504.0" y="550" font-size="58" fill="#f2c94c" text-anchor="middle" font-weight="800" dominant-baseline="central">Q K D Q S K D P</text>
+</svg>

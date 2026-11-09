@@ -75,34 +75,39 @@
 		if (typeof refreshContestantBars === 'function') { refreshContestantBars(); }
 	};
 
-	/* ---------- a different match every time: the questions in a new order ----------
-	 * Khởi động: the 24 individual questions dealt anew (6 each), the common turn shuffled;
-	 * VCNV: the 4 rows change places on the board (the centre stays); Về đích: the 20- and the
-	 * 30-point questions dealt anew to the four packages. Seeded: ?seed= replays the same order. */
+	/* ---------- a different match every time: questions drawn from bigger pools ----------
+	 * The files hold more questions than a match uses; every match draws its own:
+	 * Khởi động: 6 individual questions per seat out of all of them, 12 common ones; VCNV: the 4
+	 * rows change places on the board (the centre stays); Tăng tốc: 4 questions, their clocks set
+	 * by their new place; Về đích: 3 twenty- and 3 thirty-point questions per package.
+	 * Seeded: ?seed= replays the same draw. */
 	L.shuffle = function (list) {
 		for (var i = list.length - 1; i > 0; i--) { var j = Math.floor(L.rand() * (i + 1)), t = list[i]; list[i] = list[j]; list[j] = t; }
 		return list;
 	};
 	function deal(pool, per) { var out = {}; [1, 2, 3, 4].forEach(function (s, i) { out[s] = pool.slice(i * per, i * per + per); }); return out; }
+	function pooled(bySeat, pick) { var all = []; [1, 2, 3, 4].forEach(function (s) { all = all.concat(pick(bySeat[s]) || []); }); return all; }
 	L.shuffleQuestions = function () {
 		var kd = gv.KhoiDongQuestions;
 		if (kd && kd.individual) {
-			var per = (kd.individual[1] || []).length || 6, all = [];
-			[1, 2, 3, 4].forEach(function (s) { all = all.concat(kd.individual[s] || []); });
-			kd.individual = deal(L.shuffle(all), per);
-			kd.common = L.shuffle((kd.common || []).slice());
+			kd.individual = deal(L.shuffle(pooled(kd.individual, function (list) { return list; })), gv.KhoiDongQuestionCount || 6);
+			kd.common = L.shuffle((kd.common || []).slice()).slice(0, 12);
 		}
 		var v = gv.VcnvData;
 		if (v && v.rows && v.rows.length) {
 			v.rows = L.shuffle(v.rows.slice());
 			if (typeof renderObstacleBoard === 'function') { renderObstacleBoard(); }   /* the strips follow their answers */
 		}
+		var tt = gv.TangTocQuestions;
+		if (tt && tt.length) {
+			gv.TangTocQuestions = L.shuffle(tt.slice()).slice(0, 4).map(function (q, i) {
+				return Object.assign({}, q, { seconds: gv.Timings.TANG_TOC[i] || 20 });
+			});
+		}
 		var vd = gv.VeDichQuestions;
 		if (vd && vd[1]) {
 			[20, 30].forEach(function (value) {
-				var pool = [];
-				[1, 2, 3, 4].forEach(function (s) { pool = pool.concat((vd[s] && vd[s][value]) || []); });
-				var dealt = deal(L.shuffle(pool), pool.length / 4);
+				var dealt = deal(L.shuffle(pooled(vd, function (bag) { return bag && bag[value]; })), 3);
 				[1, 2, 3, 4].forEach(function (s) { if (vd[s]) { vd[s][value] = dealt[s]; } });
 			});
 		}
