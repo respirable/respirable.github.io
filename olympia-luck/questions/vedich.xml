@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- "Bạn có tạch đỉnh Olympia?" - Về đích. Mỗi gói: 3 câu 20 điểm + 3 câu 30 điểm. -->
+<!-- "Bạn có tạch đỉnh Olympia?" - Về đích. Kho câu: mỗi trận bốc cho mỗi gói 3 câu 20 điểm + 3 câu 30 điểm từ mọi gói (LuckCore.js). -->
 <vedich>
   <package seat="1">
     <question value="20"><text>Câu 20 điểm: hãy giải thích vì sao bạn xứng đáng với 20 điểm này. Bạn có 15 giây và khoảng 30% cơ hội.</text><answer>Không cần giải thích</answer></question>
@@ -8,6 +8,14 @@
     <question value="30"><text>Chứng minh rằng bạn xứng đáng với 30 điểm này. Bạn có 20 giây, và 10% cơ hội.</text><answer>Không chứng minh được</answer></question>
     <question value="30"><text>Câu 30 điểm khó hơn câu 20 điểm ở điểm nào, nếu cả hai đều không cần đọc?</text><answer>Ở xác suất</answer></question>
     <question value="30"><text>Hãy kể tên ba thứ có thể giúp bạn trả lời đúng câu này.</text><answer>Hên, hên và hên</answer></question>
+    <question value="20"><text>Tôi là cây thân rỗng, mọc thành bụi, tượng trưng cho sự kiên cường. Tôi khác bạn ở chỗ gió thổi không đổ. Tôi là cây gì?</text><answer>Cây tre</answer></question>
+    <question value="20"><text>Chiến dịch Hồ Chí Minh toàn thắng ngày nào? Ngày bạn toàn thắng thì chưa có trong lịch.</text><answer>30/4/1975</answer></question>
+    <question value="20"><text>Từ nào khác loại: apple, banana, carrot, mango? Trong phòng thi này, người khác loại là bạn.</text><answer>Carrot (rau củ, còn lại là quả)</answer></question>
+    <question value="20"><text>Vì sao dầu ăn nổi trên mặt nước, còn bạn thì chìm trên bảng điểm?</text><answer>Dầu có khối lượng riêng nhỏ hơn nước và không tan trong nước</answer></question>
+    <question value="30"><text>Lớp có 40 học sinh, số nữ bằng 3/5 số nam. Có bao nhiêu bạn nữ? Bạn có 30% cơ hội, các bạn nữ thì có 100% đáp án.</text><answer>15</answer></question>
+    <question value="30"><text>Triều nào ba lần đánh bại quân Mông - Nguyên, ai chỉ huy? Họ cần chiến lược, bạn chỉ cần quay từ 91.</text><answer>Nhà Trần, Trần Hưng Đạo</answer></question>
+    <question value="30"><text>Bố hơn con 30 tuổi, 5 năm nữa tuổi bố gấp 3 tuổi con. Con bao nhiêu tuổi? Đủ lớn để biết trò này không công bằng.</text><answer>10 tuổi</answer></question>
+    <question value="30"><text>Kể tên ba loại mạch máu. Mạch thắng của bạn không nằm trong số đó.</text><answer>Động mạch, tĩnh mạch, mao mạch</answer></question>
   </package>
   <package seat="2">
     <question value="20"><text>Bạn có tin vào phép màu không? Câu trả lời của bạn không ảnh hưởng đến kết quả.</text><answer>Tuỳ</answer></question>
@@ -16,6 +24,14 @@
     <question value="30"><text>Câu hỏi này đã được hội đồng chuyên môn thẩm định kỹ lưỡng. Hỏi hội đồng gồm mấy con xúc xắc?</text><answer>Một trăm mặt</answer></question>
     <question value="30"><text>Nếu bạn trả lời đúng câu này, bạn sẽ khoe với ai đầu tiên?</text><answer>Robot</answer></question>
     <question value="30"><text>Hãy giải phương trình: may mắn + cố gắng = ? (biết cố gắng bằng 0)</text><answer>May mắn</answer></question>
+    <question value="20"><text>Một hình chữ nhật dài 12 cm, rộng bằng nửa chiều dài, đúng bằng phần bàn học bạn dọn được trước giờ thi. Tính diện tích.</text><answer>72 cm²</answer></question>
+    <question value="20"><text>Đi xe đạp 12 km/h trong 2 giờ 30 phút, bạn đi được bao xa? Vẫn chưa xa bằng khoảng cách giữa bạn và hạng nhất.</text><answer>30 km</answer></question>
+    <question value="20"><text>Thuỷ triều chủ yếu do lực hút của thiên thể nào? Điểm của bạn lên xuống không cần lực hút nào.</text><answer>Mặt Trăng</answer></question>
+    <question value="20"><text>Quốc gia nào có diện tích lớn nhất thế giới, lớn hơn cả danh sách lý do bạn tạch?</text><answer>Nga</answer></question>
+    <question value="30"><text>Nêu ba trạng thái thường gặp của vật chất kèm ví dụ. Trạng thái thứ tư là "tạch", không tính.</text><answer>Rắn (đá), lỏng (nước), khí (hơi nước)</answer></question>
+    <question value="30"><text>Tìm số tự nhiên nhỏ nhất chia 5 dư 3, chia 3 dư 2. Số câu đúng của bạn chia gì cũng dư nỗi buồn.</text><answer>8</answer></question>
+    <question value="30"><text>Một trong ba rô-bốt Hên, Xui, Lụi ăn trộm điểm của bạn. Hên: "Xui lấy". Xui: "Tôi không lấy". Lụi: "Tôi không lấy". Chỉ một rô-bốt nói thật. Ai lấy?</text><answer>Lụi (chỉ Xui nói thật)</answer></question>
+    <question value="30"><text>Hoàn thành và giải thích: "Gần mực thì ..., gần đèn thì ...". Gần rô-bốt thì bạn được gì?</text><answer>Đen, rạng; môi trường sống và bạn bè ảnh hưởng đến con người</answer></question>
   </package>
   <package seat="3">
     <question value="20"><text>Một robot đặt ngôi sao hy vọng vào câu này. Robot đó có hy vọng không?</text><answer>Không, nó chỉ bấm bừa</answer></question>
@@ -24,6 +40,14 @@
     <question value="30"><text>Một thí sinh trả lời đúng cả ba câu 30 điểm. Xác suất xảy ra chuyện đó là bao nhiêu?</text><answer>Rất thấp, nhưng hãy chụp màn hình lại</answer></question>
     <question value="30"><text>Hãy nêu cảm nghĩ của bạn về con số 91.</text><answer>Nó là con số tối thiểu để đúng câu này</answer></question>
     <question value="30"><text>Nếu điểm số là thước đo năng lực, thì chương trình này đang đo cái gì?</text><answer>Độ hên</answer></question>
+    <question value="20"><text>Phân tử nước gồm những nguyên tố nào? Nước mắt sau trận này cũng vậy.</text><answer>Hiđro và oxi</answer></question>
+    <question value="20"><text>Vì sao bầu trời ban ngày màu xanh, trong khi tâm trạng bạn màu xám?</text><answer>Ánh sáng xanh bị các phân tử khí tán xạ mạnh hơn các màu khác (tán xạ Rayleigh)</answer></question>
+    <question value="20"><text>Tìm số tiếp theo: 2, 6, 12, 20, 30, ... Dãy điểm của bạn thì không có quy luật.</text><answer>42</answer></question>
+    <question value="20"><text>Tôi có 8 chân, giăng tơ bắt mồi nhưng không phải côn trùng. Tôi kiên nhẫn hơn người chờ quay trúng 71. Tôi là con gì?</text><answer>Con nhện</answer></question>
+    <question value="30"><text>Vòi một chảy đầy bể trong 3 giờ, vòi hai trong 6 giờ. Mở cả hai thì bao lâu đầy? Nhanh hơn bạn khóc đầy một bể.</text><answer>2 giờ</answer></question>
+    <question value="30"><text>Khi nguyệt thực, Mặt Trời, Trái Đất, Mặt Trăng thẳng hàng theo thứ tự nào? Thứ tự xếp hạng của bạn thì dễ đoán hơn.</text><answer>Mặt Trời - Trái Đất - Mặt Trăng (Trái Đất ở giữa)</answer></question>
+    <question value="30"><text>Việt Nam giáp những nước nào trên đất liền? Bạn thì đang giáp ranh giới giữa hạng ba và hạng tư.</text><answer>Trung Quốc, Lào, Campuchia</answer></question>
+    <question value="30"><text>Tìm chữ tiếp theo: A, C, F, J, O, ... Gợi ý: không phải chữ "T" trong "tạch".</text><answer>U (khoảng cách tăng dần 2, 3, 4, 5, 6)</answer></question>
   </package>
   <package seat="4">
     <question value="20"><text>Bạn có quyền nhấn hai lần để trả lời câu này. Lần thứ hai có khác lần thứ nhất không?</text><answer>Không</answer></question>
@@ -32,5 +56,13 @@
     <question value="30"><text>Bạn còn ba lần nhấn và 10% cơ hội mỗi lần. Đây là lúc để làm gì?</text><answer>Nhấn và nhắm mắt</answer></question>
     <question value="30"><text>Nếu bạn về nhất trong chương trình này, bạn sẽ ghi gì vào CV?</text><answer>Số hưởng</answer></question>
     <question value="30"><text>Hãy nói lời cảm ơn tới thứ đã đưa bạn đến được Về đích.</text><answer>Hàm Math.random()</answer></question>
+    <question value="20"><text>Người Việt Nam đầu tiên bay vào vũ trụ là ai, năm nào? Điểm của bạn cũng sắp bay, theo hướng ngược lại.</text><answer>Phạm Tuân, năm 1980</answer></question>
+    <question value="20"><text>"Nam quốc sơn hà" gắn với cuộc kháng chiến chống quân nào thời Lý? Bạn thì đang kháng chiến chống bộ quay số.</text><answer>Quân Tống</answer></question>
+    <question value="20"><text>"Chiếc lược ngà" kể về tình cảm giữa những ai? Bạn và chiếc cúp thì chưa có tình cảm gì.</text><answer>Tình cha con (ông Sáu và bé Thu)</answer></question>
+    <question value="20"><text>25% của 360 là bao nhiêu? 25% cũng gần bằng cơ hội của bạn ở câu 30 điểm.</text><answer>90</answer></question>
+    <question value="30"><text>Xếp theo thứ tự xa dần Mặt Trời: Sao Hỏa, Sao Kim, Trái Đất, Sao Mộc. Chiếc cúp thì xa bạn hơn cả Sao Mộc.</text><answer>Sao Kim, Trái Đất, Sao Hỏa, Sao Mộc</answer></question>
+    <question value="30"><text>Nêu tác giả "Vợ nhặt", "Chí Phèo", "Tắt đèn": ba tác phẩm về những người không gặp may, giống bạn.</text><answer>Kim Lân, Nam Cao, Ngô Tất Tố</answer></question>
+    <question value="30"><text>Bể cá dài 50 cm, rộng 30 cm, cao 40 cm. Đầy bể thì chứa bao nhiêu lít, đủ cho bao nhiêu giọt nước mắt?</text><answer>60 lít</answer></question>
+    <question value="30"><text>Cửa hàng giảm 20% rồi giảm tiếp 10% trên giá đã giảm. Tổng cộng giảm bao nhiêu phần trăm? Điểm của bạn thì giảm không cần khuyến mãi.</text><answer>28%</answer></question>
   </package>
 </vedich>

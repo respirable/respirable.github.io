@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1008" height="679" viewBox="0 0 1008 679" font-family="Verdana, Arial, 'Helvetica Neue', sans-serif">
+<rect x="2" y="2" width="1004" height="675" rx="22" fill="#0b1a3f" stroke="#3a5a9a" stroke-width="3"/>
+<polygon points="252,390 212,500 292,500" fill="#3a5a9a"/>
+<line x1="92" y1="390" x2="412" y2="390" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+<line x1="127" y1="390" x2="127" y2="360" stroke="#ffffff" stroke-width="4"/>
+<rect x="52" y="352" width="150" height="10" rx="5" fill="#ffffff"/>
+<polygon points="127.0,300.0 149.0,344.0 105.0,344.0" fill="#f2c94c"/>
+<line x1="377" y1="390" x2="377" y2="360" stroke="#ffffff" stroke-width="4"/>
+<rect x="302" y="352" width="150" height="10" rx="5" fill="#ffffff"/>
+<rect x="331.0" y="302.0" width="40" height="40" fill="#ffffff"/>
+<rect x="383.0" y="302.0" width="40" height="40" fill="#ffffff"/>
+<polygon points="756,390 716,500 796,500" fill="#3a5a9a"/>
+<line x1="596" y1="390" x2="916" y2="390" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+<line x1="631" y1="390" x2="631" y2="360" stroke="#ffffff" stroke-width="4"/>
+<rect x="556" y="352" width="150" height="10" rx="5" fill="#ffffff"/>
+<rect x="611.0" y="302.0" width="40" height="40" fill="#ffffff"/>
+<line x1="881" y1="390" x2="881" y2="360" stroke="#ffffff" stroke-width="4"/>
+<rect x="806" y="352" width="150" height="10" rx="5" fill="#ffffff"/>
+<circle cx="829.0" cy="322" r="20.0" fill="#5aa0ff"/>
+<circle cx="881.0" cy="322" r="20.0" fill="#5aa0ff"/>
+<circle cx="933.0" cy="322" r="20.0" fill="#5aa0ff"/>
+</svg>

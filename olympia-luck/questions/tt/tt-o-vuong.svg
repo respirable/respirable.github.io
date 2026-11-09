@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1008" height="679" viewBox="0 0 1008 679" font-family="Verdana, Arial, 'Helvetica Neue', sans-serif">
+<rect x="2" y="2" width="1004" height="675" rx="22" fill="#0b1a3f" stroke="#3a5a9a" stroke-width="3"/>
+<line x1="244.0" y1="144.5" x2="764.0" y2="144.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="244.0" y1="274.5" x2="764.0" y2="274.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="244.0" y1="404.5" x2="764.0" y2="404.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="244.0" y1="534.5" x2="764.0" y2="534.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="244.0" y1="144.5" x2="244.0" y2="534.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="374.0" y1="144.5" x2="374.0" y2="534.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="504.0" y1="144.5" x2="504.0" y2="534.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="634.0" y1="144.5" x2="634.0" y2="534.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+<line x1="764.0" y1="144.5" x2="764.0" y2="534.5" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+</svg>
