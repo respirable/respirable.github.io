@@ -208,7 +208,8 @@
     .app {
       flex: none;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 390px;
+      grid-template-columns: minmax(0, 1fr) var(--side-w, 390px);
+      position: relative;
       grid-template-rows: minmax(0, 1fr);
       height: calc(100dvh - 44px);
       min-height: 0;
@@ -284,13 +285,47 @@
       text-align: center;
       color: var(--t-dimmed);
       pointer-events: none;
-      max-width: 300px;
+      width: max-content;
+      max-width: min(320px, calc(100% - 32px));
       line-height: 1.5;
+      padding: 14px 18px;
+      background: var(--panel);
+      border: 0.5px solid var(--strong-border);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.45);
       transition: opacity 0.25s;
     }
 
     .empty-hint b { color: var(--t-secondary); font-weight: 600; display: block; font-size: 15px; margin-bottom: 4px; }
     .empty-hint.off { opacity: 0; }
+    .empty-hint[hidden] { display: none; }
+
+    /* drag handle between the plane and the side panel */
+    .resizer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(100% - var(--side-w, 390px) - 4px);
+      width: 8px;
+      cursor: col-resize;
+      z-index: 5;
+      touch-action: none;
+    }
+
+    .resizer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 3px;
+      width: 2px;
+      background: transparent;
+      transition: background 0.15s;
+    }
+
+    .resizer:hover::after, .resizer.on::after, .resizer:focus-visible::after { background: var(--accent); }
+    .resizer:focus-visible { outline: none; }
+    body.resizing { user-select: none; -webkit-user-select: none; cursor: col-resize; }
 
     /* side panel */
     .side {
@@ -483,6 +518,7 @@
       .app { grid-template-columns: 1fr; grid-template-rows: auto auto; height: auto; }
       .stage { height: 64dvh; min-height: 340px; }
       .side { border-left: 0; border-top: 0.5px solid var(--border); overflow: visible; }
+      .resizer { display: none; }
       .brand-sub { display: none; }
       .sec { padding: 14px 16px; }
     }
@@ -545,6 +581,9 @@
       <div class="empty-hint" id="hint"><b>Draw anything on the plane.</b>A curve, a zigzag, a circle, a heart. Each stroke turns into a function.</div>
       <div class="readout" id="readout"></div>
     </section>
+
+    <div class="resizer" id="resizer" role="separator" aria-orientation="vertical" aria-label="Resize the side panel"
+      title="Drag to resize. Double-click to reset." tabindex="0"></div>
 
     <aside class="side">
       <div class="sec">
@@ -1425,7 +1464,7 @@
         $('bUndo').disabled = !past.length;
         $('bRedo').disabled = !future.length;
         $('bClear').disabled = !strokes.length;
-        $('hint').classList.toggle('off', strokes.length > 0);
+        if (strokes.length) hideHint();
         refit();
       }
 
@@ -1848,6 +1887,57 @@
         $('examples').appendChild(b);
       });
       window.SketchFx.examples = function (name) { return EXAMPLES[name](rng(17 + Object.keys(EXAMPLES).indexOf(name))); };
+
+      /* ── one-time hint ── */
+      var HINT_KEY = 'sketchfx.hintSeen';
+      function hideHint() {
+        var el = $('hint');
+        if (el.hidden || el.classList.contains('off')) return;
+        el.classList.add('off');
+        setTimeout(function () { el.hidden = true; }, 300);
+        try { localStorage.setItem(HINT_KEY, '1'); } catch (e) { /* storage blocked */ }
+      }
+      try { if (localStorage.getItem(HINT_KEY) === '1') $('hint').hidden = true; } catch (e) { /* storage blocked */ }
+
+      /* ── resizable side panel ── */
+      var SIDE_KEY = 'sketchfx.sideW', SIDE_DEF = 390, app = document.querySelector('.app'), rz = $('resizer'), sideW = SIDE_DEF;
+      function clampSide(w) { return Math.round(Math.max(300, Math.min(w, 720, window.innerWidth * 0.6))); }
+      function setSide(w, save) {
+        sideW = clampSide(w);
+        app.style.setProperty('--side-w', sideW + 'px');
+        rz.setAttribute('aria-valuenow', sideW);
+        if (save) { try { localStorage.setItem(SIDE_KEY, String(sideW)); } catch (e) { /* storage blocked */ } }
+      }
+      try { var savedW = +localStorage.getItem(SIDE_KEY); if (savedW) sideW = savedW; } catch (e) { /* storage blocked */ }
+      rz.setAttribute('aria-valuemin', 300);
+      setSide(sideW, false);
+      rz.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        rz.setPointerCapture(e.pointerId);
+        rz.classList.add('on'); document.body.classList.add('resizing');
+      });
+      rz.addEventListener('pointermove', function (e) {
+        if (!rz.hasPointerCapture(e.pointerId)) return;
+        setSide(app.getBoundingClientRect().right - e.clientX, false);
+      });
+      function endResize(e) {
+        if (!rz.hasPointerCapture(e.pointerId)) return;
+        rz.releasePointerCapture(e.pointerId);
+        rz.classList.remove('on'); document.body.classList.remove('resizing');
+        setSide(sideW, true);
+      }
+      rz.addEventListener('pointerup', endResize);
+      rz.addEventListener('pointercancel', endResize);
+      rz.addEventListener('dblclick', function () { setSide(SIDE_DEF, true); });
+      rz.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft') setSide(sideW + 24, true);
+        else if (e.key === 'ArrowRight') setSide(sideW - 24, true);
+        else if (e.key === 'Home') setSide(SIDE_DEF, true);
+        else return;
+        e.preventDefault();
+      });
+      window.addEventListener('resize', function () { setSide(sideW, false); });
 
       /* ── start ── */
       new ResizeObserver(resize).observe(stage);
