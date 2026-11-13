@@ -277,6 +277,28 @@
 
     .readout.on { opacity: 0.92; }
 
+    .pick-tip {
+      position: absolute;
+      max-width: min(300px, calc(100% - 24px));
+      background: var(--panel);
+      border: 0.5px solid var(--fit-hi);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--t-secondary);
+      box-shadow: 0 8px 22px -12px rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .pick-tip[hidden] { display: none; }
+    .pick-tip .pt-h { display: flex; gap: 8px; align-items: baseline; color: var(--t-dimmed); font-family: var(--mono); font-size: 11px; }
+    .pick-tip .pt-h b { color: var(--fit-hi); font-weight: 600; }
+    .pick-tip .pt-ex { margin-top: 4px; color: var(--t-primary); overflow: hidden; }
+    .pick-tip .pt-ex svg { max-width: 100%; height: auto; }
+    .pick-tip .pt-eq { margin-top: 3px; font-size: 11px; color: var(--t-dimmed); }
+    .pick-tip .pt-eq svg { max-width: 100%; height: auto; vertical-align: middle; }
+
     .empty-hint {
       position: absolute;
       left: 50%;
@@ -436,6 +458,9 @@
     .piece .ex { overflow-x: auto; overflow-y: hidden; font-size: 13px; min-height: 18px; }
     .piece .dom { font-family: var(--mono); font-size: 11px; color: var(--t-dimmed); }
     .piece .kind { color: var(--t-faint); margin-left: 6px; }
+    .piece .eqline { grid-column: 2; font-size: 11.5px; color: var(--t-dimmed); overflow-x: auto; overflow-y: hidden; }
+    .piece .eqline svg { max-width: 100%; height: auto; vertical-align: middle; }
+    .formula .together { margin-top: 8px; font-size: 13px; color: var(--t-secondary); }
 
     .tabs { display: flex; gap: 2px; background: var(--bg); border: 0.5px solid var(--border); border-radius: 9px; padding: 3px; overflow-x: auto; }
 
@@ -580,6 +605,7 @@
       </div>
       <div class="empty-hint" id="hint"><b>Draw anything on the plane.</b>A curve, a zigzag, a circle, a heart. Each stroke turns into a function.</div>
       <div class="readout" id="readout"></div>
+      <div class="pick-tip" id="pickTip" hidden></div>
     </section>
 
     <div class="resizer" id="resizer" role="separator" aria-orientation="vertical" aria-label="Resize the side panel"
@@ -647,6 +673,7 @@
           <p>Your strokes are cut wherever they turn back in the x direction. Steep, near-vertical parts are left out, since x = c is not the graph of a function.</p>
           <p>Each part is then matched against a few families: constant, line, parabola, cubic, circle arc, sine wave and exponential. When none of them stays close enough, the part is split at its sharpest corner (or where the fit is worst) and both halves are tried again. Neighbours that one formula can cover are joined back together, and the numbers are rounded as far as the fit allows.</p>
           <p>If two parts sit over the same x, they cannot belong to one function, so they go into f<sub>1</sub>, f<sub>2</sub>, and so on, each with its own domain. A circle, for example, comes out as an upper and a lower half.</p>
+          <p>Tap or click a curve to see which piece it is; tapping a row in the Pieces list does the same in the other direction.</p>
           <p>The Fit slider sets how far the graph may stray from your strokes, measured against the size of the drawing. Distance is measured across the curve, not straight up and down.</p>
           <p><kbd>D</kbd> draw, <kbd>E</kbd> erase, <kbd>P</kbd> move, <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redo. Scroll or pinch to zoom; right-drag or drag with two fingers to move.</p>
         </details>
@@ -709,22 +736,46 @@
         poly: function (p) { var c = p.c; return function (x) { var y = 0; for (var d = c.length - 1; d >= 0; d--) y = y * x + c[d]; return y; }; },
         arc: function (p) { return function (x) { var u = p.r * p.r - (x - p.a) * (x - p.a); return p.b + p.s * Math.sqrt(u > 0 ? u : 0); }; },
         sine: function (p) { return function (x) { return p.A * Math.sin(p.w * x + p.ph) + p.c; }; },
-        exp: function (p) { return function (x) { return p.a * Math.exp(p.k * x) + p.c; }; }
+        exp: function (p) { return function (x) { return p.a * Math.exp(p.k * x) + p.c; }; },
+        // axis-aligned ellipse ('e'), left/right hyperbola ('h') or up/down hyperbola ('v'), one half as y = f(x)
+        conic: function (p) {
+          return function (x) {
+            var t = (x - p.h) * (x - p.h) / (p.a * p.a), u = p.t === 'e' ? 1 - t : (p.t === 'h' ? t - 1 : 1 + t);
+            return p.k + p.s * p.b * Math.sqrt(u > 0 ? u : 0);
+          };
+        },
+        // N(x) / (x - q)
+        rat: function (p) {
+          var n = p.n;
+          return function (x) { var y = 0; for (var d = n.length - 1; d >= 0; d--) y = y * x + n[d]; return y / (x - p.q); };
+        }
       };
 
       function mk(kind, p) {
-        var np = kind === 'poly' ? p.c.length : (kind === 'sine' ? 4 : 3);
+        var np = kind === 'poly' ? p.c.length : kind === 'rat' ? p.n.length + 1 : (kind === 'sine' || kind === 'conic') ? 4 : 3;
         return { kind: kind, p: p, np: np, f: EVAL[kind](p) };
       }
 
       // Error of a model on points, measured across the curve: |y - f(x)| / sqrt(1 + f'(x)^2).
       function measure(m, xs, ys) {
         var n = xs.length, mx = 0, sum = 0, sq = 0, worst = 0;
-        var rg = range(xs), dx = 1e-5 * (1 + rg[1] - rg[0]);
+        var rg = range(xs), dx = 1e-5 * (1 + rg[1] - rg[0]), p = m.p, edges = null;
+        // points just past a vertical tangent (circle / ellipse side) are measured to that side point
+        if (m.kind === 'arc') edges = [[p.a - p.r, p.b], [p.a + p.r, p.b]];
+        else if (m.kind === 'conic' && p.t !== 'v') edges = [[p.h - p.a, p.k], [p.h + p.a, p.k]];
         for (var i = 0; i < n; i++) {
           var x = xs[i], y = m.f(x), sl = (m.f(x + dx) - m.f(x - dx)) / (2 * dx);
           if (!isFinite(sl)) sl = 0;
           var e = Math.abs(ys[i] - y) / Math.sqrt(1 + sl * sl);
+          if (edges) {
+            for (var j = 0; j < 2; j++) e = Math.min(e, Math.hypot(x - edges[j][0], ys[i] - edges[j][1]));
+            // on this half's side of the centre line, the distance to the whole circle / ellipse is what the eye sees
+            if (m.kind === 'arc' && p.s * (ys[i] - p.b) >= 0) e = Math.min(e, Math.abs(Math.hypot(x - p.a, ys[i] - p.b) - p.r));
+            if (m.kind === 'conic' && p.t === 'e' && p.s * (ys[i] - p.k) >= 0) {
+              var U = (x - p.h) / p.a, V = (ys[i] - p.k) / p.b, gx = 2 * U / p.a, gy = 2 * V / p.b, gn = Math.hypot(gx, gy);
+              if (gn > 0) e = Math.min(e, Math.abs(U * U + V * V - 1) / gn);
+            }
+          }
           if (!isFinite(e)) e = 1e9;
           sum += e; sq += e * e;
           if (e > mx) { mx = e; worst = i; }
@@ -765,6 +816,60 @@
         var side = 0;
         for (i = 0; i < n; i++) side += ys[i] - b;
         return mk('arc', { a: a, b: b, r: r, s: side >= 0 ? 1 : -1 });
+      }
+
+      // x^2 + C y^2 + D x + E y + F = 0, axis-aligned: ellipse or hyperbola
+      function fitConic(xs, ys) {
+        var n = xs.length, mx = 0, my = 0, i;
+        for (i = 0; i < n; i++) { mx += xs[i]; my += ys[i]; }
+        mx /= n; my /= n;
+        var vv = new Float64Array(n), cu = new Float64Array(n), cv = new Float64Array(n), one = new Float64Array(n), tg = new Float64Array(n);
+        for (i = 0; i < n; i++) { var u = xs[i] - mx, v = ys[i] - my; vv[i] = v * v; cu[i] = u; cv[i] = v; one[i] = 1; tg[i] = -u * u; }
+        var sol = lsq([vv, cu, cv, one], tg); if (!sol) return null;
+        var C = sol[0], D = sol[1], E = sol[2], F = sol[3];
+        if (!(Math.abs(C) > 1e-6) || !(Math.abs(C) < 1e6)) return null;
+        var h0 = -D / 2, k0 = -E / (2 * C), G = h0 * h0 + C * k0 * k0 - F;
+        if (!(Math.abs(G) > 1e-12)) return null;
+        var t, a2, b2;
+        if (C > 0) { if (G <= 0) return null; t = 'e'; a2 = G; b2 = G / C; }
+        else if (G > 0) { t = 'h'; a2 = G; b2 = G / -C; }
+        else { t = 'v'; a2 = -G; b2 = -G / -C; }
+        var rg = range(xs), W = rg[1] - rg[0], a = Math.sqrt(a2), b = Math.sqrt(b2);
+        // too thin is a pair of crossing lines in disguise (|x| fits that way), too wide is just a parabola
+        if (!(a > 0.04 * W && b > 0.04 * W) || a > 25 * W || b > 25 * W) return null;
+        var h = h0 + mx, k = k0 + my, side = 0;
+        for (i = 0; i < n; i++) side += ys[i] - k;
+        return mk('conic', { t: t, h: h, k: k, a: a, b: b, s: side >= 0 ? 1 : -1 });
+      }
+
+      // y = N(x) / (x - q) with q fixed: linear in N's coefficients
+      function ratAt(xs, ys, q, deg) {
+        var n = xs.length, cols = [], i, j;
+        for (j = 0; j <= deg; j++) cols.push(new Float64Array(n));
+        for (i = 0; i < n; i++) { var w = 1 / (xs[i] - q); for (j = 0; j <= deg; j++) cols[j][i] = Math.pow(xs[i], j) * w; }
+        var c = lsq(cols, ys); if (!c) return null;
+        var sse = 0;
+        for (i = 0; i < n; i++) { var y = 0; for (j = 0; j <= deg; j++) y += c[j] * cols[j][i]; sse += (ys[i] - y) * (ys[i] - y); }
+        return { sse: sse, p: { n: c, q: q } };
+      }
+
+      function fitRat(xs, ys, deg) {
+        var n = xs.length, rg = range(xs), W = rg[1] - rg[0];
+        if (n < 10 || W <= 0) return null;
+        var N = 30, best = null, bestS = Infinity, ds = [], i;
+        for (i = 0; i < N; i++) ds.push(0.02 * W * Math.pow(300, i / (N - 1)));
+        [-1, 1].forEach(function (side) {
+          ds.forEach(function (d, i) {
+            var r = ratAt(xs, ys, side < 0 ? rg[0] - d : rg[1] + d, deg);
+            if (r && r.sse < bestS) { bestS = r.sse; best = { side: side, i: i }; }
+          });
+        });
+        if (!best || best.i >= N - 2) return null; // pole far away: just a polynomial
+        var pole = function (d) { return best.side < 0 ? rg[0] - d : rg[1] + d; };
+        var db = golden(function (d) { var r = ratAt(xs, ys, pole(d), deg); return r ? r.sse : Infinity; },
+          ds[Math.max(0, best.i - 1)], ds[best.i + 1], 24);
+        var res = ratAt(xs, ys, pole(db), deg);
+        return res ? mk('rat', res.p) : null;
       }
 
       function golden(fn, a, b, it) {
@@ -834,7 +939,12 @@
       function candidates(xs, ys) {
         var out = [], n = xs.length;
         for (var d = 0; d <= 3; d++) if (n > d + 1) { var m = fitPoly(xs, ys, d); if (m) out.push(m); }
-        if (n >= 8) { var a = fitArc(xs, ys); if (a) out.push(a); var e = fitExp(xs, ys); if (e) out.push(e); }
+        if (n >= 8) {
+          var a = fitArc(xs, ys); if (a) out.push(a);
+          var e = fitExp(xs, ys); if (e) out.push(e);
+          var cn = fitConic(xs, ys); if (cn) out.push(cn);
+        }
+        if (n >= 10) { [1, 2].forEach(function (deg) { var r = fitRat(xs, ys, deg); if (r) out.push(r); }); }
         if (n >= 16) { var s = fitSine(xs, ys); if (s) out.push(s); }
         out.forEach(function (m) { m.err = measure(m, xs, ys); });
         return out;
@@ -1022,6 +1132,34 @@
             if (re && re.p.k !== 0 && ok(mk('exp', re.p))) { p = re.p; break; }
           }
           names = ['a', 'c'];
+        } else if (m.kind === 'rat') {
+          var deg2 = p.n.length - 1, q = p.q;
+          for (si = 0; si < STEPS.length; si++) {
+            var rr = ratAt(xs, ys, rnd(q, STEPS[si]), deg2);
+            if (rr && (rr.p.q < rg[0] || rr.p.q > rg[1]) && ok(mk('rat', rr.p))) { p = rr.p; break; }
+          }
+          var nn = p.n.slice();
+          for (var dd = deg2; dd >= 0; dd--) {
+            for (si = 0; si < STEPS.length; si++) {
+              var tr = nn.slice();
+              tr[dd] = rnd(nn[dd], STEPS[si]);
+              if (dd > 0) {
+                var res2 = xs.map(function (x, i) {
+                  var y = ys[i];
+                  for (var j = dd; j <= deg2; j++) y -= tr[j] * Math.pow(x, j) / (x - p.q);
+                  return y;
+                });
+                var lowR = ratAt(xs, res2, p.q, dd - 1);
+                if (!lowR) continue;
+                for (var j2 = 0; j2 < dd; j2++) tr[j2] = lowR.p.n[j2];
+              }
+              if (ok(mk('rat', { n: tr, q: p.q }))) { nn = tr; break; }
+            }
+          }
+          pc.model = mk('rat', { n: nn, q: p.q });
+          return;
+        } else if (m.kind === 'conic') {
+          names = ['h', 'k', 'a', 'b'];
         } else {
           names = ['a', 'b', 'r'];
         }
@@ -1029,7 +1167,7 @@
           for (var si = 0; si < STEPS.length; si++) {
             var t = Object.assign({}, p);
             t[nm] = rnd(p[nm], STEPS[si]);
-            if ((nm === 'r' || nm === 'A') && t[nm] <= 0) continue;
+            if ((nm === 'r' || nm === 'A' || (m.kind === 'conic' && (nm === 'a' || nm === 'b'))) && t[nm] <= 0) continue;
             if (ok(mk(m.kind, t))) { p = t; break; }
           }
         });
@@ -1139,12 +1277,17 @@
               pc.xb = snapValue(pc.xb, shift, pc.xa, nextP ? nextP.xa : Infinity);
             }
           }
-          // a circle arc whose stroke stops just short of the circle's side reaches it
+          // a circle / ellipse arc or hyperbola branch whose stroke stops just short of a vertical tangent reaches it
           pieces.forEach(function (pc, k) {
-            if (pc.model.kind !== 'arc') return;
-            var p = pc.model.p, L = p.a - p.r, R = p.a + p.r, prevP = pieces[k - 1], nextP = pieces[k + 1];
-            if ((!prevP || prevP.xb < L) && pc.xa > L && pc.xa - L < tol && (!prevP || prevP.xb !== pc.xa)) pc.xa = L;
-            if ((!nextP || nextP.xa > R) && pc.xb < R && R - pc.xb < tol && (!nextP || nextP.xa !== pc.xb)) pc.xb = R;
+            var p = pc.model.p, edges;
+            if (pc.model.kind === 'arc') edges = [p.a - p.r, p.a + p.r];
+            else if (pc.model.kind === 'conic' && p.t !== 'v') edges = [p.h - p.a, p.h + p.a];
+            else return;
+            var prevP = pieces[k - 1], nextP = pieces[k + 1];
+            edges.forEach(function (E) {
+              if (E < pc.xa && pc.xa - E < tol && (!prevP || (prevP.xb < E && prevP.xb !== pc.xa))) pc.xa = E;
+              if (E > pc.xb && E - pc.xb < tol && (!nextP || (nextP.xa > E && nextP.xa !== pc.xb))) pc.xb = E;
+            });
           });
           pieces = pieces.filter(function (pc) { return pc.xb > pc.xa; });
           pieces.forEach(function (pc, k) {
@@ -1174,7 +1317,42 @@
         out.sort(function (a, b) { return b.my - a.my; });
         var id = 0;
         out.forEach(function (g) { g.pieces.forEach(function (pc) { pc.id = id++; }); });
-        return { groups: out, tol: tol, dropped: dropped, size: size, maxErr: mx, meanErr: cnt ? sum / cnt : 0 };
+        // two halves of nearly the same circle or ellipse share one set of numbers when the fit allows it
+        var round = [];
+        out.forEach(function (g) {
+          g.pieces.forEach(function (pc) {
+            var m = pc.model;
+            if (m.kind === 'arc' || (m.kind === 'conic' && m.p.t === 'e')) round.push(pc);
+          });
+        });
+        round.forEach(function (A) {
+          round.forEach(function (B) {
+            if (A === B || A.model.kind !== B.model.kind || A.model.p.s === B.model.p.s) return;
+            var pa = A.model.p, pb = B.model.p, keys = A.model.kind === 'arc' ? ['a', 'b', 'r'] : ['h', 'k', 'a', 'b'];
+            if (keys.every(function (k) { return pa[k] === pb[k]; })) return;
+            if (!keys.every(function (k) { return Math.abs(pa[k] - pb[k]) < tol; })) return;
+            var t = Object.assign({}, pb, { s: pa.s }), m2 = mk(A.model.kind, t);
+            if (measure(m2, A.xs, A.ys).max > Math.max(tol, A.err.max * 1.02)) return;
+            A.model = m2;
+            A.err = measure(m2, A.xs, A.ys);
+            var L = A.model.kind === 'arc' ? t.a - t.r : t.h - t.a, R = A.model.kind === 'arc' ? t.a + t.r : t.h + t.a;
+            if (Math.abs(A.xa - L) < 2 * tol) A.xa = L;
+            if (Math.abs(A.xb - R) < 2 * tol) A.xb = R;
+          });
+        });
+
+        // both halves of one circle or ellipse: name the whole curve
+        var halves = {}, together = [];
+        out.forEach(function (g) {
+          g.pieces.forEach(function (pc) {
+            var m = pc.model, p = m.p;
+            if (m.kind !== 'arc' && !(m.kind === 'conic' && p.t === 'e')) return;
+            var key = m.kind === 'arc' ? ['arc', p.a, p.b, p.r].join() : ['e', p.h, p.k, p.a, p.b].join();
+            (halves[key] = halves[key] || { model: m, s: {} }).s[p.s] = true;
+          });
+        });
+        Object.keys(halves).forEach(function (key) { if (halves[key].s[1] && halves[key].s[-1]) together.push(halves[key].model); });
+        return { groups: out, together: together, tol: tol, dropped: dropped, size: size, maxErr: mx, meanErr: cnt ? sum / cnt : 0 };
       }
 
       /* ════════════════════════ FORMATTING ════════════════════════ */
@@ -1214,9 +1392,41 @@
 
       function lin(k, b, M) { return sum([{ c: k, body: 'x' }, { c: b, body: '' }], M); }
 
-      function shifted(a, M) {
-        if (Math.abs(a) < 1e-12) return 'x';
-        return M.open + 'x ' + (a > 0 ? '- ' : '+ ') + fmt(Math.abs(a)) + M.close;
+      function shifted(a, M, v) {
+        v = v || 'x';
+        if (Math.abs(a) < 1e-12) return v;
+        return M.open + v + ' ' + (a > 0 ? '- ' : '+ ') + fmt(Math.abs(a)) + M.close;
+      }
+
+      function frac(num, den, mode) {
+        if (den === '1') return num;
+        if (mode === 'tex') return '\\frac{' + num + '}{' + den + '}';
+        function wrap(s) {
+          var top = s, prev;
+          do { prev = top; top = top.replace(/\([^()]*\)/g, ''); } while (top !== prev);
+          return / /.test(top) ? '(' + s + ')' : s;
+        }
+        return wrap(num) + '/' + wrap(den);
+      }
+
+      // (x - h)^2 / a^2, with the square already worked out
+      function sqTerm(h, a, M, mode, v) { return frac(M.pow(shifted(h, M, v), 2), fmt(clean(a * a)), mode); }
+
+      // The whole curve as an equation in x and y (circle, ellipse, hyperbola); mode 'tex' or 'text'
+      function equation(model, mode) {
+        var M = MODES[mode], p = model.p;
+        if (model.kind === 'arc') return M.pow(shifted(p.a, M), 2) + ' + ' + M.pow(shifted(p.b, M, 'y'), 2) + ' = ' + fmt(clean(p.r * p.r));
+        if (model.kind !== 'conic') return '';
+        var X = sqTerm(p.h, p.a, M, mode), Y = sqTerm(p.k, p.b, M, mode, 'y');
+        if (p.t === 'e') return X + ' + ' + Y + ' = 1';
+        if (p.t === 'h') return X + ' - ' + Y + ' = 1';
+        return Y + ' - ' + X + ' = 1';
+      }
+
+      function curveName(model) {
+        if (model.kind === 'arc') return 'circle';
+        if (model.kind === 'conic') return model.p.t === 'e' ? 'ellipse' : 'hyperbola';
+        return '';
       }
 
       function expr(model, mode) {
@@ -1231,13 +1441,24 @@
           return sum([{ c: p.s, body: M.sqrt(inner) }, { c: p.b, body: '' }], M);
         }
         if (model.kind === 'sine') return sum([{ c: p.A, body: M.sin(lin(p.w, p.ph, M)) }, { c: p.c, body: '' }], M);
+        if (model.kind === 'conic') {
+          var fm = mode === 'tex' ? 'tex' : 'text', X = sqTerm(p.h, p.a, M, fm);
+          var u = p.t === 'e' ? '1 - ' + X : (p.t === 'h' ? X + ' - 1' : '1 + ' + X);
+          return sum([{ c: p.s * p.b, body: M.sqrt(u) }, { c: p.k, body: '' }], M);
+        }
+        if (model.kind === 'rat') {
+          var tn = [];
+          for (var dn = p.n.length - 1; dn >= 0; dn--) tn.push({ c: p.n[dn], body: xpow(dn, M) });
+          return frac(sum(tn, M), lin(1, -p.q, M), mode === 'tex' ? 'tex' : 'text');
+        }
         var arg = lin(p.k, 0, M);
-        if (mode === 'tex') return sum([{ c: p.a, body: M.exp(arg) }, { c: p.c, body: '' }], M);
         return sum([{ c: p.a, body: M.exp(arg) }, { c: p.c, body: '' }], M);
       }
 
       var KIND_NAME = { arc: 'circle arc', sine: 'sine wave', exp: 'exponential' };
       function kindName(m) {
+        if (m.kind === 'conic') return m.p.t === 'e' ? 'ellipse arc' : 'hyperbola branch';
+        if (m.kind === 'rat') return 'rational (' + (m.p.n.length - 1) + '/1)';
         if (m.kind !== 'poly') return KIND_NAME[m.kind];
         var c = m.p.c, d = c.length - 1;
         while (d > 0 && Math.abs(c[d]) < 1e-12) d--;
@@ -1274,6 +1495,7 @@
           res.groups.forEach(function (g) {
             g.pieces.forEach(function (pc) { lines.push('y=' + expr(pc.model, 'tex') + '\\left\\{' + cond(pc, 'tex') + '\\right\\}'); });
           });
+          (res.together || []).forEach(function (m) { lines.push(equation(m, 'tex').replace(/ /g, '')); });
           return lines.join('\n');
         },
         geogebra: function (res) {
@@ -1297,11 +1519,13 @@
             return g.pieces.map(function (pc, k) {
               return (k ? new Array(name.length + 1).join(' ') : name) + expr(pc.model, 'text') + ',   ' + cond(pc, 'text');
             }).join('\n');
-          }).join('\n\n');
+          }).join('\n\n') + (res.together || []).map(function (m) {
+            return '\n\nTogether, the whole ' + curveName(m) + ': ' + equation(m, 'text');
+          }).join('');
         }
       };
 
-      window.SketchFx = { fit: fit, expr: expr, formats: FORMATS };
+      window.SketchFx = { fit: fit, expr: expr, equation: equation, formats: FORMATS };
 
       /* ════════════════════════ UI ════════════════════════ */
 
@@ -1413,9 +1637,10 @@
         if (result && result.groups.length) {
           var all = [];
           result.groups.forEach(function (gr) { gr.pieces.forEach(function (pc) { all.push(pc); }); });
-          all.sort(function (a, b) { return (a.id === hovered) - (b.id === hovered); });
+          var HI = hiId();
+          all.sort(function (a, b) { return (a.id === HI) - (b.id === HI); });
           all.forEach(function (pc) {
-            var hi = pc.id === hovered;
+            var hi = pc.id === HI;
             g.strokeStyle = hi ? C['fit-hi'] : C.fit; g.lineWidth = hi ? 4 : 2.6; g.lineCap = 'round'; g.lineJoin = 'round';
             var a = Math.max(pc.xa, x0 - 1 / view.s), b = Math.min(pc.xb, x1 + 1 / view.s);
             if (b > a) {
@@ -1476,6 +1701,7 @@
           result = null;
         }
         hovered = -1;
+        unpin();
         showResult();
         draw();
       }
@@ -1527,6 +1753,20 @@
           chain = chain.then(function () { if (token === mjToken) return typeset(b, texGroup(result, gi), true); });
         });
 
+        (result.together || []).forEach(function (m) {
+          var t = document.createElement('div');
+          t.className = 'together';
+          t.textContent = 'Together, the whole ' + curveName(m) + ': ' + equation(m, 'text');
+          fEl.appendChild(t);
+          chain = chain.then(function () {
+            if (token !== mjToken) return;
+            var span = document.createElement('span');
+            return typeset(span, equation(m, 'tex'), false).then(function (ok) {
+              if (ok) { t.textContent = 'Together, the whole ' + curveName(m) + ': '; t.appendChild(span); }
+            });
+          });
+        });
+
         if (result.groups.length > 1) {
           note('The drawing has places where one x meets the drawing more than once, so no single f(x) can draw it. It is split into ' +
             result.groups.length + ' functions; drawn together they make your shape.');
@@ -1550,10 +1790,24 @@
             var kd = document.createElement('span'); kd.className = 'kind'; kd.textContent = kindName(pc.model);
             dom.appendChild(kd);
             li.appendChild(tag); li.appendChild(ex); li.appendChild(dom);
+            var eqTex = equation(pc.model, 'tex'), eqEl = null;
+            if (eqTex) {
+              eqEl = document.createElement('div'); eqEl.className = 'eqline';
+              eqEl.textContent = 'on the ' + curveName(pc.model) + ' ' + equation(pc.model, 'text');
+              li.appendChild(eqEl);
+            }
             li.addEventListener('mouseenter', function () { setHover(pc.id); });
             li.addEventListener('mouseleave', function () { setHover(-1); });
+            li.addEventListener('click', function () { pinPiece(pc.id, null); });
             list.appendChild(li);
             chain = chain.then(function () { if (token === mjToken) return typeset(ex, expr(pc.model, 'tex'), false); });
+            if (eqEl) chain = chain.then(function () {
+              if (token !== mjToken) return;
+              var span = document.createElement('span');
+              return typeset(span, eqTex, false).then(function (ok) {
+                if (ok) { eqEl.textContent = 'on the ' + curveName(pc.model) + ' '; eqEl.appendChild(span); }
+              });
+            });
           });
         });
         showCode();
@@ -1565,11 +1819,107 @@
         $('code').textContent = result && result.groups.length ? FORMATS[fmtSel](result) : (strokes.length ? 'No function to copy.' : 'Nothing drawn yet.');
       }
 
+      function hiId() { return hovered >= 0 ? hovered : pinned; }
+
+      function markRows() {
+        var id = hiId();
+        Array.prototype.forEach.call(document.querySelectorAll('.piece'), function (li) { li.classList.toggle('hi', +li.dataset.id === id); });
+      }
+
       function setHover(id) {
         if (id === hovered) return;
         hovered = id;
-        Array.prototype.forEach.call(document.querySelectorAll('.piece'), function (li) { li.classList.toggle('hi', +li.dataset.id === id); });
+        markRows();
         draw();
+      }
+
+      /* ── pinned piece (tap / click on a curve or a row) ── */
+      var pinned = -1;
+
+      function findPiece(id) {
+        var hit = null;
+        if (result) result.groups.forEach(function (g, gi) {
+          g.pieces.forEach(function (pc, k) {
+            if (pc.id === id) hit = { pc: pc, tag: (result.groups.length > 1 ? (gi + 1) + '.' : '') + (k + 1), name: fname(result, gi, 'text') };
+          });
+        });
+        return hit;
+      }
+
+      function unpin() {
+        pinned = -1;
+        $('pickTip').hidden = true;
+        markRows();
+      }
+
+      // at: {X, Y} on the canvas, or null to place the callout on the piece itself
+      function pinPiece(id, at) {
+        var hit = findPiece(id);
+        if (!hit) { unpin(); draw(); return; }
+        pinned = id;
+        markRows();
+        var pc = hit.pc;
+        if (!at) {
+          var x0 = Math.max(pc.xa, px(0)), x1 = Math.min(pc.xb, px(W));
+          var xm = x1 > x0 ? (x0 + x1) / 2 : (pc.xa + pc.xb) / 2;
+          at = { X: sx(xm), Y: sy(pc.model.f(xm)) };
+        }
+        var tip = $('pickTip');
+        tip.textContent = '';
+        var head = document.createElement('div'); head.className = 'pt-h';
+        var b = document.createElement('b'); b.textContent = 'piece ' + hit.tag;
+        var meta = document.createElement('span'); meta.textContent = kindName(pc.model) + ' · x ∈ ' + interval(pc);
+        head.appendChild(b); head.appendChild(meta);
+        var ex = document.createElement('div'); ex.className = 'pt-ex';
+        var row = document.querySelector('.piece[data-id="' + id + '"] .ex svg');
+        if (row) ex.appendChild(row.cloneNode(true)); else ex.textContent = hit.name + '(x) = ' + expr(pc.model, 'text');
+        tip.appendChild(head); tip.appendChild(ex);
+        var eq = equation(pc.model, 'text');
+        if (eq) {
+          var e2 = document.createElement('div'); e2.className = 'pt-eq';
+          var eqSvg = document.querySelector('.piece[data-id="' + id + '"] .eqline svg');
+          e2.textContent = 'on the ' + curveName(pc.model) + ' ';
+          if (eqSvg) e2.appendChild(eqSvg.cloneNode(true)); else e2.textContent += eq;
+          tip.appendChild(e2);
+        }
+        tip.hidden = false;
+        var tw = tip.offsetWidth, th = tip.offsetHeight;
+        var L = at.X + 14, T = at.Y - th - 14;
+        if (L + tw > W - 8) L = at.X - tw - 14;
+        var top = $('stage').querySelector('.tools').offsetHeight + 20;
+        if (T < top) T = at.Y + 16;
+        // narrow plane: dock the callout at the edge away from the tap so it never covers the curve
+        if (W < 600) { L = 8; T = at.Y > H / 2 ? top : H - th - 8; }
+        tip.style.left = Math.max(8, Math.min(L, W - tw - 8)) + 'px';
+        tip.style.top = Math.max(8, Math.min(T, H - th - 8)) + 'px';
+        // bring the row into view when the list is already on screen (desktop side panel)
+        var li = document.querySelector('.piece[data-id="' + id + '"]');
+        if (li && window.matchMedia('(min-width: 861px)').matches) li.scrollIntoView({ block: 'nearest' });
+        draw();
+      }
+
+      // smallest screen distance from (X, Y) to any piece within r px
+      function hitTest(X, Y, r) {
+        if (!result) return -1;
+        var best = -1, bd = r, xL = px(X - r), xR = px(X + r);
+        result.groups.forEach(function (g) {
+          g.pieces.forEach(function (pc) {
+            var a = Math.max(pc.xa, xL), b = Math.min(pc.xb, xR);
+            if (b < a) return;
+            var n = Math.max(2, Math.ceil(2 * r));
+            for (var i = 0; i <= n; i++) {
+              var x = a + (b - a) * i / n, d = Math.hypot(sx(x) - X, sy(pc.model.f(x)) - Y);
+              if (d < bd) { bd = d; best = pc.id; }
+            }
+          });
+        });
+        return best;
+      }
+
+      function tapAt(X, Y, type) {
+        var id = hitTest(X, Y, type === 'mouse' ? 10 : 22);
+        if (id < 0) { if (pinned >= 0) { unpin(); draw(); } return; }
+        pinPiece(id, { X: X, Y: Y });
       }
 
       window.SketchFxMathReady = function () {
@@ -1584,7 +1934,7 @@
       }
 
       /* ── pointer input ── */
-      var pointers = new Map(), current = null, panning = null, erasing = false, gesture = null;
+      var pointers = new Map(), current = null, panning = null, erasing = false, gesture = null, tap = null;
 
       function evPos(e) { var r = canvas.getBoundingClientRect(); return { X: e.clientX - r.left, Y: e.clientY - r.top }; }
 
@@ -1619,6 +1969,7 @@
         var P = evPos(e);
         pointers.set(e.pointerId, P);
         if (pointers.size === 2) {
+          tap = null;
           if (current) current = null;
           panning = null; erasing = false;
           var ps = Array.from(pointers.values());
@@ -1627,6 +1978,7 @@
           return;
         }
         if (pointers.size > 2) return;
+        tap = { X: P.X, Y: P.Y, t: performance.now(), len: 0, type: e.pointerType };
         setHover(-1);
         if (mode === 'pan' || e.button === 1 || e.button === 2) {
           panning = P; stage.classList.add('dragging'); return;
@@ -1644,6 +1996,8 @@
         if (!pointers.has(e.pointerId)) { hoverAt(P.X, P.Y); return; }
         var prev = pointers.get(e.pointerId);
         pointers.set(e.pointerId, P);
+        if (tap) tap.len += Math.hypot(P.X - prev.X, P.Y - prev.Y);
+        if (tap && tap.len >= 6) { $('pickTip').hidden = true; }
         if (gesture && pointers.size === 2) {
           var ps = Array.from(pointers.values());
           var mid = { X: (ps[0].X + ps[1].X) / 2, Y: (ps[0].Y + ps[1].Y) / 2 }, d = Math.hypot(ps[0].X - ps[1].X, ps[0].Y - ps[1].Y);
@@ -1672,8 +2026,11 @@
       function endPointer(e) {
         pointers.delete(e.pointerId);
         if (gesture) { if (pointers.size < 2) gesture = null; return; }
+        var t = tap; tap = null;
+        var isTap = t && t.len < 6 && performance.now() - t.t < 350 && mode !== 'erase';
         if (panning) { panning = null; stage.classList.remove('dragging'); }
         if (erasing) { erasing = false; }
+        if (isTap) { current = null; tapAt(t.X, t.Y, t.type); return; }
         if (current) {
           var s = current; current = null;
           if (s.length >= 2) {
@@ -1683,23 +2040,13 @@
         }
       }
       canvas.addEventListener('pointerup', endPointer);
-      canvas.addEventListener('pointercancel', function (e) { current = null; endPointer(e); draw(); });
+      canvas.addEventListener('pointercancel', function (e) { current = null; tap = null; endPointer(e); draw(); });
       canvas.addEventListener('pointerleave', function () { $('readout').classList.remove('on'); if (!pointers.size) setHover(-1); });
 
-      function hoverAt(X, Y) {
-        if (!result) return;
-        var x = px(X), best = -1, bd = 10;
-        result.groups.forEach(function (g) {
-          g.pieces.forEach(function (pc) {
-            if (x < pc.xa || x > pc.xb) return;
-            var d = Math.abs(sy(pc.model.f(x)) - Y);
-            if (d < bd) { bd = d; best = pc.id; }
-          });
-        });
-        setHover(best);
-      }
+      function hoverAt(X, Y) { if (result) setHover(hitTest(X, Y, 10)); }
 
       function zoomAt(X, Y, k) {
+        $('pickTip').hidden = true;
         var x = px(X), y = py(Y);
         view.s = Math.min(5000, Math.max(0.5, view.s * k));
         view.cx = x - (X - W / 2) / view.s;
@@ -1722,7 +2069,7 @@
       $('bClear').onclick = function () { if (strokes.length) commit([]); };
       $('bZoomIn').onclick = function () { zoomAt(W / 2, H / 2, 1.25); draw(); };
       $('bZoomOut').onclick = function () { zoomAt(W / 2, H / 2, 0.8); draw(); };
-      $('bHome').onclick = function () { resetView(); draw(); };
+      $('bHome').onclick = function () { $('pickTip').hidden = true; resetView(); draw(); };
       $('showInk').onchange = draw;
       var fitTimer = 0;
       $('fit').addEventListener('input', function () { clearTimeout(fitTimer); fitTimer = setTimeout(refit, 60); });
@@ -1768,6 +2115,7 @@
         if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
         if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); redo(); return; }
         if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (k === 'escape') { if (pinned >= 0) { unpin(); draw(); } return; }
         if (k === 'd') setMode('draw'); else if (k === 'e') setMode('erase'); else if (k === 'p') setMode('pan');
       });
 
