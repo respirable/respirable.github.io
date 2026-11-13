@@ -664,6 +664,7 @@
           <button class="btn" id="bPng" type="button" disabled>
             <svg class="i" viewBox="0 0 24 24"><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M4 20h16" /></svg>Save PNG
           </button>
+          <button class="btn" id="bLog" type="button" hidden>Copy input log</button>
         </div>
       </div>
 
@@ -676,6 +677,7 @@
           <p>Tap or click a curve to see which piece it is; tapping a row in the Pieces list does the same in the other direction.</p>
           <p>The Fit slider sets how far the graph may stray from your strokes, measured against the size of the drawing. Distance is measured across the curve, not straight up and down.</p>
           <p><kbd>D</kbd> draw, <kbd>E</kbd> erase, <kbd>P</kbd> move, <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redo. Scroll or pinch to zoom; right-drag or drag with two fingers to move.</p>
+          <p>With a pen (Apple Pencil and the like), the pen draws and a finger moves the view; a hand resting on the screen is ignored while the pen is down.</p>
         </details>
       </div>
     </aside>
@@ -1011,7 +1013,7 @@
         var last = stroke[stroke.length - 1], end = out[out.length - 1];
         if (Math.hypot(last.x - end.x, last.y - end.y) > h * 0.3) out.push(last);
         // light smoothing against hand jitter (ends stay put)
-        if (out.length > 4) {
+        for (var pass = 0; pass < 1 && out.length > 4; pass++) {
           var sm = out.map(function (p) { return { x: p.x, y: p.y }; });
           for (i = 1; i < out.length - 1; i++) {
             sm[i].x = (out[i - 1].x + out[i].x + out[i + 1].x) / 3;
@@ -1020,6 +1022,57 @@
           out = sm;
         }
         return out;
+      }
+
+      function segDist(p, a, b) {
+        var dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy;
+        var t = L ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / L)) : 0;
+        return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
+      }
+
+      // Drop the parts of a stroke that run back over what it has already laid down: samples a browser
+      // delivers twice or out of order, and a pen going back and forth over one line. A real hook or loop
+      // leaves the corridor (eps) at once, so it stays.
+      function dropRetrace(P, eps, minBack) {
+        if (P.length < 3) return P;
+        var out = [P[0]];
+        for (var i = 1; i < P.length; i++) {
+          var p = P[i], n = out.length, last = out[n - 1];
+          if (p.x === last.x && p.y === last.y) continue;
+          if (n >= 2) {
+            // heading: from a point at least eps behind the tip, so jitter does not turn it round
+            var k = n - 2;
+            while (k > 0 && Math.hypot(last.x - out[k].x, last.y - out[k].y) < eps) k--;
+            var ref = out[k], hx = last.x - ref.x, hy = last.y - ref.y, hl = Math.hypot(hx, hy);
+            // going back far enough to split a run (a sample delivered again sits several samples back)
+            var back = hl > 0 && ((p.x - last.x) * hx + (p.y - last.y) * hy) / hl < -minBack;
+            if (back) {
+              var near = false;
+              for (var j = n - 1; j >= 1 && !near; j--) near = segDist(p, out[j - 1], out[j]) <= eps;
+              if (near) continue;
+            }
+          }
+          out.push(p);
+        }
+        return out;
+      }
+
+      // y of a run at x (linear between samples), or null outside it
+      function runAt(run, x) {
+        var xs = run.xs, lo = 0, hi = xs.length - 1;
+        if (x < xs[0] || x > xs[hi]) return null;
+        while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (xs[mid] <= x) lo = mid; else hi = mid; }
+        var w = xs[hi] - xs[lo], t = w ? (x - xs[lo]) / w : 0;
+        return { y: run.ys[lo] + (run.ys[hi] - run.ys[lo]) * t, sl: w ? (run.ys[hi] - run.ys[lo]) / w : 0 };
+      }
+
+      // is every point of run a within tol of run b?
+      function covered(a, b, tol) {
+        for (var i = 0; i < a.xs.length; i++) {
+          var q = runAt(b, a.xs[i]);
+          if (!q || Math.abs(a.ys[i] - q.y) / Math.sqrt(1 + q.sl * q.sl) > tol) return false;
+        }
+        return true;
       }
 
       // Drop near-vertical stretches; returns [pieces, droppedCount]
@@ -1076,11 +1129,14 @@
       }
 
       function tryMerge(p, q, tol) {
+        // two strokes with a jump between them are two formulas, not one steep line through both
+        if (p.stroke !== q.stroke && Math.abs(q.ys[0] - p.ys[p.ys.length - 1]) > 2 * tol) return null;
         var xs = p.xs.concat(q.xs.slice(q.xs[0] <= p.xs[p.xs.length - 1] ? 1 : 0));
         var ys = p.ys.concat(q.ys.slice(q.xs[0] <= p.xs[p.xs.length - 1] ? 1 : 0));
         var pick = choose(candidates(xs, ys), tol);
         if (!pick.ok) return null;
         var m = mkPiece(xs, ys, pick.model);
+        m.stroke = p.stroke === q.stroke ? p.stroke : -1;
         m.xa = Math.min(p.xa, m.xa); m.xb = Math.max(q.xb, m.xb);
         return m;
       }
@@ -1199,9 +1255,9 @@
         var tolV = Math.max(1.5 * h, 0.3 * tol), hx = Math.max(2 * h, 0.3 * tol);
         var dropped = 0, runs = [];
 
-        strokes.forEach(function (s) {
+        strokes.forEach(function (s, si) {
           if (s.length < 2) return;
-          var P = resample(s, h);
+          var P = resample(dropRetrace(s, Math.max(0.5 * tol, 2 * h), hx), h);
           if (P.length < 2) return;
           var cv = cutVertical(P, tolV, 4 * tol);
           dropped += cv[1];
@@ -1209,8 +1265,20 @@
             monoSplit(part, hx).forEach(function (mono) {
               if (mono.length < 4) return;
               var run = toRun(mono);
+              run.stroke = si;
               if (run.xs.length >= 4 && run.xb - run.xa > 2 * h) runs.push(run);
             });
+          });
+        });
+        // a run that only goes over a longer one again adds nothing; neither does a crumb lying under another run
+        runs = runs.filter(function (a) {
+          var wa = a.xb - a.xa;
+          return !runs.some(function (b) {
+            if (b === a) return false;
+            var wb = b.xb - b.xa;
+            if (wb < wa || (wb === wa && runs.indexOf(b) > runs.indexOf(a))) return false;
+            if (covered(a, b, tol)) return true;
+            return wa < 0.015 * size && b.xa <= a.xa && b.xb >= a.xb && b.stroke === a.stroke;
           });
         });
         if (!runs.length) return { groups: [], tol: tol, dropped: dropped, size: size };
@@ -1229,7 +1297,7 @@
           if (best && best.xb > run.xa) {
             var cut = 0;
             while (cut < run.xs.length && run.xs[cut] < best.xb) cut++;
-            run = { xs: run.xs.slice(cut), ys: run.ys.slice(cut) };
+            run = { xs: run.xs.slice(cut), ys: run.ys.slice(cut), stroke: run.stroke };
             if (run.xs.length < 4) return;
             run.xa = run.xs[0]; run.xb = run.xs[run.xs.length - 1];
           }
@@ -1240,16 +1308,20 @@
 
         var gapEps = Math.max(2 * h, 0.6 * tol);
         var out = groups.map(function (g) {
-          var pieces = [];
+          var pieces = [], prevStroke = -1;
           g.runs.forEach(function (run) {
             var ps = segment(run.xs, run.ys, tol, 0);
+            ps.forEach(function (pc) { pc.stroke = run.stroke; });
             // pieces inside one run share their split points
             for (var i = 1; i < ps.length; i++) { var m = ps[i].xa; ps[i - 1].xb = m; }
             if (pieces.length) {
               var prev = pieces[pieces.length - 1], gap = ps[0].xa - prev.xb;
-              if (gap <= gapEps) { var mid = (prev.xb + ps[0].xa) / 2; prev.xb = mid; ps[0].xa = mid; }
+              // domains meet across a small gap: inside one stroke (a jump), or where two strokes nearly touch
+              var jump = Math.abs(run.ys[0] - prev.ys[prev.ys.length - 1]);
+              if (gap <= gapEps && (run.stroke === prevStroke || jump <= 2 * tol)) { var mid = (prev.xb + ps[0].xa) / 2; prev.xb = mid; ps[0].xa = mid; }
             }
             pieces = pieces.concat(ps);
+            prevStroke = run.stroke;
           });
           // join neighbours that one formula covers
           var changed = true;
@@ -1264,17 +1336,22 @@
           pieces.forEach(function (pc) { roundPiece(pc, tol); });
 
           // snap domain ends to tidy numbers
-          var shift = Math.max(tol, 2 * h);
+          // (on a steep end a small step in x is a long way along the curve, so the step shrinks with the slope)
+          var shift0 = Math.max(tol, 2 * h);
+          var shiftAt = function (pc, x) {
+            var d = 1e-4 * size, sl = Math.abs((pc.model.f(x + d) - pc.model.f(x - d)) / (2 * d));
+            return shift0 / Math.max(1, isFinite(sl) ? sl : 1e9);
+          };
           for (var k = 0; k < pieces.length; k++) {
             var pc = pieces[k], prevP = pieces[k - 1], nextP = pieces[k + 1];
             if (!prevP || prevP.xb !== pc.xa) {
-              pc.xa = snapValue(pc.xa, shift, prevP ? prevP.xb : -Infinity, pc.xb);
+              pc.xa = snapValue(pc.xa, shiftAt(pc, pc.xa), prevP ? prevP.xb : -Infinity, pc.xb);
             }
             if (nextP && nextP.xa === pc.xb) {
-              var s = snapValue(pc.xb, shift, pc.xa, nextP.xb);
+              var s = snapValue(pc.xb, Math.min(shiftAt(pc, pc.xb), shiftAt(nextP, pc.xb)), pc.xa, nextP.xb);
               pc.xb = s; nextP.xa = s;
             } else {
-              pc.xb = snapValue(pc.xb, shift, pc.xa, nextP ? nextP.xa : Infinity);
+              pc.xb = snapValue(pc.xb, shiftAt(pc, pc.xb), pc.xa, nextP ? nextP.xa : Infinity);
             }
           }
           // a circle / ellipse arc or hyperbola branch whose stroke stops just short of a vertical tangent reaches it
@@ -1964,12 +2041,60 @@
 
       canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
-      canvas.addEventListener('pointerdown', function (e) {
-        canvas.setPointerCapture(e.pointerId);
-        var P = evPos(e);
-        pointers.set(e.pointerId, P);
+      /* Who may draw. One pointer owns a stroke (drawId); nothing another pointer does can change or end it.
+         A pen outranks touch: while it is down, touch contacts are taken for the resting hand and ignored, and
+         once a pen has been seen, a single finger moves the view instead of drawing. */
+      var ignored = new Set(), drawId = null, lastT = -Infinity, penSeen = false;
+
+      function penDown() {
+        var on = false;
+        pointers.forEach(function (v) { if (v.type === 'pen') on = true; });
+        return on;
+      }
+
+      // The new samples of a move event, oldest first. A browser may hand over several per event (a pen is
+      // sampled faster than the screen redraws); samples already seen, or older than the last one, are dropped.
+      function samples(e) {
+        var list = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+        if (list.length > 1) {
+          var distinct = false;
+          for (var i = 1; i < list.length; i++) if (list[i].timeStamp !== list[0].timeStamp) distinct = true;
+          list = distinct ? Array.prototype.slice.call(list).sort(function (p, q) { return p.timeStamp - q.timeStamp; }) : [e];
+        } else list = [e];
+        list = list.filter(function (ev) { return list.length === 1 ? ev.timeStamp >= lastT : ev.timeStamp > lastT; });
+        if (list.length) lastT = list[list.length - 1].timeStamp;
+        return list;
+      }
+
+      /* ── input log (?debug=1): what the browser really sent, for devices that cannot be tested here ── */
+      var DEBUG = /[?&]debug=1(&|$)/.test(location.search), inputLog = [];
+      function r1(v) { return Math.round(v * 10) / 10; }
+      function logEv(kind, e) {
+        if (!DEBUG || inputLog.length >= 20000) return;
+        var P = evPos(e), row = [kind, e.pointerType, e.pointerId, r1(e.timeStamp), r1(P.X), r1(P.Y), e.pressure, e.button, e.buttons];
+        if (kind === 'move' && e.getCoalescedEvents) {
+          row.push(Array.prototype.map.call(e.getCoalescedEvents(), function (ev) { var Q = evPos(ev); return [r1(ev.timeStamp), r1(Q.X), r1(Q.Y)]; }));
+        }
+        inputLog.push(row);
+      }
+
+      function onDown(e) {
+        logEv('down', e);
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* replayed event */ }
+        var P = evPos(e), type = e.pointerType || 'mouse';
+        if (type === 'pen') {
+          penSeen = true;
+          // whatever touch contacts are down belong to the hand holding the pen
+          pointers.forEach(function (v, id) { if (v.type === 'touch') { ignored.add(id); pointers.delete(id); } });
+          gesture = null; current = null; panning = null; erasing = false; drawId = null;
+          stage.classList.remove('dragging');
+        } else if (type === 'touch' && penDown()) {
+          ignored.add(e.pointerId);
+          return;
+        }
+        pointers.set(e.pointerId, { X: P.X, Y: P.Y, type: type });
         if (pointers.size === 2) {
-          tap = null;
+          tap = null; drawId = null;
           if (current) current = null;
           panning = null; erasing = false;
           var ps = Array.from(pointers.values());
@@ -1978,26 +2103,31 @@
           return;
         }
         if (pointers.size > 2) return;
-        tap = { X: P.X, Y: P.Y, t: performance.now(), len: 0, type: e.pointerType };
+        drawId = e.pointerId; lastT = e.timeStamp;
+        tap = { X: P.X, Y: P.Y, t: e.timeStamp, len: 0, type: type };
         setHover(-1);
-        if (mode === 'pan' || e.button === 1 || e.button === 2) {
+        if (mode === 'pan' || e.button === 1 || e.button === 2 || (type === 'touch' && penSeen)) {
           panning = P; stage.classList.add('dragging'); return;
         }
         if (mode === 'erase' || e.button === 5 || (e.buttons & 32)) { erasing = { started: false }; eraseAt(P.X, P.Y); return; }
         if (e.button !== 0) return;
         current = [{ x: px(P.X), y: py(P.Y) }];
         draw();
-      });
+      }
 
-      canvas.addEventListener('pointermove', function (e) {
+      function onMove(e) {
+        logEv('move', e);
+        if (ignored.has(e.pointerId)) return;
         var P = evPos(e);
-        $('readout').textContent = 'x ' + fmt(+px(P.X).toFixed(2)) + '   y ' + fmt(+py(P.Y).toFixed(2));
+        $('readout').textContent = 'x ' + fmt(+px(P.X).toFixed(2)) + '   y ' + fmt(+py(P.Y).toFixed(2)) + (DEBUG ? '   ' + inputLog.length + ' events' : '');
         $('readout').classList.add('on');
-        if (!pointers.has(e.pointerId)) { hoverAt(P.X, P.Y); return; }
+        if (!pointers.has(e.pointerId)) {
+          if (e.pointerType === 'pen') penSeen = true; // a hovering pen
+          hoverAt(P.X, P.Y);
+          return;
+        }
         var prev = pointers.get(e.pointerId);
-        pointers.set(e.pointerId, P);
-        if (tap) tap.len += Math.hypot(P.X - prev.X, P.Y - prev.Y);
-        if (tap && tap.len >= 6) { $('pickTip').hidden = true; }
+        pointers.set(e.pointerId, { X: P.X, Y: P.Y, type: prev.type });
         if (gesture && pointers.size === 2) {
           var ps = Array.from(pointers.values());
           var mid = { X: (ps[0].X + ps[1].X) / 2, Y: (ps[0].Y + ps[1].Y) / 2 }, d = Math.hypot(ps[0].X - ps[1].X, ps[0].Y - ps[1].Y);
@@ -2007,27 +2137,34 @@
           draw();
           return;
         }
+        if (e.pointerId !== drawId) return;
+        if (tap) tap.len += Math.hypot(P.X - prev.X, P.Y - prev.Y);
+        if (tap && tap.len >= 6) { $('pickTip').hidden = true; }
         if (panning) {
           view.cx -= (P.X - prev.X) / view.s; view.cy += (P.Y - prev.Y) / view.s;
           draw(); return;
         }
         if (erasing) { eraseAt(P.X, P.Y); return; }
         if (current) {
-          var events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
-          if (!events.length) events = [e];
-          events.forEach(function (ev) {
+          samples(e).forEach(function (ev) {
             var Q = evPos(ev), last = current[current.length - 1];
             if (Math.hypot(sx(last.x) - Q.X, sy(last.y) - Q.Y) >= 1.5) current.push({ x: px(Q.X), y: py(Q.Y) });
           });
           draw();
         }
-      });
+      }
 
-      function endPointer(e) {
+      function onEnd(e, cancelled) {
+        logEv(cancelled ? 'cancel' : 'up', e);
+        if (ignored.delete(e.pointerId)) return;
+        if (!pointers.has(e.pointerId)) return;
         pointers.delete(e.pointerId);
         if (gesture) { if (pointers.size < 2) gesture = null; return; }
+        if (e.pointerId !== drawId) return;
+        drawId = null;
+        if (cancelled) { current = null; tap = null; }
         var t = tap; tap = null;
-        var isTap = t && t.len < 6 && performance.now() - t.t < 350 && mode !== 'erase';
+        var isTap = t && t.len < 6 && e.timeStamp - t.t < 350 && mode !== 'erase';
         if (panning) { panning = null; stage.classList.remove('dragging'); }
         if (erasing) { erasing = false; }
         if (isTap) { current = null; tapAt(t.X, t.Y, t.type); return; }
@@ -2037,10 +2174,33 @@
             if ($('snap').checked) { s[0] = snapPoint(s[0]); s[s.length - 1] = snapPoint(s[s.length - 1]); }
             commit(strokes.concat([s]));
           } else draw();
-        }
+        } else if (cancelled) draw();
       }
-      canvas.addEventListener('pointerup', endPointer);
-      canvas.addEventListener('pointercancel', function (e) { current = null; tap = null; endPointer(e); draw(); });
+
+      canvas.addEventListener('pointerdown', onDown);
+      canvas.addEventListener('pointermove', onMove);
+      canvas.addEventListener('pointerup', function (e) { onEnd(e, false); });
+      canvas.addEventListener('pointercancel', function (e) { onEnd(e, true); });
+
+      // Feed a copied input log back through the same handlers (regression tests for real devices).
+      window.SketchFx.replay = function (log) {
+        var r = canvas.getBoundingClientRect();
+        function fake(row, sub) {
+          var t = sub ? sub[0] : row[3], X = sub ? sub[1] : row[4], Y = sub ? sub[2] : row[5];
+          return {
+            pointerType: row[1], pointerId: row[2], timeStamp: t, clientX: X + r.left, clientY: Y + r.top,
+            pressure: row[6], button: row[7] == null ? 0 : row[7], buttons: row[8] == null ? 1 : row[8],
+            getCoalescedEvents: function () { return sub || !row[9] ? [] : row[9].map(function (c) { return fake(row, c); }); }
+          };
+        }
+        if (log.view) { view.cx = log.view.cx; view.cy = log.view.cy; view.s = log.view.s; }
+        strokes = []; past = []; future = []; pointers.clear(); ignored.clear(); gesture = null; current = null; drawId = null;
+        (log.events || []).forEach(function (row) {
+          var ev = fake(row);
+          if (row[0] === 'down') onDown(ev); else if (row[0] === 'move') onMove(ev); else onEnd(ev, row[0] === 'cancel');
+        });
+        return result;
+      };
       canvas.addEventListener('pointerleave', function () { $('readout').classList.remove('on'); if (!pointers.size) setHover(-1); });
 
       function hoverAt(X, Y) { if (result) setHover(hitTest(X, Y, 10)); }
@@ -2161,6 +2321,16 @@
         try { history.replaceState(null, '', url); } catch (e) { /* noop */ }
         copyText(url, 'Link copied');
       };
+
+      if (DEBUG) {
+        $('bLog').hidden = false;
+        $('bLog').onclick = function () {
+          copyText(JSON.stringify({
+            v: 1, ua: navigator.userAgent, dpr: window.devicePixelRatio, W: W, H: H, fit: +$('fit').value,
+            view: { cx: view.cx, cy: view.cy, s: view.s }, events: inputLog
+          }), 'Input log copied (' + inputLog.length + ' events)');
+        };
+      }
 
       /* ── PNG export ── */
       $('bPng').onclick = function () {
