@@ -44,7 +44,8 @@
 		VE_DICH_STEAL: 5,                       /* Về đích: steal window */
 		VE_DICH_ANSWER: { 20: 15, 30: 20 },     /* Về đích: clock per question value */
 		TIEBREAK_ANSWER: 15,                    /* Câu hỏi phụ: buzzer clock (tb_15s.ogg) */
-		TIEBREAK_MAX_QUESTIONS: 3               /* Câu hỏi phụ: questions in a set (more in the file are ignored) */
+		TIEBREAK_MIN_QUESTIONS: 3,              /* Câu hỏi phụ, Olympia 26: a set has at least this many (any number above it) */
+		TIEBREAK_MAX_QUESTIONS: 3               /* Câu hỏi phụ, the other rules: questions in a set (more in the file are ignored) */
 	};
 
 	/* What a question shows when it was never written, or its set / file is broken (Init.js,

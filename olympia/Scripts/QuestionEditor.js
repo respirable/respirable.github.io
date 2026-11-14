@@ -110,7 +110,9 @@
 			};
 		});
 		d = docs.tb;
-		m.tb = fill(d ? Array.prototype.map.call(d.querySelectorAll('question'), qOf) : [], COUNTS.tb);
+		/* Olympia 26: any number of questions, at least 3 (the other rules use the first 3) */
+		var tbAll = d ? Array.prototype.map.call(d.querySelectorAll('question'), qOf) : [];
+		m.tb = fill(tbAll, Math.max(COUNTS.tb, tbAll.length));
 		return m;
 	}
 
@@ -152,7 +154,11 @@
 			[1, 2, 3, 4].map(function (s) {
 				return '  <package seat="' + s + '">\n' + [20, 30].map(function (v) { return m.vd[s][v].map(function (x) { return '    ' + vdXml(x, v) + '\n'; }).join(''); }).join('') + '  </package>\n';
 			}).join('') + '</vedich>\n';
-		out.tb = head('Câu hỏi phụ. Tối đa 3 câu, hỏi lần lượt.') + '<cauhoiphu>\n' + m.tb.map(function (x) { return '  ' + qXml(x, 'question') + '\n'; }).join('') + '</cauhoiphu>\n';
+		/* at least the 3 every rules need, up to the last question written (Olympia 26: no limit) */
+		var tbLast = 0;
+		m.tb.forEach(function (x, i) { if (filled(x)) { tbLast = i + 1; } });
+		out.tb = head('Câu hỏi phụ, hỏi lần lượt. Luật Olympia 26: không giới hạn số câu, tối thiểu 3; các luật khác chỉ dùng 3 câu đầu.') + '<cauhoiphu>\n' +
+			m.tb.slice(0, Math.max(COUNTS.tb, tbLast)).map(function (x) { return '  ' + qXml(x, 'question') + '\n'; }).join('') + '</cauhoiphu>\n';
 		return out;
 	}
 
@@ -498,9 +504,35 @@
 
 	function renderTb() {
 		var p = $('#panetb'); p.textContent = '';
-		var b = block('Câu hỏi phụ', 'Tối đa ' + COUNTS.tb + ' câu, chỉ dùng khi có từ hai thí sinh bằng điểm cao nhất.');
-		model.tb.forEach(function (x, i) { b.appendChild(questionRow(String(i + 1), x)); });
+		var o26 = rules === 'o26';
+		var b = block('Câu hỏi phụ', o26
+			? 'Luật Olympia 26: không giới hạn số câu, tối thiểu ' + COUNTS.tb + '. Hỏi lần lượt, câu nào chưa ai trả lời đúng thì sang câu kế. Chỉ dùng khi có từ hai thí sinh bằng điểm cao nhất.'
+			: (rules === 'jungle' ? 'Luật rừng' : 'Luật ' + RULE_NAMES[rules]) + ': tối đa ' + COUNTS.tb + ' câu, chỉ dùng khi có từ hai thí sinh bằng điểm cao nhất.');
+		model.tb.slice(0, o26 ? model.tb.length : COUNTS.tb).forEach(function (x, i) {
+			var row = questionRow(String(i + 1), x);
+			if (o26) { row.classList.add('hasDel'); }   /* every row keeps the same columns, the first 3 have no button */
+			if (o26 && i >= COUNTS.tb) {   /* the first 3 are always there */
+				var del = el('button', 'btn sm qDel', 'Xoá'); del.type = 'button';
+				del.title = 'Xoá câu hỏi phụ ' + (i + 1);
+				del.addEventListener('click', function () { model.tb.splice(i, 1); renderTb(); touched(); });
+				row.appendChild(del);
+			}
+			b.appendChild(row);
+		});
+		if (o26) {
+			var add = el('button', 'btn sm addRow', 'Thêm câu hỏi phụ'); add.type = 'button';
+			add.addEventListener('click', function () {
+				model.tb.push(q());
+				renderTb(); touched();
+				var areas = $('#panetb').querySelectorAll('textarea');   /* the question boxes (answer boxes are inputs) */
+				if (areas.length) { areas[areas.length - 1].focus(); }   /* the new row's */
+			});
+			b.appendChild(add);
+		}
 		p.appendChild(b);
+		var tbMore = o26 ? 0 : model.tb.slice(COUNTS.tb).filter(filled).length;
+		if (tbMore) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + tbMore + ' câu hỏi phụ cho luật Olympia 26 - luật này không dùng, chuyển sang "Olympia 26" ở trên để xem.')); }
+		autosizeAll(p);
 	}
 
 	function mediaFiles() { return ((set && set.files) || []).filter(function (f) { return isMedia(f.key); }); }
@@ -580,7 +612,7 @@
 	function setRules(r) {
 		rules = RULE_NAMES[r] ? r : 'o26';
 		renderRules();
-		if (model) { renderKd(); renderTt(); tabCounts(); autosizeAll(document.querySelector('.pane.on')); }
+		if (model) { renderKd(); renderTt(); renderTb(); tabCounts(); autosizeAll(document.querySelector('.pane.on')); }
 	}
 
 	function renderAll(keepTab) {

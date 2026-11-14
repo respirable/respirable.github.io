@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Câu hỏi phụ (chỉ dùng khi có từ hai thí sinh trở lên bằng điểm cao nhất sau Về đích).
-  Tối đa 3 câu (câu thứ 4 trở đi bị bỏ qua), hỏi lần lượt theo thứ tự trong file, mỗi câu 15 giây
-  bấm chuông; câu chưa ai trả lời đúng thì sang câu kế.
+  Luật Olympia 26: bao nhiêu câu cũng được (tối thiểu 3); các luật khác chỉ dùng 3 câu đầu.
+  Hỏi lần lượt theo thứ tự trong file, mỗi câu 15 giây bấm chuông; câu chưa ai trả lời đúng thì sang
+  câu kế, hết câu mà vẫn chưa ai đúng thì dừng.
   Mỗi <question> có <text> (hiện trên đồ hoạ) và <answer> (chỉ hiện cho host ở màn quản lý).
   ĐÂY LÀ BỘ CÂU MẪU - thay bằng Questions/cauhoiphu.xml cùng định dạng.
 -->

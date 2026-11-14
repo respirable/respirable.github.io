@@ -191,7 +191,7 @@
 				if (!kd.buzzSeat && !kd.resolved) { k.push('1', '2', '3', '4'); }
 				if (kd.buzzSeat) { k.push('Backspace'); }
 			}
-			else { k.push('ArrowUp', 'ArrowDown'); }
+			else if (!kd.resolved) { k.push('ArrowUp', 'ArrowDown'); }   /* one verdict per question */
 		}
 		return k;
 	}
@@ -599,7 +599,7 @@
 
 	function renderTieBreak(tb) {
 		els.tbPhase.textContent = tb.phase === 'closed' ? tbClosedText(tb) : (tbPhaseText[tb.phase] || tb.phase);
-		els.tbCount.textContent = (tb.questionCount || 0) + ' câu trong bộ đề (tối đa 3)';
+		els.tbCount.textContent = (tb.questionCount || 0) + (snap.rules === 'o26' ? ' câu trong bộ đề (luật O26: không giới hạn, tối thiểu 3)' : ' câu trong bộ đề (tối đa 3)');
 		els.tbSeats.textContent = (tb.seats || []).length ? names(tb.seats) : ('chưa chọn — ← sẽ lấy: ' + (names(tb.topSeats) || '—'));
 		els.tbQuestion.textContent = tb.questionIndex ? (tb.questionIndex + ' / ' + (tb.questionCount || 0)) : '—';
 		els.tbBuzz.textContent = tb.buzzSeat != null ? (nameOf(tb.buzzSeat) + (tb.buzzEarly ? ' (bấm sớm)' : '')) : 'chưa ai bấm';

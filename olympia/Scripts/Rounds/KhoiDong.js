@@ -183,9 +183,11 @@ function khoiDongCompleteTurn() {
 	window.GameVariables.KhoiDongSequenceCounter = (khoiDongNextSeat() === null) ? 6 : 5;
 }
 
-/* Up during an individual turn: +10, kd_correct */
+/* Up during an individual turn: +10, kd_correct; one verdict per question (the next question clears it) */
 function khoiDongJudgeIndividualCorrect() {
 	if (khoiDongJungleOwn()) { khoiDongJungleJudge(true); return; }
+	if (window.GameVariables.IsKhoiDongQuestionResolved || !window.GameVariables.KhoiDongQuestionIndex) { return; }   /* one verdict per question */
+	window.GameVariables.IsKhoiDongQuestionResolved = true;
 	hideThinkClock();
 	startLongActiveSound('kd_correct.mp3');
 	addScore(window.GameVariables.KhoiDongSeat, window.GameVariables.Points.KD_CORRECT);
@@ -195,6 +197,8 @@ function khoiDongJudgeIndividualCorrect() {
 /* Down during an individual turn: kd_wrong, no deduction (KD_WRONG_INDIVIDUAL) */
 function khoiDongJudgeIndividualWrong() {
 	if (khoiDongJungleOwn()) { khoiDongJungleJudge(false); return; }
+	if (window.GameVariables.IsKhoiDongQuestionResolved || !window.GameVariables.KhoiDongQuestionIndex) { return; }   /* one verdict per question */
+	window.GameVariables.IsKhoiDongQuestionResolved = true;
 	hideThinkClock();
 	startLongActiveSound('kd_wrong.ogg');
 	if (window.GameVariables.Points.KD_WRONG_INDIVIDUAL) { addScore(window.GameVariables.KhoiDongSeat, window.GameVariables.Points.KD_WRONG_INDIVIDUAL); }
