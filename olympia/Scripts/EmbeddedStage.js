@@ -142,7 +142,7 @@
 		if (snap && snap.soundAt && snap.soundAt !== 'here' && screens) {
 			hint = !screens.total ? 'Chưa có màn sân khấu nào mở.'
 				: screens.sound ? (screens.sound + '/' + screens.total + ' màn sân khấu đã bật âm thanh.' + (screens.sound > 1 ? ' Nhiều màn cùng phát sẽ bị vọng tiếng.' : ''))
-				: 'Màn sân khấu chưa bật âm thanh: bấm nút "Bấm để bật âm thanh" trên màn đó.';
+					: 'Màn sân khấu chưa bật âm thanh: bấm nút "Bấm để bật âm thanh" trên màn đó.';
 		}
 		$('#soundHint').textContent = hint;
 	}

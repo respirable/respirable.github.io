@@ -66,12 +66,12 @@
 	     The stage below is default.html's, scaled to the window (LuckScreens.js). -->
 	<div id="luckFrame">
 	<div class="stageContainerDiv">
-
+	
 			<!-- background: hidden until C -->
 			<div class="stageBackgroundDiv visible">
 				<img src="O24/background.png" alt="">
 			</div>
-
+	
 			<!-- round title card -->
 			<div class="titleCardDiv">
 				<img data-round="kd" src="O24/Warm-up/text.png" width="1077" height="240" alt="">
@@ -79,17 +79,17 @@
 				<img data-round="tt" src="O24/Accelerate/text.png" width="959" height="250" alt="">
 				<img data-round="vd" src="O24/Finish Line/text.png" width="749" height="250" alt="">
 			</div>
-
+	
 			<!-- question bar -->
 			<div class="questionBarDiv offstage">
 				<img src="O24/Warm-up/question_bar.png" alt="" class="questionBarImg">
 				<p class="questionTextP"></p>
 				<p class="questionClockP"></p>
 			</div>
-
+	
 			<!-- four contestant bars, built by ScoreboardControl.render() -->
 			<div class="scoreboardDiv offstage"></div>
-
+	
 			<!-- score summary (key M): plain question bar shrunk to a panel + Accelerate name tab on top -->
 			<!-- Vượt chướng ngại vật: picture + covers (left), letter board (right), question bar (bottom-left).
 			     Contents are built by VcnvControl.render() from Questions/vcnv.xml. -->
@@ -98,32 +98,32 @@
 				<div class="vcnvBoardDiv"></div>
 				<div class="vcnvQuestionDiv"></div>
 			</div>
-
+	
 			<!-- Tăng tốc: question bar + contents frame (built by TangTocControl) -->
 			<div class="ttDiv offstage"></div>
-
+	
 			<!-- Ve dich: choose screen, name tabs + question bar, score box (built by VeDichControl) -->
 			<div class="vdDiv offstage"></div>
-
+	
 			<!-- VCNV answer tree (built by VcnvTreeControl) -->
 			<div class="vcnvTreeDiv offstage"></div>
 			<!-- CNV signal tabs while the answer tree is up - same screen spot as on the question bar -->
 			<div class="vcnvSignalsDiv vcnvTreeSignalsDiv offstage"></div>
-
+	
 			<div class="summaryDiv offstage">
 				<img src="O24/Warm-up/question_bar_without_timer.png" alt="" class="summaryPanelImg">
 				<img src="O24/Accelerate/Answers/contestant_name_bar.png" alt="" class="summaryTabImg">
 				<p class="summaryNameP"></p>
 				<p class="summaryScoreP"></p>
 			</div>
-
+	
 			<!-- "current results" board (F6): four CSS score cards, built by ScoreBoardScreenControl -->
 			<div class="boardScreenDiv offstage"></div>
-
+	
 			<!-- shown when a second graphics tab is detected -->
 			<div class="authorityWarningDiv">Một màn hình đồ hoạ khác đang mở — âm thanh sẽ bị lặp. Đóng tab này hoặc tab
 				kia.</div>
-
+	
 		</div>
 	</div>
 
