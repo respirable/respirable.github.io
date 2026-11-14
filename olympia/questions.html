@@ -7,12 +7,12 @@
 	<title>Olympia Controller - Quản lý câu hỏi</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&family=JetBrains+Mono:wght@500;700&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261107j">
-	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261107j">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261114a">
+	<link rel="stylesheet" type="text/css" href="Styles/questions.css?v=20261114a">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261107j"></script>
-	<script src="Scripts/Auth.js?v=20261107j"></script>
-	<script src="Scripts/QuestionEditor.js?v=20261107j" defer></script>
+	<script src="Scripts/Config.js?v=20261114a"></script>
+	<script src="Scripts/Auth.js?v=20261114a"></script>
+	<script src="Scripts/QuestionEditor.js?v=20261114a" defer></script>
 </head>
 
 <body>
@@ -121,7 +121,7 @@
 ├─ vcnv.xml         Vượt chướng ngại vật      (bắt buộc)
 ├─ tangtoc.xml      Tăng tốc                  (bắt buộc)
 ├─ vedich.xml       Về đích                   (bắt buộc)
-├─ cauhoiphu.xml    Câu hỏi phụ (tuỳ chọn - thiếu thì dùng câu mẫu)
+├─ cauhoiphu.xml    Câu hỏi phụ (tuỳ chọn - thiếu thì dùng câu mẫu; tối thiểu 3 câu)
 ├─ vcnv_anh.png     ảnh chướng ngại vật
 ├─ tt1.png  tt2.jpg  tt3.png  tt4.mp4      ảnh / video Tăng tốc
 └─ ...</pre>
@@ -206,10 +206,11 @@
 					cứ lúc nào; video thì bấm B trước khi bật giờ - video chạy hết (không quay lại đồ hoạ được), đồng hồ trả lời
 					tự bật 1 giây sau khi video kết thúc.</p>
 
-				<h3>7. cauhoiphu.xml — tối đa 3 câu</h3>
+				<h3>7. cauhoiphu.xml — tối thiểu 3 câu (luật Olympia 26 không giới hạn)</h3>
 				<pre>&lt;cauhoiphu&gt;
   &lt;question&gt;&lt;text&gt;Câu hỏi phụ 1&lt;/text&gt;&lt;answer&gt;Đáp án&lt;/answer&gt;&lt;/question&gt;
-  ... tối đa 3 câu (câu thứ 4 trở đi bị bỏ qua)
+  ... Olympia 26: bao nhiêu câu cũng được, hỏi lần lượt đến khi có người đúng
+  ... các luật khác chỉ dùng 3 câu đầu (câu thứ 4 trở đi bị bỏ qua)
 &lt;/cauhoiphu&gt;</pre>
 
 				<h3>8. Tải bộ mẫu về để sửa</h3>

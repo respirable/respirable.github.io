@@ -255,7 +255,8 @@ async function getVeDichQuestions() {
 	window.GameVariables.VeDichQuestions = out;
 }
 
-/* Questions/cauhoiphu.xml -> TieBreakQuestions = [{ text, answer }] x at most 3. A set made before the
+/* Questions/cauhoiphu.xml -> TieBreakQuestions = [{ text, answer }], all of them: how many are put is
+ * tieBreakQuestionLimit()'s call (Olympia 26: all; the other rules: the first 3). A set made before the
  * tie-break existed has no such file: the sample in Demo/ is used then (its texts say "mẫu"). */
 async function getTieBreakQuestions() {
 	var path = window.GameVariables.DataFiles.tiebreak, doc;
@@ -268,7 +269,7 @@ async function getTieBreakQuestions() {
 	var all = Array.prototype.map.call(doc.querySelectorAll('question'), function (q) {
 		return { text: xmlText(q, 'text') || xmlText(q), answer: xmlText(q, 'answer') || '' };
 	});
-	var max = window.GameVariables.Timings.TIEBREAK_MAX_QUESTIONS;
-	if (all.length > max) { console.warn('[Init] cauhoiphu.xml has ' + all.length + ' questions - only the first ' + max + ' are used'); }
-	window.GameVariables.TieBreakQuestions = all.slice(0, max);
+	var gv = window.GameVariables, max = gv.Timings.TIEBREAK_MAX_QUESTIONS;
+	if (all.length > max && !(gv.isO26 && gv.isO26())) { console.warn('[Init] cauhoiphu.xml has ' + all.length + ' questions - only the first ' + max + ' are used (Olympia 26 uses all of them)'); }
+	gv.TieBreakQuestions = all;
 }

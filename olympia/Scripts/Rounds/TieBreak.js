@@ -5,7 +5,8 @@
  * Same graphics as the Khởi động individual turn (question bar with the timer skin + the four
  * contestant bars); the clock is 15 s with its own music (tb_15s.ogg), and its strip runs
  * in the groove of the question bar. Only the seats tied for first take part; the others' bars
- * are grey. No points change hands. At most TIEBREAK_MAX_QUESTIONS (3) questions are put; no
+ * are grey. No points change hands. Olympia 26: every question of the set is put in turn (at least 3);
+ * the other rules put at most TIEBREAK_MAX_QUESTIONS (3); no
  * screen says who takes which prize.
  *
  *     Left    (0) the seats tied for first are chosen + kd_ready
@@ -30,10 +31,12 @@ var TIEBREAK_LATE_PRESS_MS = 1500;
 /* the seats with the highest score right now */
 function tieBreakTopSeats() { return window.GameVariables.topScoreSeats(window.GameVariables.Players); }
 
-/* how many questions can be put: the set's, never more than TIEBREAK_MAX_QUESTIONS */
+/* how many questions can be put: Olympia 26 - every question of the set (at least 3, the set's own
+ * texts are 'missing' if it has fewer); the other rules - the set's, never more than TIEBREAK_MAX_QUESTIONS */
 function tieBreakQuestionLimit() {
-	var g = window.GameVariables;
-	return Math.min(g.Timings.TIEBREAK_MAX_QUESTIONS, (g.TieBreakQuestions || []).length || g.Timings.TIEBREAK_MAX_QUESTIONS);
+	var g = window.GameVariables, n = (g.TieBreakQuestions || []).length;
+	if (g.isO26 && g.isO26()) { return Math.max(g.Timings.TIEBREAK_MIN_QUESTIONS, n); }
+	return Math.min(g.Timings.TIEBREAK_MAX_QUESTIONS, n || g.Timings.TIEBREAK_MAX_QUESTIONS);
 }
 
 function tieBreakIsPlaying(seat) { return window.GameVariables.TieBreakSeats.indexOf(seat) !== -1; }
@@ -196,6 +199,7 @@ function tieBreakBuzz(seat, opts) {
 /* Backspace: a mis-press - the buzz goes, nobody is put out */
 function tieBreakClearBuzz() {
 	var g = window.GameVariables;
+	if (g.TieBreakSequenceCounter != 3 && g.TieBreakSequenceCounter != 4) { return; }   /* the question is over: nothing to clear */
 	g.TieBreakBuzzSeat = null;
 	g.IsTieBreakBuzzEarly = false;
 	clearBuzzers();
@@ -207,7 +211,7 @@ function tieBreakClearBuzz() {
 /* Up: right - only for a buzz made while the clock ran */
 function tieBreakJudgeCorrect() {
 	var g = window.GameVariables, seat = g.TieBreakBuzzSeat;
-	if (seat === null || g.IsTieBreakBuzzEarly || g.TieBreakSequenceCounter != 4) { return; }
+	if (seat === null || g.IsTieBreakBuzzEarly || g.TieBreakSequenceCounter != 4 || g.TieBreakWinner !== null) { return; }
 	tieBreakStopTimer();
 	startLongActiveSound('vcnv_row_correct.mp3');
 	g.TieBreakWinner = seat;
@@ -219,7 +223,8 @@ function tieBreakJudgeCorrect() {
 /* Down: wrong (or an early buzz) - out of this question, the others may buzz again */
 function tieBreakJudgeWrong() {
 	var g = window.GameVariables, seat = g.TieBreakBuzzSeat;
-	if (seat === null) { return; }
+	/* one verdict per buzz: once the question is closed (step 5, the winner's buzz is still lit) nothing can be ruled */
+	if (seat === null || (g.TieBreakSequenceCounter != 3 && g.TieBreakSequenceCounter != 4) || g.TieBreakWinner !== null) { return; }
 	startLongActiveSound('kd_wrong.ogg');
 	g.TieBreakLastResult = g.IsTieBreakBuzzEarly ? 'early' : 'wrong';
 	g.TieBreakEliminated.push(seat);

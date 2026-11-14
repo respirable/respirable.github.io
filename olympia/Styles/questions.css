@@ -91,6 +91,9 @@ input:disabled { color: var(--muted); opacity: 1; cursor: default; }
 /* question rows: the labels once per run of rows, then a hairline between rows */
 .qRow { display: grid; grid-template-columns: 40px minmax(0, 1fr) minmax(150px, 280px); gap: 10px; align-items: start; padding: 8px 0; }
 .qRow ~ .qRow { border-top: 1px solid rgba(48, 54, 61, .55); }
+.qRow.hasDel { grid-template-columns: 40px minmax(0, 1fr) minmax(150px, 280px) 52px; }
+.addRow { align-self: flex-start; margin-top: 10px; }
+.qRow .qDel { align-self: start; margin-top: 2px; }
 .qNum { padding-top: 11px; font: 500 12px var(--mono); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 .qRow:not(.qRow ~ .qRow) .qNum { padding-top: 33px; }
 .qRow ~ .qRow .lab { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -153,6 +156,8 @@ input:disabled { color: var(--muted); opacity: 1; cursor: default; }
 	.qeMain { padding: 14px; }
 	.qRow { grid-template-columns: 26px minmax(0, 1fr); gap: 8px; }
 	.qRow .ans { grid-column: 2; }
+	.qRow.hasDel { grid-template-columns: 26px minmax(0, 1fr); }
+	.qRow .qDel { grid-column: 2; justify-self: start; }
 	.qRow:not(.qRow ~ .qRow) .qNum { padding-top: 31px; }
 	.grid2, .grid3, .grid4, .vcnvLook { grid-template-columns: minmax(0, 1fr); }
 	.fld.media.vdMedia { grid-template-columns: 1fr; margin-left: 0; }
