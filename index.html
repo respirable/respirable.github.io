@@ -104,18 +104,7 @@
       background: #fff;
     }
 
-    .nav a {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-      text-decoration: none;
-      padding: 6px 10px;
-      border-radius: 7px;
-      transition: color 0.15s var(--ease), background 0.15s var(--ease);
-    }
-
-    .nav a:hover { color: var(--text); background: var(--surface2); }
-    .nav a:focus-visible, .btn:focus-visible, .tile:focus-visible, .card:focus-visible, .faq-question:focus-visible {
+    .btn:focus-visible, .tile:focus-visible, .card:focus-visible, .faq-question:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
@@ -152,8 +141,7 @@
       font-size: clamp(28px, 4vw, 40px);
       line-height: 1.1;
       font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
     }
 
     .bio { display: flex; flex-direction: column; gap: 10px; max-width: 62ch; color: var(--muted); }
@@ -179,15 +167,6 @@
       background: #fff;
     }
 
-    .portrait figcaption {
-      margin-top: 12px;
-      display: flex;
-      justify-content: space-between;
-      font: 500 11px/1 var(--mono);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
 
     /* buttons (as in the tools) */
     .btn {
@@ -214,11 +193,12 @@
     .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn.primary svg.i { color: #fff; }
     .btn.primary:hover { filter: brightness(1.08); }
+    .btn.lg { height: 48px; padding: 0 26px; font-size: 16px; gap: 10px; border-radius: 10px; }
+    .btn.lg svg.i { width: 18px; height: 18px; }
 
     /* sections */
     .sec { display: flex; flex-direction: column; gap: 14px; padding-top: 28px; border-top: 1px solid var(--border); }
     .sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-    .sec-n { font: 500 11px/1 var(--mono); color: var(--muted); }
     .lead { color: var(--muted); max-width: 72ch; }
 
     /* links: Olympia lobby tiles */
@@ -370,7 +350,6 @@
     }
 
     .foot { color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .foot .eyebrow { font-size: 10px; }
 
     /* load-in: a short cascade (transform / opacity only) */
     .rise { animation: rise 0.6s var(--ease) both; animation-delay: calc(var(--i, 0) * 60ms); }
@@ -383,11 +362,9 @@
 
     @media (max-width: 767px) {
       .topbar-in { padding: 0 16px; }
-      .nav { display: none; }
       .wrap { padding: 24px 16px 72px; gap: 36px; }
       .hero { grid-template-columns: 1fr; gap: 20px; }
       .portrait { order: -1; width: 112px; padding: 8px; }
-      .portrait figcaption { display: none; }
       .panel { grid-template-columns: 1fr; gap: 16px; }
       .panel .btn { justify-self: start; }
       .cards { grid-template-columns: 1fr; }
@@ -402,12 +379,6 @@
   <header class="topbar">
     <div class="topbar-in">
       <a class="wordmark" href="/"><img src="respirable.png" alt="" width="24" height="24">respirable</a>
-      <nav class="nav" aria-label="Sections">
-        <a href="#tools">Tools</a>
-        <a href="#anthology">Anthology</a>
-        <a href="#faq">FAQ</a>
-        <a href="/now/">Now</a>
-      </nav>
       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Switch light / dark theme">
         <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" /></svg>
         <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5" /></svg>
@@ -437,13 +408,12 @@
       </div>
       <figure class="portrait rise" style="--i:2">
         <img src="respirable.png" alt="respirable's avatar" width="180" height="180">
-        <figcaption><span>respirable</span><span>VN</span></figcaption>
       </figure>
     </section>
 
     <!-- LINKS -->
     <section class="sec rise" style="--i:4" aria-labelledby="links-h">
-      <div class="sec-h"><span class="eyebrow" id="links-h">Find me</span><span class="sec-n">6 links</span></div>
+      <div class="sec-h"><span class="eyebrow" id="links-h">Find me</span></div>
       <div class="tiles">
         <a class="tile t-github" href="https://github.com/respirable" target="_blank" rel="noopener"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"> <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /> </svg>github</a>
         <a class="tile t-reddit" href="https://reddit.com/u/totally-a-randomname" target="_blank" rel="noopener"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"> <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" /> </svg>reddit</a>
@@ -456,7 +426,7 @@
 
     <!-- UTILITIES -->
     <section class="sec" id="tools" aria-labelledby="tools-h">
-      <div class="sec-h"><span class="eyebrow" id="tools-h">Vibecoded utilities</span><span class="sec-n">7 tools</span></div>
+      <div class="sec-h"><span class="eyebrow" id="tools-h">Vibecoded utilities</span></div>
       <p class="lead">These are some tools that exists so that I can solve my own problems, but who knows it can solve
         your's too. So, try it out... unless you hate AI like how people "protested" when That Chief Guy (or whatever)
         used an AI image in a community post.</p>
@@ -507,7 +477,7 @@
         <p>i'm currently writing an anthology of short stories about myself, in the form of Geometry Dash characters.
           when it's done, the button below shouldn't be gray. it tells me a lot about my life, but a lot of details are
           fictional, and i couldn't be bothered to tell you which detail is real and which isn't.</p>
-        <a href="/anthology" class="btn primary">
+        <a href="/anthology" class="btn primary lg">
           <svg class="i" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
           Read
         </a>
@@ -516,7 +486,7 @@
 
     <!-- FAQ -->
     <section class="sec" id="faq" aria-labelledby="faq-h">
-      <div class="sec-h"><span class="eyebrow" id="faq-h">Cursed FAQ section</span><span class="sec-n">7 questions</span></div>
+      <div class="sec-h"><span class="eyebrow" id="faq-h">Cursed FAQ section</span></div>
       <div class="faq">
         <div class="faq-item">
           <button class="faq-question" type="button" onclick="toggleFaq(this)" aria-expanded="false">
@@ -565,7 +535,6 @@
 
     <footer class="foot">
       <span>respirable.github.io</span>
-      <span class="eyebrow">creator of nothing, owner of nowhere</span>
     </footer>
   </main>
 
