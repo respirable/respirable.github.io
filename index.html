@@ -20,7 +20,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
   <!-- Theme: the site-wide "theme" key, set before first paint (theme.js handles the toggle) -->
   <script>
     (function () {
@@ -37,6 +37,8 @@
 
   <style>
     /* ── HOME · respirable - same look as the Olympia Controller and Sketch to Function pages ── */
+    :root { --label: Outfit, Nunito, "Segoe UI", system-ui, sans-serif; }   /* section labels, FAQ numbers */
+
     * { box-sizing: border-box; }
 
     html, body { margin: 0; }
@@ -122,8 +124,8 @@
     }
 
     .eyebrow {
-      font: 500 11px/1 var(--mono);
-      letter-spacing: 0.12em;
+      font: 600 12px/1 var(--label);
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
     }
@@ -137,7 +139,7 @@
     }
 
     .hero h1 {
-      margin: 12px 0 18px;
+      margin: 0 0 18px;
       font-size: clamp(28px, 4vw, 40px);
       line-height: 1.1;
       font-weight: 800;
@@ -294,18 +296,6 @@
       overflow: hidden;
     }
 
-    .tag {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font: 500 10px/1 var(--mono);
-      letter-spacing: 0.1em;
-      padding: 4px 6px;
-      border-radius: 5px;
-      background: rgba(8, 11, 16, 0.72);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: rgba(255, 255, 255, 0.9);
-    }
 
     /* FAQ */
     .faq { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
@@ -328,7 +318,7 @@
     }
 
     .faq-question:hover { background: var(--surface2) !important; }
-    .faq-num { font: 500 11px/1 var(--mono); color: var(--muted); }
+    .faq-num { font: 500 13px/1 var(--label); color: var(--muted); font-variant-numeric: tabular-nums; }
 
     .faq-chevron { color: var(--muted); transition: transform 0.25s var(--ease); }
     .faq-chevron.rotated { transform: rotate(180deg); }
@@ -391,7 +381,6 @@
     <!-- HEADER -->
     <section class="hero">
       <div>
-        <div class="eyebrow rise" style="--i:0">about me · web toys &amp; tools</div>
         <h1 class="site-title rise" style="--i:1">respirable</h1>
         <div class="bio rise" style="--i:2">
           <p>hi, i'm <b>respirable</b>. i do a lot of things, but i'm best at coding WWTBAM HTML5 stuff.</p>
@@ -457,12 +446,10 @@
             LaTeX, Desmos, GeoGebra or Python.</span>
         </a>
         <a href="/olympia/" class="card" style="background-image: url('olympia/O24/background.png');">
-          <span class="tag">VI</span>
           <span class="card-t">Olympia Controller Online</span>
           <span class="card-d">Q2T and TOO, but slightly more accessible.</span>
         </a>
         <a href="/olympia-luck/" class="card" style="background-image: url('olympia-luck/menu.jpg');">
-          <span class="tag">VI</span>
           <span class="card-t">Bạn có tạch đỉnh Olympia?</span>
           <span class="card-d">A full Olympia 26 match against three robots, except every answer is a dice roll. No
             knowledge needed, only luck.</span>
