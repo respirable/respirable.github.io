@@ -1,71 +1,83 @@
+/* Site-wide tokens - the palette of the Olympia Controller and Sketch to Function pages.
+   Variable names stay the same so every page keeps working; pages may add their own on top. */
 :root {
-  --bg: #ffffff;
-  --surface: #f6f8fa;
-  --surface2: #eaeef2;
-  --accent: #0969da;
-  --text: #1F2328;
-  --muted: #656d76;
-  --border: #d0d7de;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface2: #eef0f3;
+  --accent: #2a6fbd;
+  --accent-bg: #e3eefa;
+  --accent-border: #b9d2ee;
+  --text: #16181b;
+  --muted: #5a616d;
+  --border: #dde1e6;
+  --line-2: #cfd4db;
+  --ui: Nunito, "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  --radius: 10px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color-scheme: light;
 }
 
 [data-theme="dark"] {
   --bg: #0d1117;
-  --surface: #10141b;
-  --surface2: #161b22;
+  --surface: #161b22;
+  --surface2: #1c2129;
   --accent: #2f81f7;
+  --accent-bg: #10243f;
+  --accent-border: #1f4f8f;
   --text: #e6edf3;
-  --muted: #848d97;
+  --muted: #8b949e;
   --border: #30363d;
+  --line-2: #3d444d;
+  color-scheme: dark;
 }
 
 body {
   transition: background var(--transition), color var(--transition);
 }
 
-/* ── THEME TOGGLE ── */
+/* ── THEME TOGGLE (same icon button as the tools' top bars) ── */
 .theme-toggle-wrap {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 16px;
+  right: 16px;
   z-index: 1000;
-  animation: fadeSlideDown 0.8s 0.1s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 .theme-toggle {
-  background: var(--surface2);
+  background: var(--surface);
   border: 1px solid var(--border);
-  color: var(--text);
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  color: var(--muted);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 0;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease), border-color 0.15s var(--ease), transform 0.1s;
 }
 
 .theme-toggle:hover {
   background: var(--surface2);
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  border-color: var(--line-2);
+  color: var(--text);
 }
 
+.theme-toggle:active { transform: scale(0.94); }
+
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 .theme-toggle svg {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 17px;
+  height: 17px;
 }
 
 [data-theme="dark"] .sun-icon { display: none; }
 html:not([data-theme="dark"]) .moon-icon { display: none; }
 
-[data-theme="dark"] .theme-toggle svg {
-  transform: rotate(360deg);
-}
 
 /* Fix for existing FAQ/Story components in dark mode */
 /* Ensure ready status buttons stay green and accessible */
