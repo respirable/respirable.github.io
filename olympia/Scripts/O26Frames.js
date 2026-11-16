@@ -232,9 +232,9 @@ function panelDInner(o){
       const gl = k === 0 ? inL(s, m) : dv(D0[k-1], m);
       const gr = k === 2 ? W - inL(s, m) : dv(D0[k], m);
       g += `<linearGradient id="${p}g${r}${k}" gradientUnits="userSpaceOnUse" x1="${f(gl)}" y1="0" x2="${f(gr)}" y2="0"><stop offset="0" stop-color="#5e0a35"/><stop offset=".32" stop-color="#94093f"/><stop offset=".77" stop-color="#c8093e"/><stop offset="1" stop-color="#cf1244"/></linearGradient>`;
-      /* an asked cell of the Khởi động board: light grey, lighter to the right as the red one - high
-       * contrast against the navy cells (3.1-9.2 : 1) with dark figures on it (4.7-9.6 : 1) */
-      if (o.cells) g += `<linearGradient id="${p}d${r}${k}" gradientUnits="userSpaceOnUse" x1="${f(gl)}" y1="0" x2="${f(gr)}" y2="0"><stop offset="0" stop-color="#7d8491"/><stop offset=".5" stop-color="#9ba1ac"/><stop offset="1" stop-color="#b9bfc9"/></linearGradient>`;
+      /* an asked cell of the Khởi động board: dark grey, lighter to the right as the red one; its figure
+       * goes muted grey (setBoard) while the open cells keep navy with bright white figures */
+      if (o.cells) g += `<linearGradient id="${p}d${r}${k}" gradientUnits="userSpaceOnUse" x1="${f(gl)}" y1="0" x2="${f(gr)}" y2="0"><stop offset="0" stop-color="#262b33"/><stop offset=".5" stop-color="#3b414c"/><stop offset="1" stop-color="#4d5461"/></linearGradient>`;
       cells += `<g class="cell" data-r="${r}" data-k="${k}"><polygon class="red" points="${P(poly)}" fill="url(#${p}g${r}${k})" opacity="${stD[r][k] ? 1 : 0}"/></g>`;
       /* data-yu: the baseline raised (and the type smaller, 70 %) when the cell has a sub line */
       nums += `<text class="o26cellT" data-r="${r}" data-k="${k}" x="${f((gl + gr) / 2)}" y="${f(m + 21 * kk)}" data-y="${f(m + 21 * kk)}" data-yu="${f(m + 2 * kk)}">${cellText(r, k)}</text>`;
@@ -550,8 +550,7 @@ function setBoard(svg, cells){
       main.setAttribute('y', c.sub ? main.getAttribute('data-yu') : main.getAttribute('data-y'));
       main.style.fontSize = c.sub ? '70%' : '';
       const asked = c.state === 'right' || c.state === 'none';
-      main.style.fill = asked ? '#121821' : '';     /* dark figures on the light grey */
-      main.style.filter = asked ? 'none' : '';      /* no drop shadow under them */
+      main.style.fill = asked ? '#a3aab5' : '';     /* muted figures: the tile is used up */
     }
   }));
 }

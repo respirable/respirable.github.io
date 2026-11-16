@@ -2028,14 +2028,13 @@ body {
 .kdTile.done .kdTileInner,
 .kdTile.right .kdTileInner {
 	opacity: 1;
-	filter: grayscale(1) brightness(1.25);   /* light grey: high contrast against the open tiles */
+	filter: grayscale(1) brightness(0.45);   /* dark grey; the figure goes muted below */
 }
 
 .kdTile.done .kdTileValueP {
 	height: 196px;
 	font-size: 88px;
-	color: #121821;
-	text-shadow: none;
+	color: #a3aab5;
 }
 
 /* every opening after the first: there at once */
