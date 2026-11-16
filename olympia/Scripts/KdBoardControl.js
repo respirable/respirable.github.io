@@ -8,7 +8,9 @@
  * .kdBoardDiv   six tiles in 3 columns x 2 rows. Keys 1-6 run top to bottom, then left to right:
  *                   1  3  5        (10)  (15)  (20)
  *                   2  4  6        (10)  (15)  (20)
- *               A tile already asked is dimmed and says who got it ("Name") or "—".
+ *               A tile already asked is grey (who got it is not shown).
+ * The board opens with its animation only the first time in the turn (instant = true afterwards);
+ * while it is the board screen (body.kdBoardScreen) the contestant bars lie side by side below it.
  *   Olympia 26 face (body.rulesO26 - Luật rừng 2 plays in it): the 04 package-board frame
  *               (O26Frames.js 'kdboard') in .kdBoardO26, opening and closing as the frames do; the
  *               tile being picked turns red as the board closes.
@@ -58,47 +60,60 @@ function setKdBoard(tiles, picked) {
 		tile.classList.toggle('done', done);
 		tile.classList.toggle('right', t.status === 'right');
 		tile.querySelector('.kdTileValueP').textContent = t.value + ' ĐIỂM';
-		tile.querySelector('.kdTileNoteP').textContent = t.status === 'right' ? '+' + t.value + (t.name ? ' · ' + t.name : '') : (t.status === 'none' ? '—' : '');
+		tile.querySelector('.kdTileNoteP').textContent = '';
 		/* O26: row = (n-1) % 2, column = floor((n-1) / 2) */
 		cells[i % 2][Math.floor(i / 2)] = {
 			text: String(t.value),
-			sub: t.status === 'right' ? (t.name || '') : (t.status === 'none' ? '—' : ''),
+			sub: '',
 			state: picked === i + 1 && !done ? 'picked' : (t.status === 'right' ? 'right' : (t.status === 'none' ? 'none' : 'open'))
 		};
 	});
 	if (kdBoardO26()) { window.O26.setBoard(kdBoardO26Svg(root), cells); }
 }
 
-function showKdBoard(tiles, picked) {
+/* instant: drawn at once, without the opening (every time after the first) */
+function showKdBoard(tiles, picked, instant) {
 	var root = kdBoardRoot();
 	if (!root) { return; }
 	setKdBoard(tiles, picked);
+	document.body.classList.add('kdBoardScreen');
 	var closing = root.classList.contains('o26Closing');
 	if (!root.classList.contains('offstage') && !closing) { return; }
-	root.classList.remove('offstage', 'in', 'o26Closing');
+	root.classList.remove('offstage', 'in', 'o26Closing', 'kdCut');
+	root.classList.toggle('kdAnim', !instant);
+	root.classList.toggle('instant', !!instant);
 	root._kdClose = null;
 	if (kdBoardO26()) {
 		var svg = kdBoardO26Svg(root);
 		window.O26.finish(svg);
-		window.O26.open(svg);
+		if (instant) { window.O26.drawn(svg); } else { window.O26.open(svg); }
 		return;
 	}
 	void root.offsetWidth;   /* restart the O24 entrance */
 	root.classList.add('in');
 }
 
-/* the board goes (O26: it closes into the middle first) */
-function hideKdBoard() {
+/* the board goes (O26: it closes into the middle first). cut: gone at once (the end of the turn) */
+function hideKdBoard(cut) {
 	var root = document.querySelector('.kdBoardDiv');
-	if (!root || root.classList.contains('offstage')) { return; }
+	if (cut) { document.body.classList.remove('kdBoardScreen'); }
+	if (!root) { return; }
+	if (cut) {
+		root._kdClose = null;
+		root.classList.remove('o26Closing');
+		root.classList.add('kdCut');
+		if (kdBoardO26()) { window.O26.finish(kdBoardO26Svg(root)); }
+	}
+	if (root.classList.contains('offstage')) { return; }
 	root.classList.add('offstage');
 	root.classList.remove('in');
-	if (!kdBoardO26()) { return; }
+	if (cut || !kdBoardO26()) { if (!cut) { document.body.classList.remove('kdBoardScreen'); } return; }
 	var svg = kdBoardO26Svg(root), token = {};
 	root._kdClose = token;
 	root.classList.add('o26Closing');   /* o26.css keeps it drawn while it closes */
 	window.O26.finish(svg);
-	window.O26.close(svg).then(function () { if (root._kdClose === token) { root.classList.remove('o26Closing'); } });
+	/* the bars go back to their corner once the board has closed (hidden by then under the question frame) */
+	window.O26.close(svg).then(function () { if (root._kdClose === token) { root.classList.remove('o26Closing'); document.body.classList.remove('kdBoardScreen'); } });
 }
 
 function isKdBoardShowing() {
@@ -112,16 +127,14 @@ function kdBoardCloseMs() { return kdBoardO26() ? window.O26.CLOSE_MS : 0; }
 /* what the stage shows, for the audience screen (PanelStateControl.js buildSceneForPublic) */
 function kdBoardScene() {
 	var root = document.querySelector('.kdBoardDiv');
-	if (!root || root.classList.contains('offstage')) { return { on: false }; }
+	if (!root || root.classList.contains('offstage')) { return { on: false, cut: !!root && root.classList.contains('kdCut') }; }
 	var tiles = Array.prototype.map.call(root.querySelectorAll('.kdTile'), function (tile) {
-		var note = tile.querySelector('.kdTileNoteP').textContent;
-		var m = /^\+\d+(?: · (.*))?$/.exec(note);
 		return {
 			value: parseInt(tile.querySelector('.kdTileValueP').textContent, 10) || 0,
 			status: tile.classList.contains('right') ? 'right' : (tile.classList.contains('done') ? 'none' : 'open'),
-			name: m && m[1] ? m[1] : ''
+			name: ''
 		};
 	});
 	var picked = root.querySelector('.kdTile.picked');
-	return { on: true, tiles: tiles, picked: picked ? Number(/n(\d)/.exec(picked.className)[1]) : 0 };
+	return { on: true, anim: root.classList.contains('kdAnim'), tiles: tiles, picked: picked ? Number(/n(\d)/.exec(picked.className)[1]) : 0 };
 }

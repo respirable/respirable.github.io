@@ -35,7 +35,8 @@
  *
  *   ENDINGS without a solver
  *   Right     (board, all 5 questions done, unsolved)  FINAL WINDOW: 15 s on the empty bar for
- *             last signals; when it runs out, Right once more reveals everything (no prize).
+ *             last signals; when it runs out, Right once more reveals everything (no prize; Luật
+ *             rừng 2: every seat still in - not out on a wrong guess - loses 20, vcnvChargeUnsolved).
  *   Right     (any row step, all four eliminated)  everything revealed at once.
  *
  * VcnvSequenceCounter (table in Variables.js):
@@ -402,11 +403,22 @@ function vcnvRevealEverything() {
 	window.GameVariables.VcnvSequenceCounter = 11;
 }
 
+/* Luật rừng 2 (Points.VCNV_UNSOLVED): the final 15 s are over and nobody solved the obstacle - every
+ * seat still in loses 20. A seat out on a wrong guess has paid that guess's own amount already
+ * (vcnvGuessAllWrong), so it is not charged again. Once per round. */
+function vcnvChargeUnsolved() {
+	var g = window.GameVariables, cost = g.Points.VCNV_UNSOLVED;
+	if (!cost || g.IsVcnvSolved || !g.IsVcnvFinalWindowExpired || g.IsVcnvUnsolvedCharged) { return; }
+	g.IsVcnvUnsolvedCharged = true;
+	g.Players.forEach(function (p) { if (!vcnvIsEliminated(p.seat)) { addScore(p.seat, cost); } });
+}
+
 /* Last chance: 15 s on the empty question bar for signals. */
 function vcnvStartFinalWindow() {
 	var dur = window.GameVariables.Timings.VCNV_DECIDE;
 	window.GameVariables.IsVcnvFinalWindowUsed = true;
 	window.GameVariables.IsVcnvFinalWindowExpired = false;
+	window.GameVariables.IsVcnvUnsolvedCharged = false;
 	window.GameVariables.IsVcnvTimerRunning = true;
 	window.GameVariables.IsVcnvTimerDone = false;
 	setObstacleQuestion('');

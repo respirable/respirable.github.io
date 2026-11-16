@@ -391,8 +391,8 @@
 	/* Luật rừng 2: Khởi động's board turn (KdBoardControl.js) */
 	function applyKdBoard(b, was) {
 		b = b || {};
-		if (!b.on) { if (was && was.on) { hideKdBoard(); } return; }
-		if (was && was.on) { setKdBoard(b.tiles, b.picked); } else { showKdBoard(b.tiles, b.picked); }
+		if (!b.on) { if (was && was.on) { hideKdBoard(!!b.cut); } return; }
+		if (was && was.on) { setKdBoard(b.tiles, b.picked); } else { showKdBoard(b.tiles, b.picked, !b.anim); }
 	}
 
 	function applyBoard(on, was) {
@@ -477,7 +477,7 @@
 	var stageView = params.get('view') === 'stage';
 	var soundOn = false;
 	var SOUND_OPS = ['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'pauseShortPassiveSound', 'resumeShortPassiveSound', 'stopAllSounds',
-		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'];
+		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound', 'setLongPassiveLoop'];
 	function fileOf(a) { if (a.__file) { return a.__file; } try { return decodeURIComponent(new URL(a.src).pathname.split('/').pop()); } catch (e) { return ''; } }
 	function wantsSound() { return stageView || (!!snap && (snap.soundAt === 'stage' || snap.soundAt === 'both')); }
 	/* a sound iOS stopped on its own (AudioControl.js onSoundInterrupted) - back with the next tap */

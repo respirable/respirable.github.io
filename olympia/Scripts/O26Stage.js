@@ -21,7 +21,7 @@
  * scores, tags, cells); the modules call it where they change the O24 elements.
  */
 
-var O26_TEXT_DELAY = 0.55;   /* the box's own text shows once the frame is this far open */
+var O26_TEXT_DELAY = 1;   /* the box's own text shows once the frame is fully open - never through a half-drawn frame */
 var O26_VD_GAP_MS = 0;       /* between the 04 board closing and the 03 frame opening */
 
 function o26On() { return !!(window.O26 && window.O26.active()); }
@@ -115,7 +115,11 @@ function o26OpenIn(holder, kind) {
 	holder.classList.add('o26Wait');
 	clearTimeout(holder._o26Text);
 	holder._o26Text = setTimeout(function () { holder.classList.remove('o26Wait'); }, O26.openTime(svg) * O26_TEXT_DELAY);
-	return O26.open(svg).then(function () { O26.fitAll(svg); });
+	return O26.open(svg).then(function () {
+		clearTimeout(holder._o26Text);
+		holder.classList.remove('o26Wait');
+		O26.fitAll(svg);
+	});
 }
 
 function o26Shown(holder) {

@@ -160,7 +160,7 @@ function handleRoundKey(key, round) {
 			if (vcnv == 9) { vcnvDropTree(); }   /* someone signalled mid-tree: back to the main CNV graphics, still guessing */
 				else if (vcnvIsRowStep() && vcnvAllEliminated()) { vcnvRevealEverything(); }   /* nobody left to play */
 			else if (vcnv == 2 && vcnvFinalWindowAvailable()) { vcnvStartFinalWindow(); }
-			else if (vcnv == 10) { if (window.GameVariables.IsVcnvFinalWindowExpired) { vcnvRevealEverything(); } }   /* Right early does nothing */
+			else if (vcnv == 10) { if (window.GameVariables.IsVcnvFinalWindowExpired) { vcnvChargeUnsolved(); vcnvRevealEverything(); } }   /* Right early does nothing */
 			else if (vcnv == 3) { vcnvRevealQuestion(); }
 			else if (vcnv == 4) { vcnvStartTimer(); }
 			else if (vcnv == 5) { vcnvRevealAnswers(); }

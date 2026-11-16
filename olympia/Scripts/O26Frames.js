@@ -232,11 +232,14 @@ function panelDInner(o){
       const gl = k === 0 ? inL(s, m) : dv(D0[k-1], m);
       const gr = k === 2 ? W - inL(s, m) : dv(D0[k], m);
       g += `<linearGradient id="${p}g${r}${k}" gradientUnits="userSpaceOnUse" x1="${f(gl)}" y1="0" x2="${f(gr)}" y2="0"><stop offset="0" stop-color="#5e0a35"/><stop offset=".32" stop-color="#94093f"/><stop offset=".77" stop-color="#c8093e"/><stop offset="1" stop-color="#cf1244"/></linearGradient>`;
+      /* an asked cell of the Khởi động board: dark grey, lighter to the right as the red one; its figure
+       * goes muted grey (setBoard) while the open cells keep navy with bright white figures */
+      if (o.cells) g += `<linearGradient id="${p}d${r}${k}" gradientUnits="userSpaceOnUse" x1="${f(gl)}" y1="0" x2="${f(gr)}" y2="0"><stop offset="0" stop-color="#262b33"/><stop offset=".5" stop-color="#3b414c"/><stop offset="1" stop-color="#4d5461"/></linearGradient>`;
       cells += `<g class="cell" data-r="${r}" data-k="${k}"><polygon class="red" points="${P(poly)}" fill="url(#${p}g${r}${k})" opacity="${stD[r][k] ? 1 : 0}"/></g>`;
       /* data-yu: the baseline raised (and the type smaller, 70 %) when the cell has a sub line */
       nums += `<text class="o26cellT" data-r="${r}" data-k="${k}" x="${f((gl + gr) / 2)}" y="${f(m + 21 * kk)}" data-y="${f(m + 21 * kk)}" data-yu="${f(m + 2 * kk)}">${cellText(r, k)}</text>`;
       if (o.cells) {
-        dims += `<polygon class="dim" data-r="${r}" data-k="${k}" points="${P(poly)}" fill="#071224" opacity="0"/>`;
+        dims += `<polygon class="dim" data-r="${r}" data-k="${k}" points="${P(poly)}" fill="url(#${p}d${r}${k})" opacity="0"/>`;
         subs += `<text class="o26cellS" data-r="${r}" data-k="${k}" x="${f((gl + gr) / 2)}" y="${f(b - 9 * kk)}"></text>`;
       }
     }
@@ -539,13 +542,15 @@ function setBoard(svg, cells){
     const sel = '[data-r="' + r + '"][data-k="' + k + '"]';
     const red = svg.querySelector('.cell' + sel + ' .red'), dim = svg.querySelector('.dim' + sel);
     if (red) red.setAttribute('opacity', c.state === 'picked' ? 1 : 0);
-    if (dim) dim.setAttribute('opacity', c.state === 'right' ? 0.45 : (c.state === 'none' ? 0.62 : 0));
+    if (dim) dim.setAttribute('opacity', c.state === 'right' || c.state === 'none' ? 1 : 0);   /* asked: grey */
     setText(svg, '.o26cellT' + sel, c.text == null ? '' : String(c.text));
     setText(svg, '.o26cellS' + sel, c.sub || '');
     const main = svg.querySelector('.o26cellT' + sel);
     if (main){
       main.setAttribute('y', c.sub ? main.getAttribute('data-yu') : main.getAttribute('data-y'));
       main.style.fontSize = c.sub ? '70%' : '';
+      const asked = c.state === 'right' || c.state === 'none';
+      main.style.fill = asked ? '#a3aab5' : '';     /* muted figures: the tile is used up */
     }
   }));
 }
@@ -615,6 +620,8 @@ window.O26 = {
   OPEN_MS, CLOSE_MS,
   mount, setHeader, setCells, setPicks, setScore, setSummary, setTimer, setBoard,
   open: openFrame, close: closeFrame, finish, isAnimating, openTime, fitAll,
+  /* the frame drawn open at once, no animation */
+  drawn: svg => { if (svg){ settle(svg); fitAll(svg); } },
   /* the Olympia 26 face: rules 'o26', and 'jungle2' (Luật rừng 2 plays in it) */
   active: () => !!(window.GameVariables && window.GameVariables.o26Graphics && window.GameVariables.o26Graphics())
 };
