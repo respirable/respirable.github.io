@@ -89,7 +89,7 @@ function o26Refresh() {
 		var s = o26Q('.vdDiv .vdScoreP');
 		O26.setScore(vd, s ? s.textContent : '');
 		var values = (gv.VeDichValues || []).slice(0, 3);
-		O26.setCells(vd, [0, 1, 2].map(function (k) { return values[k] || ''; }), (gv.VeDichQuestionIndex || 0) - 1);
+		O26.setCells(vd, [0, 1, 2].map(function (k) { return values[k] ? (typeof veDichLabel === 'function' ? veDichLabel(values[k]) : values[k]) : ''; }), (gv.VeDichQuestionIndex || 0) - 1);
 	}
 	var ch = o26Svg(o26Q('.vdDiv .vdChooseDiv'));
 	if (ch) { O26.setPicks(ch, o26ChoosePicks()); }

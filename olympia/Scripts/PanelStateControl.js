@@ -58,7 +58,7 @@ function buildRoundStateForPublic() {
 	});
 	function cells(answer) { return String(answer || '').replace(/\s+/g, '').split('').slice(0, typeof VCNV_MAX_CELLS === 'number' ? VCNV_MAX_CELLS : 10); }
 	return {
-		kd: {
+		kd: kdWithBoard({
 			phase: g.KhoiDongPhaseNames[g.KhoiDongSequenceCounter],
 			mode: g.KhoiDongMode,
 			seat: g.KhoiDongSeat,
@@ -68,7 +68,7 @@ function buildRoundStateForPublic() {
 			currentQuestion: g.KhoiDongCurrentQuestion,
 			buzzSeat: g.KhoiDongBuzzSeat,
 			resolved: g.IsKhoiDongQuestionResolved
-		},
+		}, false),
 		vcnv: {
 			phase: g.VcnvPhaseNames[vcnvPhase],
 			/* someone signalled for the obstacle: the row step it interrupted (players may still answer the row) */
@@ -122,6 +122,9 @@ function buildRoundStateForPublic() {
 			values: g.VeDichValues,
 			qIndex: g.VeDichQuestionIndex,
 			value: g.VeDichValue,
+			/* what the screens show for the values (Luật rừng 2: 20 -> 0, 30 -> 5) */
+			valueLabel: typeof veDichLabel === 'function' ? veDichLabel(g.VeDichValue) : g.VeDichValue,
+			labels: (g.VeDichValues || []).map(function (v) { return typeof veDichLabel === 'function' ? veDichLabel(v) : v; }),
 			question: g.IsVeDichQuestionRevealed ? g.VeDichQuestion : '',
 			star: g.VeDichStar,
 			result: g.VeDichResult,
@@ -227,6 +230,7 @@ function buildSceneForPublic() {
 			steal: g.VeDichStealSeat,
 			text: txt('.vdDiv .vdQuestionTextP'),
 			header: txt('.vdDiv .vdScoreHeaderP'),
+			value: g.VeDichValue || 0,   /* the set's value (20 / 30) - the header may show another (Luật rừng 2) */
 			score: txt('.vdDiv .vdScoreP'),
 			star: has('.vdDiv video.vdStar.on'),
 			timer: !!(vdTimer && vdTimer.classList.contains('visible')),
@@ -234,6 +238,7 @@ function buildSceneForPublic() {
 			media: vdMedia()   /* the question's picture / video (B): { on, type, src } */
 		},
 		board: on('.boardScreenDiv'),
+		kdBoard: typeof kdBoardScene === 'function' ? kdBoardScene() : { on: false },   /* Luật rừng 2: Khởi động's board turn */
 		/* the intro video before Khởi động (KdIntro.js), on the 'kd_intro' clock */
 		kdIntro: { on: typeof isKdIntroShowing === 'function' && isKdIntroShowing(), src: g.KdIntro || '' },
 		/* green screen (key Q on the panel) and ',' - only stage screens copy these, not the audience */
@@ -246,10 +251,26 @@ function buildSceneForPublic() {
 	};
 }
 
+/* Luật rừng 2: during Khởi động's board turn the kd state describes the tile being asked (so the
+ * players' devices buzz as in the common turn), plus the whole board under .board */
+function kdWithBoard(o, panel) {
+	if (typeof kdBoardOn !== 'function' || !kdBoardOn()) { return o; }
+	var b = kdBoardState(panel), asking = b.phase === 'question' || b.phase === 'closed';
+	o.board = b;
+	o.phase = asking ? 'question' : 'board';
+	o.questionIndex = b.tile;
+	o.questionCount = b.tiles.length;
+	o.currentQuestion = b.question;
+	if (panel) { o.currentAnswer = b.answer || ''; o.lastResult = b.lastResult; }
+	o.buzzSeat = b.buzzSeat;
+	o.resolved = b.phase !== 'question' || !b.up;   /* players buzz once the question is on screen */
+	return o;
+}
+
 function buildRoundStateForPanel() {
 	var g = window.GameVariables;
 	return {
-		kd: {
+		kd: kdWithBoard({
 			phase: g.KhoiDongPhaseNames[g.KhoiDongSequenceCounter],
 			mode: g.KhoiDongMode,
 			seat: g.KhoiDongSeat,
@@ -264,7 +285,7 @@ function buildRoundStateForPanel() {
 			own: { wrong: g.KdOwnWrong || 0, streak: g.KdOwnStreak || 0, bonus: g.KdOwnBonus || 0, timeUp: !!g.IsKdOwnTimeUp },   /* Luật rừng */
 			intro: g.IsKdIntroPlaying ? (g.IsKdIntroOver ? 'over' : 'playing') : (g.KdIntro && !g.KdIntroPlayed ? 'ready' : ''),   /* KdIntro.js */
 			turnWrong: g.KdTurnWrong || {}
-		},
+		}, true),
 		vcnv: {
 			phase: g.VcnvPhaseNames[g.VcnvSequenceCounter],
 			timerRunning: g.IsVcnvTimerRunning,

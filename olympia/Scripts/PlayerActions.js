@@ -86,6 +86,7 @@
 
 		if (row.kind === 'buzz') {
 			if (round === 'kd' && gv.KhoiDongMode === 'common') { khoiDongBuzz(seat); }           /* checks the step itself */
+			else if (round === 'kd' && gv.KhoiDongMode === 'board') { kdBoardBuzz(seat); }   /* Luật rừng 2 board turn - checks the step too */
 			else if (round === 'vd' && gv.VeDichSequenceCounter == 7) { veDichStealBuzz(seat); }
 			else if (round === 'tb') { tieBreakBuzz(seat, tieBreakPressTiming(row)); }
 		}

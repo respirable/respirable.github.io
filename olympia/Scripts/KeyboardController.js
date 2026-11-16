@@ -41,6 +41,29 @@ var SEAT_BY_SIGNAL_KEY = { q: 1, w: 2, e: 3, r: 4 };
 var SWALLOWED_KEYS = ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', ' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Backspace'];
 
 /* Returns true when the round used the key ("swallowed" = used, even if nothing happened). */
+/* Khởi động's board turn (Luật rừng 2): 1-6 pick a tile on the board, 1-4 buzz on a tile */
+function kdBoardKey(key) {
+	var c = window.GameVariables.KdBoardSequenceCounter;
+	if (key == 'ArrowLeft') {
+		if (c == 0) { kdBoardShow(); }
+		else if (c == 4) { kdBoardFinish(); }
+		else if (c == 5) { switchRound('vcnv'); }
+		return true;
+	}
+	if (key == 'ArrowRight') { if (c == 3) { kdBoardBackToBoard(); } return true; }
+	if (key == 'ArrowUp') { kdBoardJudgeCorrect(); return true; }
+	if (key == 'ArrowDown') { kdBoardJudgeWrong(); return true; }
+	if (key == 'Backspace') { kdBoardClearBuzz(); return true; }
+	if (key == ' ') { if (c == 2) { startThinkClock(window.GameVariables.Timings.KD_THINK); } return true; }
+	if (/^[1-6]$/.test(key)) {
+		var n = parseInt(key, 10);
+		if (c == 1) { kdBoardPick(n); }
+		else if (c == 2 && n <= 4) { kdBoardBuzz(n); }
+		return true;
+	}
+	return false;
+}
+
 function handleRoundKey(key, round) {
 	var lower = key.length === 1 ? key.toLowerCase() : key;
 	var kd = window.GameVariables.KhoiDongSequenceCounter;
@@ -49,6 +72,9 @@ function handleRoundKey(key, round) {
 	var vd = window.GameVariables.VeDichSequenceCounter;
 	var tb = window.GameVariables.TieBreakSequenceCounter;
 	var common = window.GameVariables.KhoiDongMode == 'common';
+
+	/* Luật rừng 2: Khởi động's board turn has keys of its own (Rounds/KdBoard.js) */
+	if (round == 'kd' && window.GameVariables.KhoiDongMode == 'board') { return kdBoardKey(key); }
 
 	if (key == 'ArrowLeft') // key 'left arrow' for starting a round and stepping between contestants / screens
 	{
@@ -79,7 +105,7 @@ function handleRoundKey(key, round) {
 			else if (common) {
 				if (kd == 0) { khoiDongCommonReady(); }
 				else if (kd == 2) { khoiDongCommonOpenQuestionBar(); }
-				else if (kd == 6) { switchRound('vcnv'); }                 /* on to Vượt chướng ngại vật */
+				else if (kd == 6) { if (window.GameVariables.kdBoardValues()) { kdBoardReady(); } else { switchRound('vcnv'); } }   /* Luật rừng 2: the board turn first */
 			}
 			else if (kd == 0) { khoiDongShowTitle(); }
 			else if (kd == 1 || kd == 5) { khoiDongCallNextContestant(); }

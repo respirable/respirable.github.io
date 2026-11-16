@@ -250,9 +250,9 @@ function vcnvGradeRow() {
 	if (!r) { return; }
 	var pts = n == VCNV_CENTER ? window.GameVariables.Points.VCNV_CENTER : window.GameVariables.Points.VCNV_ROW;
 	r.correctSeats.forEach(function (seat) { addScore(seat, pts); });
-	if (window.GameVariables.isJungle()) {   /* Luật rừng: every seat still in that missed the row */
+	if (window.GameVariables.Points.VCNV_ROW_MISS) {   /* Luật rừng / Luật rừng 2: every seat still in that missed the row */
 		window.GameVariables.Players.forEach(function (p) {
-			if (r.correctSeats.indexOf(p.seat) === -1 && !vcnvIsEliminated(p.seat)) { addScore(p.seat, window.GameVariables.RulesJungle.VCNV_ROW_MISS); }
+			if (r.correctSeats.indexOf(p.seat) === -1 && !vcnvIsEliminated(p.seat)) { addScore(p.seat, window.GameVariables.Points.VCNV_ROW_MISS); }
 		});
 	}
 	if (r.correctSeats.length) {
@@ -328,6 +328,15 @@ function vcnvUnsignal() {
 
 /* the centre question has been asked (right, wrong or still open): the obstacle is worth only
  * VCNV_AFTER_CENTER from then on - also in the final 15 s window */
+/* what a WRONG obstacle guess costs now (Rules.js): Luật rừng - the prize; Luật rừng 2 - its own
+ * table by the rows opened (VCNV_WRONG_AFTER_CENTER once the centre is asked); else 0 */
+function vcnvObstaclePenalty() {
+	var P = window.GameVariables.Points;
+	if (!P.VCNV_OBSTACLE_WRONG) { return 0; }
+	if (window.GameVariables.IsVcnvCenterOpened || vcnvCenterAsked()) { return P.VCNV_WRONG_AFTER_CENTER || 0; }
+	return P.VCNV_OBSTACLE_WRONG[Math.max(1, Math.min(4, window.GameVariables.VcnvOpenedCount))] || 0;
+}
+
 function vcnvCenterAsked() { var c = vcnvRow(VCNV_CENTER); return !!c && c.status !== 'closed'; }
 
 function vcnvObstaclePrize() {
@@ -361,7 +370,7 @@ function vcnvGuessAllWrong() {
 	/* they are out from here on - and a "right" mark on the row still in progress (not graded,
 	 * so not paid yet) is withdrawn: an eliminated contestant earns nothing more */
 	var r = vcnvRow(window.GameVariables.VcnvCurrentRow);
-	var penalty = window.GameVariables.isJungle() ? vcnvObstaclePrize() : 0;   /* Luật rừng: a wrong guess costs what a right one would have won */
+	var penalty = vcnvObstaclePenalty();   /* Luật rừng / Luật rừng 2 only */
 	window.GameVariables.VcnvQueue.forEach(function (seat) {
 		if (vcnvIsEliminated(seat)) { return; }
 		if (penalty) { addScore(seat, -penalty); }

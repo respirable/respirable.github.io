@@ -17,15 +17,15 @@
 	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Olympia Controller", "url": "https://respirable.github.io/olympia/", "description": "Phần mềm tổ chức thi theo luật Đường lên đỉnh Olympia trên trình duyệt: phòng thi, màn sân khấu, máy thí sinh, bộ đề và biên bản trận.", "applicationCategory": "EducationalApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires JavaScript", "inLanguage": "vi", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Person", "name": "respirable", "url": "https://respirable.github.io/"}}</script>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261114a">
+	<link rel="stylesheet" type="text/css" href="Styles/lobby.css?v=20261116a">
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261114a"></script>
-	<script src="Scripts/Auth.js?v=20261114a"></script>
+	<script src="Scripts/Config.js?v=20261116a"></script>
+	<script src="Scripts/Auth.js?v=20261116a"></script>
 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
-	<script src="Scripts/QrCode.js?v=20261114a"></script>
-	<script src="Scripts/Lobby.js?v=20261114a" defer></script>
-	<script src="Scripts/LobbyPublic.js?v=20261114a" defer></script>
-	<script src="Scripts/News.js?v=20261114a" defer></script>
+	<script src="Scripts/QrCode.js?v=20261116a"></script>
+	<script src="Scripts/Lobby.js?v=20261116a" defer></script>
+	<script src="Scripts/LobbyPublic.js?v=20261116a" defer></script>
+	<script src="Scripts/News.js?v=20261116a" defer></script>
 </head>
 
 <body>
@@ -93,6 +93,7 @@
 							<label><input type="radio" name="roomRules" value="o24">Olympia 24</label>
 							<label><input type="radio" name="roomRules" value="o23">Olympia 23</label>
 							<label title="Luật thử nghiệm: điểm có thể âm"><input type="radio" name="roomRules" value="jungle">Luật rừng <small>BETA</small></label>
+							<label title="Luật thử nghiệm: điểm có thể âm; Khởi động thêm lượt bảng 6 câu"><input type="radio" name="roomRules" value="jungle2">Luật rừng 2 <small>BETA</small></label>
 						</div>
 					</fieldset>
 					<button type="submit" class="btn primary" id="createBtn">Tạo phòng</button>

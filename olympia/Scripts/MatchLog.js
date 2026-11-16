@@ -200,6 +200,22 @@
 			else if (q) { q.nobody = true; }   /* nobody buzzed */
 		});
 
+		/* Luật rừng 2: Khởi động's board turn - one question per tile, the tile's value for a right answer */
+		watch('kdBoardPick', function () { this.c = gv.KdBoardSequenceCounter; }, function (n) {
+			var tile = gv.KdBoardTiles[n - 1];
+			if (this.c != 1 || gv.KdBoardSequenceCounter != 2 || !tile) { return; }
+			openQuestion('kd', 'Bảng 6 câu · Ô ' + n + ' · ' + tile.value + ' điểm', tile.text, tile.answer, { board: true, value: tile.value, tile: n });
+		});
+		watch('kdBoardJudgeCorrect', function () { this.seat = gv.KdBoardBuzzSeat; this.c = gv.KdBoardSequenceCounter; }, function () {
+			if (this.c == 2 && this.seat !== null && gv.KdBoardLastResult === 'correct') { setResult(findQuestion('kd'), this.seat, 'right', { delta: moved(this, this.seat) }); }
+		});
+		watch('kdBoardJudgeWrong', function () { this.seat = gv.KdBoardBuzzSeat; this.c = gv.KdBoardSequenceCounter; }, function () {
+			if (this.c != 2) { return; }
+			var q = findQuestion('kd');
+			if (this.seat !== null && this.seat !== undefined) { setResult(q, this.seat, 'wrong', { delta: 0 }); }
+			else if (q && !q.results.length) { q.nobody = true; }
+		});
+
 		/* Vượt chướng ngại vật */
 		watch('vcnvRevealQuestion', null, function () {
 			var n = gv.VcnvCurrentRow, src = typeof vcnvQuestionFor === 'function' ? vcnvQuestionFor(n) : {};
@@ -222,7 +238,7 @@
 		});
 		watch('vcnvGuessAllWrong', function () { this.queue = gv.VcnvQueue.filter(function (s) { return gv.VcnvEliminated.indexOf(s) === -1; }); }, function () {
 			if (!this.queue.length) { return; }
-			var q = openQuestion('vcnv', 'Chướng ngại vật', 'Trả lời chướng ngại vật', gv.VcnvKeyword, { cnv: true, prize: typeof vcnvObstaclePrize === 'function' ? vcnvObstaclePrize() : 0 }), ctx = this;
+			var q = openQuestion('vcnv', 'Chướng ngại vật', 'Trả lời chướng ngại vật', gv.VcnvKeyword, { cnv: true, prize: typeof vcnvObstaclePrize === 'function' ? vcnvObstaclePrize() : 0, penalty: typeof vcnvObstaclePenalty === 'function' ? vcnvObstaclePenalty() : 0 }), ctx = this;
 			this.queue.forEach(function (s) { setResult(q, s, 'wrong', { delta: moved(ctx, s) }); });
 		});
 
@@ -242,7 +258,7 @@
 
 		/* Về đích */
 		watch('veDichLoadQuestion', null, function (index) {
-			openQuestion('vd', seatName(gv.VeDichSeat) + ' · Câu ' + index + ' · ' + gv.VeDichValue + ' điểm', gv.VeDichQuestion, gv.VeDichAnswer, { seat: gv.VeDichSeat, index: index, value: gv.VeDichValue });
+			openQuestion('vd', seatName(gv.VeDichSeat) + ' · Câu ' + index + ' · ' + veDichLabel(gv.VeDichValue) + ' điểm', gv.VeDichQuestion, gv.VeDichAnswer, { seat: gv.VeDichSeat, index: index, value: gv.VeDichValue });
 		});
 		function vdOwn(right) {
 			return function () {
@@ -291,30 +307,33 @@
 					: (r.verdict === 'wrong' ? (own ? (jungle ? ((J.KD_OWN || {}).wrong || 0) : P.KD_WRONG_INDIVIDUAL) : (jungle ? (J.KD_TURN_WRONG || 0) : P.KD_WRONG_COMMON)) : 0);
 			});
 		}
+		else if (q.round === 'kd' && q.board) {   /* Luật rừng 2: the board turn - the tile's value, a wrong costs nothing */
+			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? (q.value || 0) : 0; });
+		}
 		else if (q.round === 'vcnv' && q.cnv) {
-			var prize = q.prize || 0;
-			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? prize : (r.verdict === 'wrong' && jungle ? -prize : 0); });
+			var prize = q.prize || 0, cost = q.penalty != null ? q.penalty : (jungle ? prize : 0);
+			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? prize : (r.verdict === 'wrong' ? -cost : 0); });
 		}
 		else if (q.round === 'vcnv') {
 			var pts = q.row == VCNV_CENTER ? P.VCNV_CENTER : P.VCNV_ROW;
-			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? pts : (r.verdict !== 'out' && jungle ? (J.VCNV_ROW_MISS || 0) : 0); });
+			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? pts : (r.verdict !== 'out' ? (P.VCNV_ROW_MISS || 0) : 0); });
 		}
 		else if (q.round === 'tt') {
 			var times = {}; q.results.forEach(function (r) { times[r.seat] = typeof r.time === 'number' ? r.time : null; });
 			var rank = gv.ttRankPoints(times, by('right').map(function (r) { return r.seat; }));
-			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? (rank[r.seat] || 0) : (jungle ? (J.TANG_TOC_MISS || 0) : 0); });
+			q.results.forEach(function (r) { out[r.seat] = r.verdict === 'right' ? (rank[r.seat] || 0) : (P.TANG_TOC_MISS || 0); });
 		}
 		else if (q.round === 'vd') {
 			var value = q.value || 0, owner = q.seat, ownR = q.results.filter(function (r) { return r.seat === owner; })[0];
-			var star = !!(ownR && ownR.star), x = star ? 2 : 1;
+			var sc = veDichScore(value, !!(ownR && ownR.star));   /* Rounds/VeDich.js: by the rules */
 			q.results.forEach(function (r) {
-				if (r.seat === owner) { out[r.seat] = r.verdict === 'right' ? value * x : (r.verdict === 'wrong' ? (jungle ? -value * x : (star ? -value : 0)) : 0); return; }
-				if (r.verdict === 'right') { out[r.seat] = value; if (!star || jungle) { out[owner] = (out[owner] || 0) - value; } }
-				else { out[r.seat] = r.verdict === 'wrong' ? -Math.round(value * P.VE_DICH_STEAL_WRONG_RATIO) : 0; }
+				if (r.seat === owner) { return; }
+				if (r.verdict === 'right') { out[r.seat] = sc.steal; }
+				else { out[r.seat] = r.verdict === 'wrong' ? sc.stealWrong : 0; }
 			});
 			if (ownR) { /* owner's own share first, then what steals took from it */
-				var mine = ownR.verdict === 'right' ? value * x : (ownR.verdict === 'wrong' ? (jungle ? -value * x : (star ? -value : 0)) : 0);
-				var taken = 0; q.results.forEach(function (r) { if (r.seat !== owner && r.verdict === 'right' && (!star || jungle)) { taken -= value; } });
+				var mine = ownR.verdict === 'right' ? sc.right : (ownR.verdict === 'wrong' ? sc.wrong : 0);
+				var taken = 0; q.results.forEach(function (r) { if (r.seat !== owner && r.verdict === 'right') { taken -= sc.stealTake; } });
 				out[owner] = mine + taken;
 			}
 		}

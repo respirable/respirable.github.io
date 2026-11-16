@@ -24,6 +24,8 @@
  *                        (not with the star) / stealer wrong: - half the value
  *   LUẬT RỪNG (Rules.js): a wrong answer costs - value (x2 with the star); a right steal takes the
  *                        value from the contestant on stage with the star too
+ *   LUẬT RỪNG 2: the 20 / 30 questions are shown as 0 / 5 points and scored by Rules.js VE_DICH
+ *                        (veDichScore below)
  *   S        (answered / steal with nobody)  the star on the NEXT question
  *   Right    (answered / steal with nobody)  next question at once ... after the THIRD question:
  *                        question bar + score box off, vd_turn_complete -> blank
@@ -39,6 +41,28 @@
  */
 
 var VE_DICH_PICKS = 3;
+
+/* What a question of the set's value (20 / 30) is worth under the rules at play, with or without
+ * the star: { right, wrong (owner), steal (to the stealer), stealTake (from the owner), stealWrong }.
+ * Olympia 26 / 24 / 23: the value (x2 with the star), a wrong answer costs the value only with the
+ * star, a right steal takes the value from the owner unless the star is on, a wrong steal costs half.
+ * Luật rừng: a wrong answer costs the value (x2 with the star), a right steal always takes it.
+ * Luật rừng 2: Rules.js VE_DICH (20 -> the "0 điểm" question, 30 -> "5 điểm"). Used by the steps
+ * below and by the match report (MatchLog.js). */
+function veDichScore(value, star) {
+	var g = window.GameVariables, P = g.Points, t = P.VE_DICH && P.VE_DICH[value];
+	if (t) {
+		return { right: star ? t.rightStar : t.right, wrong: star ? t.wrongStar : t.wrong, steal: t.steal, stealTake: t.stealTake, stealWrong: t.stealWrong };
+	}
+	var x = star ? 2 : 1, jungle = g.isJungle && g.isJungle();
+	return {
+		right: value * x,
+		wrong: jungle ? -value * x : (star ? -value : 0),
+		steal: value,
+		stealTake: (!star || jungle) ? value : 0,
+		stealWrong: -Math.round(value * P.VE_DICH_STEAL_WRONG_RATIO)
+	};
+}
 
 function veDichPackage(seat) { return (window.GameVariables.VeDichQuestions || {})[seat] || { 20: [], 30: [] }; }
 function veDichStarred() { return window.GameVariables.VeDichStar !== null && window.GameVariables.VeDichStar === window.GameVariables.VeDichQuestionIndex; }
@@ -322,7 +346,8 @@ function veDichStopTimer() {
 
 function veDichAnswerCorrect() {
 	veDichFreezeTimer();
-	addScore(window.GameVariables.VeDichSeat, window.GameVariables.VeDichValue * (veDichStarred() ? 2 : 1));
+	var pts = veDichScore(window.GameVariables.VeDichValue, veDichStarred()).right;
+	if (pts) { addScore(window.GameVariables.VeDichSeat, pts); }
 	veDichRefreshScores();
 	startLongActiveSound('vd_correct.ogg', true);
 	window.GameVariables.VeDichResult = 'correct';
@@ -331,12 +356,9 @@ function veDichAnswerCorrect() {
 
 function veDichAnswerWrong() {
 	veDichStopTimer();
-	if (window.GameVariables.isJungle()) {   /* Luật rừng: the value, twice with the star */
-		addScore(window.GameVariables.VeDichSeat, -window.GameVariables.VeDichValue * (veDichStarred() ? 2 : 1));
-		veDichRefreshScores();
-	}
-	else if (veDichStarred()) {
-		addScore(window.GameVariables.VeDichSeat, -window.GameVariables.VeDichValue);
+	var cost = veDichScore(window.GameVariables.VeDichValue, veDichStarred()).wrong;   /* veDichScore: by the rules */
+	if (cost) {
+		addScore(window.GameVariables.VeDichSeat, cost);
 		veDichRefreshScores();
 	}
 	window.GameVariables.VeDichResult = 'wrong';
@@ -355,8 +377,9 @@ function veDichStealBuzz(seat) {
 }
 
 function veDichStealCorrect() {
-	addScore(window.GameVariables.VeDichStealSeat, window.GameVariables.VeDichValue);
-	if (!veDichStarred() || window.GameVariables.isJungle()) { addScore(window.GameVariables.VeDichSeat, -window.GameVariables.VeDichValue); }   /* Luật rừng: star or not */
+	var sc = veDichScore(window.GameVariables.VeDichValue, veDichStarred());
+	if (sc.steal) { addScore(window.GameVariables.VeDichStealSeat, sc.steal); }
+	if (sc.stealTake) { addScore(window.GameVariables.VeDichSeat, -sc.stealTake); }
 	veDichRefreshScores();
 	startLongActiveSound('vd_correct.ogg', true);
 	window.GameVariables.VeDichStealResult = 'correct';
@@ -364,7 +387,8 @@ function veDichStealCorrect() {
 }
 
 function veDichStealWrong() {
-	addScore(window.GameVariables.VeDichStealSeat, -Math.round(window.GameVariables.VeDichValue * window.GameVariables.Points.VE_DICH_STEAL_WRONG_RATIO));
+	var lose = veDichScore(window.GameVariables.VeDichValue, veDichStarred()).stealWrong;
+	if (lose) { addScore(window.GameVariables.VeDichStealSeat, lose); }
 	veDichRefreshScores();
 	startLongActiveSound('vd_wrong.ogg', true);
 	window.GameVariables.VeDichStealResult = 'wrong';

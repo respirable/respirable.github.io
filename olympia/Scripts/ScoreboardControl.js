@@ -40,6 +40,7 @@ function renderContestantBars() {
 function contestantBarLook(p) {
 	var g = window.GameVariables;
 	if (g.CurrentRound === 'tb' && typeof tieBreakBarLook === 'function') { return tieBreakBarLook(p.seat); }
+	if (g.CurrentRound === 'kd' && typeof kdBoardBarLook === 'function') { var kdLook = kdBoardBarLook(p.seat); if (kdLook) { return kdLook; } }   /* Luật rừng 2 board turn */
 	if (g.MirrorBarLook) { return g.MirrorBarLook[p.seat] || null; }
 	return null;
 }

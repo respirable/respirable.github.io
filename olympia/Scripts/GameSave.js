@@ -36,7 +36,9 @@
 			kd: {
 				counter: gv.KhoiDongSequenceCounter, mode: gv.KhoiDongMode, seat: gv.KhoiDongSeat, index: gv.KhoiDongQuestionIndex, turn: gv.KhoiDongTurn || 0,
 				own: { wrong: gv.KdOwnWrong || 0, streak: gv.KdOwnStreak || 0, bonus: gv.KdOwnBonus || 0 },   /* Luật rừng */
-				turnWrong: Object.assign({}, gv.KdTurnWrong || {})
+				turnWrong: Object.assign({}, gv.KdTurnWrong || {}),
+				/* Luật rừng 2: the board turn - which tiles are asked and who got them */
+				board: gv.KhoiDongMode === 'board' ? { counter: gv.KdBoardSequenceCounter, tiles: (gv.KdBoardTiles || []).map(function (x) { return { status: x.status, seat: x.seat }; }) } : null
 			},
 			vcnv: {
 				counter: gv.VcnvSequenceCounter,
@@ -69,7 +71,8 @@
 	var ROUND_NAMES = { kd: 'Khởi động', vcnv: 'Vượt chướng ngại vật', tt: 'Tăng tốc', vd: 'Về đích', tb: 'Câu hỏi phụ' };
 	function describe(s) {
 		var where = ROUND_NAMES[s.round] || s.round;
-		if (s.round === 'kd') { where += s.kd.turn ? ' · lượt ' + s.kd.turn + ', câu ' + (s.kd.index || 1) : (s.kd.mode === 'common' ? ' · lượt chung, câu ' + (s.kd.index || 1) : (s.kd.seat ? ' · lượt riêng ghế ' + s.kd.seat + ', câu ' + (s.kd.index || 1) : ' · lượt riêng')); }
+		if (s.round === 'kd' && s.kd.mode === 'board') { where += ' · bảng 6 câu, đã hỏi ' + ((s.kd.board || {}).tiles || []).filter(function (x) { return x.status !== 'open'; }).length + ' / 6 ô'; }
+		else if (s.round === 'kd') { where += s.kd.turn ? ' · lượt ' + s.kd.turn + ', câu ' + (s.kd.index || 1) : (s.kd.mode === 'common' ? ' · lượt chung, câu ' + (s.kd.index || 1) : (s.kd.seat ? ' · lượt riêng ghế ' + s.kd.seat + ', câu ' + (s.kd.index || 1) : ' · lượt riêng')); }
 		if (s.round === 'vcnv') { where += ' · ' + s.vcnv.rows.slice(0, 4).filter(function (r) { return r.status === 'correct' || r.status === 'wrong'; }).length + ' hàng đã chấm' + (s.vcnv.solved ? ' · đã giải' : ''); }
 		if (s.round === 'tt') { where += ' · câu ' + (s.tt.index || 1); }
 		if (s.round === 'vd') { where += ' · ' + s.vd.done.length + ' / 4 đã thi' + (s.vd.seat ? ', đang thi ghế ' + s.vd.seat : ''); }
@@ -214,6 +217,19 @@
 
 	function restoreKdFromSave(kd, players, clock) {
 		var g = gv, sizes = g.kdCommonTurns();
+		if (kd.mode === 'board' && typeof kdBoardReset === 'function' && g.kdBoardValues()) {   /* Luật rừng 2: the board turn */
+			g.Players.forEach(function (p) { p.kdDone = true; });
+			kdBoardReset();
+			var saved = (kd.board || {}).tiles || [];
+			g.KdBoardTiles.forEach(function (x, i) {
+				var st = saved[i] || {};
+				if (st.status === 'right' || st.status === 'none') { x.status = st.status; x.seat = st.seat || null; }   /* a tile still being asked opens again */
+			});
+			var c = (kd.board || {}).counter || 0;
+			if (c >= 5) { g.KdBoardSequenceCounter = 5; }
+			else if (c >= 1 && !g.KdBoardTiles.some(function (x) { return x.status === 'open'; })) { g.KdBoardSequenceCounter = 0; }
+			return;   /* Left: the board again (all asked: Left shows it, Left hides it) */
+		}
 		if (sizes && (g.Rules === 'o23' || kd.mode === 'common')) {   /* O23 / Luật rừng: the common turn it was in (a finished turn: the next one) */
 			var turn = kd.turn || 1;
 			if (kd.counter == 6) { khoiDongResetO23(sizes.length); g.KhoiDongSequenceCounter = 6; return; }   /* all done: Left -> VCNV */

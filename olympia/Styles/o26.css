@@ -232,3 +232,27 @@ body.rulesO26 .vcnvQuestionTextP {
 body.rulesO26 .contestantBar.plain .contestantNameP {
 	font-size: 31px;
 }
+
+/* ---------- Luật rừng 2: Khởi động's board turn (KdBoardControl.js) - the 04 frame, its own screen ---------- */
+.kdBoardO26 {
+	display: none;
+}
+
+body.rulesO26 .kdBoardDiv .kdTile {
+	display: none;
+}
+
+body.rulesO26 .kdBoardDiv .kdBoardO26 {
+	display: block;
+}
+
+body.rulesO26 .kdBoardDiv.offstage.o26Closing {
+	display: block;   /* drawn while the frame closes */
+}
+
+/* 720 x 172 units drawn 1500 wide: 1500 x 358, centred above the contestant bars */
+body.rulesO26 .kdBoardO26 > svg.o26Svg {
+	left: 210px;
+	top: 250px;
+	width: 1500px;
+}
