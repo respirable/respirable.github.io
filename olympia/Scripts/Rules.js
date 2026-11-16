@@ -77,6 +77,7 @@
 		VCNV_ROW: 0,
 		VCNV_CENTER: 0,
 		VCNV_ROW_MISS: -5,
+		VCNV_UNSOLVED: -20,                /* the final 15 s over and nobody solved it: every seat still in */
 		TANG_TOC: [20, 20, 30, 30],
 		TANG_TOC_RANK: [5, -10, -25, -40],
 		TANG_TOC_MISS: -40,
@@ -116,6 +117,7 @@
 		P.VCNV_ROW = pick(src.VCNV_ROW, BASE.VCNV_ROW);
 		P.VCNV_CENTER = pick(src.VCNV_CENTER, BASE.VCNV_CENTER);
 		P.VCNV_ROW_MISS = src.VCNV_ROW_MISS || 0;           /* every seat still in that misses a row */
+		P.VCNV_UNSOLVED = src.VCNV_UNSOLVED || 0;           /* every seat still in when the final 15 s end unsolved */
 		P.TANG_TOC_RANK = (src.TANG_TOC_RANK || BASE.TANG_TOC_RANK).slice();
 		P.TANG_TOC_MISS = src.TANG_TOC_MISS || 0;           /* a wrong / no answer */
 		P.KD_WRONG_COMMON = pick(src.KD_WRONG_COMMON, BASE.KD_WRONG_COMMON);

@@ -1935,12 +1935,12 @@ body {
 	opacity: 0;
 }
 
-.kdTile.n1 { left: 118px; top: 150px; }
-.kdTile.n2 { left: 118px; top: 400px; }
-.kdTile.n3 { left: 701px; top: 150px; }
-.kdTile.n4 { left: 701px; top: 400px; }
-.kdTile.n5 { left: 1284px; top: 150px; }
-.kdTile.n6 { left: 1284px; top: 400px; }
+.kdTile.n1 { left: 118px; top: 317px; }
+.kdTile.n2 { left: 118px; top: 567px; }
+.kdTile.n3 { left: 701px; top: 317px; }
+.kdTile.n4 { left: 701px; top: 567px; }
+.kdTile.n5 { left: 1284px; top: 317px; }
+.kdTile.n6 { left: 1284px; top: 567px; }
 
 .kdBoardDiv.in .kdTile {
 	animation: kdTileIn 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -2023,3 +2023,35 @@ body {
 	opacity: 0.8;
 	filter: none;
 }
+
+/* asked: grey, nothing written under the value */
+.kdTile.done .kdTileInner,
+.kdTile.right .kdTileInner {
+	opacity: 1;
+	filter: grayscale(1) brightness(0.45);
+}
+
+.kdTile.done .kdTileValueP {
+	height: 196px;
+	font-size: 88px;
+	color: #d6d9de;
+}
+
+/* every opening after the first: there at once */
+.kdBoardDiv.in.instant .kdTile {
+	animation: none;
+	opacity: 1;
+}
+
+/* the board screen: the contestant bars side by side along the bottom (4 x 377 + 3 x 20 = 1568) */
+body.kdBoardScreen .scoreboardDiv {
+	left: 176px;
+	top: 968px;
+	width: 1568px;
+	height: 62px;
+}
+
+body.kdBoardScreen .contestantBar.seat1 { top: 0; left: 0; }
+body.kdBoardScreen .contestantBar.seat2 { top: 0; left: 397px; }
+body.kdBoardScreen .contestantBar.seat3 { top: 0; left: 794px; }
+body.kdBoardScreen .contestantBar.seat4 { top: 0; left: 1191px; }

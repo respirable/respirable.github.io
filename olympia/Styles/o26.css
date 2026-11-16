@@ -250,9 +250,9 @@ body.rulesO26 .kdBoardDiv.offstage.o26Closing {
 	display: block;   /* drawn while the frame closes */
 }
 
-/* 720 x 172 units drawn 1500 wide: 1500 x 358, centred above the contestant bars */
+/* 720 x 172 units drawn 1500 wide: 1500 x 358, in the middle of the screen */
 body.rulesO26 .kdBoardO26 > svg.o26Svg {
 	left: 210px;
-	top: 250px;
+	top: 361px;
 	width: 1500px;
 }

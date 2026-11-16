@@ -224,10 +224,40 @@ function watchLongPassiveSound() {
 	var a = window.GameVariables.RoundBedSound;
 	if (!a || a.paused) { return; }
 	if (window.GameVariables.IsBedLooping && window.GameVariables.BedLoopEnd > window.GameVariables.BedLoopStart && a.currentTime >= window.GameVariables.BedLoopEnd) {
-		a.currentTime = window.GameVariables.BedLoopStart;
-		console.log('[Audio] bed loop -> ' + window.GameVariables.BedLoopStart + 's');
+		var next = window.GameVariables.BedNextLoop;
+		if (next) {   /* the pass is over: the queued loop takes over (setLongPassiveLoop) */
+			window.GameVariables.BedNextLoop = null;
+			window.GameVariables.BedLoopStart = next.start;
+			window.GameVariables.BedLoopEnd = next.end;
+			/* a loop that starts where the last one ended just runs on */
+			if (Math.abs(a.currentTime - next.start) > 0.3) { a.currentTime = next.start; }
+			console.log('[Audio] bed loop now ' + next.start + '-' + next.end + 's');
+		}
+		else {
+			a.currentTime = window.GameVariables.BedLoopStart;
+			console.log('[Audio] bed loop -> ' + window.GameVariables.BedLoopStart + 's');
+		}
 		publishBedState();
 	}
+}
+
+/* New loop points for the bed that plays. afterCurrent: the pass under way finishes first (the new
+ * loop starts when the old one reaches its end); otherwise at once. Releasing the bed afterwards
+ * just stops the looping - it plays on to its end (Luật rừng 2's board turn, Rounds/KdBoard.js). */
+function setLongPassiveLoop(start, end, afterCurrent) {
+	var g = window.GameVariables;
+	g.BedReleaseTo = 0;
+	g.BedReleaseSlack = 0;
+	if (afterCurrent && g.IsBedLooping && g.BedLoopEnd > g.BedLoopStart) {
+		g.BedNextLoop = (g.BedLoopStart === start && g.BedLoopEnd === end) ? null : { start: start, end: end };
+	}
+	else {
+		g.BedNextLoop = null;
+		g.BedLoopStart = start;
+		g.BedLoopEnd = end;
+		g.IsBedLooping = end > start;
+	}
+	publishBedState();
 }
 
 function stopBedWatch() {
@@ -244,6 +274,7 @@ function startLongPassiveSound(filename, straight) {
 	var def = straight ? null : window.GameVariables.BedLoops[filename];
 	if (!def && !straight) { console.warn('[Audio] no loop points for', filename, '- playing straight through'); }
 	window.GameVariables.IsBedStraight = !!straight;
+	window.GameVariables.BedNextLoop = null;
 	window.GameVariables.BedFile = filename;
 	window.GameVariables.BedLoopStart = def ? def.loopStart : 0;
 	window.GameVariables.BedLoopEnd = def ? def.loopEnd : 0;
@@ -270,6 +301,7 @@ function releaseLongPassiveSound() {
 	var a = window.GameVariables.RoundBedSound;
 	if (!a) { return; }
 	window.GameVariables.IsBedLooping = false;
+	window.GameVariables.BedNextLoop = null;
 	var t = a.currentTime;
 	if (t < window.GameVariables.BedReleaseTo - window.GameVariables.BedReleaseSlack) {
 		a.currentTime = window.GameVariables.BedReleaseTo;
@@ -322,7 +354,7 @@ function fadeOutLongPassiveSound(ms) {
 		gv.Sync.sendPublic({ type: 'sound', op: op, args: plain, at: Date.now() });
 	}
 	['startSound', 'stopSound', 'fadeOutSound', 'seekShortPassiveSound', 'pauseShortPassiveSound', 'resumeShortPassiveSound', 'stopAllSounds',
-		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound'].forEach(function (name) {
+		'startLongPassiveSound', 'releaseLongPassiveSound', 'stopLongPassiveSound', 'fadeOutLongPassiveSound', 'setLongPassiveLoop'].forEach(function (name) {
 		var orig = window[name];
 		window[name] = function () {
 			if (depth === 0) { relay(name, arguments); }
@@ -343,7 +375,15 @@ function fadeOutLongPassiveSound(ms) {
 			if (x.a.paused || x.a.ended) { return; }
 			var file = fileOf(x.a);
 			if (!file) { return; }
-			if (x.ch === 'RoundBedSound') { gv.Sync.sendPublic({ type: 'sound', op: 'startLongPassiveSound', args: gv.IsBedStraight ? [file, true] : [file], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
+			if (x.ch === 'RoundBedSound') {
+				gv.Sync.sendPublic({ type: 'sound', op: 'startLongPassiveSound', args: gv.IsBedStraight ? [file, true] : [file], at: Date.now(), seek: x.a.currentTime, ch: x.ch });
+				/* the loop points as they are now (setLongPassiveLoop may have moved them) */
+				if (gv.IsBedLooping) {
+					gv.Sync.sendPublic({ type: 'sound', op: 'setLongPassiveLoop', args: [gv.BedLoopStart, gv.BedLoopEnd], at: Date.now() });
+					if (gv.BedNextLoop) { gv.Sync.sendPublic({ type: 'sound', op: 'setLongPassiveLoop', args: [gv.BedNextLoop.start, gv.BedNextLoop.end, true], at: Date.now() }); }
+				}
+				else if (!gv.IsBedStraight) { gv.Sync.sendPublic({ type: 'sound', op: 'setLongPassiveLoop', args: [0, 0], at: Date.now() }); }
+			}
 			else { gv.Sync.sendPublic({ type: 'sound', op: 'startSound', args: [x.ch, file, false], at: Date.now(), seek: x.a.currentTime, ch: x.ch }); }
 		});
 	}

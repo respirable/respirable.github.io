@@ -11,7 +11,13 @@
  * Down closes it.
  *
  *     Left    (common turn finished)  kd_ready
- *     Left    (0 ready)    board + contestant bars + vcnv_open_board
+ *     Left    (0 ready)    board + contestant bars + vcnv_open_board (the board's opening and its
+ *                          sound only this once; afterwards the board is simply there again) and
+ *                          the bed kd_60s.mp3, which plays under the whole turn:
+ *                            questions 1-3  loops 1-30 s
+ *                            questions 4-5  loops 30-48 s (once the pass under way is over)
+ *                            question 6     loops 50-58 s (likewise)
+ *                            the 6th done   the loop lets go: it plays on to its end
  *     1-6     (1 board)    pick a tile still open: question on the bar, buzzers open
  *     1-4     (2 question) buzz - the first press locks the tile, kd_buzz
  *     Space   (2)          the 3-2-1 think clock
@@ -19,8 +25,9 @@
  *     Down    (2)          wrong: the seat is out of the tile (no deduction); after the second
  *                          wrong answer, or with nobody buzzed, the tile closes
  *     Backspace (2)        clear a mistaken buzz
- *     Right   (3 closed)   the question goes - back to the board (all six asked: 4 done)
- *     Left    (4 done)     graphics off, kd_complete -> 5
+ *     Right   (3 closed)   the question goes - back to the board; after the 6th: every graphic off
+ *                          at once (no exit animation), kd_complete -> 5
+ *     Left    (4 done)     the same (only reached with no tile left on showing the board)
  *     Left    (5 finished) on to Vượt chướng ngại vật
  *
  * KdBoardSequenceCounter: 0 ready  1 board  2 question  3 closed  4 done  5 finished
@@ -85,6 +92,7 @@ function kdBoardReady() {
 	g.KhoiDongSeat = null;
 	g.KdBoardTiles = kdBoardBuildTiles();
 	g.KdBoardTile = 0;
+	g.KdBoardOpened = false;
 	kdBoardClearTileState();
 	setContestantOnStage(null);
 	clearBuzzers();
@@ -100,11 +108,30 @@ function kdBoardShow() {
 	clearQuestionBar();
 	hideQuestionBar();
 	showRoundGraphics();
-	showKdBoard(kdBoardTilesForScreen(), 0);
+	showKdBoard(kdBoardTilesForScreen(), 0, g.KdBoardOpened);
 	revealContestantBars();
-	startGeneralSound('vcnv_open_board.mp3');
+	if (!g.KdBoardOpened) { startGeneralSound('vcnv_open_board.mp3'); }
+	g.KdBoardOpened = true;
 	g.KdBoardSequenceCounter = kdBoardOpenCount() ? 1 : 4;
+	if (g.KdBoardSequenceCounter == 1) { kdBoardBed(kdBoardAskedCount() + 1); }
 	kdBoardRefresh();
+}
+
+function kdBoardAskedCount() { return window.GameVariables.KdBoardTiles.filter(function (t) { return t.status !== 'open'; }).length; }
+
+/* the bed under the turn: kd_60s.mp3 with its loop moved on as the questions go (q: the question
+ * about to be asked, 1-6) - a new loop waits for the pass under way to finish */
+var KD_BOARD_BED = 'kd_60s.mp3';
+function kdBoardBedLoop(q) { return q >= 6 ? [50, 58] : (q >= 4 ? [30, 48] : [1, 30]); }
+function kdBoardBed(q) {
+	var g = window.GameVariables, loop = kdBoardBedLoop(q);
+	if (g.BedFile !== KD_BOARD_BED || !g.RoundBedSound || g.RoundBedSound.ended) {
+		startLongPassiveSound(KD_BOARD_BED);
+		setLongPassiveLoop(loop[0], loop[1]);
+		return;
+	}
+	var now = g.BedNextLoop || { start: g.BedLoopStart, end: g.BedLoopEnd };
+	if (now.start !== loop[0] || now.end !== loop[1]) { setLongPassiveLoop(loop[0], loop[1], true); }
 }
 
 function kdBoardOpenCount() { return window.GameVariables.KdBoardTiles.filter(function (t) { return t.status === 'open'; }).length; }
@@ -123,6 +150,7 @@ function kdBoardPick(n) {
 	setQuestionText(t.text);
 	setKdTurnLabel('Ô ' + n + ' · ' + t.value + ' điểm');
 	startGeneralSound('vcnv_select_row.mp3');
+	kdBoardBed(kdBoardAskedCount() + 1);
 	g.KdBoardSequenceCounter = 2;
 	g.IsKdBoardQuestionUp = false;
 	/* the question screen once the board has gone (O26: its closing); the buzzers open with it */
@@ -158,6 +186,7 @@ function kdBoardCloseTile(status, seat) {
 	var g = window.GameVariables, t = kdBoardTileNow();
 	if (t) { t.status = status; t.seat = seat || null; }
 	g.KdBoardSequenceCounter = 3;
+	if (!kdBoardOpenCount() && g.BedFile === KD_BOARD_BED) { releaseLongPassiveSound(); }   /* the 6th done: the bed plays out */
 	kdBoardRefresh();
 }
 
@@ -205,20 +234,31 @@ function kdBoardBackToBoard() {
 	setKdTurnLabel('');
 	kdBoardClearTileState();
 	g.KdBoardPickToken = (g.KdBoardPickToken || 0) + 1;   /* a question bar still to come stays away */
-	g.KdBoardSequenceCounter = kdBoardOpenCount() ? 1 : 4;
-	showKdBoard(kdBoardTilesForScreen(), 0);
-	startGeneralSound('vcnv_open_board.mp3');
+	if (!kdBoardOpenCount()) { kdBoardFinish(); return; }   /* the 6th was the last */
+	g.KdBoardSequenceCounter = 1;
+	showKdBoard(kdBoardTilesForScreen(), 0, true);   /* simply there again: no opening, no sound */
 	kdBoardRefresh();
 }
 
-/* Left (done): graphics off, the Khởi động completion sting */
+/* after the 6th question (or Left at done): every graphic off at once - no exit animation - and the
+ * Khởi động completion sting; the bed, let go already, plays on to its end */
 function kdBoardFinish() {
 	var g = window.GameVariables;
-	hideKdBoard();
+	g.KdBoardPickToken = (g.KdBoardPickToken || 0) + 1;
+	hideKdBoard(true);
 	setKdTurnLabel('');
-	khoiDongHideGraphicsThenComplete();
+	hideThinkClock();
+	clearQuestionBar();
+	hideQuestionBar();
+	hideContestantBars();
+	showRoundGraphics();
+	setContestantOnStage(null);
+	clearBuzzers();
+	if (g.BedFile === KD_BOARD_BED && g.IsBedLooping) { releaseLongPassiveSound(); }
+	startGeneralSound('kd_complete.ogg');
 	g.KdBoardSequenceCounter = 5;
 	g.KhoiDongSequenceCounter = 6;
+	refreshContestantBars();
 }
 
 /* F1 away / back (GeneralControl.js) */
@@ -234,7 +274,7 @@ function kdBoardEnter() {
 		showQuestionBar();
 		g.IsKdBoardQuestionUp = true;
 	}
-	else { showKdBoard(kdBoardTilesForScreen(), 0); }
+	else { showKdBoard(kdBoardTilesForScreen(), 0, true); }
 	revealContestantBars();
 	kdBoardRefresh();
 }
@@ -244,12 +284,13 @@ function kdBoardEnter() {
 /* the board turn from the start (scores untouched; the tiles open again) */
 function kdBoardReset() {
 	var g = window.GameVariables;
-	hideKdBoard();
+	hideKdBoard(true);
 	khoiDongHideGraphicsNow();
 	setKdTurnLabel('');
 	g.KhoiDongMode = 'board';
 	g.KdBoardTiles = kdBoardBuildTiles();
 	g.KdBoardTile = 0;
+	g.KdBoardOpened = false;
 	kdBoardClearTileState();
 	g.KdBoardSequenceCounter = 0;
 	g.KhoiDongSequenceCounter = 6;
@@ -258,9 +299,10 @@ function kdBoardReset() {
 /* every board turn state back to nothing (the whole Khởi động restarted) */
 function kdBoardClear() {
 	var g = window.GameVariables;
-	hideKdBoard();
+	hideKdBoard(true);
 	g.KdBoardTiles = [];
 	g.KdBoardTile = 0;
+	g.KdBoardOpened = false;
 	kdBoardClearTileState();
 	g.KdBoardSequenceCounter = 0;
 }

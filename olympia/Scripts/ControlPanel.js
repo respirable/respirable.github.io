@@ -131,7 +131,7 @@
 		rowGraded: 'Đã chấm hàng — → cất cây, về bảng',
 		rowBack: 'Về bảng — → mở góc ảnh (nếu có người đúng)',
 		guessing: 'CÓ NGƯỜI XIN TRẢ LỜI CNV — Q/W/E/R (người đã xin) = đúng · 0 = tất cả sai · ⌫ bỏ người cuối · → về đồ hoạ chính',
-		finalWindow: 'Cửa sổ 15 s cuối — chờ xin trả lời; hết giờ → mở hết',
+		finalWindow: 'Cửa sổ 15 s cuối — chờ xin trả lời; hết giờ → mở hết (Luật rừng 2: ai còn chơi −20)',
 		finished: 'Đã giải xong / đã mở hết — ← ẩn đồ hoạ',
 		done: 'Vòng đã kết thúc — ← sang Tăng tốc'
 	};
@@ -364,13 +364,13 @@
 			setDeck({
 				who: b.buzzSeat != null ? ('Chuông: ' + nameOf(b.buzzSeat)) : (b.phase === 'question' ? 'Bảng 6 câu — chờ chuông' : 'Bảng 6 câu'),
 				pts: b.tile && (b.phase === 'question' || b.phase === 'closed') ? ('Ô ' + b.tile + ' · ' + b.value + ' điểm · đúng +' + b.value + ' · sai 0 · tối đa 2 lượt trả lời') : ('Đã hỏi ' + asked + ' / 6 ô'),
-				status: (kdPhaseText.board || {})[b.phase] || b.phase,
+				status: b.phase === 'closed' && asked >= 6 ? 'Xong ô cuối — → kết thúc Khởi động (ẩn đồ hoạ, âm kết thúc)' : ((kdPhaseText.board || {})[b.phase] || b.phase),
 				statusKind: b.phase === 'question' ? (b.buzzSeat != null ? 'judge' : 'hot') : statusKind(b.phase),
 				question: b.question, answer: kd.currentAnswer,
 				stats: [['Ô đã hỏi', asked + ' / 6'], ['Lượt thi', 'Bảng 6 câu'], ['Kết quả ô này', resB[b.lastResult] || '—'], ['Đã sai ô này', names(b.out) || 'không']]
 			});
 			els.kdLeftLabel.textContent = (barLabels.kdLeft.board || {})[b.phase] || 'Hiện bảng · Ẩn đồ hoạ';
-			els.kdRightLabel.textContent = b.phase === 'closed' ? 'Về bảng' : 'Câu tiếp theo';
+			els.kdRightLabel.textContent = b.phase === 'closed' ? (asked >= 6 ? 'Kết thúc Khởi động' : 'Về bảng') : 'Câu tiếp theo';
 			kdBoardBars(b);
 			$$('.bars[data-round="kd"] .seatName').forEach(function (s) { s.textContent = 'Chuông ' + nameOf(parseInt(s.getAttribute('data-seat'), 10)); });
 			setBars('kd', liveB, liveB.filter(function (k) { return k === 'ArrowLeft' || k === 'ArrowRight'; }));
