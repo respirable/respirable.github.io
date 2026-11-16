@@ -147,8 +147,7 @@ function kdBoardPick(n) {
 	setKdBoard(kdBoardTilesForScreen(), n);   /* the picked tile lit as the board goes */
 	hideKdBoard();
 	setQuestionBarVariant('plain');
-	setQuestionText(t.text);
-	setKdTurnLabel('Ô ' + n + ' · ' + t.value + ' điểm');
+	clearQuestionBar();   /* the text goes in only as the question frame comes - never on a hidden bar */
 	startGeneralSound('vcnv_select_row.mp3');
 	kdBoardBed(kdBoardAskedCount() + 1);
 	g.KdBoardSequenceCounter = 2;
@@ -157,6 +156,8 @@ function kdBoardPick(n) {
 	var token = g.KdBoardPickToken = (g.KdBoardPickToken || 0) + 1;
 	setTimeout(function () {
 		if (g.KdBoardPickToken !== token || !kdBoardOn() || (g.KdBoardSequenceCounter != 2 && g.KdBoardSequenceCounter != 3)) { return; }
+		setQuestionText(t.text);
+		setKdTurnLabel('Ô ' + n + ' · ' + t.value + ' điểm');
 		showQuestionBar();
 		g.IsKdBoardQuestionUp = true;
 		g.changed();

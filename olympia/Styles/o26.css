@@ -116,7 +116,8 @@ body.rulesO26 .questionBarDiv.plainSkin .questionClockP {
 }
 
 body.rulesO26 .o26Wait .questionTextP,
-body.rulesO26 .o26Wait .vdQuestionTextP {
+body.rulesO26 .o26Wait .vdQuestionTextP,
+body.rulesO26 .questionBarDiv.offstage .questionTextP {   /* a hidden bar never shows its text (some browsers did, faintly) */
 	opacity: 0;
 	transition: none;
 }
