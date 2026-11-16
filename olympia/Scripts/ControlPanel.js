@@ -118,7 +118,10 @@
 			finished: 'Hết phần Khởi động — ← sang Vượt chướng ngại vật'
 		}
 	};
-	var kdResultText = { correct: 'ĐÚNG (+10)', wrong: 'SAI (0)', wrongCommon: 'SAI (−5)', noanswer: 'KHÔNG AI TRẢ LỜI (0)' };
+	var kdResultText = { correct: 'ĐÚNG (+10)', wrong: 'SAI (0)', noanswer: 'KHÔNG AI TRẢ LỜI (0)' };
+	/* a wrong answer in a common turn costs what the rules say (Luật rừng 2: nothing) */
+	function kdWrongCommonText() { return 'SAI (' + signed(gv.Points.KD_WRONG_COMMON) + ')'; }
+	function kdResultLabel(kd, common) { return kd.lastResult === 'wrong' && common ? kdWrongCommonText() : kdResultText[kd.lastResult]; }
 
 	var vcnvPhaseText = {
 		idle: 'Chờ — ← hiện thẻ VƯỢT CHƯỚNG NGẠI VẬT',
@@ -394,7 +397,7 @@
 					: ((kdPhaseText[kdKind] || {})[kd.phase] || kd.phase) + (kd.intro === 'ready' && kd.phase === 'idle' ? ' (← chiếu video intro trước)' : ''),
 				statusKind: kd.intro === 'playing' || kd.intro === 'over' || kd.phase === 'question' ? 'hot' : statusKind(kd.phase),
 				question: kd.currentQuestion, answer: kd.currentAnswer,
-				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', (jungle && kd.lastResult === 'wrong' ? 'SAI' : kdResultText[kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult]) || '—'],
+				stats: [['Số câu trong lượt', (kd.questionIndex || 0) + ' / ' + kd.questionCount], ['Lượt thi', turnText || (common ? 'Chung' : 'Riêng')], ['Kết quả câu cuối', (jungle && kd.lastResult === 'wrong' ? 'SAI' : kdResultLabel(kd, common)) || '—'],
 					jungle && !common ? ['Chuỗi đúng · câu bổ sung · lần sai', own.streak + '/3 · ' + own.bonus + '/4 · ' + own.wrong] : ['Chuông', common ? (kd.buzzSeat ? nameOf(kd.buzzSeat) : 'chưa ai') : '—']]
 			});
 			els.kdLeftLabel.textContent = (barLabels.kdLeft[kdKind] || {})[kd.phase] || 'Bắt đầu · Chọn thí sinh · Hiện đồ hoạ';
@@ -753,8 +756,7 @@
 		els.kdQuestion.textContent = kd.questionIndex ? (kd.questionIndex + ' / ' + kd.questionCount) : '—';
 		els.kdText.textContent = kd.currentQuestion || '';
 		els.kdAnswer.textContent = kd.currentAnswer || '';
-		var rk = kd.lastResult === 'wrong' && common ? 'wrongCommon' : kd.lastResult;
-		els.kdResult.textContent = kdResultText[rk] || '—';
+		els.kdResult.textContent = kdResultLabel(kd, common) || '—';
 		els.kdResult.className = kd.lastResult || '';
 		els.kdClearBuzz.disabled = !common;
 		els.kdResetCommon.disabled = !(common || kd.phase === 'finished');
