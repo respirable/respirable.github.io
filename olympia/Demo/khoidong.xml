@@ -4,6 +4,7 @@
   <individual seat="N">  6 câu lượt riêng của thí sinh ghế N (thứ tự = thứ tự hỏi).
   <common>               lượt chung: Olympia 24 + 26 dùng 12 câu đầu; Olympia 23 dùng 36 câu
                          (câu 1-8 lượt 1, 9-20 lượt 2, 21-36 lượt 3).
+  <board>                Luật rừng 2: bảng 6 câu, value="10|15|20" (mỗi giá trị 2 câu).
   Mỗi <question> có <text> (hiện trên đồ hoạ) và <answer> (chỉ hiện cho host ở màn quản lý).
   Không dùng HTML trong nội dung; xuống dòng bằng ký tự xuống dòng thường.
 -->
@@ -85,5 +86,15 @@
     <question><text>Nữ ca sĩ nào đại diện Việt Nam tranh tài trong cuộc thi âm nhạc Sing! Asia 2025?</text><answer>Phương Mỹ Chi</answer></question>
     <question><text>Giải thưởng "Nhà sáng tạo Kim cương" của YouTube được trao tặng cho chủ sở hữu các kênh có từ bao nhiêu lượt theo dõi trở lên?</text><answer>10 triệu</answer></question>
   </common>
+
+  <!-- Luật rừng 2: bảng 6 câu sau lượt chung (ô 1-6, trên xuống dưới rồi trái sang phải) -->
+  <board>
+    <question value="10"><text>Bảng 6 câu (mẫu), ô 10 điểm: con sông dài nhất chảy hoàn toàn trên lãnh thổ Việt Nam là sông nào?</text><answer>Sông Đồng Nai</answer></question>
+    <question value="10"><text>Bảng 6 câu (mẫu), ô 10 điểm: 12 × 12 bằng bao nhiêu?</text><answer>144</answer></question>
+    <question value="15"><text>Bảng 6 câu (mẫu), ô 15 điểm: nguyên tố hoá học nào có kí hiệu Fe?</text><answer>Sắt</answer></question>
+    <question value="15"><text>Bảng 6 câu (mẫu), ô 15 điểm: tác giả của "Truyện Kiều" là ai?</text><answer>Nguyễn Du</answer></question>
+    <question value="20"><text>Bảng 6 câu (mẫu), ô 20 điểm: hành tinh nào lớn nhất Hệ Mặt Trời?</text><answer>Sao Mộc</answer></question>
+    <question value="20"><text>Bảng 6 câu (mẫu), ô 20 điểm: năm 1945, Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập vào ngày nào?</text><answer>Ngày 2 tháng 9</answer></question>
+  </board>
 
 </khoidong>

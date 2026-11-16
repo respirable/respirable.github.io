@@ -215,7 +215,12 @@ function panelDInner(o){
   const s = o.spec || SPEC.D, kk = s.H / SPEC.D.H, p = 'd' + (uid++) + '_', H = s.H;
   const dv = (x0, y) => x0 - y / 3;
   const third = (W - 2 * s.iP) / 3, D0 = W === 1000 && !o.spec ? [406, 686] : [s.iP + third + s.H / 6, s.iP + 2 * third + s.H / 6];
-  const rows = [[11, 125], [148, 263]].map(r => r.map(v => v * kk)), vals = ['20', '30'];
+  const rows = [[11, 125], [148, 263]].map(r => r.map(v => v * kk));
+  /* the row labels: Về đích's 20 / 30 (Luật rừng 2 shows them as 0 / 5); o.cells: a text per cell (the
+   * Khởi động board turn) */
+  const lab = v => String(typeof veDichLabel === 'function' ? veDichLabel(v) : v);
+  const vals = [lab(20), lab(30)], cellText = (r, k) => o.cells ? String(o.cells[r][k]) : vals[r];
+  let subs = '', dims = '';
   const clipIn = hex(s.iT + 2.5, s.iP + 2.5, H);
   let g = '', cells = '', nums = '';
   rows.forEach(([a, b], r) => {
@@ -228,13 +233,18 @@ function panelDInner(o){
       const gr = k === 2 ? W - inL(s, m) : dv(D0[k], m);
       g += `<linearGradient id="${p}g${r}${k}" gradientUnits="userSpaceOnUse" x1="${f(gl)}" y1="0" x2="${f(gr)}" y2="0"><stop offset="0" stop-color="#5e0a35"/><stop offset=".32" stop-color="#94093f"/><stop offset=".77" stop-color="#c8093e"/><stop offset="1" stop-color="#cf1244"/></linearGradient>`;
       cells += `<g class="cell" data-r="${r}" data-k="${k}"><polygon class="red" points="${P(poly)}" fill="url(#${p}g${r}${k})" opacity="${stD[r][k] ? 1 : 0}"/></g>`;
-      nums += `<text x="${f((gl + gr) / 2)}" y="${f(m + 21 * kk)}">${vals[r]}</text>`;
+      /* data-yu: the baseline raised (and the type smaller, 70 %) when the cell has a sub line */
+      nums += `<text class="o26cellT" data-r="${r}" data-k="${k}" x="${f((gl + gr) / 2)}" y="${f(m + 21 * kk)}" data-y="${f(m + 21 * kk)}" data-yu="${f(m + 2 * kk)}">${cellText(r, k)}</text>`;
+      if (o.cells) {
+        dims += `<polygon class="dim" data-r="${r}" data-k="${k}" points="${P(poly)}" fill="#071224" opacity="0"/>`;
+        subs += `<text class="o26cellS" data-r="${r}" data-k="${k}" x="${f((gl + gr) / 2)}" y="${f(b - 9 * kk)}"></text>`;
+      }
     }
   });
   let out = open(s, 'Bảng chọn gói câu hỏi 20 và 30 điểm') + defs(p, s) +
   `<defs>${g}<clipPath id="${p}in2" class="cin2"><polygon points="${P(clipIn)}"/></clipPath></defs>` +
   base(p, s) +
-  `<g clip-path="url(#${p}in2)">${cells}</g>
+  `<g clip-path="url(#${p}in2)">${cells}${dims}</g>
 <g clip-path="url(#${p}in)" style="pointer-events:none">
 <rect x="0" y="${f(132.6 * kk)}" width="${W}" height="${f(5.8 * kk)}" fill="url(#${p}chrome)"/>
 <rect x="0" y="${f(132.2 * kk)}" width="${W}" height="1" fill="#0a1a33" opacity=".6"/>
@@ -245,7 +255,8 @@ function panelDInner(o){
 <line x1="${f(D0[1])}" y1="-2" x2="${f(dv(D0[1], H + 2))}" y2="${H + 2}" stroke="#e6ecf3" stroke-width="1.4"/>
 </g></g>` +
   edges(p, s) +
-  `<g class="fx" filter="url(#${p}ts)" font-family="${FONT}" font-size="${f(58 * kk)}" fill="#eef2f7" text-anchor="middle" style="pointer-events:none">${nums}</g>`;
+  `<g class="fx" filter="url(#${p}ts)" font-family="${FONT}" font-size="${f(58 * kk)}" fill="#eef2f7" text-anchor="middle" style="pointer-events:none">${nums}</g>` +
+  (o.cells ? `<g class="fx" filter="url(#${p}ts)" font-family="${FONT}" font-size="${f(30 * kk)}" fill="#ffd75a" text-anchor="middle" style="pointer-events:none">${subs}</g>` : '');
   return out.replace('<svg ', '<svg data-intro="1" ' + '') + '</svg>';
 }
 
@@ -504,6 +515,8 @@ const BUILDERS = {
   kd: () => panelB(),
   vd: () => panelC(),
   choose: () => panelD({spec: SPEC.B, width: 720}),   /* the sheet's 400, 40 % longer on each side */
+  /* Luật rừng 2: Khởi động's board turn - the package board with 10 / 15 / 20 in each row */
+  kdboard: o => panelD({spec: SPEC.B, width: 720, cells: o.cells || [['10', '15', '20'], ['10', '15', '20']]}),
   row: o => rowSvg(o.cols, o.mode)
 };
 
@@ -517,6 +530,24 @@ function mount(holder, kind, opts){
   holder.appendChild(svg);
   fitAll(svg);
   return svg;
+}
+
+/* the Khởi động board (kdboard): cells[r][k] = { text, sub, state: 'open' | 'picked' | 'right' | 'none' } */
+function setBoard(svg, cells){
+  if (!svg) return;
+  (cells || []).forEach((row, r) => (row || []).forEach((c, k) => {
+    const sel = '[data-r="' + r + '"][data-k="' + k + '"]';
+    const red = svg.querySelector('.cell' + sel + ' .red'), dim = svg.querySelector('.dim' + sel);
+    if (red) red.setAttribute('opacity', c.state === 'picked' ? 1 : 0);
+    if (dim) dim.setAttribute('opacity', c.state === 'right' ? 0.45 : (c.state === 'none' ? 0.62 : 0));
+    setText(svg, '.o26cellT' + sel, c.text == null ? '' : String(c.text));
+    setText(svg, '.o26cellS' + sel, c.sub || '');
+    const main = svg.querySelector('.o26cellT' + sel);
+    if (main){
+      main.setAttribute('y', c.sub ? main.getAttribute('data-yu') : main.getAttribute('data-y'));
+      main.style.fontSize = c.sub ? '70%' : '';
+    }
+  }));
 }
 
 /* cells: [{text, score, tag: 'red' | 'blue' | null}] x 4 */
@@ -582,8 +613,9 @@ function openTime(svg, ms){ if (!svg) return 0; wrap(svg); const t = tlOf(svg, m
 
 window.O26 = {
   OPEN_MS, CLOSE_MS,
-  mount, setHeader, setCells, setPicks, setScore, setSummary, setTimer,
+  mount, setHeader, setCells, setPicks, setScore, setSummary, setTimer, setBoard,
   open: openFrame, close: closeFrame, finish, isAnimating, openTime, fitAll,
-  active: () => !!(window.GameVariables && window.GameVariables.isO26 && window.GameVariables.isO26())
+  /* the Olympia 26 face: rules 'o26', and 'jungle2' (Luật rừng 2 plays in it) */
+  active: () => !!(window.GameVariables && window.GameVariables.o26Graphics && window.GameVariables.o26Graphics())
 };
 })();

@@ -29,7 +29,10 @@
 	/* Luật rừng (Rules.js): 12 individual questions + 4 bonus ones per seat, two common turns of 8 / 16 */
 	var JUNGLE = { own: 12, bonus: 4, kdTurns: [8, 16], ttSeconds: [30, 30, 30, 30] };
 	var KD_OWN_MAX = JUNGLE.own + JUNGLE.bonus;
-	var RULE_NAMES = { o26: 'Olympia 26', o24: 'Olympia 24', o23: 'Olympia 23', jungle: 'luật rừng' };
+	/* Luật rừng 2 (Rules.js 'jungle2'): 10 individual questions per seat, one common turn of 16, then
+	 * the board turn - <board>: 6 questions, value 10 10 15 15 20 20 (tiles 1-6 on the stage) */
+	var JUNGLE2 = { own: 10, common: 16, board: [10, 10, 15, 15, 20, 20] };
+	var RULE_NAMES = { o26: 'Olympia 26', o24: 'Olympia 24', o23: 'Olympia 23', jungle: 'luật rừng', jungle2: 'luật rừng 2' };
 	var VCNV_MAX = 10;
 	var DEFAULT_VCNV_IMAGE = 'O24/VCNV Image.png';
 
@@ -82,6 +85,15 @@
 		m.kd.intro = { src: txt(d && d.querySelector('khoidong > intro')) };   /* the intro video before Khởi động (KdIntro.js) */
 		var c = d && d.querySelector('common');
 		m.kd.common = fill(c ? Array.prototype.map.call(c.querySelectorAll('question'), qOf) : [], KD_COMMON_MAX);
+		/* <board> (Luật rừng 2): tile k takes the next question of its value, as on the stage (Rounds/KdBoard.js) */
+		var bd = d && d.querySelector('khoidong > board');
+		var bq = bd ? Array.prototype.map.call(bd.querySelectorAll('question'), function (n) { var x = qOf(n); x.value = parseInt(n.getAttribute('value'), 10) || 0; return x; }) : [];
+		var taken = [];
+		m.kd.board = JUNGLE2.board.map(function (v) {
+			for (var i = 0; i < bq.length; i++) { if (taken.indexOf(i) === -1 && bq[i].value === v) { taken.push(i); return { text: bq[i].text, answer: bq[i].answer }; } }
+			for (var j = 0; j < bq.length; j++) { if (taken.indexOf(j) === -1 && !bq[j].value) { taken.push(j); return { text: bq[j].text, answer: bq[j].answer }; } }
+			return q();
+		});
 		d = docs.vcnv;
 		m.vcnv = {
 			keyword: (d && (txt(d.querySelector('keyword'), 'text') || txt(d.querySelector('keyword')))) || '',
@@ -136,10 +148,12 @@
 		var common = m.kd.common.slice(0, Math.max(COUNTS.kdCommon, last));
 		/* <individual>: at least the 6 of Olympia 26 / 24, up to the last question written (Luật rừng: 12 + 4 bonus) */
 		function own(s) { var n = 0; m.kd.individual[s].forEach(function (x, i) { if (filled(x)) { n = i + 1; } }); return m.kd.individual[s].slice(0, Math.max(COUNTS.kdOwn, n)); }
-		out.kd = head('Khởi động. <individual seat="N">: lượt riêng của ghế N - Olympia 26 / 24 dùng 6 câu đầu; luật rừng dùng 12 câu + câu 13-16 là câu bổ sung. <common>: lượt chung - Olympia 26 / 24 dùng 12 câu đầu; Olympia 23 dùng 36 câu: 1-8 lượt 1, 9-20 lượt 2, 21-36 lượt 3; luật rừng dùng 24 câu: 1-8 lượt 1, 9-24 lượt 2. <intro> (tuỳ chọn): video chiếu trước phần thi.') + '<khoidong>\n' +
+		out.kd = head('Khởi động. <individual seat="N">: lượt riêng của ghế N - Olympia 26 / 24 dùng 6 câu đầu; luật rừng dùng 12 câu + câu 13-16 là câu bổ sung. <common>: lượt chung - Olympia 26 / 24 dùng 12 câu đầu; Olympia 23 dùng 36 câu: 1-8 lượt 1, 9-20 lượt 2, 21-36 lượt 3; luật rừng dùng 24 câu: 1-8 lượt 1, 9-24 lượt 2. <intro> (tuỳ chọn): video chiếu trước phần thi. Luật rừng 2: lượt riêng 10 câu, lượt chung 16 câu, và <board>: bảng 6 câu value=10 10 15 15 20 20 (ô 1-6).') + '<khoidong>\n' +
 			(m.kd.intro && m.kd.intro.src ? '  <intro>' + esc(m.kd.intro.src) + '</intro>\n' : '') +
 			[1, 2, 3, 4].map(function (s) { return '  <individual seat="' + s + '">\n' + own(s).map(function (x) { return '    ' + qXml(x, 'question') + '\n'; }).join('') + '  </individual>\n'; }).join('') +
-			'  <common>\n' + common.map(function (x) { return '    ' + qXml(x, 'question') + '\n'; }).join('') + '  </common>\n</khoidong>\n';
+			'  <common>\n' + common.map(function (x) { return '    ' + qXml(x, 'question') + '\n'; }).join('') + '  </common>\n' +
+			((m.kd.board || []).some(filled) ? '  <board>\n' + m.kd.board.map(function (x, i) { return '    ' + qXml(x, 'question', ' value="' + JUNGLE2.board[i] + '"') + '\n'; }).join('') + '  </board>\n' : '') +
+			'</khoidong>\n';
 		out.vcnv = head('Vượt chướng ngại vật. <keyword>: chướng ngại vật. <image>: ảnh sau 5 miếng che. 4 <row> + <center>.') + '<vcnv>\n' +
 			'  <keyword><text>' + esc(m.vcnv.keyword) + '</text></keyword>\n  <image>' + esc(m.vcnv.image) + '</image>\n' +
 			m.vcnv.rows.map(function (x) { return '  ' + qXml(x, 'row') + '\n'; }).join('') + '  ' + qXml(m.vcnv.center, 'center') + '\n</vcnv>\n';
@@ -222,7 +236,7 @@
 			hint.textContent = n + ' chữ' + (n > VCNV_MAX ? ' - quá ' + VCNV_MAX + ', chỉ hiện ' + VCNV_MAX + ' chữ đầu' : '');
 			hint.classList.toggle('warn', n > VCNV_MAX);
 		}
-		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); if (opts.area) { autosize(i); } touched(); if (rules === 'o23' || rules === 'jungle') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
+		i.addEventListener('input', function () { obj[key] = opts.type === 'number' ? Number(i.value) : i.value; update(); if (opts.area) { autosize(i); } touched(); if (rules === 'o23' || rules === 'jungle' || rules === 'jungle2') { renderRules(); } if (opts.onInput) { opts.onInput(); } });
 		l.appendChild(i);
 		if (hint) { l.appendChild(hint); update(); }
 		return l;
@@ -382,6 +396,20 @@
 			if (extra) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + extra + ' câu lượt chung cho luật Olympia 23 (câu 25–' + KD_COMMON_MAX + ') - luật rừng không dùng.')); }
 			return;
 		}
+		if (rules === 'jungle2') {
+			[1, 2, 3, 4].forEach(function (s) {
+				var b = block('Lượt riêng — ' + playerName(s), JUNGLE2.own + ' câu, hỏi theo thứ tự; đúng +10, sai không trừ.');
+				model.kd.individual[s].slice(0, JUNGLE2.own).forEach(function (x, i) { b.appendChild(questionRow(String(i + 1), x)); });
+				p.appendChild(b);
+			});
+			var c2 = block('Lượt chung', JUNGLE2.common + ' câu, bấm chuông giành quyền; đúng +10, sai không trừ.');
+			model.kd.common.slice(0, JUNGLE2.common).forEach(function (x, i) { c2.appendChild(questionRow(String(i + 1), x)); });
+			p.appendChild(c2);
+			var bb = block('Bảng 6 câu', 'Sau lượt chung. Host chọn ô bằng phím 1-6 (trên xuống dưới, trái sang phải: 1 · 2 = 10 điểm, 3 · 4 = 15 điểm, 5 · 6 = 20 điểm); bấm chuông giành quyền; đúng được giá trị ô, sai không trừ và người khác được bấm lại một lần.');
+			model.kd.board.forEach(function (x, i) { bb.appendChild(questionRow('Ô ' + (i + 1) + ' · ' + JUNGLE2.board[i], x)); });
+			p.appendChild(bb);
+			return;
+		}
 		if (rules === 'o23') {
 			commonTurnBlocks(p, O23.kdTurns);
 			p.appendChild(el('p', 'meta', 'Luật Olympia 23 không có lượt riêng. Câu lượt riêng đã soạn (nếu có) vẫn được giữ trong bộ đề - chuyển sang "Olympia 26" ở trên để xem.'));
@@ -398,7 +426,9 @@
 		var more = model.kd.common.slice(COUNTS.kdCommon).filter(filled).length;
 		if (more) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + more + ' câu lượt chung cho luật Olympia 23 / luật rừng (câu 13–' + KD_COMMON_MAX + ') - luật này không dùng, chuyển luật ở trên để xem.')); }
 		var ownMore = [1, 2, 3, 4].reduce(function (n, s) { return n + model.kd.individual[s].slice(COUNTS.kdOwn).filter(filled).length; }, 0);
-		if (ownMore) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + ownMore + ' câu lượt riêng cho luật rừng (câu 7–' + KD_OWN_MAX + ' mỗi ghế) - luật này không dùng, chuyển sang "Luật rừng" ở trên để xem.')); }
+		if (ownMore) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + ownMore + ' câu lượt riêng cho luật rừng / luật rừng 2 (câu 7–' + KD_OWN_MAX + ' mỗi ghế) - luật này không dùng, chuyển luật ở trên để xem.')); }
+		var boardMore = (model.kd.board || []).filter(filled).length;
+		if (boardMore) { p.appendChild(el('p', 'meta', 'Bộ đề còn ' + boardMore + ' câu bảng 6 câu cho luật rừng 2 - luật này không dùng, chuyển sang "Luật rừng 2" ở trên để xem.')); }
 	}
 
 	function renderVcnv() {
@@ -466,8 +496,9 @@
 
 	function renderTt() {
 		var p = $('#panett'); p.textContent = '';
-		var secs = rules === 'jungle' ? JUNGLE.ttSeconds : (rules === 'o26' ? TT_SECONDS : O23.ttSeconds);
-		if (rules === 'jungle') { p.appendChild(el('p', 'meta', 'Luật rừng: mỗi câu luôn 30 giây; điểm theo tốc độ 25 / 10 / −5 / −20, sai hoặc không trả lời −20.')); }
+		var secs = rules === 'jungle' ? JUNGLE.ttSeconds : (rules === 'o26' || rules === 'jungle2' ? TT_SECONDS : O23.ttSeconds);
+		if (rules === 'jungle2') { p.appendChild(el('p', 'meta', 'Luật rừng 2: thời gian 4 câu luôn là ' + secs.join(' / ') + ' giây; điểm theo tốc độ +5 / −10 / −25 / −40, sai hoặc không trả lời −40.')); }
+		else if (rules === 'jungle') { p.appendChild(el('p', 'meta', 'Luật rừng: mỗi câu luôn 30 giây; điểm theo tốc độ 25 / 10 / −5 / −20, sai hoặc không trả lời −20.')); }
 		else { p.appendChild(el('p', 'meta', 'Luật ' + RULE_NAMES[rules] + ': thời gian 4 câu luôn là ' + secs.join(' / ') + ' giây.')); }
 		model.tt.forEach(function (x, i) {
 			var b = block('Câu ' + (i + 1));
@@ -582,6 +613,7 @@
 	 * individual one -> Olympia 23 */
 	function guessRules(m) {
 		var own = [1, 2, 3, 4].some(function (s) { return m.kd.individual[s].some(filled); });
+		if ((m.kd.board || []).some(filled)) { return 'jungle2'; }   /* a board turn written -> Luật rừng 2 */
 		if ([1, 2, 3, 4].some(function (s) { return m.kd.individual[s].slice(COUNTS.kdOwn).some(filled); })) { return 'jungle'; }
 		return !own && m.kd.common.slice(COUNTS.kdCommon).some(filled) ? 'o23' : 'o26';
 	}
@@ -595,14 +627,18 @@
 			var miss = blanks(m.kd.common.slice(0, turns)) + [1, 2, 3, 4].reduce(function (n, s) { return n + blanks(m.kd.individual[s].slice(0, JUNGLE.own)); }, 0);
 			return { miss: miss, of: turns + 4 * JUNGLE.own };
 		}
+		if (r === 'jungle2') {
+			var miss2 = blanks(m.kd.common.slice(0, JUNGLE2.common)) + blanks(m.kd.board || []) + [1, 2, 3, 4].reduce(function (n, s) { return n + blanks(m.kd.individual[s].slice(0, JUNGLE2.own)); }, 0);
+			return { miss: miss2, of: JUNGLE2.common + JUNGLE2.board.length + 4 * JUNGLE2.own };
+		}
 		return { miss: 0, of: 0 };
 	}
 
 	function renderRules() {
 		document.querySelectorAll('#qeRules input').forEach(function (i) { i.checked = i.value === rules; });
 		var note = '';
-		if (room && room.rules) { note = 'Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' ? 'luật rừng (BETA)' : 'luật ' + (RULE_NAMES[room.rules] || RULE_NAMES.o26)) + '.'; }
-		if ((rules === 'o23' || rules === 'jungle') && model) {
+		if (room && room.rules) { note = 'Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' || room.rules === 'jungle2' ? RULE_NAMES[room.rules] + ' (BETA)' : 'luật ' + (RULE_NAMES[room.rules] || RULE_NAMES.o26)) + '.'; }
+		if ((rules === 'o23' || rules === 'jungle' || rules === 'jungle2') && model) {
 			var k = kdMissing(model, rules);
 			if (k.miss) { note += (note ? ' ' : '') + 'Khởi động còn thiếu ' + k.miss + ' / ' + k.of + ' câu' + (rules === 'jungle' ? ' (không tính câu bổ sung)' : '') + '.'; }
 		}
@@ -874,7 +910,7 @@
 		$('#useForRoom').addEventListener('click', async function () {
 			if (!room || !set) { return; }
 			var lack = model && room.rules ? kdMissing(model, room.rules) : { miss: 0 };
-			if (lack.miss && !confirm('Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' ? 'luật rừng' : 'luật Olympia 23') + ' nhưng Khởi động của bộ đề này còn thiếu ' + lack.miss + ' / ' + lack.of + ' câu. Vẫn dùng bộ đề này?')) { return; }
+			if (lack.miss && !confirm('Phòng ' + room.code + ' chơi ' + (room.rules === 'jungle' || room.rules === 'jungle2' ? RULE_NAMES[room.rules] : 'luật Olympia 23') + ' nhưng Khởi động của bộ đề này còn thiếu ' + lack.miss + ' / ' + lack.of + ' câu. Vẫn dùng bộ đề này?')) { return; }
 			var r = await db.rpc('set_room_question_set', { p_code: room.code, p_set: set.id });
 			if (r.error || r.data === false) { setError('Không đổi được bộ đề của phòng: ' + (r.error ? r.error.message : 'không có quyền')); return; }
 			room.question_set_id = set.id;

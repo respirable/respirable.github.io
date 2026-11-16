@@ -105,6 +105,13 @@ function isVeDichShowing() {
 /* ---------- choose screen ---------- */
 
 function veDichChooseBoxes() { return [veDichElement('.vdChooseBox.value20'), veDichElement('.vdChooseBox.value30')]; }
+/* the value SHOWN for a question of the set's value 20 / 30 - Luật rừng 2 (Rules.js VE_DICH): 0 / 5.
+ * Stage and audience screen alike (both apply the room's rules). */
+function veDichLabel(value) {
+	var P = window.GameVariables.Points, t = P && P.VE_DICH && P.VE_DICH[value];
+	return t ? t.label : value;
+}
+
 function veDichChooseGlares() { return Array.prototype.slice.call(document.querySelectorAll('.vdDiv .vdChooseGlare')); }
 
 /* values: [20|30 ...] already picked (normally empty when the screen comes up) */
@@ -134,6 +141,7 @@ function setChooseScreen(values) {
 	if (!window.GameVariables.IsVeDichBuilt) { return; }
 	values = values || [];
 	[20, 30].forEach(function (v) {
+		veDichElement('.vdChooseBox.value' + v + ' .vdChooseTextP').textContent = veDichLabel(v) + ' ĐIỂM';   /* the rules may relabel it */
 		var holder = veDichElement('.vdChooseBox.value' + v + ' .vdChooseTicksDiv');
 		holder.textContent = '';
 		for (var k = 0; k < 3; k++) {
@@ -217,7 +225,7 @@ function setVeDichTabs(onStageSeat) {
 function setVeDichQuestion(text, value) {
 	if (!window.GameVariables.IsVeDichBuilt) { return; }
 	veDichElement('.vdQuestionTextP').textContent = text || '';
-	veDichElement('.vdScoreHeaderP').textContent = 'CÂU ' + (value || '') + ' ĐIỂM';
+	veDichElement('.vdScoreHeaderP').textContent = 'CÂU ' + (value ? veDichLabel(value) : '') + ' ĐIỂM';   /* value: the set's 20 / 30 */
 	hideVeDichTimer();
 	if (typeof o26FitHtml === 'function') { o26FitHtml(veDichElement('.vdQuestionTextP'), 26, 19); }
 	if (typeof o26Refresh === 'function') { o26Refresh(); }

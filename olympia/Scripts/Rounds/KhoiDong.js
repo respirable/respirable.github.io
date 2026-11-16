@@ -318,6 +318,7 @@ function khoiDongJudgeCommonWrong() {
 /* Restart from the individual turn (seat given: only un-mark that seat). Olympia 23: from turn 1. */
 function khoiDongReset(seat) {
 	if (seat === null) { khoiDongStopIntro(); window.GameVariables.KdIntroPlayed = false; }   /* the whole round again: the intro too */
+	if (typeof kdBoardClear === 'function') { kdBoardClear(); }   /* Luật rừng 2: the board turn too */
 	if (window.GameVariables.Rules === 'o23') { khoiDongResetO23(1); return; }
 	if (window.GameVariables.isJungle()) { khoiDongJungleStopClock(); }
 	window.GameVariables.Players.forEach(function (p) { if (seat === null || p.seat === seat) { p.kdDone = false; } });
@@ -350,6 +351,7 @@ function khoiDongResetO23(turn) {
 /* Restart only the common turn (question 1 again on the next Left/Right). Olympia 23: this turn. */
 function khoiDongResetCommon() {
 	if (window.GameVariables.kdCommonTurns()) { khoiDongResetO23(window.GameVariables.KhoiDongTurn || 1); return; }
+	if (typeof kdBoardClear === 'function') { kdBoardClear(); }
 	khoiDongHideGraphicsNow();
 	setQuestionBarVariant('plain');
 	window.GameVariables.KhoiDongMode = 'common';

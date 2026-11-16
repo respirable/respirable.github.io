@@ -350,7 +350,8 @@
 
 	function applyVeDich(d, was) {
 		var w = (was && was.vd) || {};
-		var value = parseInt(String(d.header || '').replace(/\D+/g, ''), 10) || '';
+		/* the set's value (20 / 30); older engines only sent the header text */
+		var value = d.value || parseInt(String(d.header || '').replace(/\D+/g, ''), 10) || '';
 		if (!d.on) { if (w.on) { hideVeDich(); } return; }
 		gv.VeDichValues = (d.values || []).slice();         /* Olympia 26: the package cells of frame 03 */
 		gv.VeDichQuestionIndex = d.qIndex || 0;
@@ -386,6 +387,13 @@
 	}
 
 	/* ---------- the rest ---------- */
+
+	/* Luật rừng 2: Khởi động's board turn (KdBoardControl.js) */
+	function applyKdBoard(b, was) {
+		b = b || {};
+		if (!b.on) { if (was && was.on) { hideKdBoard(); } return; }
+		if (was && was.on) { setKdBoard(b.tiles, b.picked); } else { showKdBoard(b.tiles, b.picked); }
+	}
 
 	function applyBoard(on, was) {
 		refreshBoardScreen();
@@ -426,6 +434,7 @@
 		applyTangToc(scene.tt, was);
 		applyVeDich(scene.vd, was);
 		applyBoard(!!scene.board, !!(was && was.board));
+		applyKdBoard(scene.kdBoard, was && was.kdBoard);
 		applySummary(scene.summary || {});
 		applyKdIntro(scene.kdIntro || {});
 		if (stageView) { applyStage(scene.stage); }

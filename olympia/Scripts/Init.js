@@ -180,7 +180,7 @@ async function getAllQuestionsForGame() {
 	try { await getTieBreakQuestions(); } catch (e) { console.error('[Init] cauhoiphu.xml failed (tie-break questions will show as missing)', e); }
 }
 
-/* Questions/khoidong.xml -> KhoiDongQuestions = { individual: {1:[...],2:[...],...}, common:[...] } */
+/* Questions/khoidong.xml -> KhoiDongQuestions = { individual: {1:[...],2:[...],...}, common:[...], board:[...] } */
 async function getKhoiDongQuestions() {
 	var doc = await loadXml(window.GameVariables.DataFiles.khoidong);
 	var out = { individual: {}, common: [] };
@@ -196,6 +196,11 @@ async function getKhoiDongQuestions() {
 			return { text: xmlText(q, 'text') || xmlText(q), answer: xmlText(q, 'answer') };
 		});
 	}
+	/* <board> (Luật rừng 2): the board turn's questions, value="10|15|20" each (Rounds/KdBoard.js) */
+	var board = doc.querySelector('khoidong > board');
+	out.board = board ? Array.prototype.map.call(board.querySelectorAll('question'), function (q) {
+		return { text: xmlText(q, 'text') || xmlText(q), answer: xmlText(q, 'answer'), value: parseInt(q.getAttribute('value'), 10) || 0 };
+	}) : [];
 	window.GameVariables.KhoiDongQuestions = out;
 	/* the intro video before Khởi động (KdIntro.js) */
 	var intro = doc.querySelector('khoidong > intro');

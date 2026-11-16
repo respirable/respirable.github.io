@@ -148,6 +148,15 @@
 	 *   6 - finished     individual turns over (Left opens the common turn) / common turn over (Left -> VCNV) */
 	gameVariables.KhoiDongSequenceCounter = 0;
 	gameVariables.KhoiDongPhaseNames = ['idle', 'title', 'ready', 'set', 'question', 'done', 'finished'];
+	/* Khởi động's BOARD turn (Luật rừng 2, Rounds/KdBoard.js) - KhoiDongMode 'board' */
+	gameVariables.KdBoardSequenceCounter = 0;
+	gameVariables.KdBoardPhaseNames = ['ready', 'board', 'question', 'closed', 'done', 'finished'];
+	gameVariables.KdBoardTiles = [];            /* [{ value, text, answer, status: 'open' | 'right' | 'none', seat }] x 6 (keys 1-6) */
+	gameVariables.KdBoardTile = 0;              /* 1-6: the tile being asked (or last asked) */
+	gameVariables.KdBoardBuzzSeat = null;       /* who holds the buzzer on the tile */
+	gameVariables.KdBoardOut = [];              /* seats ruled wrong on the tile (they may not buzz again) */
+	gameVariables.KdBoardAnswers = 0;           /* answers given on the tile (at most KD_BOARD_MAX_ANSWERS) */
+	gameVariables.KdBoardLastResult = null;     /* 'correct' | 'wrong' | 'none' (closed without a right answer) */
 
 	/* Vượt chướng ngại vật
 	 *   0 - idle          1 - title          2 - board (pick a row)

@@ -36,6 +36,7 @@ function leaveRound(roundId) {
 		khoiDongStopIntro();
 		hideThinkClock();
 		stopLongPassiveSound();
+		if (typeof kdBoardOn === 'function' && kdBoardOn()) { kdBoardLeave(); }   /* Luật rừng 2 board turn */
 		showRoundGraphics();
 	}
 	else if (roundId == 'vcnv') {
@@ -66,7 +67,10 @@ function leaveRound(roundId) {
 /* Jumping into a round that has not started is the same as its first Left: title card + sting.
  * (Khởi động and the Câu hỏi phụ wait for the first Left.) */
 function enterRound(roundId) {
-	if (roundId == 'vcnv') {
+	if (roundId == 'kd') {
+		if (typeof kdBoardOn === 'function' && kdBoardOn()) { kdBoardEnter(); }   /* the board where it was */
+	}
+	else if (roundId == 'vcnv') {
 		if (window.GameVariables.VcnvSequenceCounter == 0) { vcnvShowTitle(); }
 	}
 	else if (roundId == 'tt') {

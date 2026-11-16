@@ -64,8 +64,11 @@ window.GameVariables.Commands.tbKey = function (args) { if (args && typeof args.
 
 /* restart from the individual turn - or, with a seat, only un-mark that seat (scores untouched) */
 window.GameVariables.Commands.kdReset = function (args) { khoiDongReset(args && args.seat ? parseInt(args.seat, 10) : null); };
-window.GameVariables.Commands.kdResetCommon = function () { khoiDongResetCommon(); };
-window.GameVariables.Commands.kdClearBuzz = function () { if (window.GameVariables.KhoiDongMode == 'common') { khoiDongClearBuzz(); } };
+window.GameVariables.Commands.kdResetCommon = function () { if (window.GameVariables.KhoiDongMode == 'board') { kdBoardReset(); } else { khoiDongResetCommon(); } };   /* Luật rừng 2: the board turn again */
+window.GameVariables.Commands.kdClearBuzz = function () {
+	if (window.GameVariables.KhoiDongMode == 'common') { khoiDongClearBuzz(); }
+	else if (window.GameVariables.KhoiDongMode == 'board') { kdBoardClearBuzz(); }
+};
 
 /* mark / unmark a seat as already played (fixes a mis-press) */
 window.GameVariables.Commands.kdSetDone = function (args) {

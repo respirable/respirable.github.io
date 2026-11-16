@@ -67,6 +67,9 @@
 
 	function canBuzz() {
 		var kd = rs('kd'), vd = rs('vd');
+		if (round() === 'kd' && kd.mode === 'board') {   /* Luật rừng 2 board turn: not after being ruled wrong on the tile */
+			return kd.phase === 'question' && kd.buzzSeat == null && !kd.resolved && ((kd.board || {}).out || []).indexOf(seat) === -1;
+		}
 		if (round() === 'kd') { return kd.mode === 'common' && kd.phase === 'question' && kd.buzzSeat == null && !kd.resolved; }
 		if (round() === 'vd') { return vd.phase === 'steal' && vd.stealSeat == null && vd.seat !== seat; }
 		if (round() === 'tb') {
@@ -135,6 +138,11 @@
 		if (!snap) { return 'Đang chờ màn sân khấu...'; }
 		var kd = rs('kd'), v = rs('vcnv'), t = rs('tt'), d = rs('vd');
 		if (round() === 'kd') {
+			if (kd.mode === 'board') {
+				if (kd.phase !== 'question') { return 'Bảng 6 câu - chờ chọn ô'; }
+				if (((kd.board || {}).out || []).indexOf(seat) !== -1) { return 'Bạn đã trả lời sai ô này'; }
+				return 'Bảng 6 câu - bấm chuông để giành quyền trả lời';
+			}
 			if (kd.phase !== 'question') { return 'Chờ câu hỏi'; }
 			if (kd.mode === 'common') { return 'Lượt chung - bấm chuông để giành quyền trả lời'; }
 			return kd.seat === seat ? 'Lượt riêng của BẠN - trả lời bằng lời' : 'Lượt riêng của ' + nameOf(kd.seat);
@@ -193,8 +201,14 @@
 	function facts() {
 		var out = [], kd = rs('kd'), v = rs('vcnv'), t = rs('tt'), d = rs('vd');
 		if (round() === 'kd' && kd.phase === 'question') {
-			out.push(['Câu', kd.questionIndex + ' / ' + kd.questionCount]);
-			out.push(['Lượt', kd.mode === 'common' ? 'Chung' : 'Riêng - ' + nameOf(kd.seat)]);
+			if (kd.mode === 'board') {
+				out.push(['Ô', kd.questionIndex + ' / ' + kd.questionCount]);
+				out.push(['Giá trị', ((kd.board || {}).value || 0) + ' điểm']);
+			}
+			else {
+				out.push(['Câu', kd.questionIndex + ' / ' + kd.questionCount]);
+				out.push(['Lượt', kd.mode === 'common' ? 'Chung' : 'Riêng - ' + nameOf(kd.seat)]);
+			}
 		}
 		if (round() === 'vcnv' && v.phase && v.phase !== 'idle' && v.phase !== 'title') {
 			out.push(['Đã mở', (v.openedCount || 0) + ' / 4 hàng']);
@@ -203,7 +217,7 @@
 		if (round() === 'tt' && t.index) { out.push(['Câu', t.index + ' / ' + t.count]); out.push(['Thời gian', (t.seconds || 0) + ' giây']); }
 		if (round() === 'vd' && d.seat) {
 			out.push(['Người thi', nameOf(d.seat)]);
-			if (d.qIndex) { out.push(['Câu', d.qIndex + ' / 3']); out.push(['Giá trị', d.value + ' điểm']); }
+			if (d.qIndex) { out.push(['Câu', d.qIndex + ' / 3']); out.push(['Giá trị', (d.valueLabel != null ? d.valueLabel : d.value) + ' điểm']); }
 			if (d.star && d.star === d.qIndex) { out.push(['', '★ Ngôi sao hy vọng', 'star']); }
 		}
 		var tb = rs('tb');
@@ -217,7 +231,7 @@
 	/* the strip under the header: who has the turn, my position in the CNV queue... */
 	function banner() {
 		var kd = rs('kd'), v = rs('vcnv'), d = rs('vd');
-		if (round() === 'kd' && kd.mode === 'common' && kd.buzzSeat != null) {
+		if (round() === 'kd' && (kd.mode === 'common' || kd.mode === 'board') && kd.buzzSeat != null) {
 			return kd.buzzSeat === seat ? ['BẠN đã giành quyền trả lời!', 'mine'] : [nameOf(kd.buzzSeat) + ' đã giành quyền trả lời.', ''];
 		}
 		if (round() === 'vd' && d.stealSeat != null) {
@@ -448,6 +462,7 @@
 		var cd = (running && left !== null) ? left.toFixed(1) + ' s' : '';
 		$('#buzzSub').textContent = (round() === 'vd' && rs('vd').phase === 'steal' && cd) ? 'còn ' + cd
 			: (round() === 'kd' && rs('kd').phase === 'question' && rs('kd').mode === 'common') ? 'Câu ' + rs('kd').questionIndex + ' / ' + rs('kd').questionCount
+			: (round() === 'kd' && rs('kd').phase === 'question' && rs('kd').mode === 'board') ? 'Ô ' + rs('kd').questionIndex + ' · ' + ((rs('kd').board || {}).value || 0) + ' điểm'
 			: (round() === 'tb' && rs('tb').phase === 'timer' && cd) ? 'còn ' + cd : '';
 		/* the 15 s ran out on this screen: no more buzzing (the stage would refuse it anyway) */
 		if (round() === 'tb' && !$('#buzzBtn').disabled && !canBuzz()) { $('#buzzBtn').disabled = true; }

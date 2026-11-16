@@ -6,25 +6,25 @@
 	<title>Olympia Controller - Quản lý</title>
 	<link rel="stylesheet"
 		href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Roboto+Mono:wght@500&display=swap">
-	<link rel="stylesheet" type="text/css" href="Styles/control.css?v=20261114a">
+	<link rel="stylesheet" type="text/css" href="Styles/control.css?v=20261116a">
 	<!-- NO AudioControl.js here: only the graphics page plays sound. -->
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
 		integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"
 		crossorigin="anonymous"></script>
-	<script src="Scripts/Config.js?v=20261114a"></script>
-	<script src="Scripts/Auth.js?v=20261114a"></script>
-	<script src="Scripts/Variables.js?v=20261114a"></script>
-	<script src="Scripts/Rules.js?v=20261114a"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
-	<script src="Scripts/StateSync.js?v=20261114a"></script>
-	<script src="Scripts/KeyboardController.js?v=20261114a"></script>
-	<script src="Scripts/ControlPanel.js?v=20261114a"></script>
-	<script src="Scripts/RecoveryPanel.js?v=20261114a"></script>
-	<script src="Scripts/EmbeddedStage.js?v=20261114a"></script>
+	<script src="Scripts/Config.js?v=20261116a"></script>
+	<script src="Scripts/Auth.js?v=20261116a"></script>
+	<script src="Scripts/Variables.js?v=20261116a"></script>
+	<script src="Scripts/Rules.js?v=20261116a"></script> <!-- Olympia 24/26 or 23 rules (room setting) -->
+	<script src="Scripts/StateSync.js?v=20261116a"></script>
+	<script src="Scripts/KeyboardController.js?v=20261116a"></script>
+	<script src="Scripts/ControlPanel.js?v=20261116a"></script>
+	<script src="Scripts/RecoveryPanel.js?v=20261116a"></script>
+	<script src="Scripts/EmbeddedStage.js?v=20261116a"></script>
 	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"
 		integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k"
 		crossorigin="anonymous"></script>
-	<script src="Scripts/QrCode.js?v=20261114a"></script>
-	<script src="Scripts/RoomPresence.js?v=20261114a"></script>
+	<script src="Scripts/QrCode.js?v=20261116a"></script>
+	<script src="Scripts/RoomPresence.js?v=20261116a"></script>
 </head>
 
 <body>
@@ -221,8 +221,17 @@
 				<div class="split">
 					<button type="button" class="bar-btn grey" data-cmd="kdKey" data-key="ArrowLeft"><kbd>←</kbd><span
 							id="kdLeftLabel">Bắt đầu · Chọn thí sinh · Hiện đồ hoạ</span></button>
-					<button type="button" class="bar-btn grey" data-cmd="kdKey" data-key="ArrowRight"><kbd>→</kbd>Câu
-						tiếp theo</button>
+					<button type="button" class="bar-btn grey" data-cmd="kdKey" data-key="ArrowRight"><kbd>→</kbd><span
+							id="kdRightLabel">Câu tiếp theo</span></button>
+				</div>
+				<!-- Luật rừng 2: Khởi động's board turn - keys 1-6 pick a tile (top to bottom, then left to right) -->
+				<div class="split3 kdBoardPicks hidden">
+					<button type="button" class="bar-btn amber" data-cmd="kdKey" data-key="1"><kbd>1</kbd><span class="kdTileLabel" data-tile="1">Ô 1 · 10</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="kdKey" data-key="3"><kbd>3</kbd><span class="kdTileLabel" data-tile="3">Ô 3 · 15</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="kdKey" data-key="5"><kbd>5</kbd><span class="kdTileLabel" data-tile="5">Ô 5 · 20</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="kdKey" data-key="2"><kbd>2</kbd><span class="kdTileLabel" data-tile="2">Ô 2 · 10</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="kdKey" data-key="4"><kbd>4</kbd><span class="kdTileLabel" data-tile="4">Ô 4 · 15</span></button>
+					<button type="button" class="bar-btn amber" data-cmd="kdKey" data-key="6"><kbd>6</kbd><span class="kdTileLabel" data-tile="6">Ô 6 · 20</span></button>
 				</div>
 				<button type="button" class="bar-btn purple" data-cmd="kdKey" data-key=" "><kbd>␣</kbd>Đồng hồ 3
 					giây</button>
@@ -230,7 +239,7 @@
 					đúng</button>
 				<button type="button" class="bar-btn red" data-cmd="kdKey" data-key="ArrowDown"><kbd>↓</kbd>Sai / không
 					trả lời</button>
-				<div class="split4">
+				<div class="split4 kdSeatBuzz">
 					<button type="button" class="bar-btn blue" data-cmd="kdKey" data-key="1"><kbd>1</kbd><span
 							class="seatName" data-seat="1">Chuông 1</span></button>
 					<button type="button" class="bar-btn blue" data-cmd="kdKey" data-key="2"><kbd>2</kbd><span
