@@ -10,7 +10,7 @@
  *   'o23'  Olympia 23: Khởi động is three common turns of 8, 12 and 16 questions (taken in order
  *          from <common> in khoidong.xml), obstacle 50-40-30-20 (10 after the centre), Tăng tốc
  *          clocks 10/20/30/40 whatever tangtoc.xml says
- *   'jungle' "Luật rừng" (BETA) - scores may go below 0:
+ *   'jungle' "Luật rừng" - scores may go below 0:
  *          Khởi động: 4 individual turns of 60 s (up to 12 questions + a bonus one at the end for
  *          every 3 right in a row, at most 4; 1st wrong free, then -5 each), then two common turns
  *          of 8 and 16 questions (the n-th wrong of a seat in a turn costs 5*(n-1));
@@ -19,7 +19,7 @@
  *          Tăng tốc 30 s each, 25/10/-5/-20 by speed, -20 for a wrong / no answer;
  *          Về đích: always seat 1 - 2 - 3 - 4; a wrong answer costs the value (x2 with the star), a
  *          right steal always takes the value from the contestant on stage
- *   'jungle2' "Luật rừng 2" (BETA) - scores may go below 0:
+ *   'jungle2' "Luật rừng 2" - scores may go below 0:
  *          Khởi động: individual turn as Olympia 26 but 10 questions each; one common turn of 16
  *          (a wrong buzz costs nothing); then the BOARD turn (Rounds/KdBoard.js): 6 questions worth
  *          10 10 15 15 20 20, picked by the host, buzzers; right = the value, wrong = nothing, the
@@ -93,7 +93,7 @@
 			30: { label: 5, right: 5, rightStar: 10, wrong: -30, wrongStar: -60, steal: 10, stealTake: 10, stealWrong: -15 }
 		}
 	};
-	var NAMES = { o26: 'Olympia 26', o24: 'Olympia 24', o23: 'Olympia 23', jungle: 'Luật rừng (BETA)', jungle2: 'Luật rừng 2 (BETA)' };
+	var NAMES = { o26: 'Olympia 26', o24: 'Olympia 24', o23: 'Olympia 23', jungle: 'Luật rừng', jungle2: 'Luật rừng 2' };
 
 	gv.Rules = 'o26';
 	gv.RulesO23 = O23;
