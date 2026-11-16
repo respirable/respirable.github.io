@@ -134,7 +134,7 @@
 		after('setContestantBuzzed', function (seat, on) { return on ? ['buzz', seatName(seat) + ' bấm chuông', { seat: seat }] : null; });
 		after('vcnvSignal', function (seat) { return ['cnv', seatName(seat) + ' xin trả lời chướng ngại vật', { seat: seat }]; });
 		after('vcnvGuessAllWrong', function () { return ['cnv', 'Chướng ngại vật: tất cả người xin đều sai']; });
-		after('vcnvChargeUnsolved', function () { return gv.IsVcnvUnsolvedCharged && gv.Points.VCNV_UNSOLVED ? ['cnv', 'Hết 15 giây cuối, không ai giải được chướng ngại vật: thí sinh còn chơi ' + gv.Points.VCNV_UNSOLVED + ' điểm'] : null; }); 
+		after('vcnvChargeUnsolved', function () { return gv.IsVcnvUnsolvedCharged && gv.Points.VCNV_UNSOLVED ? ['cnv', 'Hết 15 giây cuối, không ai giải được chướng ngại vật: thí sinh còn chơi ' + gv.Points.VCNV_UNSOLVED + ' điểm'] : null; });
 		after('tieBreakJudgeCorrect', function () { return gv.TieBreakWinner ? ['tb', seatName(gv.TieBreakWinner) + ' trả lời đúng câu hỏi phụ', { seat: gv.TieBreakWinner }] : null; });
 		after('tieBreakJudgeWrong', function () { var out = gv.TieBreakEliminated[gv.TieBreakEliminated.length - 1]; return out ? ['tb', seatName(out) + ' sai câu hỏi phụ - bị loại khỏi câu', { seat: out }] : null; });
 		after('switchRound', function (r) { return ['round', 'Chuyển sang ' + (gv.RoundNames[r] || r)]; });
